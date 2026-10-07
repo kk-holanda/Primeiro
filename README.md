@@ -19,6 +19,7 @@ inspirado no [Turbo Sliders](http://ts.turbosliders.com/). Feito do zero com
 | Freio de mão (drift) | `Espaço`          |
 | Reiniciar corrida    | `R`               |
 | Voltar ao menu       | `Esc`             |
+| Ligar/desligar som   | `M`               |
 
 Vence quem completar 3 voltas primeiro. Você larga em último!
 
@@ -47,6 +48,7 @@ js/tracks.js        → pistas: desenho, detecção de grama, checkpoints
 js/car.js           → carro: física de drift, desenho do F1, colisão
 js/controllers.js   → quem pilota: jogador (teclado) ou computador (IA)
 js/scenery.js       → cenário: árvores, arquibancada, pneus, areia
+js/audio.js         → sons (motor, pneus, bipes) e recordes de volta
 js/main.js          → menus, game loop, regras da corrida, HUD
 ```
 ## Os conceitos principais
@@ -86,7 +88,7 @@ olha a curva que vem pela frente: quanto mais fechada, mais ele freia.
 - [x] **Passo 8** — Oponentes controlados pelo computador
 - [x] **Passo 8b** — 6 carros, 4 pistas, 3 níveis de dificuldade, cenário, fumaça e poeira
 - [ ] **Passo 9** — Paredes/obstáculos sólidos na pista (carro bate e quica)
-- [ ] **Passo 10** — Sons (motor, derrapagem, batida) e partículas
+- [x] **Passo 10** — Sons, partículas e recordes de volta
 - [ ] **Passo 11** — Editor de pistas (clicar para colocar pontos)
 - [ ] **Passo 12** — Multiplayer online (Node.js + WebSocket)
 

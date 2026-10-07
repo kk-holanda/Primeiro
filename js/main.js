@@ -54,7 +54,9 @@ function startRace() {
   game.countdown = 3;
   game.raceTime = 0;
   game.finishOrder = [];
+  game.recordFlash = 0;
   particles = [];
+  Sound.beep(440);
   game.screen = 'race';
 }
 
@@ -109,7 +111,9 @@ function setChoice(i) {
 }
 
 window.addEventListener('keydown', (e) => {
+  Sound.init();
   if (e.repeat) return;
+  if (e.code === 'KeyM') Sound.toggleMute();
   if (game.screen === 'race') {
     if (e.code === 'Escape') game.screen = 'difficultySelect';
     if (e.code === 'KeyR' || (e.code === 'Enter' && playerFinished())) startRace();
@@ -145,6 +149,7 @@ canvas.addEventListener('mousemove', (e) => {
 
 canvas.addEventListener('click', (e) => {
   canvas.focus();
+  Sound.init();
   const i = cardAt(pointerToWorld(e));
   if (i >= 0) {
     setChoice(i);
@@ -155,11 +160,21 @@ canvas.addEventListener('click', (e) => {
 // ---------------------------------------------------------------------------
 // ATUALIZAR: toda a lógica da corrida
 function update(dt) {
-  if (game.screen !== 'race') return;
+  if (game.screen !== 'race') {
+    Sound.update(null);
+    return;
+  }
+  Sound.update(game.player);
+  if (game.recordFlash > 0) game.recordFlash -= dt;
 
   if (game.raceState === 'countdown') {
+    const before = Math.ceil(game.countdown);
     game.countdown -= dt;
-    if (game.countdown <= 0) game.raceState = 'racing';
+    if (Math.ceil(game.countdown) !== before && game.countdown > 0) Sound.beep(440);
+    if (game.countdown <= 0) {
+      game.raceState = 'racing';
+      Sound.beep(880, 0.4);
+    }
   } else {
     game.raceTime += dt;
   }
@@ -229,6 +244,10 @@ function checkLaps(car) {
     car.bestLap = car.bestLap === null ? lapTime : Math.min(car.bestLap, lapTime);
     car.lapStartTime = game.raceTime;
     car.lap++;
+    if (car === game.player) {
+      Sound.beep(660, 0.12);
+      if (Records.submit(game.track.name, lapTime)) game.recordFlash = 2.5;
+    }
     if (car.lap >= LAPS_TO_WIN) {
       car.finishTime = game.raceTime;
       game.finishOrder.push(car);
@@ -330,7 +349,7 @@ function drawHud() {
   // Painel principal (compacto, para não cobrir a pista)
   ctx.fillStyle = 'rgba(15,16,20,0.72)';
   ctx.beginPath();
-  ctx.roundRect(10, 8, 300, 54, 10);
+  ctx.roundRect(10, 8, 330, 54, 10);
   ctx.fill();
 
   ctx.textBaseline = 'top';
@@ -348,12 +367,12 @@ function drawHud() {
   ctx.fillText(formatTime(game.raceTime), 228, 15);
   ctx.font = `13px ${FONT}`;
   ctx.fillStyle = UI.muted;
-  ctx.fillText(`Melhor volta  ${formatTime(p.bestLap)}`, 118, 38);
+  ctx.fillText(`Melhor ${formatTime(p.bestLap)}  ·  Recorde ${formatTime(Records.get(game.track.name))}`, 118, 38);
 
   // Nome da pista
   ctx.textAlign = 'right';
   ctx.fillStyle = 'rgba(15,16,20,0.72)';
-  const label = `${GAME_NAME} · ${game.track.name}`;
+  const label = `${game.track.name} · ${DIFFICULTIES[game.difficultyChoice].name} · M: som ${Sound.muted ? 'off' : 'on'}`;
   ctx.font = `15px ${FONT}`;
   const w = ctx.measureText(label).width + 28;
   ctx.beginPath();
@@ -367,6 +386,15 @@ function drawHud() {
     bigText(String(Math.ceil(game.countdown)));
   } else if (game.raceTime < 1) {
     bigText('VAI!');
+  } else if (game.recordFlash > 0 && !playerFinished()) {
+    ctx.textAlign = 'center';
+    ctx.font = `32px ${FONT}`;
+    ctx.lineWidth = 6;
+    ctx.strokeStyle = '#111';
+    ctx.strokeText('NOVO RECORDE DE VOLTA!', WORLD_WIDTH / 2, 90);
+    ctx.fillStyle = UI.accent;
+    ctx.fillText('NOVO RECORDE DE VOLTA!', WORLD_WIDTH / 2, 90);
+    ctx.textAlign = 'left';
   }
 
   if (playerFinished()) drawResults(order);
@@ -504,7 +532,8 @@ function drawTrackSelect() {
     ctx.fillText(track.name, card.x + card.w / 2, card.y + card.h - 44);
     ctx.fillStyle = UI.muted;
     ctx.font = `13px ${FONT}`;
-    ctx.fillText(`Pista ${i + 1} · ${LAPS_TO_WIN} voltas`, card.x + card.w / 2, card.y + card.h - 20);
+    const record = Records.get(track.name);
+    ctx.fillText(`Pista ${i + 1} · ${LAPS_TO_WIN} voltas` + (record ? ` · Recorde ${formatTime(record)}` : ''), card.x + card.w / 2, card.y + card.h - 20);
     ctx.textAlign = 'left';
   });
 }
