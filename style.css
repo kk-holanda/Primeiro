@@ -1,11 +1,12 @@
 html, body {
   margin: 0;
   height: 100%;
-  background: #1b1b1b;
+  background: #1e2026;
   overflow: hidden;
 }
 
 canvas {
   display: block;
   margin: 0 auto;
+  outline: none;
 }
