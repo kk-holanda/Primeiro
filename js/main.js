@@ -20,9 +20,13 @@ const skidCtx = skidLayer.getContext('2d');
 
 // ---------------------------------------------------------------------------
 // Estado do jogo
-//   screen: 'difficultySelect' → 'trackSelect' → 'carSelect' → 'race'
+//   screen: 'modeSelect' → 'difficultySelect' → 'trackSelect' → 'carSelect' → 'race'
 const game = {
-  screen: 'difficultySelect',
+  screen: 'modeSelect',
+  modeChoice: 0,
+  mode: GAME_MODES[0],
+  laps: LAPS_TO_WIN,
+  pit: null,
   difficultyChoice: 1,
   trackChoice: 0,
   carChoice: 0,
@@ -37,6 +41,9 @@ const game = {
 
 function startRace() {
   game.track = TRACKS[game.trackChoice];
+  game.mode = GAME_MODES[game.modeChoice];
+  game.laps = game.mode.laps;
+  game.pit = game.mode.fuel ? computePit(game.track) : null;
   const playerModel = CAR_MODELS[game.carChoice];
   game.player = new Car(playerModel, new HumanController());
 
@@ -60,6 +67,62 @@ function startRace() {
   game.screen = 'race';
 }
 
+// Box do PIT: um retângulo no asfalto, logo depois da linha de chegada
+function computePit(track) {
+  const index = Math.floor(track.points.length * 0.07);
+  const p = track.points[index];
+  const angle = track.headings[index];
+  const offset = track.width * 0.27;
+  return { index, angle, x: p.x - Math.sin(angle) * offset, y: p.y + Math.cos(angle) * offset };
+}
+
+function updateFuel(car, dt) {
+  const lapLength = game.track.points.length * TRACK_SPACING;
+  const speed = Math.hypot(car.vx, car.vy);
+  car.fuel = Math.max(0, car.fuel - (speed * dt) / (lapLength * FUEL.lapsPerTank));
+  car.outOfFuel = car.fuel <= 0;
+
+  // Precisa parar? (a gasolina não dá para terminar a corrida)
+  const lapsLeft = game.laps - car.lap;
+  if (!car.wantsPit && car.finishTime === null && car.fuel < 1.2 / FUEL.lapsPerTank && car.fuel * FUEL.lapsPerTank < lapsLeft) {
+    car.wantsPit = true;
+  }
+
+  // Parado no box: abastece
+  const inBox = Math.hypot(car.x - game.pit.x, car.y - game.pit.y) < 26;
+  car.refueling = inBox && Math.abs(car.forwardSpeed || 0) < 40 && car.fuel < 1;
+  if (car.refueling) {
+    car.fuel = Math.min(1, car.fuel + FUEL.refuelPerSecond * dt);
+    if (car.fuel >= 1) {
+      car.wantsPit = false;
+      if (car === game.player) Sound.beep(990, 0.2);
+    }
+  }
+}
+
+function drawPit() {
+  const pit = game.pit;
+  if (!pit) return;
+  ctx.save();
+  ctx.translate(pit.x, pit.y);
+  ctx.rotate(pit.angle);
+  ctx.fillStyle = 'rgba(255,210,63,0.28)';
+  ctx.fillRect(-28, -18, 56, 36);
+  ctx.strokeStyle = UI.accent;
+  ctx.lineWidth = 2.5;
+  ctx.setLineDash([6, 4]);
+  ctx.strokeRect(-28, -18, 56, 36);
+  ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(255,255,255,0.85)';
+  ctx.font = `14px ${FONT}`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('PIT', 0, 1);
+  ctx.restore();
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+}
+
 // ---------------------------------------------------------------------------
 // Ajusta o tamanho do canvas à janela, mantendo a proporção do mundo
 let scale = 1;
@@ -77,11 +140,13 @@ resize();
 
 // ---------------------------------------------------------------------------
 // Menus: áreas clicáveis
+const MODE_CARDS = [0, 1].map((i) => ({ x: 170 + i * 450, y: 240, w: 410, h: 330 }));
 const DIFFICULTY_CARDS = [0, 1, 2].map((i) => ({ x: 105 + i * 340, y: 260, w: 310, h: 300 }));
 const TRACK_CARDS = TRACKS.map((_, i) => ({ x: 130 + (i % 2) * 480, y: 180 + Math.floor(i / 2) * 285, w: 460, h: 270 }));
 const CAR_CARDS = CAR_MODELS.map((_, i) => ({ x: 45 + (i % 3) * 375, y: 180 + Math.floor(i / 3) * 285, w: 360, h: 270 }));
 
 function cardsForScreen() {
+  if (game.screen === 'modeSelect') return MODE_CARDS;
   if (game.screen === 'difficultySelect') return DIFFICULTY_CARDS;
   if (game.screen === 'trackSelect') return TRACK_CARDS;
   if (game.screen === 'carSelect') return CAR_CARDS;
@@ -89,13 +154,16 @@ function cardsForScreen() {
 }
 
 function confirmChoice() {
-  if (game.screen === 'difficultySelect') game.screen = 'trackSelect';
+  if (game.screen === 'modeSelect') game.screen = 'difficultySelect';
+  else if (game.screen === 'difficultySelect') game.screen = 'trackSelect';
   else if (game.screen === 'trackSelect') game.screen = 'carSelect';
   else if (game.screen === 'carSelect') startRace();
 }
 
 function moveChoice(dir) {
-  if (game.screen === 'difficultySelect') {
+  if (game.screen === 'modeSelect') {
+    game.modeChoice = (game.modeChoice + dir + GAME_MODES.length) % GAME_MODES.length;
+  } else if (game.screen === 'difficultySelect') {
     game.difficultyChoice = (game.difficultyChoice + dir + DIFFICULTIES.length) % DIFFICULTIES.length;
   } else if (game.screen === 'trackSelect') {
     game.trackChoice = (game.trackChoice + dir + TRACKS.length) % TRACKS.length;
@@ -105,7 +173,8 @@ function moveChoice(dir) {
 }
 
 function setChoice(i) {
-  if (game.screen === 'difficultySelect') game.difficultyChoice = i;
+  if (game.screen === 'modeSelect') game.modeChoice = i;
+  else if (game.screen === 'difficultySelect') game.difficultyChoice = i;
   else if (game.screen === 'trackSelect') game.trackChoice = i;
   else if (game.screen === 'carSelect') game.carChoice = i;
 }
@@ -115,7 +184,7 @@ window.addEventListener('keydown', (e) => {
   if (e.repeat) return;
   if (e.code === 'KeyM') Sound.toggleMute();
   if (game.screen === 'race') {
-    if (e.code === 'Escape') game.screen = 'difficultySelect';
+    if (e.code === 'Escape') game.screen = 'modeSelect';
     if (e.code === 'KeyR' || (e.code === 'Enter' && playerFinished())) startRace();
     return;
   }
@@ -127,6 +196,7 @@ window.addEventListener('keydown', (e) => {
   if (e.code === 'Enter' || e.code === 'Space') confirmChoice();
   if (e.code === 'Escape' && game.screen === 'carSelect') game.screen = 'trackSelect';
   else if (e.code === 'Escape' && game.screen === 'trackSelect') game.screen = 'difficultySelect';
+  else if (e.code === 'Escape' && game.screen === 'difficultySelect') game.screen = 'modeSelect';
 });
 
 function pointerToWorld(e) {
@@ -184,7 +254,7 @@ canvas.addEventListener('pointerdown', (e) => {
   if (game.screen === 'race') {
     refreshTouchKeys();
     // tocar no painel de resultado = correr de novo
-    if (playerFinished() && Math.abs(pointerToWorld(e).y - 380) < 150) startRace();
+    if (playerFinished() && Math.abs(pointerToWorld(e).y - 400) < 150) startRace();
   }
 });
 canvas.addEventListener('pointermove', (e) => {
@@ -246,6 +316,7 @@ function update(dt) {
   game.cars.forEach((car) => {
     car.update(dt, game.track, canDrive);
     if (canDrive) checkLaps(car);
+    if (canDrive && game.mode.fuel) updateFuel(car, dt);
   });
 
   for (let i = 0; i < game.cars.length; i++) {
@@ -261,6 +332,10 @@ function update(dt) {
         skidCtx.fillRect(w.x - 1.5, w.y - 1.5, 3, 3);
         if (Math.random() < 0.25) spawnParticle(w.x, w.y, 'rgba(235,235,235,', 6);
       });
+    } else if (car.braking && car.onRoad && Math.random() < 0.5) {
+      // fumacinha ao frear forte
+      const w = car.rearWheels()[Math.random() < 0.5 ? 0 : 1];
+      spawnParticle(w.x, w.y, 'rgba(210,210,215,', 4);
     } else if (!car.onRoad && speed > 60 && Math.random() < 0.5) {
       const w = car.rearWheels()[Math.random() < 0.5 ? 0 : 1];
       spawnParticle(w.x, w.y, 'rgba(150,115,60,', 5);
@@ -309,9 +384,12 @@ function checkLaps(car) {
     car.lap++;
     if (car === game.player) {
       Sound.beep(660, 0.12);
-      if (Records.submit(game.track.name, lapTime)) game.recordFlash = 2.5;
+      if (Records.submit(game.track.name, lapTime)) {
+        game.recordFlash = 2.5;
+        Sound.applause();
+      }
     }
-    if (car.lap >= LAPS_TO_WIN) {
+    if (car.lap >= game.laps) {
       car.finishTime = game.raceTime;
       game.finishOrder.push(car);
       // Depois de cruzar a chegada, o computador dá a volta de desaceleração
@@ -348,7 +426,8 @@ function playerFinished() {
 // DESENHAR
 function draw() {
   ctx.setTransform(scale * dpr, 0, 0, scale * dpr, 0, 0);
-  if (game.screen === 'difficultySelect') drawDifficultySelect();
+  if (game.screen === 'modeSelect') drawModeSelect();
+  else if (game.screen === 'difficultySelect') drawDifficultySelect();
   else if (game.screen === 'trackSelect') drawTrackSelect();
   else if (game.screen === 'carSelect') drawCarSelect();
   else drawRace();
@@ -371,6 +450,7 @@ function drawGrass() {
 
 function drawRace() {
   ctx.drawImage(trackBackground(game.track), 0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+  drawPit();
   ctx.drawImage(skidLayer, 0, 0, WORLD_WIDTH, WORLD_HEIGHT);
   drawParticles();
   game.cars.forEach((car) => car.draw(ctx));
@@ -408,7 +488,7 @@ function drawHud() {
   const p = game.player;
   const order = standings();
   const position = order.indexOf(p) + 1;
-  const lap = Math.min(p.lap + 1, LAPS_TO_WIN);
+  const lap = Math.min(p.lap + 1, game.laps);
 
   // Painel principal (compacto, para não cobrir a pista)
   ctx.fillStyle = 'rgba(15,16,20,0.72)';
@@ -427,16 +507,18 @@ function drawHud() {
 
   ctx.fillStyle = UI.text;
   ctx.font = `16px ${FONT}`;
-  ctx.fillText(`VOLTA ${lap}/${LAPS_TO_WIN}`, 118, 15);
+  ctx.fillText(`VOLTA ${lap}/${game.laps}`, 118, 15);
   ctx.fillText(formatTime(game.raceTime), 228, 15);
   ctx.font = `13px ${FONT}`;
   ctx.fillStyle = UI.muted;
   ctx.fillText(`Melhor ${formatTime(p.bestLap)}  ·  Recorde ${formatTime(Records.get(game.track.name))}`, 118, 38);
 
+  if (game.mode.fuel) drawFuelGauge(p);
+
   // Nome da pista
   ctx.textAlign = 'right';
   ctx.fillStyle = 'rgba(15,16,20,0.72)';
-  const label = `${game.track.name} · ${DIFFICULTIES[game.difficultyChoice].name} · M: som ${Sound.muted ? 'off' : 'on'}`;
+  const label = `${game.mode.name} · ${game.track.name} · ${DIFFICULTIES[game.difficultyChoice].name} · M: som ${Sound.muted ? 'off' : 'on'}`;
   ctx.font = `15px ${FONT}`;
   const w = ctx.measureText(label).width + 28;
   ctx.beginPath();
@@ -464,12 +546,46 @@ function drawHud() {
   if (playerFinished()) drawResults(order);
 }
 
+function drawFuelGauge(p) {
+  ctx.fillStyle = 'rgba(15,16,20,0.72)';
+  ctx.beginPath();
+  ctx.roundRect(10, 66, 330, 26, 8);
+  ctx.fill();
+  ctx.fillStyle = UI.muted;
+  ctx.font = `12px ${FONT}`;
+  ctx.fillText('GASOLINA', 20, 73);
+  ctx.fillStyle = '#454a56';
+  ctx.beginPath();
+  ctx.roundRect(100, 73, 230, 12, 4);
+  ctx.fill();
+  ctx.fillStyle = p.fuel > 0.5 ? '#3ecf6e' : p.fuel > 0.25 ? UI.accent : '#ff4d4d';
+  ctx.beginPath();
+  ctx.roundRect(100, 73, Math.max(2, 230 * p.fuel), 12, 4);
+  ctx.fill();
+
+  let warning = null;
+  if (p.refueling) warning = 'ABASTECENDO...';
+  else if (p.outOfFuel) warning = 'SEM GASOLINA! VÁ AO PIT';
+  else if (p.wantsPit && Math.floor(game.raceTime * 3) % 2 === 0) warning = 'POUCA GASOLINA: PARE NO PIT!';
+  if (warning && p.finishTime === null) {
+    ctx.textAlign = 'center';
+    ctx.font = `24px ${FONT}`;
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = '#111';
+    ctx.strokeText(warning, WORLD_WIDTH / 2, 130);
+    ctx.fillStyle = p.refueling ? '#3ecf6e' : '#ff4d4d';
+    ctx.fillText(warning, WORLD_WIDTH / 2, 130);
+    ctx.textAlign = 'left';
+  }
+}
+
 function drawResults(order) {
   const x = WORLD_WIDTH / 2 - 230;
-  const y = 230;
+  const panelHeight = 140 + order.length * 36;
+  const y = (WORLD_HEIGHT - panelHeight) / 2;
   ctx.fillStyle = 'rgba(15,16,20,0.88)';
   ctx.beginPath();
-  ctx.roundRect(x, y, 460, 300, 16);
+  ctx.roundRect(x, y, 460, panelHeight, 16);
   ctx.fill();
 
   ctx.textAlign = 'center';
@@ -480,7 +596,7 @@ function drawResults(order) {
   ctx.fillText(pos === 1 ? 'VOCÊ VENCEU!' : `VOCÊ CHEGOU EM ${ordinal(pos)}`, WORLD_WIDTH / 2, y + 24);
 
   order.forEach((car, i) => {
-    const rowY = y + 90 + i * 46;
+    const rowY = y + 82 + i * 36;
     ctx.textAlign = 'left';
     ctx.fillStyle = UI.muted;
     ctx.font = `22px ${FONT}`;
@@ -500,7 +616,7 @@ function drawResults(order) {
   ctx.textAlign = 'center';
   ctx.fillStyle = UI.muted;
   ctx.font = `16px ${FONT}`;
-  ctx.fillText('Enter: correr de novo   ·   Esc: menu', WORLD_WIDTH / 2, y + 258);
+  ctx.fillText('Enter: correr de novo   ·   Esc: menu', WORLD_WIDTH / 2, y + panelHeight - 36);
   ctx.textAlign = 'left';
 }
 
@@ -597,7 +713,7 @@ function drawTrackSelect() {
     ctx.fillStyle = UI.muted;
     ctx.font = `13px ${FONT}`;
     const record = Records.get(track.name);
-    ctx.fillText(`Pista ${i + 1} · ${LAPS_TO_WIN} voltas` + (record ? ` · Recorde ${formatTime(record)}` : ''), card.x + card.w / 2, card.y + card.h - 20);
+    ctx.fillText(`Pista ${i + 1} · ${GAME_MODES[game.modeChoice].laps} voltas` + (record ? ` · Recorde ${formatTime(record)}` : ''), card.x + card.w / 2, card.y + card.h - 20);
     ctx.textAlign = 'left';
   });
 }
@@ -642,6 +758,55 @@ function drawCarSelect() {
         ctx.fill();
       }
     });
+  });
+}
+
+function drawModeSelect() {
+  drawMenuBackground('Escolha o modo de jogo');
+  MODE_CARDS.forEach((card, i) => {
+    const m = GAME_MODES[i];
+    const selected = game.modeChoice === i;
+    drawCard(card, selected);
+    const cx = card.x + card.w / 2;
+    // Ícone: bandeira quadriculada (KKlassic) ou bomba de gasolina (Gabispeed)
+    ctx.save();
+    ctx.translate(cx, card.y + 105);
+    if (m.fuel) {
+      ctx.fillStyle = '#ff4d4d';
+      ctx.beginPath();
+      ctx.roundRect(-30, -45, 50, 90, 8);
+      ctx.fill();
+      ctx.fillStyle = '#f4f4f6';
+      ctx.fillRect(-21, -34, 32, 22);
+      ctx.strokeStyle = '#f4f4f6';
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.moveTo(20, -20);
+      ctx.lineTo(36, -20);
+      ctx.lineTo(36, 30);
+      ctx.stroke();
+    } else {
+      for (let r = 0; r < 5; r++) {
+        for (let c = 0; c < 7; c++) {
+          ctx.fillStyle = (r + c) % 2 === 0 ? '#f4f4f6' : '#111';
+          ctx.fillRect(-42 + c * 12, -30 + r * 12, 12, 12);
+        }
+      }
+      ctx.fillStyle = '#a3a7b3';
+      ctx.fillRect(-48, -32, 6, 80);
+    }
+    ctx.restore();
+    ctx.textAlign = 'center';
+    ctx.fillStyle = selected ? UI.accent : UI.text;
+    ctx.font = `34px ${FONT}`;
+    ctx.fillText(m.name, cx, card.y + 185);
+    ctx.fillStyle = UI.text;
+    ctx.font = `16px ${FONT}`;
+    ctx.fillText(`${m.laps} voltas`, cx, card.y + 232);
+    ctx.fillStyle = UI.muted;
+    ctx.font = `14px ${FONT}`;
+    wrapText(m.description, cx, card.y + 265, card.w - 50, 20);
+    ctx.textAlign = 'left';
   });
 }
 

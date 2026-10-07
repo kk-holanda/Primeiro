@@ -75,3 +75,16 @@ function carPerformance(stats) {
     grip: 5 + stats.handling * 0.6,              // curva melhor também derrapa menos
   };
 }
+
+// Modos de jogo
+const GAME_MODES = [
+  { name: 'KKlassic', laps: 3, fuel: false, description: 'Corrida rápida de 3 voltas, sem paradas.' },
+  { name: 'Gabispeed', laps: 10, fuel: true, description: '10 voltas. A gasolina acaba: pare no PIT para abastecer!' },
+];
+
+// Gasolina (modo Gabispeed)
+const FUEL = {
+  lapsPerTank: 3.6,        // um tanque cheio dura ~3,6 voltas
+  refuelPerSecond: 0.45,   // parado no PIT, enche 45% do tanque por segundo
+  emptySpeedFactor: 0.3,   // sem gasolina o carro se arrasta a 30%
+};

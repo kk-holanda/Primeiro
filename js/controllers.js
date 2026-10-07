@@ -32,6 +32,13 @@ class AIController {
   getInput(car, track, dt) {
     const speed = Math.hypot(car.vx, car.vy);
 
+    // Modo Gabispeed: com pouca gasolina, entra no PIT e para no box
+    const pitInput = this.pitStopInput(car, track);
+    if (pitInput) {
+      this.stuckTime = 0;
+      return pitInput;
+    }
+
     // Mira num ponto um pouco à frente na pista (mais longe quanto mais rápido)
     const aimIndex = track.indexAhead(car.trackIndex, 40 + speed * 0.3);
     const aim = track.points[aimIndex];
@@ -73,6 +80,29 @@ class AIController {
     };
   }
 }
+
+AIController.prototype.pitStopInput = function (car, track) {
+  const pit = game.pit;
+  if (!car.wantsPit || !pit) return null;
+  const n = track.points.length;
+  const along = ((pit.index - car.trackIndex + n) % n) * TRACK_SPACING;
+  const dist = Math.hypot(pit.x - car.x, pit.y - car.y);
+  if (along > 280 && dist > 40) return null;
+
+  const forward = car.forwardSpeed || 0;
+  if (dist < 20) {
+    // Dentro do box: freia até parar e espera abastecer
+    return { throttle: 0, brake: forward > 5 ? 1 : 0, steer: 0, handbrake: false };
+  }
+  const toPit = angleDifference(Math.atan2(pit.y - car.y, pit.x - car.x), car.angle);
+  const target = Math.min(car.perf.maxSpeed, 25 + dist * 1.3);
+  return {
+    throttle: forward < target - 10 ? 1 : 0,
+    brake: forward > target + 10 ? 1 : 0,
+    steer: Math.max(-1, Math.min(1, toPit * 3)),
+    handbrake: false,
+  };
+};
 
 // Diferença entre dois ângulos, sempre entre -π e π
 function angleDifference(a, b) {

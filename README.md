@@ -7,9 +7,10 @@ inspirado no [Turbo Sliders](http://ts.turbosliders.com/). Feito do zero com
 ## Como jogar
 
 1. Abra o arquivo `index.html` no navegador (dois cliques nele).
-2. Escolha a dificuldade (**Fácil**, **Normal** ou **Difícil**).
-3. Escolha a pista: **KKlaude first**, **KK first**, **Anel Veloz** ou **Serpentina**.
-4. Escolha o seu carro. Os outros cinco são pilotados pelo computador.
+2. Escolha o modo: **KKlassic** (3 voltas) ou **Gabispeed** (10 voltas, com gasolina e pit stop).
+3. Escolha a dificuldade (**Fácil**, **Normal** ou **Difícil**).
+4. Escolha a pista: **KKlaude first**, **KK first**, **Anel Veloz** ou **Serpentina**.
+5. Escolha o seu carro. Os outros cinco são pilotados pelo computador.
 
 | Ação                 | Teclas            |
 |----------------------|-------------------|
@@ -23,7 +24,11 @@ inspirado no [Turbo Sliders](http://ts.turbosliders.com/). Feito do zero com
 
 No celular ou tablet, toque na tela: aparecem botões de virar, frear e acelerar.
 
-Vence quem completar 3 voltas primeiro. Você larga em último!
+Vence quem completar as voltas primeiro. Você larga em último!
+
+**Modo Gabispeed:** a gasolina acaba (um tanque dura ~3,6 voltas). Quando avisar
+"POUCA GASOLINA", pare dentro do quadrado amarelo **PIT** logo depois da linha de
+chegada e espere encher. Sem gasolina, o carro se arrasta.
 
 ## Os carros
 

@@ -25,6 +25,14 @@ class Car {
     this.finishTime = null;
     this.onRoad = true;
     this.trackIndex = 0;
+    this.wheelSpin = 0;
+    this.braking = false;
+
+    // Gasolina (modo Gabispeed)
+    this.fuel = 1;
+    this.outOfFuel = false;
+    this.wantsPit = false;
+    this.refueling = false;
   }
 
   // dt = tempo (em segundos) desde o último quadro
@@ -46,6 +54,7 @@ class Car {
 
     let forward = this.vx * fx + this.vy * fy;
     let lateral = this.vx * rx + this.vy * ry;
+    this.braking = input.brake > 0 && forward > 120;
 
     // Acelerar / frear / ré
     forward += input.throttle * this.perf.acceleration * dt;
@@ -56,7 +65,8 @@ class Car {
     forward *= Math.pow(friction, dt);
 
     // Limite de velocidade (na grama é bem menor)
-    const maxSpeed = this.perf.maxSpeed * (this.onRoad ? 1 : PHYSICS.grassSpeedFactor);
+    const maxSpeed = this.perf.maxSpeed * (this.onRoad ? 1 : PHYSICS.grassSpeedFactor) *
+      (this.outOfFuel ? FUEL.emptySpeedFactor : 1);
     if (forward > maxSpeed) forward += (maxSpeed - forward) * Math.min(1, 4 * dt);
     if (forward < -PHYSICS.maxReverse) forward = -PHYSICS.maxReverse;
 
@@ -81,6 +91,8 @@ class Car {
     const highSpeedDamping = 1 - 0.25 * Math.min(1, Math.abs(forward) / this.perf.maxSpeed);
     const speedFactor = Math.max(-1, Math.min(1, forward / 110)) * highSpeedDamping;
     this.angle += this.steer * this.perf.turnSpeed * speedFactor * dt;
+
+    this.wheelSpin += forward * dt; // para desenhar os pneus girando
 
     // Move
     this.x += this.vx * dt;
@@ -118,7 +130,7 @@ class Car {
     ctx.save();
     ctx.translate(this.x, this.y);
     ctx.rotate(this.angle);
-    drawF1(ctx, this.model, this.steer);
+    drawF1(ctx, this.model, this.steer, true, this.wheelSpin);
     ctx.restore();
   }
 }
@@ -126,7 +138,7 @@ class Car {
 // ---------------------------------------------------------------------------
 // Desenho do carro de Fórmula 1 visto de cima, estilo cartoon.
 // O carro aponta para a direita (+x) e tem ~42 px de comprimento.
-function drawF1(ctx, model, steer = 0, shadow = true) {
+function drawF1(ctx, model, steer = 0, shadow = true, spin = 0) {
   const OUTLINE = '#141414';
   ctx.lineJoin = 'round';
   ctx.lineCap = 'round';
@@ -150,10 +162,10 @@ function drawF1(ctx, model, steer = 0, shadow = true) {
   ctx.stroke();
 
   // Pneus (os da frente viram com o volante)
-  drawTire(ctx, -13, -10.5, 0, 11, 7.5);
-  drawTire(ctx, -13, 10.5, 0, 11, 7.5);
-  drawTire(ctx, 11, -10, steer * 0.45, 9, 6.5);
-  drawTire(ctx, 11, 10, steer * 0.45, 9, 6.5);
+  drawTire(ctx, -13, -10.5, 0, 11, 7.5, spin);
+  drawTire(ctx, -13, 10.5, 0, 11, 7.5, spin);
+  drawTire(ctx, 11, -10, steer * 0.45, 9, 6.5, spin);
+  drawTire(ctx, 11, 10, steer * 0.45, 9, 6.5, spin);
 
   ctx.strokeStyle = OUTLINE;
   ctx.lineWidth = 1.3;
@@ -242,7 +254,7 @@ function drawF1(ctx, model, steer = 0, shadow = true) {
   ctx.fillRect(17, 9.5, 3, 2.5);
 }
 
-function drawTire(ctx, x, y, angle, length, width) {
+function drawTire(ctx, x, y, angle, length, width, spin = 0) {
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate(angle);
@@ -250,8 +262,16 @@ function drawTire(ctx, x, y, angle, length, width) {
   ctx.beginPath();
   ctx.roundRect(-length / 2, -width / 2, length, width, 2.2);
   ctx.fill();
-  ctx.fillStyle = '#4a4a4a';
-  ctx.fillRect(-length / 2 + 2, -0.6, length - 4, 1.2);
+  ctx.clip();
+  // Sulcos do pneu: andam conforme o carro anda, parecendo girar
+  ctx.fillStyle = '#3c3c3c';
+  const gap = length / 3;
+  const offset = ((spin * 0.6) % gap + gap) % gap;
+  for (let k = -1; k < 3; k++) {
+    ctx.fillRect(-length / 2 + offset + k * gap, -width / 2, 1.3, width);
+  }
+  ctx.fillStyle = 'rgba(255,255,255,0.18)';
+  ctx.fillRect(-length / 2, -width / 2, length, 1.2);
   ctx.restore();
 }
 
