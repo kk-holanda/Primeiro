@@ -42,6 +42,28 @@ const CAR_MODELS = [
     color: '#1d4fd8', dark: '#0f2a80', light: '#6f9bff',
     stats: { acceleration: 4, topSpeed: 4, handling: 4 },
   },
+  {
+    id: 'green', name: 'Verde',
+    color: '#1fa54a', dark: '#0d6129', light: '#7be39b',
+    stats: { acceleration: 3, topSpeed: 4, handling: 5 },
+  },
+  {
+    id: 'orange', name: 'Laranja',
+    color: '#ff8a1c', dark: '#b3540a', light: '#ffc27a',
+    stats: { acceleration: 5, topSpeed: 4, handling: 3 },
+  },
+  {
+    id: 'purple', name: 'Roxo',
+    color: '#8b3fd9', dark: '#521f8a', light: '#c79bff',
+    stats: { acceleration: 3, topSpeed: 5, handling: 4 },
+  },
+];
+
+// Níveis de dificuldade: o quanto o computador pilota perto do limite
+const DIFFICULTIES = [
+  { name: 'Fácil', skill: 0.8, description: 'Rivais tranquilos. Bom para aprender as pistas.' },
+  { name: 'Normal', skill: 0.91, description: 'Uma corrida disputada.' },
+  { name: 'Difícil', skill: 0.99, description: 'Rivais no limite. Erre pouco!' },
 ];
 
 // Transforma as notas (1 a 5) em números de física.

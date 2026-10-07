@@ -76,8 +76,10 @@ class Car {
     this.forwardSpeed = forward;
 
     // Volante: só vira se o carro estiver andando (e inverte na ré)
-    this.steer += (input.steer - this.steer) * Math.min(1, 12 * dt); // suaviza o volante
-    const speedFactor = Math.max(-1, Math.min(1, forward / 120));
+    this.steer += (input.steer - this.steer) * Math.min(1, 14 * dt); // suaviza o volante
+    // Em alta velocidade o volante fica um pouco mais "pesado" (mais estável)
+    const highSpeedDamping = 1 - 0.25 * Math.min(1, Math.abs(forward) / this.perf.maxSpeed);
+    const speedFactor = Math.max(-1, Math.min(1, forward / 110)) * highSpeedDamping;
     this.angle += this.steer * this.perf.turnSpeed * speedFactor * dt;
 
     // Move

@@ -7,8 +7,9 @@ inspirado no [Turbo Sliders](http://ts.turbosliders.com/). Feito do zero com
 ## Como jogar
 
 1. Abra o arquivo `index.html` no navegador (dois cliques nele).
-2. Escolha a pista (**KKlaude first** ou **KK first**).
-3. Escolha o seu carro. Os outros dois são pilotados pelo computador.
+2. Escolha a dificuldade (**Fácil**, **Normal** ou **Difícil**).
+3. Escolha a pista: **KKlaude first**, **KK first**, **Anel Veloz** ou **Serpentina**.
+4. Escolha o seu carro. Os outros cinco são pilotados pelo computador.
 
 | Ação                 | Teclas            |
 |----------------------|-------------------|
@@ -28,6 +29,9 @@ Vence quem completar 3 voltas primeiro. Você larga em último!
 | Vermelho | 4 | 5 | 3 |
 | Amarelo  | 5 | 3 | 4 |
 | Azul     | 4 | 4 | 4 |
+| Verde    | 3 | 4 | 5 |
+| Laranja  | 5 | 4 | 3 |
+| Roxo     | 3 | 5 | 4 |
 
 As notas ficam em `CAR_MODELS` (`js/config.js`) e viram números de física na
 função `carPerformance`.
@@ -42,6 +46,7 @@ js/input.js         → lê o teclado
 js/tracks.js        → pistas: desenho, detecção de grama, checkpoints
 js/car.js           → carro: física de drift, desenho do F1, colisão
 js/controllers.js   → quem pilota: jogador (teclado) ou computador (IA)
+js/scenery.js       → cenário: árvores, arquibancada, pneus, areia
 js/main.js          → menus, game loop, regras da corrida, HUD
 ```
 ## Os conceitos principais
@@ -79,6 +84,7 @@ olha a curva que vem pela frente: quanto mais fechada, mais ele freia.
 - [x] **Passo 6** — Carros de F1 cartoon com atributos diferentes
 - [x] **Passo 7** — Duas pistas e menus para escolher pista e carro
 - [x] **Passo 8** — Oponentes controlados pelo computador
+- [x] **Passo 8b** — 6 carros, 4 pistas, 3 níveis de dificuldade, cenário, fumaça e poeira
 - [ ] **Passo 9** — Paredes/obstáculos sólidos na pista (carro bate e quica)
 - [ ] **Passo 10** — Sons (motor, derrapagem, batida) e partículas
 - [ ] **Passo 11** — Editor de pistas (clicar para colocar pontos)

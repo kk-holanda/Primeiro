@@ -20,9 +20,10 @@ const skidCtx = skidLayer.getContext('2d');
 
 // ---------------------------------------------------------------------------
 // Estado do jogo
-//   screen: 'trackSelect' → 'carSelect' → 'race'
+//   screen: 'difficultySelect' → 'trackSelect' → 'carSelect' → 'race'
 const game = {
-  screen: 'trackSelect',
+  screen: 'difficultySelect',
+  difficultyChoice: 1,
   trackChoice: 0,
   carChoice: 0,
   track: null,
@@ -41,7 +42,8 @@ function startRace() {
 
   // Os carros que o jogador não escolheu ficam com o computador
   const rivals = CAR_MODELS.filter((m) => m !== playerModel);
-  const aiCars = rivals.map((m, i) => new Car(m, new AIController(0.93 + i * 0.03, i === 0 ? -1 : 1)));
+  const skill = DIFFICULTIES[game.difficultyChoice].skill;
+  const aiCars = rivals.map((m, i) => new Car(m, new AIController(skill - i * 0.012, i % 2 === 0 ? -1 : 1)));
 
   // Rivais na frente, jogador larga em último
   game.cars = [...aiCars, game.player];
@@ -52,6 +54,7 @@ function startRace() {
   game.countdown = 3;
   game.raceTime = 0;
   game.finishOrder = [];
+  particles = [];
   game.screen = 'race';
 }
 
@@ -72,22 +75,27 @@ resize();
 
 // ---------------------------------------------------------------------------
 // Menus: áreas clicáveis
-const TRACK_CARDS = [0, 1].map((i) => ({ x: 110 + i * 520, y: 230, w: 460, h: 380 }));
-const CAR_CARDS = [0, 1, 2].map((i) => ({ x: 75 + i * 360, y: 190, w: 330, h: 470 }));
+const DIFFICULTY_CARDS = [0, 1, 2].map((i) => ({ x: 105 + i * 340, y: 260, w: 310, h: 300 }));
+const TRACK_CARDS = TRACKS.map((_, i) => ({ x: 130 + (i % 2) * 480, y: 180 + Math.floor(i / 2) * 285, w: 460, h: 270 }));
+const CAR_CARDS = CAR_MODELS.map((_, i) => ({ x: 45 + (i % 3) * 375, y: 180 + Math.floor(i / 3) * 285, w: 360, h: 270 }));
 
 function cardsForScreen() {
+  if (game.screen === 'difficultySelect') return DIFFICULTY_CARDS;
   if (game.screen === 'trackSelect') return TRACK_CARDS;
   if (game.screen === 'carSelect') return CAR_CARDS;
   return [];
 }
 
 function confirmChoice() {
-  if (game.screen === 'trackSelect') game.screen = 'carSelect';
+  if (game.screen === 'difficultySelect') game.screen = 'trackSelect';
+  else if (game.screen === 'trackSelect') game.screen = 'carSelect';
   else if (game.screen === 'carSelect') startRace();
 }
 
 function moveChoice(dir) {
-  if (game.screen === 'trackSelect') {
+  if (game.screen === 'difficultySelect') {
+    game.difficultyChoice = (game.difficultyChoice + dir + DIFFICULTIES.length) % DIFFICULTIES.length;
+  } else if (game.screen === 'trackSelect') {
     game.trackChoice = (game.trackChoice + dir + TRACKS.length) % TRACKS.length;
   } else if (game.screen === 'carSelect') {
     game.carChoice = (game.carChoice + dir + CAR_MODELS.length) % CAR_MODELS.length;
@@ -95,21 +103,26 @@ function moveChoice(dir) {
 }
 
 function setChoice(i) {
-  if (game.screen === 'trackSelect') game.trackChoice = i;
+  if (game.screen === 'difficultySelect') game.difficultyChoice = i;
+  else if (game.screen === 'trackSelect') game.trackChoice = i;
   else if (game.screen === 'carSelect') game.carChoice = i;
 }
 
 window.addEventListener('keydown', (e) => {
   if (e.repeat) return;
   if (game.screen === 'race') {
-    if (e.code === 'Escape') game.screen = 'trackSelect';
+    if (e.code === 'Escape') game.screen = 'difficultySelect';
     if (e.code === 'KeyR' || (e.code === 'Enter' && playerFinished())) startRace();
     return;
   }
+  const columns = game.screen === 'carSelect' ? 3 : game.screen === 'trackSelect' ? 2 : 1;
   if (e.code === 'ArrowLeft' || e.code === 'KeyA') moveChoice(-1);
   if (e.code === 'ArrowRight' || e.code === 'KeyD') moveChoice(1);
+  if ((e.code === 'ArrowUp' || e.code === 'KeyW') && columns > 1) moveChoice(-columns);
+  if ((e.code === 'ArrowDown' || e.code === 'KeyS') && columns > 1) moveChoice(columns);
   if (e.code === 'Enter' || e.code === 'Space') confirmChoice();
   if (e.code === 'Escape' && game.screen === 'carSelect') game.screen = 'trackSelect';
+  else if (e.code === 'Escape' && game.screen === 'trackSelect') game.screen = 'difficultySelect';
 });
 
 function pointerToWorld(e) {
@@ -161,12 +174,47 @@ function update(dt) {
     for (let j = i + 1; j < game.cars.length; j++) collideCars(game.cars[i], game.cars[j]);
   }
 
-  // Marcas de pneu
+  // Marcas de pneu, fumaça e poeira
   skidCtx.fillStyle = 'rgba(20,20,20,0.35)';
   game.cars.forEach((car) => {
-    if (car.isSkidding()) {
-      car.rearWheels().forEach((w) => skidCtx.fillRect(w.x - 1.5, w.y - 1.5, 3, 3));
+    const speed = Math.hypot(car.vx, car.vy);
+    if (car.isSkidding() && car.onRoad) {
+      car.rearWheels().forEach((w) => {
+        skidCtx.fillRect(w.x - 1.5, w.y - 1.5, 3, 3);
+        if (Math.random() < 0.25) spawnParticle(w.x, w.y, 'rgba(235,235,235,', 6);
+      });
+    } else if (!car.onRoad && speed > 60 && Math.random() < 0.5) {
+      const w = car.rearWheels()[Math.random() < 0.5 ? 0 : 1];
+      spawnParticle(w.x, w.y, 'rgba(150,115,60,', 5);
     }
+  });
+
+  particles.forEach((pt) => {
+    pt.life -= dt;
+    pt.x += pt.vx * dt;
+    pt.y += pt.vy * dt;
+    pt.size += 14 * dt;
+  });
+  particles = particles.filter((pt) => pt.life > 0);
+}
+
+let particles = [];
+function spawnParticle(x, y, color, size) {
+  if (particles.length > 300) return;
+  particles.push({
+    x, y, color, size,
+    vx: (Math.random() - 0.5) * 30,
+    vy: (Math.random() - 0.5) * 30,
+    life: 0.7, maxLife: 0.7,
+  });
+}
+
+function drawParticles() {
+  particles.forEach((pt) => {
+    ctx.fillStyle = pt.color + (0.45 * pt.life / pt.maxLife).toFixed(3) + ')';
+    ctx.beginPath();
+    ctx.arc(pt.x, pt.y, pt.size, 0, Math.PI * 2);
+    ctx.fill();
   });
 }
 
@@ -218,7 +266,8 @@ function playerFinished() {
 // DESENHAR
 function draw() {
   ctx.setTransform(scale * dpr, 0, 0, scale * dpr, 0, 0);
-  if (game.screen === 'trackSelect') drawTrackSelect();
+  if (game.screen === 'difficultySelect') drawDifficultySelect();
+  else if (game.screen === 'trackSelect') drawTrackSelect();
   else if (game.screen === 'carSelect') drawCarSelect();
   else drawRace();
 }
@@ -239,9 +288,9 @@ function drawGrass() {
 }
 
 function drawRace() {
-  drawGrass();
-  game.track.draw(ctx);
+  ctx.drawImage(trackBackground(game.track), 0, 0, WORLD_WIDTH, WORLD_HEIGHT);
   ctx.drawImage(skidLayer, 0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+  drawParticles();
   game.cars.forEach((car) => car.draw(ctx));
   drawPlayerMarker();
   drawHud();
@@ -413,7 +462,7 @@ function drawMenuBackground(subtitle) {
 
   ctx.fillStyle = UI.muted;
   ctx.font = `15px ${FONT}`;
-  ctx.fillText('← → ou mouse para escolher   ·   Enter ou clique para confirmar', WORLD_WIDTH / 2, 752);
+  ctx.fillText('Setas ou mouse para escolher   ·   Enter ou clique para confirmar   ·   Esc para voltar', WORLD_WIDTH / 2, 765);
   ctx.textAlign = 'left';
 }
 
@@ -438,24 +487,24 @@ function drawTrackSelect() {
 
     // Miniatura da pista
     const pad = 20;
-    const s = Math.min((card.w - pad * 2) / WORLD_WIDTH, (card.h - 90) / WORLD_HEIGHT);
+    const s = Math.min((card.w - pad * 2) / WORLD_WIDTH, (card.h - 70) / WORLD_HEIGHT);
+    const px = card.x + (card.w - WORLD_WIDTH * s) / 2;
     ctx.save();
     ctx.beginPath();
-    ctx.roundRect(card.x + pad, card.y + pad, WORLD_WIDTH * s, WORLD_HEIGHT * s, 10);
+    ctx.roundRect(px, card.y + 14, WORLD_WIDTH * s, WORLD_HEIGHT * s, 10);
     ctx.clip();
-    ctx.translate(card.x + pad, card.y + pad);
+    ctx.translate(px, card.y + 14);
     ctx.scale(s, s);
-    drawGrass();
-    track.draw(ctx);
+    ctx.drawImage(trackBackground(track), 0, 0, WORLD_WIDTH, WORLD_HEIGHT);
     ctx.restore();
 
     ctx.textAlign = 'center';
     ctx.fillStyle = selected ? UI.accent : UI.text;
-    ctx.font = `26px ${FONT}`;
-    ctx.fillText(track.name, card.x + card.w / 2, card.y + card.h - 58);
+    ctx.font = `22px ${FONT}`;
+    ctx.fillText(track.name, card.x + card.w / 2, card.y + card.h - 44);
     ctx.fillStyle = UI.muted;
-    ctx.font = `14px ${FONT}`;
-    ctx.fillText(`Pista ${i + 1} · ${LAPS_TO_WIN} voltas`, card.x + card.w / 2, card.y + card.h - 26);
+    ctx.font = `13px ${FONT}`;
+    ctx.fillText(`Pista ${i + 1} · ${LAPS_TO_WIN} voltas`, card.x + card.w / 2, card.y + card.h - 20);
     ctx.textAlign = 'left';
   });
 }
@@ -467,7 +516,7 @@ const STAT_LABELS = [
 ];
 
 function drawCarSelect() {
-  drawMenuBackground(`Escolha o seu carro  ·  ${TRACKS[game.trackChoice].name}`);
+  drawMenuBackground(`Escolha o seu carro  ·  ${TRACKS[game.trackChoice].name}  ·  ${DIFFICULTIES[game.difficultyChoice].name}`);
   CAR_CARDS.forEach((card, i) => {
     const model = CAR_MODELS[i];
     const selected = game.carChoice === i;
@@ -475,32 +524,77 @@ function drawCarSelect() {
 
     // Carro grande, apontando para cima
     ctx.save();
-    ctx.translate(card.x + card.w / 2, card.y + 130);
+    ctx.translate(card.x + 85, card.y + card.h / 2);
     ctx.rotate(-Math.PI / 2);
-    ctx.scale(4.2, 4.2);
+    ctx.scale(4, 4);
     drawF1(ctx, model, 0, false);
     ctx.restore();
 
-    ctx.textAlign = 'center';
-    ctx.fillStyle = selected ? UI.accent : UI.text;
-    ctx.font = `28px ${FONT}`;
-    ctx.fillText(model.name, card.x + card.w / 2, card.y + 250);
+    const tx = card.x + 165;
     ctx.textAlign = 'left';
+    ctx.fillStyle = selected ? UI.accent : UI.text;
+    ctx.font = `26px ${FONT}`;
+    ctx.fillText(model.name, tx, card.y + 30);
 
     // Barras de atributos (1 a 5)
     STAT_LABELS.forEach(([key, label], row) => {
-      const y = card.y + 310 + row * 46;
+      const y = card.y + 85 + row * 52;
       ctx.fillStyle = UI.muted;
-      ctx.font = `14px ${FONT}`;
-      ctx.fillText(label, card.x + 28, y);
+      ctx.font = `13px ${FONT}`;
+      ctx.fillText(label, tx, y);
       for (let k = 0; k < 5; k++) {
         ctx.fillStyle = k < model.stats[key] ? model.color : '#454a56';
         ctx.beginPath();
-        ctx.roundRect(card.x + 28 + k * 56, y + 20, 50, 12, 4);
+        ctx.roundRect(tx + k * 34, y + 20, 30, 11, 4);
         ctx.fill();
       }
     });
   });
+}
+
+function drawDifficultySelect() {
+  drawMenuBackground('Escolha a dificuldade');
+  DIFFICULTY_CARDS.forEach((card, i) => {
+    const d = DIFFICULTIES[i];
+    const selected = game.difficultyChoice === i;
+    drawCard(card, selected);
+    ctx.textAlign = 'center';
+    // Velocímetro: quanto mais difícil, mais cheio
+    const cx = card.x + card.w / 2;
+    const cy = card.y + 125;
+    ctx.lineWidth = 14;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = '#454a56';
+    ctx.beginPath();
+    ctx.arc(cx, cy, 62, Math.PI * 0.8, Math.PI * 2.2);
+    ctx.stroke();
+    ctx.strokeStyle = ['#3ecf6e', UI.accent, '#ff4d4d'][i];
+    ctx.beginPath();
+    ctx.arc(cx, cy, 62, Math.PI * 0.8, Math.PI * (0.8 + 1.4 * (i + 1) / 3));
+    ctx.stroke();
+    ctx.fillStyle = selected ? UI.accent : UI.text;
+    ctx.font = `30px ${FONT}`;
+    ctx.fillText(d.name, cx, card.y + 200);
+    ctx.fillStyle = UI.muted;
+    ctx.font = `14px ${FONT}`;
+    wrapText(d.description, cx, card.y + 245, card.w - 40, 20);
+    ctx.textAlign = 'left';
+  });
+}
+
+function wrapText(text, x, y, maxWidth, lineHeight) {
+  let line = '';
+  for (const word of text.split(' ')) {
+    const test = line ? line + ' ' + word : word;
+    if (ctx.measureText(test).width > maxWidth && line) {
+      ctx.fillText(line, x, y);
+      line = word;
+      y += lineHeight;
+    } else {
+      line = test;
+    }
+  }
+  ctx.fillText(line, x, y);
 }
 
 // ---------------------------------------------------------------------------
