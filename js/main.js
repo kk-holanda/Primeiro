@@ -158,6 +158,69 @@ canvas.addEventListener('click', (e) => {
 });
 
 // ---------------------------------------------------------------------------
+// Controles de toque (celular/tablet): botões desenhados na tela da corrida
+const TOUCH_BUTTONS = [
+  { key: 'ArrowLeft', x: 95, y: 700, r: 58, label: '◀' },
+  { key: 'ArrowRight', x: 230, y: 700, r: 58, label: '▶' },
+  { key: 'ArrowDown', x: 970, y: 710, r: 50, label: 'FREIO' },
+  { key: 'ArrowUp', x: 1105, y: 690, r: 64, label: 'ACEL.' },
+];
+const activeTouches = new Map();
+let touchUsed = false;
+
+function refreshTouchKeys() {
+  TOUCH_BUTTONS.forEach((b) => (keys[b.key] = false));
+  activeTouches.forEach((p) => {
+    const b = TOUCH_BUTTONS.find((btn) => Math.hypot(p.x - btn.x, p.y - btn.y) < btn.r + 15);
+    if (b) keys[b.key] = true;
+  });
+}
+
+canvas.addEventListener('pointerdown', (e) => {
+  if (e.pointerType !== 'touch') return;
+  touchUsed = true;
+  Sound.init();
+  activeTouches.set(e.pointerId, pointerToWorld(e));
+  if (game.screen === 'race') {
+    refreshTouchKeys();
+    // tocar no painel de resultado = correr de novo
+    if (playerFinished() && Math.abs(pointerToWorld(e).y - 380) < 150) startRace();
+  }
+});
+canvas.addEventListener('pointermove', (e) => {
+  if (!activeTouches.has(e.pointerId)) return;
+  activeTouches.set(e.pointerId, pointerToWorld(e));
+  if (game.screen === 'race') refreshTouchKeys();
+});
+['pointerup', 'pointercancel'].forEach((type) =>
+  canvas.addEventListener(type, (e) => {
+    activeTouches.delete(e.pointerId);
+    refreshTouchKeys();
+  })
+);
+canvas.style.touchAction = 'none';
+
+function drawTouchButtons() {
+  if (!touchUsed) return;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  TOUCH_BUTTONS.forEach((b) => {
+    ctx.fillStyle = keys[b.key] ? 'rgba(255,210,63,0.55)' : 'rgba(15,16,20,0.4)';
+    ctx.beginPath();
+    ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    ctx.fillStyle = UI.text;
+    ctx.font = `${b.label.length > 1 ? 18 : 34}px ${FONT}`;
+    ctx.fillText(b.label, b.x, b.y);
+  });
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+}
+
+// ---------------------------------------------------------------------------
 // ATUALIZAR: toda a lógica da corrida
 function update(dt) {
   if (game.screen !== 'race') {
@@ -313,6 +376,7 @@ function drawRace() {
   game.cars.forEach((car) => car.draw(ctx));
   drawPlayerMarker();
   drawHud();
+  drawTouchButtons();
 }
 
 function drawPlayerMarker() {

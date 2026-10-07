@@ -21,6 +21,8 @@ inspirado no [Turbo Sliders](http://ts.turbosliders.com/). Feito do zero com
 | Voltar ao menu       | `Esc`             |
 | Ligar/desligar som   | `M`               |
 
+No celular ou tablet, toque na tela: aparecem botões de virar, frear e acelerar.
+
 Vence quem completar 3 voltas primeiro. Você larga em último!
 
 ## Os carros
