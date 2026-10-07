@@ -100,6 +100,41 @@ function updateFuel(car, dt) {
   }
 }
 
+// Equipe trabalhando em volta do carro durante o pit stop
+function drawPitCrew(car) {
+  const t = performance.now() / 1000;
+  const spots = [[-14, -20], [12, -20], [-14, 20], [12, 20], [26, 0]];
+  ctx.save();
+  ctx.translate(car.x, car.y);
+  ctx.rotate(car.angle);
+  // mangueira de combustível
+  ctx.strokeStyle = '#222';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(-6, -30);
+  ctx.quadraticCurveTo(-4, -18 + Math.sin(t * 8) * 2, -4, -6);
+  ctx.stroke();
+  spots.forEach(([x, y], i) => {
+    const bob = Math.sin(t * 12 + i * 1.7) * 1.8; // movimento de trabalho
+    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.beginPath();
+    ctx.arc(x + 2, y + 2, 5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = car.model.dark; // macacão da equipe
+    ctx.beginPath();
+    ctx.ellipse(x, y + bob, 6, 4.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = car.model.color; // capacete
+    ctx.strokeStyle = '#111';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(x, y + bob, 3.2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+  });
+  ctx.restore();
+}
+
 function drawPit() {
   const pit = game.pit;
   if (!pit) return;
@@ -454,6 +489,7 @@ function drawRace() {
   ctx.drawImage(skidLayer, 0, 0, WORLD_WIDTH, WORLD_HEIGHT);
   drawParticles();
   game.cars.forEach((car) => car.draw(ctx));
+  game.cars.forEach((car) => car.refueling && drawPitCrew(car));
   drawPlayerMarker();
   drawHud();
   drawTouchButtons();
