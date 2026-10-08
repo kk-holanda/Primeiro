@@ -84,6 +84,7 @@ function paintScenery(g, track) {
   }
 
   const stand = placeGrandstand(g, track, clearance);
+  const boards = placeBillboards(g, track, clearance, turnAt, stand);
 
   // Árvores e arbustos onde houver espaço
   const placed = [];
@@ -94,6 +95,7 @@ function paintScenery(g, track) {
     if (x < 330 && y < 80) continue; // espaço do painel
     if (clearance(x, y) < r + 30) continue;
     if (stand && Math.hypot(x - stand.x, y - stand.y) < stand.radius + r) continue;
+    if (boards.some((b) => Math.hypot(x - b.x, y - b.y) < b.radius + r)) continue;
     if (placed.some((t) => Math.hypot(t.x - x, t.y - y) < t.r + r + 4)) continue;
     placed.push({ x, y, r });
   }
@@ -206,4 +208,68 @@ function placeGrandstand(g, track, clearance) {
     return { x: cx, y: cy, radius: len / 2 + 10 };
   }
   return null;
+}
+
+// Placas de patrocínio ao lado das retas
+const BILLBOARDS = [
+  { text: 'KKART', bg: '#ffd23f', fg: '#16171b' },
+  { text: 'GABISPEED', bg: '#e8232a', fg: '#ffffff' },
+  { text: 'KK MOTORS', bg: '#1d4fd8', fg: '#ffffff' },
+  { text: 'TURBO KK', bg: '#16171b', fg: '#ffd23f' },
+];
+
+function placeBillboards(g, track, clearance, turnAt, stand) {
+  const n = track.points.length;
+  const placed = [];
+  const len = 110;
+  for (let i = 0; i < n && placed.length < 4; i += 6) {
+    // só em trechos retos
+    let straight = true;
+    for (let k = -8; k <= 8; k += 4) {
+      if (Math.abs(turnAt((i + k + n) % n)) > 0.12) straight = false;
+    }
+    if (!straight) continue;
+    const p = track.points[i];
+    const h = track.headings[i];
+    for (const side of [1, -1]) {
+      const d = track.width / 2 + 30;
+      const x = p.x - Math.sin(h) * d * side;
+      const y = p.y + Math.cos(h) * d * side;
+      const ends = [-1, 1].map((e) => ({ x: x + Math.cos(h) * (len / 2) * e, y: y + Math.sin(h) * (len / 2) * e }));
+      if (!ends.every((e) => inside(e.x, e.y, 10) && clearance(e.x, e.y) > 18)) continue;
+      if (clearance(x, y) < 18) continue;
+      if (stand && Math.hypot(x - stand.x, y - stand.y) < stand.radius + len / 2) continue;
+      if (placed.some((b) => Math.hypot(x - b.x, y - b.y) < 260)) continue;
+      if (x < 360 && y < 110) continue; // espaço do painel
+      drawBillboard(g, x, y, h, len, BILLBOARDS[placed.length % BILLBOARDS.length]);
+      placed.push({ x, y, radius: len / 2 + 6 });
+      break;
+    }
+  }
+  return placed;
+}
+
+function drawBillboard(g, x, y, angle, len, style) {
+  g.save();
+  g.translate(x, y);
+  // texto sempre de pé para quem olha a tela
+  let a = angle;
+  if (Math.cos(a) < 0) a += Math.PI;
+  g.rotate(a);
+  g.fillStyle = 'rgba(0,0,0,0.3)';
+  g.fillRect(-len / 2 + 3, -8 + 4, len, 18);
+  g.fillStyle = '#7a7f8a';
+  g.fillRect(-len / 2 + 8, 8, 3, 5);
+  g.fillRect(len / 2 - 11, 8, 3, 5);
+  g.fillStyle = style.bg;
+  g.fillRect(-len / 2, -9, len, 18);
+  g.strokeStyle = '#111';
+  g.lineWidth = 1.2;
+  g.strokeRect(-len / 2, -9, len, 18);
+  g.fillStyle = style.fg;
+  g.font = `12px ${FONT}`;
+  g.textAlign = 'center';
+  g.textBaseline = 'middle';
+  g.fillText(style.text, 0, 1);
+  g.restore();
 }

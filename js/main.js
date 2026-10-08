@@ -336,9 +336,9 @@ function update(dt) {
   if (game.recordFlash > 0) game.recordFlash -= dt;
 
   if (game.raceState === 'countdown') {
-    const before = Math.ceil(game.countdown);
+    const before = startLightsOn();
     game.countdown -= dt;
-    if (Math.ceil(game.countdown) !== before && game.countdown > 0) Sound.beep(440);
+    if (startLightsOn() !== before && game.countdown > 0) Sound.beep(440);
     if (game.countdown <= 0) {
       game.raceState = 'racing';
       Sound.beep(880, 0.4);
@@ -355,7 +355,14 @@ function update(dt) {
   });
 
   for (let i = 0; i < game.cars.length; i++) {
-    for (let j = i + 1; j < game.cars.length; j++) collideCars(game.cars[i], game.cars[j]);
+    for (let j = i + 1; j < game.cars.length; j++) {
+      const hit = collideCars(game.cars[i], game.cars[j]);
+      if (hit && hit.strength > 50) {
+        const count = Math.min(14, Math.floor(hit.strength / 20));
+        for (let k = 0; k < count; k++) spawnSpark(hit.x, hit.y);
+        if (game.cars[i] === game.player || game.cars[j] === game.player) Sound.impact(hit.strength);
+      }
+    }
   }
 
   // Marcas de pneu, fumaça e poeira
@@ -381,7 +388,12 @@ function update(dt) {
     pt.life -= dt;
     pt.x += pt.vx * dt;
     pt.y += pt.vy * dt;
-    pt.size += 14 * dt;
+    if (pt.spark) {
+      pt.vx *= Math.pow(0.05, dt);
+      pt.vy *= Math.pow(0.05, dt);
+    } else {
+      pt.size += 14 * dt;
+    }
   });
   particles = particles.filter((pt) => pt.life > 0);
 }
@@ -397,8 +409,25 @@ function spawnParticle(x, y, color, size) {
   });
 }
 
+function spawnSpark(x, y) {
+  if (particles.length > 300) return;
+  const a = Math.random() * Math.PI * 2;
+  const v = 120 + Math.random() * 220;
+  particles.push({ x, y, spark: true, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: 0.35, maxLife: 0.35 });
+}
+
 function drawParticles() {
   particles.forEach((pt) => {
+    if (pt.spark) {
+      const k = pt.life / pt.maxLife;
+      ctx.strokeStyle = `rgba(255,${180 + Math.floor(70 * k)},80,${k})`;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(pt.x, pt.y);
+      ctx.lineTo(pt.x - pt.vx * 0.03, pt.y - pt.vy * 0.03);
+      ctx.stroke();
+      return;
+    }
     ctx.fillStyle = pt.color + (0.45 * pt.life / pt.maxLife).toFixed(3) + ')';
     ctx.beginPath();
     ctx.arc(pt.x, pt.y, pt.size, 0, Math.PI * 2);
@@ -550,6 +579,7 @@ function drawHud() {
   ctx.fillText(`Melhor ${formatTime(p.bestLap)}  ·  Recorde ${formatTime(Records.get(game.track.name))}`, 118, 38);
 
   if (game.mode.fuel) drawFuelGauge(p);
+  drawSpeedometer(p);
 
   // Nome da pista
   ctx.textAlign = 'right';
@@ -565,8 +595,9 @@ function drawHud() {
   ctx.textAlign = 'left';
 
   if (game.raceState === 'countdown') {
-    bigText(String(Math.ceil(game.countdown)));
+    drawStartLights(startLightsOn());
   } else if (game.raceTime < 1) {
+    drawStartLights(0);
     bigText('VAI!');
   } else if (game.recordFlash > 0 && !playerFinished()) {
     ctx.textAlign = 'center';
@@ -580,6 +611,41 @@ function drawHud() {
   }
 
   if (playerFinished()) drawResults(order);
+}
+
+// Velocímetro compacto (km/h, marcha e barra de rotação), abaixo do nome da pista
+function drawSpeedometer(p) {
+  const speed = Math.abs(p.forwardSpeed || 0);
+  const ratio = Math.min(1, speed / p.perf.maxSpeed);
+  const kmh = Math.round(speed * 0.75);
+  const gear = (p.forwardSpeed || 0) < -5 ? 'R' : String(Math.min(5, Math.floor(ratio * 5) + 1));
+  const w = 170;
+  const x = WORLD_WIDTH - 10 - w;
+  const y = 44;
+  ctx.fillStyle = 'rgba(15,16,20,0.72)';
+  ctx.beginPath();
+  ctx.roundRect(x, y, w, 38, 8);
+  ctx.fill();
+  // barra de rotação
+  ctx.fillStyle = '#454a56';
+  ctx.fillRect(x + 10, y + 30, w - 20, 4);
+  ctx.fillStyle = ratio > 0.85 ? '#ff4d4d' : UI.accent;
+  ctx.fillRect(x + 10, y + 30, (w - 20) * ratio, 4);
+  ctx.textBaseline = 'top';
+  ctx.textAlign = 'left';
+  ctx.fillStyle = UI.muted;
+  ctx.font = `12px ${FONT}`;
+  ctx.fillText('MARCHA', x + 10, y + 9);
+  ctx.fillStyle = UI.accent;
+  ctx.font = `18px ${FONT}`;
+  ctx.fillText(gear, x + 66, y + 5);
+  ctx.textAlign = 'right';
+  ctx.fillStyle = UI.text;
+  ctx.fillText(String(kmh), x + w - 46, y + 5);
+  ctx.fillStyle = UI.muted;
+  ctx.font = `12px ${FONT}`;
+  ctx.fillText('km/h', x + w - 10, y + 9);
+  ctx.textAlign = 'left';
 }
 
 function drawFuelGauge(p) {
@@ -654,6 +720,46 @@ function drawResults(order) {
   ctx.font = `16px ${FONT}`;
   ctx.fillText('Enter: correr de novo   ·   Esc: menu', WORLD_WIDTH / 2, y + panelHeight - 36);
   ctx.textAlign = 'left';
+}
+
+// Semáforo estilo F1: as 5 luzes vermelhas acendem uma a uma e,
+// quando todas apagam, é dada a largada.
+function startLightsOn() {
+  return Math.min(5, Math.floor((3 - game.countdown) / 0.5) + 1);
+}
+
+function drawStartLights(lit) {
+  const w = 300;
+  const x = WORLD_WIDTH / 2 - w / 2;
+  const y = 250;
+  ctx.fillStyle = 'rgba(0,0,0,0.35)';
+  ctx.beginPath();
+  ctx.roundRect(x + 6, y + 6, w, 76, 12);
+  ctx.fill();
+  ctx.fillStyle = '#16171b';
+  ctx.beginPath();
+  ctx.roundRect(x, y, w, 76, 12);
+  ctx.fill();
+  for (let i = 0; i < 5; i++) {
+    const cx = x + 38 + i * 56;
+    const on = i < lit;
+    if (on) {
+      ctx.fillStyle = 'rgba(255,40,40,0.35)';
+      ctx.beginPath();
+      ctx.arc(cx, y + 38, 26, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.fillStyle = on ? '#ff2b2b' : '#3a0d0d';
+    ctx.beginPath();
+    ctx.arc(cx, y + 38, 19, 0, Math.PI * 2);
+    ctx.fill();
+    if (on) {
+      ctx.fillStyle = 'rgba(255,220,220,0.8)';
+      ctx.beginPath();
+      ctx.arc(cx - 6, y + 31, 5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
 }
 
 function bigText(text) {
@@ -897,11 +1003,24 @@ function wrapText(text, x, y, maxWidth, lineHeight) {
 //   2. atualiza o mundo
 //   3. desenha o mundo
 let lastTime = performance.now();
+let lastScreen = null;
+let fade = 1;
 function loop(now) {
   const dt = Math.min((now - lastTime) / 1000, 1 / 30); // evita saltos grandes
   lastTime = now;
   update(dt);
   draw();
+
+  // Escurece e clareia rapidamente ao trocar de tela
+  if (game.screen !== lastScreen) {
+    lastScreen = game.screen;
+    fade = 1;
+  }
+  if (fade > 0) {
+    ctx.fillStyle = `rgba(10,10,14,${fade.toFixed(3)})`;
+    ctx.fillRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+    fade = Math.max(0, fade - dt * 4);
+  }
   requestAnimationFrame(loop);
 }
 

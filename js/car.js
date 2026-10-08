@@ -26,6 +26,7 @@ class Car {
     this.onRoad = true;
     this.trackIndex = 0;
     this.wheelSpin = 0;
+    this.wheelBlur = 0;
     this.braking = false;
 
     // Gasolina (modo Gabispeed)
@@ -92,7 +93,11 @@ class Car {
     const speedFactor = Math.max(-1, Math.min(1, forward / 110)) * highSpeedDamping;
     this.angle += this.steer * this.perf.turnSpeed * speedFactor * dt;
 
-    this.wheelSpin += forward * dt; // para desenhar os pneus girando
+    // Giro dos pneus. No desenho, a velocidade do giro é limitada: se os sulcos
+    // andassem rápido demais entre um quadro e outro, pareceriam parados
+    // (o mesmo efeito da roda de carro que "gira ao contrário" nos filmes).
+    this.wheelSpin += Math.max(-150, Math.min(150, forward)) * 0.2 * dt;
+    this.wheelBlur = Math.max(0, Math.min(1, (Math.abs(forward) - 90) / 260));
 
     // Move
     this.x += this.vx * dt;
@@ -130,7 +135,7 @@ class Car {
     ctx.save();
     ctx.translate(this.x, this.y);
     ctx.rotate(this.angle);
-    drawF1(ctx, this.model, this.steer, true, this.wheelSpin);
+    drawF1(ctx, this.model, this.steer, true, this.wheelSpin, this.wheelBlur);
     ctx.restore();
   }
 }
@@ -138,7 +143,7 @@ class Car {
 // ---------------------------------------------------------------------------
 // Desenho do carro de Fórmula 1 visto de cima, estilo cartoon.
 // O carro aponta para a direita (+x) e tem ~42 px de comprimento.
-function drawF1(ctx, model, steer = 0, shadow = true, spin = 0) {
+function drawF1(ctx, model, steer = 0, shadow = true, spin = 0, blur = 0) {
   const OUTLINE = '#141414';
   ctx.lineJoin = 'round';
   ctx.lineCap = 'round';
@@ -162,10 +167,10 @@ function drawF1(ctx, model, steer = 0, shadow = true, spin = 0) {
   ctx.stroke();
 
   // Pneus (os da frente viram com o volante)
-  drawTire(ctx, -13, -10.5, 0, 11, 7.5, spin);
-  drawTire(ctx, -13, 10.5, 0, 11, 7.5, spin);
-  drawTire(ctx, 11, -10, steer * 0.45, 9, 6.5, spin);
-  drawTire(ctx, 11, 10, steer * 0.45, 9, 6.5, spin);
+  drawTire(ctx, -13, -10.5, 0, 11, 7.5, spin, blur);
+  drawTire(ctx, -13, 10.5, 0, 11, 7.5, spin, blur);
+  drawTire(ctx, 11, -10, steer * 0.45, 9, 6.5, spin, blur);
+  drawTire(ctx, 11, 10, steer * 0.45, 9, 6.5, spin, blur);
 
   ctx.strokeStyle = OUTLINE;
   ctx.lineWidth = 1.3;
@@ -254,24 +259,48 @@ function drawF1(ctx, model, steer = 0, shadow = true, spin = 0) {
   ctx.fillRect(17, 9.5, 3, 2.5);
 }
 
-function drawTire(ctx, x, y, angle, length, width, spin = 0) {
+function drawTire(ctx, x, y, angle, length, width, spin = 0, blur = 0) {
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate(angle);
-  ctx.fillStyle = '#151515';
+
+  // Borracha
+  ctx.fillStyle = '#161616';
   ctx.beginPath();
-  ctx.roundRect(-length / 2, -width / 2, length, width, 2.2);
+  ctx.roundRect(-length / 2, -width / 2, length, width, 2.4);
   ctx.fill();
+  ctx.save();
   ctx.clip();
-  // Sulcos do pneu: andam conforme o carro anda, parecendo girar
-  ctx.fillStyle = '#3c3c3c';
-  const gap = length / 3;
-  const offset = ((spin * 0.6) % gap + gap) % gap;
-  for (let k = -1; k < 3; k++) {
-    ctx.fillRect(-length / 2 + offset + k * gap, -width / 2, 1.3, width);
+
+  // Sulcos em "V" que andam conforme o pneu gira
+  const gap = length / 3.2;
+  const offset = ((spin % gap) + gap) % gap;
+  ctx.strokeStyle = `rgba(95,95,95,${1 - blur * 0.7})`;
+  ctx.lineWidth = 1.1;
+  ctx.beginPath();
+  for (let k = -2; k < 4; k++) {
+    const tx = -length / 2 + offset + k * gap;
+    ctx.moveTo(tx - 1.2, -width / 2 + 0.8);
+    ctx.lineTo(tx + 1.2, 0);
+    ctx.lineTo(tx - 1.2, width / 2 - 0.8);
   }
-  ctx.fillStyle = 'rgba(255,255,255,0.18)';
-  ctx.fillRect(-length / 2, -width / 2, length, 1.2);
+  ctx.stroke();
+
+  // Em alta velocidade, borrão de movimento
+  if (blur > 0) {
+    ctx.fillStyle = `rgba(70,70,70,${blur * 0.55})`;
+    ctx.fillRect(-length / 2, -width / 2, length, width);
+    ctx.fillStyle = `rgba(150,150,150,${blur * 0.35})`;
+    ctx.fillRect(-length / 2, -width * 0.2, length, 0.8);
+    ctx.fillRect(-length / 2, width * 0.15, length, 0.8);
+  }
+  ctx.restore();
+
+  // Laterais (paredes do pneu) com brilho
+  ctx.fillStyle = 'rgba(255,255,255,0.22)';
+  ctx.fillRect(-length / 2 + 1.5, -width / 2, length - 3, 1);
+  ctx.fillStyle = 'rgba(0,0,0,0.5)';
+  ctx.fillRect(-length / 2 + 1.5, width / 2 - 1, length - 3, 1);
   ctx.restore();
 }
 
@@ -281,7 +310,7 @@ function collideCars(a, b) {
   const dy = b.y - a.y;
   const dist = Math.hypot(dx, dy);
   const minDist = PHYSICS.radius * 2;
-  if (dist === 0 || dist >= minDist) return;
+  if (dist === 0 || dist >= minDist) return null;
 
   const nx = dx / dist;
   const ny = dy / dist;
@@ -301,5 +330,8 @@ function collideCars(a, b) {
     a.vy -= impulse * ny;
     b.vx += impulse * nx;
     b.vy += impulse * ny;
+    // Ponto e força da batida (para faíscas e som)
+    return { x: a.x + nx * PHYSICS.radius, y: a.y + ny * PHYSICS.radius, strength: relative };
   }
+  return null;
 }

@@ -96,6 +96,7 @@ olha a curva que vem pela frente: quanto mais fechada, mais ele freia.
 - [x] **Passo 8b** — 6 carros, 4 pistas, 3 níveis de dificuldade, cenário, fumaça e poeira
 - [ ] **Passo 9** — Paredes/obstáculos sólidos na pista (carro bate e quica)
 - [x] **Passo 10** — Sons, partículas e recordes de volta
+- [x] **Passo 10b** — Pneus girando, semáforo de largada, faíscas nas batidas, velocímetro e placas
 - [ ] **Passo 11** — Editor de pistas (clicar para colocar pontos)
 - [ ] **Passo 12** — Multiplayer online (Node.js + WebSocket)
 

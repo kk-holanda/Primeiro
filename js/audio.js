@@ -124,6 +124,25 @@ const Sound = {
     source.start();
   },
 
+  // Batida entre carros: um "tum" grave (com limite para não repetir demais)
+  impact(strength) {
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+    if (now - (this.lastImpact || 0) < 0.15) return;
+    this.lastImpact = now;
+    const c = this.ctx;
+    const osc = c.createOscillator();
+    const gain = c.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(140, now);
+    osc.frequency.exponentialRampToValueAtTime(45, now + 0.15);
+    gain.gain.setValueAtTime(Math.min(0.5, strength / 500), now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+    osc.connect(gain).connect(this.master);
+    osc.start();
+    osc.stop(now + 0.2);
+  },
+
   toggleMute() {
     this.muted = !this.muted;
     if (this.master) this.master.gain.value = this.muted ? 0 : 0.5;
