@@ -4,15 +4,17 @@
 const SCENERY_RES = 2; // resolução extra para ficar nítido em telas boas
 const backgroundCache = new Map();
 
-function trackBackground(track) {
-  if (backgroundCache.has(track)) return backgroundCache.get(track);
+// lane: faixa de box (só no modo Gabispeed) ou null
+function trackBackground(track, lane = null) {
+  const key = track.name + (lane ? ':pit' : '');
+  if (backgroundCache.has(key)) return backgroundCache.get(key);
   const c = document.createElement('canvas');
   c.width = WORLD_WIDTH * SCENERY_RES;
   c.height = WORLD_HEIGHT * SCENERY_RES;
   const g = c.getContext('2d');
   g.scale(SCENERY_RES, SCENERY_RES);
-  paintScenery(g, track);
-  backgroundCache.set(track, c);
+  paintScenery(g, track, lane);
+  backgroundCache.set(key, c);
   return c;
 }
 
@@ -27,9 +29,14 @@ function seededRandom(seed) {
   };
 }
 
-function paintScenery(g, track) {
+function paintScenery(g, track, lane) {
   const rand = seededRandom(track.name.length * 7919 + track.points.length);
-  const clearance = (x, y) => track.nearest(x, y).distance - track.width / 2;
+  // Espaço livre até a pista (e até a faixa de box com as garagens, se houver)
+  const clearance = (x, y) => {
+    const d = track.nearest(x, y).distance - track.width / 2;
+    if (!lane) return d;
+    return Math.min(d, lane.nearest(x, y).distance - PIT.laneWidth / 2 - 42);
+  };
 
   // Grama com faixas de corte e manchas
   g.fillStyle = '#3f8f3f';
@@ -69,6 +76,7 @@ function paintScenery(g, track) {
   }
 
   track.draw(g);
+  if (lane) lane.draw(g, track);
 
   // Pilhas de pneus nas curvas mais fechadas
   for (let i = 0; i < n; i += 9) {
@@ -240,7 +248,7 @@ function placeBillboards(g, track, clearance, turnAt, stand) {
       if (clearance(x, y) < 18) continue;
       if (stand && Math.hypot(x - stand.x, y - stand.y) < stand.radius + len / 2) continue;
       if (placed.some((b) => Math.hypot(x - b.x, y - b.y) < 260)) continue;
-      if (x < 360 && y < 110) continue; // espaço do painel
+      if (x - len / 2 < 350 && y < 115) continue; // espaço do painel
       drawBillboard(g, x, y, h, len, BILLBOARDS[placed.length % BILLBOARDS.length]);
       placed.push({ x, y, radius: len / 2 + 6 });
       break;

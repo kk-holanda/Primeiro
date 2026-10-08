@@ -27,8 +27,10 @@ No celular ou tablet, toque na tela: aparecem botões de virar, frear e acelerar
 Vence quem completar as voltas primeiro. Você larga em último!
 
 **Modo Gabispeed:** a gasolina acaba (um tanque dura ~3,6 voltas). Quando avisar
-"POUCA GASOLINA", pare dentro do quadrado amarelo **PIT** logo depois da linha de
-chegada e espere encher. Sem gasolina, o carro se arrasta.
+"POUCA GASOLINA", entre na **faixa de box** pela entrada lateral (**PIT IN**) antes da
+linha de chegada, respeite o limite de 90 km/h e pare no box com a **cor do seu
+carro**. A equipe abastece e você sai pelo **PIT OUT**. Sem gasolina, o carro se arrasta.
+A faixa de box só existe no modo Gabispeed.
 
 ## Os carros
 
@@ -55,6 +57,7 @@ js/tracks.js        → pistas: desenho, detecção de grama, checkpoints
 js/car.js           → carro: física de drift, desenho do F1, colisão
 js/controllers.js   → quem pilota: jogador (teclado) ou computador (IA)
 js/scenery.js       → cenário: árvores, arquibancada, pneus, areia
+js/pitlane.js       → faixa de box do modo Gabispeed (boxes, garagens, placas)
 js/audio.js         → sons (motor, pneus, bipes) e recordes de volta
 js/main.js          → menus, game loop, regras da corrida, HUD
 ```

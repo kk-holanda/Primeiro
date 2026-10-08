@@ -34,6 +34,9 @@ class Car {
     this.outOfFuel = false;
     this.wantsPit = false;
     this.refueling = false;
+    // Estratégia: com quantas voltas de gasolina restantes decide ir ao box
+    // (cada carro um pouco diferente, para não chegarem todos juntos)
+    this.pitMargin = 1.35 + Math.random() * 0.6;
   }
 
   // dt = tempo (em segundos) desde o último quadro
@@ -41,6 +44,17 @@ class Car {
     const near = track.nearest(this.x, this.y);
     this.onRoad = near.distance < track.width / 2;
     this.trackIndex = near.index;
+
+    // Faixa de box (modo Gabispeed): também é asfalto, mas tem limite de velocidade
+    this.inPitLane = false;
+    if (track.pitLane) {
+      const pit = track.pitLane.nearest(this.x, this.y);
+      if (pit.distance < PIT.laneWidth / 2) {
+        this.onRoad = true;
+        this.inPitLane = track.pitLane.center[pit.index].ease > 0.9;
+      }
+      this.pitLaneIndex = pit.distance < PIT.laneWidth ? pit.index : -1;
+    }
 
     const input = canDrive ? this.controller.getInput(this, track, dt) : NO_INPUT;
 
@@ -70,6 +84,9 @@ class Car {
       (this.outOfFuel ? FUEL.emptySpeedFactor : 1);
     if (forward > maxSpeed) forward += (maxSpeed - forward) * Math.min(1, 4 * dt);
     if (forward < -PHYSICS.maxReverse) forward = -PHYSICS.maxReverse;
+    if (this.inPitLane && forward > PIT.speedLimit) {
+      forward += (PIT.speedLimit - forward) * Math.min(1, 6 * dt); // limitador do box
+    }
 
     // Aderência: elimina parte da velocidade lateral.
     // Com freio de mão a aderência cai e o carro derrapa!

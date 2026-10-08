@@ -43,7 +43,9 @@ function startRace() {
   game.track = TRACKS[game.trackChoice];
   game.mode = GAME_MODES[game.modeChoice];
   game.laps = game.mode.laps;
-  game.pit = game.mode.fuel ? computePit(game.track) : null;
+  // A faixa de box só existe no modo Gabispeed
+  game.pit = game.mode.fuel ? pitLaneFor(game.track) : null;
+  game.track.pitLane = game.pit;
   const playerModel = CAR_MODELS[game.carChoice];
   game.player = new Car(playerModel, new HumanController());
 
@@ -67,15 +69,6 @@ function startRace() {
   game.screen = 'race';
 }
 
-// Box do PIT: um retângulo no asfalto, logo depois da linha de chegada
-function computePit(track) {
-  const index = Math.floor(track.points.length * 0.07);
-  const p = track.points[index];
-  const angle = track.headings[index];
-  const offset = track.width * 0.27;
-  return { index, angle, x: p.x - Math.sin(angle) * offset, y: p.y + Math.cos(angle) * offset };
-}
-
 function updateFuel(car, dt) {
   const lapLength = game.track.points.length * TRACK_SPACING;
   const speed = Math.hypot(car.vx, car.vy);
@@ -84,13 +77,15 @@ function updateFuel(car, dt) {
 
   // Precisa parar? (a gasolina não dá para terminar a corrida)
   const lapsLeft = game.laps - car.lap;
-  if (!car.wantsPit && car.finishTime === null && car.fuel < 1.2 / FUEL.lapsPerTank && car.fuel * FUEL.lapsPerTank < lapsLeft) {
+  if (!car.wantsPit && car.finishTime === null && car.fuel < car.pitMargin / FUEL.lapsPerTank && car.fuel * FUEL.lapsPerTank < lapsLeft) {
     car.wantsPit = true;
   }
 
   // Parado no box: abastece
-  const inBox = Math.hypot(car.x - game.pit.x, car.y - game.pit.y) < 26;
-  car.refueling = inBox && Math.abs(car.forwardSpeed || 0) < 40 && car.fuel < 1;
+  // Parado no box da sua equipe: abastece
+  const box = game.pit.boxFor(car);
+  const inBox = Math.hypot(car.x - box.x, car.y - box.y) < 20;
+  car.refueling = inBox && Math.abs(car.forwardSpeed || 0) < 30 && car.fuel < 1;
   if (car.refueling) {
     car.fuel = Math.min(1, car.fuel + FUEL.refuelPerSecond * dt);
     if (car.fuel >= 1) {
@@ -133,29 +128,6 @@ function drawPitCrew(car) {
     ctx.stroke();
   });
   ctx.restore();
-}
-
-function drawPit() {
-  const pit = game.pit;
-  if (!pit) return;
-  ctx.save();
-  ctx.translate(pit.x, pit.y);
-  ctx.rotate(pit.angle);
-  ctx.fillStyle = 'rgba(255,210,63,0.28)';
-  ctx.fillRect(-28, -18, 56, 36);
-  ctx.strokeStyle = UI.accent;
-  ctx.lineWidth = 2.5;
-  ctx.setLineDash([6, 4]);
-  ctx.strokeRect(-28, -18, 56, 36);
-  ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(255,255,255,0.85)';
-  ctx.font = `14px ${FONT}`;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('PIT', 0, 1);
-  ctx.restore();
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'top';
 }
 
 // ---------------------------------------------------------------------------
@@ -513,8 +485,7 @@ function drawGrass() {
 }
 
 function drawRace() {
-  ctx.drawImage(trackBackground(game.track), 0, 0, WORLD_WIDTH, WORLD_HEIGHT);
-  drawPit();
+  ctx.drawImage(trackBackground(game.track, game.pit), 0, 0, WORLD_WIDTH, WORLD_HEIGHT);
   ctx.drawImage(skidLayer, 0, 0, WORLD_WIDTH, WORLD_HEIGHT);
   drawParticles();
   game.cars.forEach((car) => car.draw(ctx));
@@ -668,7 +639,8 @@ function drawFuelGauge(p) {
   let warning = null;
   if (p.refueling) warning = 'ABASTECENDO...';
   else if (p.outOfFuel) warning = 'SEM GASOLINA! VÁ AO PIT';
-  else if (p.wantsPit && Math.floor(game.raceTime * 3) % 2 === 0) warning = 'POUCA GASOLINA: PARE NO PIT!';
+  else if (p.wantsPit && Math.floor(game.raceTime * 3) % 2 === 0) warning = 'POUCA GASOLINA: ENTRE NO BOX!';
+  else if (p.inPitLane) warning = `FAIXA DE BOX · LIMITE ${Math.round(PIT.speedLimit * 0.75)} KM/H`;
   if (warning && p.finishTime === null) {
     ctx.textAlign = 'center';
     ctx.font = `24px ${FONT}`;
@@ -845,7 +817,8 @@ function drawTrackSelect() {
     ctx.clip();
     ctx.translate(px, card.y + 14);
     ctx.scale(s, s);
-    ctx.drawImage(trackBackground(track), 0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+    const previewLane = GAME_MODES[game.modeChoice].fuel ? pitLaneFor(track) : null;
+    ctx.drawImage(trackBackground(track, previewLane), 0, 0, WORLD_WIDTH, WORLD_HEIGHT);
     ctx.restore();
 
     ctx.textAlign = 'center';
