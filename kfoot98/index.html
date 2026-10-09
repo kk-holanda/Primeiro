@@ -605,6 +605,23 @@ table.liga tr.meu .tec-tag { color: var(--ink); }
 .legenda-topo { margin: -6px 0 0; font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .legenda-topo .tit { margin: 0; }
 
+/* tela de outro clube: grade alinhada (clube + moral à esquerda, jogos à direita) */
+.cv-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; }
+.cv-grid > :nth-child(1) { grid-column: 1; grid-row: 1; }
+.cv-grid > :nth-child(2) { grid-column: 2; grid-row: 1 / span 2; }
+.cv-grid > :nth-child(3) { grid-column: 1; grid-row: 2; }
+@media (max-width: 800px) { .cv-grid { grid-template-columns: minmax(0, 1fr); } .cv-grid > :nth-child(n) { grid-column: 1; grid-row: auto; } }
+.cv-head { align-items: center; }
+.cv-head > div:nth-child(2) { display: flex; flex-direction: column; gap: 2px; }
+.cv-head h2 { margin: 0; line-height: 1; }
+.cv-grid .card, .cv-grid .moraltec { margin: 0; min-width: 0; flex: none; }
+.moraltec h3[data-tip] { cursor: help; text-decoration: underline dotted var(--muted); text-underline-offset: 4px; }
+/* escalação: resumo da formação */
+.formdesc { background: var(--panel); border: 1px solid var(--line); border-left: 6px solid var(--accent); padding: 10px 14px; display: flex; flex-direction: column; gap: 4px; font-size: 14px; }
+.formdesc p { margin: 0; }
+.formdesc .hi { color: var(--st-verde); } .formdesc .bad { color: var(--st-vermelho); }
+.strip { align-items: flex-start; }
+
 </style>
 <div id="app"></div>
 <script>
@@ -990,10 +1007,17 @@ window.ESCUDOS_REAIS = {};
 
   // slots de cada formação (11 posições)
   const FORMACOES = {
-    '4-4-2': ['GOL', 'LD', 'ZAG', 'ZAG', 'LE', 'VOL', 'MC', 'ALA', 'ALA', 'CA', 'SA'],
     '4-3-3': ['GOL', 'LD', 'ZAG', 'ZAG', 'LE', 'VOL', 'MC', 'MEI', 'PD', 'CA', 'PE'],
-    '3-5-2': ['GOL', 'ZAG', 'ZAG', 'LIB', 'ALA', 'VOL', 'VOL', 'MEI', 'ALA', 'CA', 'SA'],
+    '4-2-3-1': ['GOL', 'LD', 'ZAG', 'ZAG', 'LE', 'VOL', 'VOL', 'MEI', 'PD', 'PE', 'CA'],
+    '4-4-2': ['GOL', 'LD', 'ZAG', 'ZAG', 'LE', 'VOL', 'MC', 'ALA', 'ALA', 'CA', 'SA'],
     '4-5-1': ['GOL', 'LD', 'ZAG', 'ZAG', 'LE', 'VOL', 'VOL', 'MC', 'MEI', 'ALA', 'CA'],
+    '3-5-2': ['GOL', 'ZAG', 'ZAG', 'LIB', 'ALA', 'VOL', 'VOL', 'MEI', 'ALA', 'CA', 'SA'],
+    '3-4-3': ['GOL', 'ZAG', 'ZAG', 'LIB', 'VOL', 'VOL', 'ALA', 'ALA', 'PD', 'CA', 'PE'],
+  };
+  // efeito de cada formação sobre as forças do time (pequeno: ±4%); o 4-4-2 é a referência
+  const FORM_MOD = {
+    '4-3-3': { atk: 1.03, def: 0.99, ctl: 1 }, '4-2-3-1': { atk: 1, def: 1, ctl: 1.03 }, '4-4-2': { atk: 1, def: 1, ctl: 1 },
+    '4-5-1': { atk: 0.97, def: 1.01, ctl: 1.03 }, '3-5-2': { atk: 1, def: 0.98, ctl: 1.04 }, '3-4-3': { atk: 1.04, def: 0.96, ctl: 1 },
   };
   // tática: ofensivo/equilibrado/defensivo
   // Táticas (pedra-papel-tesoura, calibradas por tools/balance.js):
@@ -1034,16 +1058,16 @@ window.ESCUDOS_REAIS = {};
   }
 
   function forcas(side, adv) {
-    const t = TATICA[side.time.tatica];
+    const t = TATICA[side.time.tatica], fm = FORM_MOD[side.time.formacao] || { atk: 1, def: 1, ctl: 1 };
     const fd = side.formaDia === undefined ? (side.formaDia = 1 + side.rng.gauss() * 0.03) : side.formaDia; // 'dia inspirado' ±3%
     const por = { G: [], D: [], M: [], A: [] };
     side.campo.forEach((j) => por[P().GRUPO[j.slot]].push(forca(j)));
     const avg = (a) => a.length ? a.reduce((x, y) => x + y, 0) / a.length : 30;
     // faltando jogadores (expulsão) diminui a média de forma natural: soma/11 em vez de média
     const n = side.campo.length / 11;
-    const ataque = (0.60 * avg(por.A) + 0.30 * avg(por.M) + 0.10 * avg(por.D)) * t.atk * n * fd;
-    const defesa = (0.45 * avg(por.D) + 0.25 * avg(por.M) + 0.30 * avg(por.G)) * t.def * n * fd;
-    const controle = (0.60 * avg(por.M) + 0.20 * avg(por.A) + 0.20 * avg(por.D)) * n;
+    const ataque = (0.60 * avg(por.A) + 0.30 * avg(por.M) + 0.10 * avg(por.D)) * t.atk * fm.atk * n * fd;
+    const defesa = (0.45 * avg(por.D) + 0.25 * avg(por.M) + 0.30 * avg(por.G)) * t.def * fm.def * n * fd;
+    const controle = (0.60 * avg(por.M) + 0.20 * avg(por.A) + 0.20 * avg(por.D)) * fm.ctl * n;
     const gk = por.G.length ? por.G[0] : 20;
     return { ataque, defesa, controle: controle * (side.time.mando ? CFG.mandante : 1), gk, t };
   }
@@ -1237,7 +1261,7 @@ window.ESCUDOS_REAIS = {};
     return { ok: true };
   }
 
-  bf.Match = { mudarFormacao, FORMACOES, TATICA, CFG, criar, passo, finalizar, recalcular, placarDe, simular, calcNota, substituir, substituirM, iaSubstituicoes };
+  bf.Match = { mudarFormacao, FORMACOES, FORM_MOD, TATICA, CFG, criar, passo, finalizar, recalcular, placarDe, simular, calcNota, substituir, substituirM, iaSubstituicoes };
 })(typeof globalThis !== 'undefined' ? globalThis : this);
 
 ;
@@ -2189,10 +2213,10 @@ window.ESCUDOS_REAIS = {};
     const delta = pen ? ult.v - pen.v : 0;
     const tabela = h('table', { class: 'sr' }, h('caption', null, 'Moral do técnico nos últimos jogos'), h('tbody', null, pts.map((p) => h('tr', null, h('td', null, p.res ? p.res + ' ' + p.gp + ' × ' + p.gc : 'Início'), h('td', null, p.v)))));
     return h('section', { class: 'moraltec', 'aria-label': 'Moral do técnico' },
-      h('div', { class: 'mt-top' }, h('div', null, h('h3', null, 'Moral do técnico'), h('small', { class: 'muted' }, c.tecnico)), h('div', { class: 'mt-val' }, h('b', { class: 'num' }, mt.v), delta ? h('small', { class: delta > 0 ? 'hi' : 'bad' }, (delta > 0 ? '▲ +' : '▼ −') + Math.abs(delta) + ' no último jogo') : h('small', { class: 'muted' }, jogos.length ? 'estável' : 'sem jogos ainda'))),
+      h('div', { class: 'mt-top' }, h('div', null, h('h3', { tabindex: 0, 'data-tip': 'Vitórias (principalmente contra times maiores) sobem a moral do técnico; derrotas descem. A moral do técnico influencia o clima do vestiário.' }, 'Moral do técnico'), h('small', { class: 'muted' }, c.tecnico)), h('div', { class: 'mt-val' }, h('b', { class: 'num' }, mt.v), delta ? h('small', { class: delta > 0 ? 'hi' : 'bad' }, (delta > 0 ? '▲ +' : '▼ −') + Math.abs(delta) + ' no último jogo') : h('small', { class: 'muted' }, jogos.length ? 'estável' : 'sem jogos ainda'))),
       h('div', { class: 'mt-chart', html: '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Gráfico da moral do técnico nos últimos 5 jogos">' + grade + linha + marcas + '</svg>' }),
       tabela,
-      h('p', { class: 'muted mt-nota' }, 'Vitórias (principalmente contra times maiores) sobem a moral; derrotas descem. A moral do técnico influencia o clima do vestiário.'));
+      null);
   };
 })();
 
@@ -2454,7 +2478,19 @@ window.ESCUDOS_REAIS = {};
     '4-3-3': [[50, 88], [85, 68], [62, 71], [38, 71], [15, 68], [50, 56], [30, 43], [70, 44], [82, 22], [50, 16], [18, 22]],
     '3-5-2': [[50, 88], [28, 72], [72, 72], [50, 78], [10, 50], [36, 56], [64, 56], [50, 38], [90, 50], [36, 18], [64, 18]],
     '4-5-1': [[50, 88], [85, 68], [62, 71], [38, 71], [15, 68], [38, 56], [62, 56], [28, 42], [50, 36], [80, 42], [50, 16]],
+    '4-2-3-1': [[50, 88], [85, 68], [62, 71], [38, 71], [15, 68], [38, 56], [62, 56], [50, 38], [82, 32], [18, 32], [50, 16]],
+    '3-4-3': [[50, 88], [28, 72], [72, 72], [50, 78], [38, 54], [62, 54], [10, 48], [90, 48], [82, 22], [50, 16], [18, 22]],
   };
+  // resumo de cada formação para o técnico (estrutura, características, pontos fortes e fracos)
+  const FORM_INFO = K.FORM_INFO = {
+    '4-3-3': { estr: '4 defensores · 3 meias · 3 atacantes', car: 'Extremos abertos dão amplitude; pode ter 1 volante e 2 meias ou 2 volantes e 1 meia.', forte: 'Pressão alta e criação de espaços.', fraco: 'Risco de isolar o centroavante.' },
+    '4-2-3-1': { estr: '4 defensores · 2 volantes · 3 meias · 1 atacante', car: 'Muito equilibrado: um "camisa 10" centralizado e dois meias de lado aproximados do centroavante.', forte: 'Boa distribuição no eixo central e triangulações.', fraco: 'Exige grande desgaste físico dos pontas na recomposição.' },
+    '4-4-2': { estr: '4 defensores · 4 meias · 2 atacantes', car: 'Clássico, focado em linhas organizadas e transição direta.', forte: 'Atacantes não precisam recuar tanto; boa cobertura nas laterais.', fraco: 'Pode sofrer inferioridade numérica no meio contra um 4-3-3.' },
+    '4-5-1': { estr: '4 defensores · 5 meias · 1 atacante', car: 'Meio povoado e um centroavante sozinho na frente.', forte: 'Controle do meio-campo e proteção da defesa.', fraco: 'Poucos jogadores na área: o gol depende dos meias chegando.' },
+    '3-5-2': { estr: '3 zagueiros · 5 meias (incluindo alas) · 2 atacantes', car: 'Oferece força no meio e corredores abertos para os alas.', forte: 'Excelente para contra-ataques e solidez defensiva com linha de 5.', fraco: 'Requer alas muito físicos que cobrem o campo inteiro.' },
+    '3-4-3': { estr: '3 zagueiros · 4 meias · 3 atacantes', car: 'Bastante ofensivo, com dupla de volantes e alas fornecendo amplitude.', forte: 'Muitas opções de infiltração no ataque.', fraco: 'Deixa os zagueiros mais expostos no 1 contra 1.' },
+  };
+  FORM_INFO.efeito = (f) => { const m = M.FORM_MOD[f] || {}, pc = (x) => (x > 1 ? '+' : '−') + Math.round(Math.abs(x - 1) * 100) + '%', l = [['ataque', m.atk], ['defesa', m.def], ['controle do meio', m.ctl]].filter(([, x]) => x && Math.abs(x - 1) > 0.001).map(([t, x]) => t + ' ' + pc(x)); return l.length ? l.join(' · ') : 'sem bônus nem penalidade (é a formação de referência)'; };
   const TATICAS = [['ofensivo', 'Ofensivo'], ['equilibrado', 'Equilibrado'], ['defensivo', 'Defensivo'], ['contra', 'Contra-ataque']];
   K.TATICAS = TATICAS;
   const DESC_TATICA = K.DESC_TATICA = {
@@ -2528,13 +2564,15 @@ window.ESCUDOS_REAIS = {};
     const media = cfg.titulares.map((id, i) => PL.ovrNoSlot(porId.get(id), slots[i])).reduce((a, b) => a + b, 0) / 11;
     const fora = cfg.titulares.filter((id, i) => PL.afinidade(porId.get(id).pos, slots[i]) < 0.9).length;
 
-    const segF = h('div', { class: 'seg', role: 'group', 'aria-label': 'Formação' }, Object.keys(M.FORMACOES).map((f) => h('button', { type: 'button', 'aria-pressed': cfg.formacao === f ? 'true' : 'false', onclick: () => { cfg.formacao = f; cfg.titulares = []; G.escSlot = null; salvar(); } }, f)));
+    const segF = h('div', { class: 'seg', role: 'group', 'aria-label': 'Formação' }, Object.keys(M.FORMACOES).map((f) => h('button', { type: 'button', 'aria-pressed': cfg.formacao === f ? 'true' : 'false', 'data-tip': FORM_INFO[f].estr + '. Forte: ' + FORM_INFO[f].forte + ' Fraco: ' + FORM_INFO[f].fraco, onclick: () => { cfg.formacao = f; cfg.titulares = []; G.escSlot = null; salvar(); } }, f)));
     const segT = h('div', { class: 'seg', role: 'group', 'aria-label': 'Tática' }, TATICAS.map(([k, t]) => h('button', { type: 'button', 'aria-pressed': cfg.tatica === k ? 'true' : 'false', 'data-tip': DESC_TATICA[k], onclick: () => { cfg.tatica = k; salvar(); } }, t)));
     return h('div', { class: 'escwrap' },
       h('div', { class: 'esccontrols' },
         h('div', null, h('small', { class: 'eyebrow' }, 'Formação'), segF), h('div', null, h('small', { class: 'eyebrow' }, 'Tática'), segT),
         h('div', null, h('small', { class: 'eyebrow' }, 'Substituições'), h('b', null, 'até ' + G.config.maxSubs + ' por jogo')),
         h('button', { class: 'btn alt sm', onclick: () => { cfg.titulares = []; G.escSlot = null; salvar(); } }, 'Escalação automática')),
+      h('div', { class: 'formdesc' }, h('b', null, cfg.formacao + ' · ' + FORM_INFO[cfg.formacao].estr), h('p', null, FORM_INFO[cfg.formacao].car),
+        h('p', null, h('b', { class: 'hi' }, 'Forte: '), FORM_INFO[cfg.formacao].forte + ' ', h('b', { class: 'bad' }, 'Fraco: '), FORM_INFO[cfg.formacao].fraco), h('small', { class: 'muted' }, 'No jogo: ' + FORM_INFO.efeito(cfg.formacao) + '.')),
       h('p', { class: 'tacdesc' }, h('b', null, TATICAS.find((x) => x[0] === cfg.tatica)[1] + ': '), DESC_TATICA[cfg.tatica]),
       cfg.deJogo ? h('p', { class: 'footnote' }, 'Escalação padrão: a do último jogo (contra ' + K.nomeClube(cfg.deJogo.adv) + ', ' + GM.fmtDataCurta(cfg.deJogo.data) + '). Jogadores lesionados, suspensos ou em treino são trocados automaticamente.') : null,
       h('p', { class: 'escmsg', role: 'status' }, msg || (sel != null ? 'Posição ' + slotSel + ' escolhida. Clique em um jogador da lista para colocá-lo.' : 'Clique em uma posição no campo e depois em um jogador da lista. Qualquer jogador pode jogar em qualquer posição, mas rende menos fora da sua.')),
@@ -2608,7 +2646,7 @@ window.ESCUDOS_REAIS = {};
     if (P) {
       const pl = M.placarDe(P.m); REFS.pl0.textContent = pl[0]; REFS.pl1.textContent = pl[1];
       pintarStats(P); pintarAgg(P);
-      while (G.jg.evtN < P.m.eventos.length) { REFS.feed.prepend(eventoLinha(P.m.eventos[G.jg.evtN], P)); G.jg.evtN++; }
+      while (G.jg.evtN < P.m.eventos.length) { const ev = P.m.eventos[G.jg.evtN]; REFS.feed.prepend(eventoLinha(ev, P)); G.jg.evtN++; if (ev.tipo === 'gol' && G.g.humanoIds.has(ev.lado === 0 ? P.jogo.casa : P.jogo.fora)) K.somSorteio.gol(); }
     }
     if (REFS.bar) REFS.bar.style.width = Math.min(100, live.min / 90 * 100) + '%';
   }
@@ -2642,6 +2680,7 @@ window.ESCUDOS_REAIS = {};
         : jg.pausado ? h('button', { class: 'btn', id: 'play', onclick: retomar }, live.min === 0 ? 'Iniciar o jogo' : live.min === 45 ? 'Começar o 2º tempo' : 'Continuar')
           : h('button', { class: 'btn alt', id: 'pause', onclick: () => pausar('Jogo pausado') }, 'Pausar'),
       !fim ? h('div', { class: 'seg', role: 'group', 'aria-label': 'Velocidade' }, VELS.map(([t, v]) => h('button', { type: 'button', 'aria-pressed': jg.vel === v ? 'true' : 'false', onclick: () => { jg.vel = v; if (!jg.pausado) iniciarTimer(); K.render(); } }, t))) : null,
+      !fim ? h('button', { class: 'btn alt sm', id: 'somjogo', 'aria-pressed': G.mudo ? 'false' : 'true', onclick: (e) => { G.mudo = !G.mudo; e.currentTarget.textContent = G.mudo ? 'Som: desligado' : 'Som: ligado'; e.currentTarget.setAttribute('aria-pressed', G.mudo ? 'false' : 'true'); } }, G.mudo ? 'Som: desligado' : 'Som: ligado') : null,
       !fim ? h('button', { class: 'btn alt sm', id: 'pular', onclick: () => { K.jogoParar(); GM.completarDia(G.g); jg.pausado = true; jg.aviso = 'Fim de jogo'; K.render(); } }, 'Pular para o fim') : null,
       !fim && jg.pausado && P && live.min > 0 ? h('button', { class: 'btn alt sm', id: 'subs', onclick: () => { jg.painel = !jg.painel; K.render(); } }, jg.painel ? 'Fechar substituições' : 'Substituições e tática') : null);
 
@@ -2676,7 +2715,7 @@ window.ESCUDOS_REAIS = {};
     const ok = jg.selOut && jg.selIn && side.subs < max;
     const msg = side.subs >= max ? 'Limite de substituições atingido.' : (jg.msgSub || '');
     return h('div', { class: 'subpanel' },
-      P.m.min === 45 ? h('div', { class: 'subform' }, h('b', null, 'Formação'), h('div', { class: 'seg', role: 'group', 'aria-label': 'Formação' }, Object.keys(M.FORMACOES).map((f) => h('button', { type: 'button', 'aria-pressed': (side.time.formacao || '4-4-2') === f ? 'true' : 'false', onclick: () => { const r = M.mudarFormacao(P.m, lado, f); jg.msgSub = r.ok ? '' : r.motivo; jg.selOut = jg.selIn = null; K.render(); } }, f))), h('small', { class: 'muted' }, 'A formação só pode mudar no intervalo.')) : null,
+      P.m.min === 45 ? h('div', { class: 'subform' }, h('b', null, 'Formação'), h('div', { class: 'seg', role: 'group', 'aria-label': 'Formação' }, Object.keys(M.FORMACOES).map((f) => h('button', { type: 'button', 'aria-pressed': (side.time.formacao || '4-4-2') === f ? 'true' : 'false', 'data-tip': K.FORM_INFO[f].estr + '. Forte: ' + K.FORM_INFO[f].forte + ' Fraco: ' + K.FORM_INFO[f].fraco, onclick: () => { const r = M.mudarFormacao(P.m, lado, f); jg.msgSub = r.ok ? '' : r.motivo; jg.selOut = jg.selIn = null; K.render(); } }, f))), h('small', { class: 'muted' }, 'A formação só pode mudar no intervalo.')) : null,
       h('div', { class: 'subtop' }, h('b', null, 'Substituições: ' + side.subs + ' de ' + max),
         h('div', { class: 'seg', role: 'group', 'aria-label': 'Tática' }, K.TATICAS.map(([k, t]) => h('button', { type: 'button', 'aria-pressed': side.time.tatica === k ? 'true' : 'false', 'data-tip': K.DESC_TATICA[k], onclick: () => { side.time.tatica = k; M.recalcular(P.m); K.render(); } }, t)))),
       h('div', { class: 'subcols' },
@@ -3100,6 +3139,20 @@ window.ESCUDOS_REAIS = {};
           const u = new SpeechSynthesisUtterance(txt), vozes = speechSynthesis.getVoices(), v = vozes.find((x) => /pt[-_]BR/i.test(x.lang)) || vozes.find((x) => /^pt/i.test(x.lang));
           u.lang = 'pt-BR'; if (v) u.voice = v; u.rate = 1.15; u.pitch = 1.15; u.volume = 1; speechSynthesis.speak(u);
         } catch (e) { /* sem voz */ }
+      },
+      // som de gol (time de um técnico humano): torcida, buzina e fanfarra curta
+      gol() {
+        if (G.mudo) return; try {
+          const c = ac(); if (!c) return; const t = c.currentTime + 0.02;
+          const n = Math.floor(c.sampleRate * 2.6), b = c.createBuffer(1, n, c.sampleRate), d = b.getChannelData(0); for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+          const r = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain(); r.buffer = b; f.type = 'bandpass'; f.frequency.setValueAtTime(700, t); f.frequency.linearRampToValueAtTime(1500, t + 0.6); f.Q.value = 0.6;
+          g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.35, t + 0.35); g.gain.exponentialRampToValueAtTime(0.0001, t + 2.5); r.connect(f); f.connect(g); g.connect(c.destination); r.start(t);
+          [233, 349, 466].forEach((fr, i) => { const o = c.createOscillator(), og = c.createGain(), lp = c.createBiquadFilter(), vib = c.createOscillator(), vg = c.createGain(); o.type = 'sawtooth'; o.frequency.value = fr; lp.type = 'lowpass'; lp.frequency.value = 2200;
+            vib.frequency.value = 6; vg.gain.value = 4; vib.connect(vg); vg.connect(o.frequency);
+            og.gain.setValueAtTime(0.0001, t + 0.05); og.gain.exponentialRampToValueAtTime(0.07 - i * 0.012, t + 0.1); og.gain.setValueAtTime(0.07 - i * 0.012, t + 1.1); og.gain.exponentialRampToValueAtTime(0.0001, t + 1.5);
+            o.connect(lp); lp.connect(og); og.connect(c.destination); o.start(t + 0.05); o.stop(t + 1.6); vib.start(t + 0.05); vib.stop(t + 1.6); });
+          [72, 76, 79, 84].forEach((m, i) => nota(c, t + 1.0 + i * 0.1, m, 0.5, 'square', 0.05, 3000));
+        } catch (e) { /* sem áudio */ }
       },
       parar() { try { if (window.speechSynthesis) speechSynthesis.cancel(); if (ctx && ctx.state === 'running') { ctx.close(); ctx = null; } } catch (e) { ctx = null; } },
     };
