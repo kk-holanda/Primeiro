@@ -492,13 +492,22 @@ table.liga tr.z-sobe td.z { box-shadow: inset 4px 0 var(--st-verde); }
 .seg button[disabled] { opacity: .5; cursor: not-allowed; }
 .bingo { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 18px; align-items: start; background: #0f2f1c; color: #eef6ea; border: 1px solid var(--line); border-left: 6px solid var(--hot); padding: 18px; }
 @media (max-width: 800px) { .bingo { grid-template-columns: minmax(0, 1fr); } }
-.gaiola { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; padding: 14px; margin-top: 8px; background: radial-gradient(circle at 50% 25%, #1f5234, #0a2013); border: 3px solid #2f6644; border-radius: 22px; }
-.bola { aspect-ratio: 1; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; border: 3px solid #fff; padding: 5px; position: relative; font: 800 11px/1.05 var(--body); letter-spacing: .01em; box-shadow: inset -7px -9px 12px rgb(0 0 0 / .3), 0 2px 5px rgb(0 0 0 / .45); overflow: hidden; }
-.bola > span { overflow-wrap: anywhere; text-shadow: 0 0 2px rgb(0 0 0 / .25); }
-.bola.saiu { visibility: hidden; }
+.tray { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin-top: 8px; }
+.tray.vazia { display: none; }
+.bola { aspect-ratio: 1; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; text-align: center; padding: 4px; position: relative; color: #fff; font: 800 9.5px/1.02 var(--body); background: radial-gradient(circle at 32% 26%, rgb(255 255 255 / .5) 0, rgb(255 255 255 / 0) 34%), var(--bc, #1d4ed8); border: 4px solid var(--b1, #fff); outline: 2px solid var(--b2, #fff); outline-offset: -6px; box-shadow: inset -7px -9px 12px rgb(0 0 0 / .3), 0 2px 5px rgb(0 0 0 / .45); overflow: hidden; }
+.bola .escudo { width: 30px; height: 31px; flex: none; }
+.bola .bn { overflow-wrap: anywhere; text-shadow: 0 1px 2px rgb(0 0 0 / .6); padding: 0 2px; }
+.bola.saiu, .bola.fora { visibility: hidden; }
 .bola.voando { position: fixed; z-index: 70; margin: 0; pointer-events: none; }
-.gaiola.gira .bola { animation: pula .46s ease-in-out infinite alternate; animation-delay: var(--d, 0s); }
-@keyframes pula { from { transform: translate(0, 0) rotate(-8deg); } to { transform: translate(var(--dx, 4px), var(--dy, -7px)) rotate(9deg); } }
+.globowrap { position: relative; width: min(330px, 100%); margin: 10px auto 0; padding-bottom: 14px; }
+.globo { position: relative; width: 100%; aspect-ratio: 1; border-radius: 50%; border: 5px solid #cfe8d5; overflow: hidden; background: radial-gradient(circle at 35% 28%, rgb(255 255 255 / .22), rgb(255 255 255 / .05) 55%, rgb(0 0 0 / .3)); box-shadow: inset 0 0 30px rgb(0 0 0 / .5); }
+.globo .bola { position: absolute; width: 21%; font-size: 8px; padding: 2px; border-width: 3px; outline-offset: -5px; }
+.globo .bola .escudo { width: 22px; height: 23px; }
+.globobase { position: absolute; left: 20%; right: 20%; bottom: 0; height: 16px; border-radius: 6px 6px 12px 12px; background: linear-gradient(#cfe8d5, #6f9a7d); }
+.globo.gira { animation: balanca .9s ease-in-out infinite alternate; }
+.globo.gira .bola:not(.fora) { animation: rodopia var(--dur, 1s) linear infinite; animation-delay: var(--atraso, 0s); }
+@keyframes balanca { from { transform: rotate(-3deg); } to { transform: rotate(3deg); } }
+@keyframes rodopia { 0% { transform: translate(0, 0) rotate(0); } 25% { transform: translate(var(--ax), var(--ay)) rotate(90deg); } 50% { transform: translate(var(--bx), var(--by)) rotate(180deg); } 75% { transform: translate(var(--cx), var(--cy)) rotate(270deg); } 100% { transform: translate(0, 0) rotate(360deg); } }
 .bingo-msg { margin-top: 10px; font-weight: 700; min-height: 1.5em; }
 .sorteados { display: flex; flex-direction: column; gap: 10px; }
 .linha-tec { display: grid; grid-template-columns: minmax(0, 1fr) 74px; gap: 10px; align-items: center; background: rgb(255 255 255 / .06); border: 1px solid rgb(255 255 255 / .16); padding: 8px 10px; min-height: 88px; }
@@ -510,7 +519,8 @@ table.liga tr.z-sobe td.z { box-shadow: inset 4px 0 var(--st-verde); }
 .clube-sorteado .muted { color: #8aa593; }
 .linha-tec .alvo { width: 70px; height: 70px; border-radius: 50%; border: 2px dashed rgb(255 255 255 / .3); display: flex; }
 .linha-tec.pronto .alvo { border: 0; }
-.linha-tec .alvo .bola { width: 100%; font-size: 9px; padding: 3px; border-width: 2px; }
+.linha-tec .alvo .bola { width: 100%; font-size: 7px; padding: 2px; border-width: 3px; outline-offset: -5px; }
+.linha-tec .alvo .bola .escudo { width: 20px; height: 21px; }
 .tecbar { display: flex; gap: 6px; flex-wrap: wrap; border-bottom: 2px solid var(--line); }
 .tecbar .tabbtn { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; }
 .tecbar .okmark { color: #2fa84f; font-family: var(--body); }
@@ -543,6 +553,22 @@ li.clicavel[data-tip] { text-decoration: none; }
 .fin-dica { font-size: 14px; }
 .lista-pat { max-height: 420px; overflow: auto; }
 .anos { margin: 6px 0 0; padding-left: 18px; }
+
+@media (prefers-reduced-motion: reduce) { .globo.gira, .globo.gira .bola { animation: none; } }
+/* plantel: cabeçalho fixo, jogadorzinho, posição do adversário */
+.plantel .tablewrap { max-height: calc(100vh - 96px); overflow: auto; }
+.tit { background: none !important; width: auto; height: auto; margin-right: 5px; vertical-align: -2px; color: var(--club1, var(--accent)); }
+.tit svg { width: 11px; height: 15px; display: inline-block; }
+.posadv { font-size: 12px; font-weight: 700; color: var(--muted); border: 1px solid var(--line); padding: 0 5px; margin-left: 2px; white-space: nowrap; }
+.ida-destaque { background: #0f2f1c; color: #eef6ea; border-left: 6px solid var(--hot); padding: 8px 12px; display: flex; flex-direction: column; gap: 2px; }
+.ida-destaque small { letter-spacing: .1em; text-transform: uppercase; font-weight: 700; color: #b9ccb9; font-size: 12px; }
+.ida-destaque b { font-family: var(--display); font-weight: 400; font-size: 24px; letter-spacing: .02em; text-transform: uppercase; }
+.ida-destaque span { font-size: 15px; color: var(--hot); font-weight: 700; }
+/* janelas de ação: valores legíveis */
+.modal .moeda { background: #fff; }
+.modal .moeda input { color: #111; background: #fff; }
+.modal .moeda i { color: #333; background: #e4eadf; }
+.modal small.muted { color: var(--ink); font-weight: 600; }
 
 </style>
 <div id="app"></div>
@@ -914,7 +940,10 @@ window.ESCUDOS_REAIS = {};
     return el;
   }
 
-  bf.Players = { ATTRS, PESOS, GRUPO, DISCIPLINAS, DISC_FALTA, DISC_CARTAO, afinidade, overall, overallEm, ovrNoSlot, gerarElenco: gerarElencoComEstrelas, gerarJogador, resetNomes, NAC_NOME, nomeTecnico, perfilFisico, nivelDoClube, clamp };
+  const fatorGasto = (i) => clamp(1 + (i - 27) * 0.025, 0.9, 1.25);   // idade: veterano gasta mais stamina; jovem um pouco menos
+  const fatorRecup = (i) => clamp(1 - (i - 27) * 0.02, 0.75, 1.08);    // veterano recupera mais devagar
+  const fatorLesao = (i) => clamp(1 - (i - 27) * 0.025, 0.7, 1);       // veterano demora mais para se curar de lesão
+  bf.Players = { fatorGasto, fatorRecup, fatorLesao, ATTRS, PESOS, GRUPO, DISCIPLINAS, DISC_FALTA, DISC_CARTAO, afinidade, overall, overallEm, ovrNoSlot, gerarElenco: gerarElencoComEstrelas, gerarJogador, resetNomes, NAC_NOME, nomeTecnico, perfilFisico, nivelDoClube, clamp };
 })(typeof globalThis !== 'undefined' ? globalThis : this);
 
 ;
@@ -1009,7 +1038,7 @@ window.ESCUDOS_REAIS = {};
       // cansaço: perda por minuto depende do atributo FIS (FIS 99 ≈ -13 por jogo; FIS 30 ≈ -26)
       for (const s of S) for (const j of s.campo) {
         j.minutos++;
-        const perda = (26 - j.p.attr.FIS * 0.13) / 90 * (s.time.tatica === 'ofensivo' ? 1.1 : s.time.tatica === 'defensivo' ? 0.95 : 1);
+        const perda = (26 - j.p.attr.FIS * 0.13) / 90 * (s.time.tatica === 'ofensivo' ? 1.1 : s.time.tatica === 'defensivo' ? 0.95 : 1) * P().fatorGasto(j.p.idade);
         j.p.stamina = Math.max(0, j.p.stamina - perda);
         if (rng.chance(CFG.lesaoPorJogadorMin * (1.4 - j.p.attr.FIS / 200)) && !j.lesionado) {
           j.lesionado = true; j.p.lesao = rng.int(1, 8); j.p.stamina = Math.min(j.p.stamina, 15);
@@ -1280,9 +1309,9 @@ window.ESCUDOS_REAIS = {};
   function semJogar(p) { p.moral = clamp(p.moral + (50 - p.moral) * 0.04 - 1, 0, 100); }
   // Recuperação entre jogos: dias de descanso. FIS alto recupera melhor. Lesionado só volta quando lesao = 0.
   function descansar(p, dias) {
-    const taxa = (6 + p.attr.FIS * 0.08) * dias; // ex.: FIS 50 => ~10/dia ; FIS 90 => ~13/dia
+    const taxa = (6 + p.attr.FIS * 0.08) * dias * P().fatorRecup(p.idade); // ex.: FIS 50 => ~10/dia ; FIS 90 => ~13/dia ; veteranos de 35 anos ~16% menos
     p.stamina = clamp(p.stamina + taxa * (p.lesao ? 0.3 : 1), 0, 100);
-    if (p.lesao > 0 && dias >= 3) p.lesao--;
+    if (p.lesao > 0 && dias >= 3) { p.lesaoAc = (p.lesaoAc || 0) + P().fatorLesao(p.idade); if (p.lesaoAc >= 1) { p.lesaoAc -= 1; p.lesao--; } }
   }
   // Fim de temporada: envelhece e aplica declínio dos veteranos / tendência de queda se sem jogar
   function virarAno(p, rng) {
@@ -1841,7 +1870,7 @@ window.ESCUDOS_REAIS = {};
     for (let i = 0; i < n; i++) {
       const pos = need.slice().sort((a, b) => have(a) - have(b))[0];
       const p = PL().gerarJogador(g.rng, pos, PL().nivelDoClube(c.prestigio) - 5, g.rng.int(17, 19), undefined, 'BRA');
-      p.contratoAte = GM().addMeses(g.data, g.rng.int(12, 18)); p.salario = E().salarioBase(p); p.num = numeroLivre(c); p.stamina = 100;
+      p.contratoAte = GM().addMeses(g.data, g.rng.int(12, 18)); p.salario = E().salarioBase(p); p.num = numeroLivre(c); p.stamina = 100; p.moral = 70;
       c.elenco.push(p);
     }
     noticia(g, n + ' jogador(es) da base subiram para completar o elenco.', 'info');
@@ -1928,7 +1957,7 @@ window.ESCUDOS_REAIS = {};
     FIS: 'Físico: impulsão (ajuda no cabeceio), fôlego, força e agressividade. Quanto maior, menos o jogador se cansa.',
     media: 'Média: nota geral do jogador na sua posição, calculada a partir dos 6 atributos.',
     disc: 'Disciplina: de Fair player (quase não faz falta) a Macetador (faz muitas faltas e leva muitos cartões).',
-    stamina: 'Stamina: condição física. Cai durante o jogo (mais rápido com Físico baixo) e volta com o descanso. Baixa, derruba o rendimento.',
+    stamina: 'Stamina: condição física. Cai durante o jogo (mais rápido com Físico baixo) e volta com o descanso. Baixa, derruba o rendimento. Veteranos cansam mais rápido e recuperam mais devagar; jovens aguentam um pouco mais.',
     moral: 'Moral: confiança do jogador. Sobe com boas atuações e, quanto mais alta, mais fácil evoluir os atributos.',
     sit: 'Situação: lesionado (jogos que faltam) ou suspenso.',
     contrato: 'Contrato: o jogador pertence ao clube até o fim deste mês.',
@@ -1985,9 +2014,9 @@ window.ESCUDOS_REAIS = {};
   K.modal = function (titulo, corpo, opts = {}) {
     const antes = document.activeElement;
     const fechar = () => { ov.remove(); document.removeEventListener('keydown', tecla); if (antes && antes.focus) antes.focus(); if (opts.aoFechar) opts.aoFechar(); };
-    const tecla = (e) => { if (e.key === 'Escape') fechar(); };
+    const tecla = () => {};   // fecha só pelo X (ou pelos botões da janela)
     const caixa = K.h('div', { class: 'modal', role: 'dialog', 'aria-modal': 'true', 'aria-label': titulo }, K.h('header', null, K.h('h3', null, titulo), K.h('button', { class: 'x', 'aria-label': 'Fechar', onclick: fechar }, '×')), K.h('div', { class: 'mbody' }, corpo));
-    const ov = K.h('div', { class: 'overlay', onclick: (e) => { if (e.target === ov) fechar(); } }, caixa);
+    const ov = K.h('div', { class: 'overlay' }, caixa);
     document.body.append(ov); document.addEventListener('keydown', tecla);
     const f = caixa.querySelector('input,button.btn'); if (f) f.focus();
     return { fechar, corpo: caixa.querySelector('.mbody'), caixa };
@@ -2512,6 +2541,14 @@ window.ESCUDOS_REAIS = {};
   const fmtPub = (n) => (n >= 10000 ? Math.round(n / 1000) + ' mil' : n >= 1000 ? (n / 1000).toFixed(1).replace('.', ',') + ' mil' : String(n));
   const nf = (n) => K.nf.format(n);
   const REFS = {};
+  // jogo de volta: placar da ida em destaque e o agregado ao vivo
+  function pintarAgg(P) { if (!REFS.agg || !P) return; const c = P.jogo.confronto, pl = M.placarDe(P.m); REFS.agg.textContent = 'Agregado agora: ' + nome(c.a) + ' ' + (c.ida[0] + pl[1]) + ' × ' + (c.ida[1] + pl[0]) + ' ' + nome(c.b); }
+  function idaBox(P) {
+    if (!P || P.jogo.perna !== 'volta') return null;
+    const c = P.jogo.confronto; REFS.agg = h('span', { class: 'num' });
+    const el = h('div', { class: 'ida-destaque', role: 'status' }, h('small', null, 'Resultado do jogo de ida'), h('b', null, nome(c.a) + ' ' + c.ida[0] + ' × ' + c.ida[1] + ' ' + nome(c.b)), REFS.agg);
+    pintarAgg(P); return el;
+  }
   function pintarStats(P) {
     const st = P.m.stats, n = Math.max(1, P.m.min);
     REFS.stats.forEach(([k, el]) => { el.textContent = k === 'posse' ? Math.round(st[0].posse / n * 100) + '% — ' + Math.round(st[1].posse / n * 100) + '%' : st[0][k] + ' — ' + st[1][k]; });
@@ -2525,7 +2562,7 @@ window.ESCUDOS_REAIS = {};
     }
     if (P) {
       const pl = M.placarDe(P.m); REFS.pl0.textContent = pl[0]; REFS.pl1.textContent = pl[1];
-      pintarStats(P);
+      pintarStats(P); pintarAgg(P);
       while (G.jg.evtN < P.m.eventos.length) { REFS.feed.prepend(eventoLinha(P.m.eventos[G.jg.evtN], P)); G.jg.evtN++; }
     }
     if (REFS.bar) REFS.bar.style.width = Math.min(100, live.min / 90 * 100) + '%';
@@ -2548,7 +2585,7 @@ window.ESCUDOS_REAIS = {};
     // painel principal (partida do humano)
     const stat = (rot, k) => { const el = h('span', { class: 'num' }); REFS.stats.push([k, el]); return h('div', { class: 'strow' }, el, h('small', null, rot)); };
     const clockEl = h('div', { class: 'clock num', 'aria-live': 'off' }, live.min + "'"); REFS.clock = clockEl;
-    REFS.bar = null;
+    REFS.bar = null; REFS.agg = null;
     const pl = P ? M.placarDe(P.m) : [0, 0];
     REFS.pl0 = h('b', { class: 'num' }, pl[0]); REFS.pl1 = h('b', { class: 'num' }, pl[1]);
     REFS.feed = h('ol', { class: 'feed', 'aria-label': 'Lances' });
@@ -2565,7 +2602,8 @@ window.ESCUDOS_REAIS = {};
 
     const campo = P ? h('section', { class: 'jmain' },
       h('div', { class: 'placar' }, h('span', { class: 'tn' + (lado === 0 ? ' eu' : '') }, nome(P.jogo.casa), K.escudo(P.jogo.casa, true)), h('span', { class: 'sc' }, REFS.pl0, h('i', null, '×'), REFS.pl1), h('span', { class: 'tn r' + (lado === 1 ? ' eu' : '') }, K.escudo(P.jogo.fora, true), nome(P.jogo.fora))),
-      h('div', { class: 'javiso' + (live.min === 45 && jg.pausado ? ' intervalo' : ''), role: 'status' }, jg.aviso || (jg.pausado ? '' : 'Bola rolando'), live.min === 0 ? h('small', { class: 'muted' }, ' Tática e escalação já definidas na aba Escalação. Depois do apito inicial você pode pausar para mexer.') : null, P.jogo.perna === 'volta' ? h('small', { class: 'muted' }, ' Jogo de volta · ida: ' + P.jogo.confronto.ida[0] + ' × ' + P.jogo.confronto.ida[1] + ' (' + nome(P.jogo.confronto.a) + ' em casa)') : null),
+      idaBox(P),
+      h('div', { class: 'javiso' + (live.min === 45 && jg.pausado ? ' intervalo' : ''), role: 'status' }, jg.aviso || (jg.pausado ? '' : 'Bola rolando'), live.min === 0 ? h('small', { class: 'muted' }, ' Tática e escalação já definidas na aba Escalação. Depois do apito inicial você pode pausar para mexer.') : null, null),
       h('div', { class: 'publico', 'data-tip': 'Pessoas no estádio neste jogo.' }, h('b', { class: 'num' }, nf(P.publico)), ' pessoas · ' + nome(P.jogo.casa) + ' · ' + G.g.porId.get(P.jogo.casa).estadio.nome + ' (' + nf(G.g.porId.get(P.jogo.casa).estadio.capacidade) + ' lugares)'),
       h('div', { class: 'stats' }, stat('Posse de bola', 'posse'), stat('Chutes', 'chutes'), stat('No gol', 'no_gol'), stat('Faltas', 'faltas'), stat('Amarelos', 'amarelos'), stat('Vermelhos', 'vermelhos')),
       jg.painel ? painelSubs(P, lado) : null,
@@ -2947,9 +2985,10 @@ window.ESCUDOS_REAIS = {};
   // ---------- tela 3: nomes dos técnicos e sorteio em bingo ----------
   const esperar = (ms) => new Promise((ok) => setTimeout(ok, ms));
   const reduzMov = () => G.pularBingo || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
-  const corTexto = (c) => (K.lum(c.cores[0]) > 0.4 ? '#111' : '#fff');
-  const estiloBola = (c) => 'background:radial-gradient(circle at 32% 26%, rgb(255 255 255 / .55) 0, rgb(255 255 255 / 0) 34%), ' + c.cores[0] + ';border-color:' + c.cores[1] + ';color:' + corTexto(c) + ';';
-  const bolaEl = (c, extra) => h('span', { class: 'bola ' + (extra || ''), style: estiloBola(c), 'data-club': c.id }, h('span', null, c.nome));
+  const PALETA = ['#d62839', '#f4a300', '#2a9d8f', '#1d4ed8', '#7b2cbf', '#e85d9b', '#2d6a4f', '#ee6c1a', '#0ea5e9', '#6b4f3a'];   // uma cor diferente para cada bola
+  const REPOUSO = [[19, 70], [39.5, 70], [60, 70], [19, 50], [39.5, 50], [60, 50], [29, 30], [50, 30], [29, 10], [50, 10]];   // bolas empilhadas no fundo do globo
+  const bolaEl = (c, i, extra) => h('span', { class: 'bola ' + (extra || ''), style: '--bc:' + PALETA[i % PALETA.length] + ';--b1:' + c.cores[0] + ';--b2:' + c.cores[1], 'data-club': c.id }, K.escudo(c), h('span', { class: 'bn' }, c.nome));
+  const idxPool = (c) => poolSorteio().findIndex((x) => x.id === c.id);
   const poolSorteio = () => BF.CLUBS.filter((c) => c.selecionavel);
 
   function tela3() {
@@ -2959,20 +2998,21 @@ window.ESCUDOS_REAIS = {};
     const slots = Array.from({ length: n }, (_, i) => h('div', { class: 'slot' + (i === 0 ? ' me' : '') }, h('label', { for: i ? 'nome' + (i + 1) : 'nome' }, 'Técnico ' + (i + 1)),
       h('input', { id: i ? 'nome' + (i + 1) : 'nome', maxlength: 24, placeholder: i ? 'Nome do técnico ' + (i + 1) : 'Seu nome', autocomplete: 'off', value: G.nomes[i] || '', disabled: travado, oninput: (e) => { G.nomes[i] = e.target.value; }, onkeydown: (e) => { if (e.key === 'Enter') sortear(); } })));
     const usados = new Set(G.humanos.map((x) => x.clubId));
-    const gaiola = h('div', { class: 'gaiola', id: 'gaiola', role: 'img', 'aria-label': 'Globo com as 10 bolas dos clubes sorteáveis' }, pool.map((c, i) => { const b = bolaEl(c, usados.has(c.id) ? 'saiu' : ''); b.style.setProperty('--d', (-(i % 5) * 0.11) + 's'); b.style.setProperty('--dx', (i % 2 ? 4 : -4) + 'px'); b.style.setProperty('--dy', (-5 - (i % 3) * 2) + 'px'); return b; }));
+    const bandeja = h('div', { class: 'tray' + (depois ? ' vazia' : ''), id: 'bandeja', role: 'img', 'aria-label': 'As 10 bolas dos clubes sorteáveis' }, pool.map((c, i) => bolaEl(c, i)));
+    const globo = h('div', { class: 'globo', id: 'globo', role: 'img', 'aria-label': 'Globo do sorteio' }, pool.map((c, i) => { const b = bolaEl(c, i, depois && !usados.has(c.id) ? '' : 'fora'); b.style.left = REPOUSO[i][0] + '%'; b.style.top = REPOUSO[i][1] + '%'; return b; }));
     const linhas = Array.from({ length: n }, (_, i) => {
       const hu = G.humanos[i], c = hu && BF.CLUBS.find((x) => x.id === hu.clubId);
       return h('div', { class: 'linha-tec' + (c ? ' pronto' : ''), id: 'lt' + i },
         h('div', { class: 'quem' }, h('small', null, 'Técnico ' + (i + 1)), h('b', null, (hu ? hu.nome : G.nomes[i] || '—')), h('div', { class: 'clube-sorteado', id: 'cs' + i, 'aria-live': 'polite' }, c ? [K.escudo(c), h('span', null, c.nome)] : h('span', { class: 'muted' }, '— — —'))),
-        h('div', { class: 'alvo', id: 'alvo' + i }, c ? bolaEl(c, 'noalvo') : null));
+        h('div', { class: 'alvo', id: 'alvo' + i }, c ? bolaEl(c, idxPool(c), 'noalvo') : null));
     });
     return h('main', { class: 'wrap page' },
       h('div', { class: 'head' }, h('span', { class: 'eyebrow' }, 'Quem é você?'), h('h2', null, n > 1 ? 'Seus nomes, seus clubes' : 'Seu nome, seu clube'),
-        h('p', null, 'Cada técnico começa treinando um dos 10 piores clubes da Série D. Os clubes saem de um bingo, em ordem, sem repetir: ' + pool.map((c) => c.nome).join(', ') + '.')),
+        h('p', null, 'Cada técnico começa treinando um dos 10 piores clubes da Série D. Os clubes saem de um sorteio com globo, em ordem, sem repetir: ' + pool.map((c) => c.nome).join(', ') + '.')),
       h('div', { class: 'card' }, h('div', { class: 'ntec' }, h('span', { class: 'eyebrow' }, 'Quantos técnicos?'), segN, n > 1 ? h('small', { class: 'muted' }, 'No mesmo aparelho: cada um alterna pela barra de técnicos e marca "Estou pronto" antes da rodada.') : null),
         h('div', { class: 'slots' }, slots), h('p', { class: 'err', id: 'erro', role: 'alert' }, G.erro)),
       h('div', { class: 'bingo', 'aria-live': 'polite' },
-        h('div', null, h('span', { class: 'eyebrow', style: 'color:#b9ccb9' }, 'Bingo dos clubes'), gaiola, h('p', { class: 'bingo-msg', id: 'bingomsg' }, depois ? 'Sorteio concluído.' : 'As 10 bolas estão no globo.')),
+        h('div', null, h('span', { class: 'eyebrow', style: 'color:#b9ccb9' }, 'Sorteio dos clubes'), bandeja, h('div', { class: 'globowrap' }, globo, h('i', { class: 'globobase' })), h('p', { class: 'bingo-msg', id: 'bingomsg' }, depois ? 'Sorteio concluído.' : 'Estas são as 10 bolas. Elas vão para o globo.')),
         h('div', { class: 'sorteados' }, linhas)),
       h('div', { class: 'actions' }, h('button', { class: 'btn alt', disabled: G.sorteando, onclick: () => ir(2) }, 'Voltar'),
         G.sorteando ? h('button', { class: 'btn alt', id: 'pularbingo', onclick: () => { G.pularBingo = true; } }, 'Pular animação') : null,
@@ -2980,30 +3020,47 @@ window.ESCUDOS_REAIS = {};
           : !G.sorteando ? h('button', { class: 'btn', id: 'sortear', onclick: sortear }, n > 1 ? 'Sortear os clubes' : 'Sortear meu clube') : null));
   }
 
-  // anima uma bola saindo do globo e voando até a vaga do técnico
-  async function voar(bola, alvo) {
-    const r = bola.getBoundingClientRect(), t = alvo.getBoundingClientRect(), clone = bola.cloneNode(true);
-    clone.classList.add('voando'); Object.assign(clone.style, { left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px' });
-    document.body.append(clone); bola.classList.add('saiu');
+  const rects = (el) => el.getBoundingClientRect();
+  // voa uma cópia da bola de um ponto a outro (com escala)
+  async function mover(origem, destino, { ms = 800, sobe = 0, pausa = 0 } = {}) {
+    const r = rects(origem), t = rects(destino), clone = origem.cloneNode(true);
+    clone.classList.remove('fora', 'saiu'); clone.classList.add('voando'); clone.style.cssText += ';left:' + r.left + 'px;top:' + r.top + 'px;width:' + r.width + 'px;height:' + r.height + 'px;';
+    document.body.append(clone);
     const dx = t.left + t.width / 2 - (r.left + r.width / 2), dy = t.top + t.height / 2 - (r.top + r.height / 2), s = t.width / r.width;
-    await clone.animate([{ transform: 'translate(0,0) scale(1)' }, { transform: 'translate(0,-38px) scale(1.55)' }], { duration: 480, easing: 'ease-out', fill: 'forwards' }).finished;
-    await esperar(260);
-    await clone.animate([{ transform: 'translate(0,-38px) scale(1.55)' }, { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(' + s + ')' }], { duration: 800, easing: 'cubic-bezier(.45,0,.2,1)', fill: 'forwards' }).finished;
+    if (sobe) { await clone.animate([{ transform: 'translate(0,0) scale(1)' }, { transform: 'translate(0,' + (-sobe) + 'px) scale(1.5)' }], { duration: 480, easing: 'ease-out', fill: 'forwards' }).finished; await esperar(pausa); }
+    await clone.animate([{ transform: sobe ? 'translate(0,' + (-sobe) + 'px) scale(1.5)' : 'translate(0,0) scale(1)' }, { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(' + s + ')' }], { duration: ms, easing: 'cubic-bezier(.45,0,.2,1)', fill: 'forwards' }).finished;
     clone.remove();
   }
+  function girar(globo, ligado) {
+    globo.classList.toggle('gira', ligado);
+    if (!ligado) return;
+    const r = (k) => Math.round((Math.random() * 2 - 1) * k) + '%';
+    globo.querySelectorAll('.bola:not(.fora):not(.saiu)').forEach((b) => {
+      ['ax', 'ay', 'bx', 'by', 'cx', 'cy'].forEach((v) => b.style.setProperty('--' + v, r(v[1] === 'x' ? 150 : 140)));
+      b.style.setProperty('--dur', (0.8 + Math.random() * 0.7).toFixed(2) + 's'); b.style.setProperty('--atraso', (-Math.random()).toFixed(2) + 's');
+    });
+  }
   async function bingo(escolhidos, nomes) {
-    const gaiola = document.getElementById('gaiola'), msg = document.getElementById('bingomsg');
-    gaiola.scrollIntoView({ block: 'center', behavior: reduzMov() ? 'auto' : 'smooth' }); await esperar(reduzMov() ? 0 : 500);
+    const bandeja = document.getElementById('bandeja'), globo = document.getElementById('globo'), msg = document.getElementById('bingomsg');
+    bandeja.scrollIntoView({ block: 'center', behavior: reduzMov() ? 'auto' : 'smooth' }); await esperar(reduzMov() ? 0 : 700);
+    // 1 e 2: as bolas, com nomes e brasões, entram no globo
+    msg.textContent = 'As bolas estão entrando no globo…';
+    const tb = [...bandeja.querySelectorAll('.bola')], gb = [...globo.querySelectorAll('.bola')];
+    await Promise.all(tb.map((b, i) => esperar(reduzMov() ? 0 : i * 120).then(async () => { if (!reduzMov()) await mover(b, gb[i], { ms: 900 }); gb[i].classList.remove('fora'); b.classList.add('saiu'); })));
+    bandeja.classList.add('vazia'); await esperar(reduzMov() ? 0 : 300);
     for (let i = 0; i < escolhidos.length; i++) {
       const c = escolhidos[i];
-      msg.textContent = 'Sorteando o clube de ' + nomes[i] + '…';
-      gaiola.classList.add('gira'); await esperar(reduzMov() ? 0 : 1300); gaiola.classList.remove('gira');
-      const bola = gaiola.querySelector('[data-club="' + c.id + '"]'), alvo = document.getElementById('alvo' + i);
-      if (!reduzMov()) await voar(bola, alvo); else bola.classList.add('saiu');
-      alvo.replaceChildren(bolaEl(c, 'noalvo'));
+      // 3: o globo gira por 5 segundos
+      msg.textContent = 'O globo está girando… sorteio do clube de ' + nomes[i];
+      girar(globo, true); await esperar(reduzMov() ? 0 : 5000); girar(globo, false);
+      // 4: sai a bola do clube sorteado e vai para o técnico
+      const bola = globo.querySelector('[data-club="' + c.id + '"]'), alvo = document.getElementById('alvo' + i);
+      if (!reduzMov()) await mover(bola, alvo, { ms: 800, sobe: 60, pausa: 400 });
+      bola.classList.add('saiu');
+      alvo.replaceChildren(bolaEl(c, idxPool(c), 'noalvo'));
       const cs = document.getElementById('cs' + i); cs.replaceChildren(K.escudo(c), h('span', null, c.nome)); document.getElementById('lt' + i).classList.add('pronto');
       msg.textContent = nomes[i] + ' vai treinar o ' + c.nome + '!';
-      await esperar(reduzMov() ? 0 : 650);
+      await esperar(reduzMov() ? 0 : 700);
     }
   }
   async function sortear() {
@@ -3047,7 +3104,13 @@ window.ESCUDOS_REAIS = {};
   // ---------- "casa" do jogo: cabeçalho com liga/rodada, data, próximo jogo, últimos jogos + abas ----------
   const resultado = (r) => (r.gp > r.gc ? 'V' : r.gp < r.gc ? 'D' : 'E');
   const placarEl = (id, r) => { const a = G.g.porId.get(r.adv), n = G.g.porId.get(id); const pl = (x, y) => h('b', { class: 'num' }, x + ' × ' + y); return r.casa ? [K.comEscudo(n), pl(r.gp, r.gc), K.comEscudo(a)] : [K.comEscudo(a), pl(r.gc, r.gp), K.comEscudo(n)]; };
-  const ligaRodada = (c) => { const L = G.g.ligas[c.div], n = L.res.length; return G.g.fim ? 'Brasileirão ' + K.DIV_NOME[c.div] + ' · temporada encerrada' : 'Brasileirão ' + K.DIV_NOME[c.div] + ' · ' + (n + 1) + 'ª rodada'; };
+  const ligaRodada = (c) => {
+    const g = G.g, n = g.ligas[c.div].res.length, DN = K.DIV_NOME[c.div];
+    if (g.fim) return 'Brasileirão ' + DN + ' · temporada encerrada';
+    const pos = K.linhasOrdenadas(g, c.div).findIndex((r) => r.id === c.id) + 1, pj = GM.proximoJogo(g, c.id);
+    if (pj && pj.comp === 'copa') return 'Copa do Brasil · ' + pj.fase + ' (' + pj.perna + ') · ' + pos + 'º na ' + DN;
+    return 'Brasileirão ' + DN + ' · ' + pos + 'º lugar · ' + (n + 1) + 'ª rodada';
+  };
   const todosProntos = () => G.humanos.every((hu) => G.prontos.has(hu.clubId));
   function trocarTecnico(i) { G.ativo = i; G.sel = null; G.escSlot = null; G.clubeVisto = null; G.finPreco = null; G.finMsg = ''; G.finMsgPat = ''; if (G.jg) { G.jg.selOut = G.jg.selIn = null; G.jg.msgSub = ''; } render(); }
   // barra para alternar entre os técnicos (só aparece com 2 ou mais)
@@ -3065,10 +3128,11 @@ window.ESCUDOS_REAIS = {};
           h('td', { class: 'l' }, hu.nome), h('td', { class: 'l' }, K.comEscudo(cl)), h('td', { class: ok ? 'hi' : 'warn' }, ok ? '✔ Pronto' : '… Aguardando')); }))),
       h('small', { class: 'muted' }, falta ? 'Faltam ' + falta + ' técnico(s). Mexer na escalação desmarca o "pronto".' : 'Todos prontos. Já dá para iniciar a rodada.'));
   };
+  const posAdv = (id) => { const g = G.g, a = g.porId.get(id), p = K.linhasOrdenadas(g, a.div).findIndex((r) => r.id === id) + 1; return h('span', { class: 'posadv', 'data-tip': a.nome + ' é o ' + p + 'º colocado da ' + K.DIV_NOME[a.div] + '.', tabindex: 0 }, p + 'º · ' + K.DIV_NOME[a.div]); };
   function statusBox(c) {
     const g = G.g, pj = GM.proximoJogo(g, c.id), ult = GM.ultimosJogos(g, c.id, 2), multi = G.humanos.length > 1, pronto = G.prontos.has(c.id);
     const prox = g.fim ? h('span', null, 'Temporada encerrada')
-      : pj ? h('span', null, h('span', { class: 'confronto' }, h('b', null, GM.fmtDataCurta(pj.data)), pj.emCasa ? [K.comEscudo(c), '×', K.comEscudo(pj.adversario)] : [K.comEscudo(pj.adversario), '×', K.comEscudo(c)]), h('small', { class: 'muted' }, pj.rotulo + (pj.emCasa ? ' · em casa' : ' · fora')))
+      : pj ? h('span', null, h('span', { class: 'confronto' }, h('b', null, GM.fmtDataCurta(pj.data)), pj.emCasa ? [K.comEscudo(c), '×', K.comEscudo(pj.adversario), posAdv(pj.adversario)] : [K.comEscudo(pj.adversario), posAdv(pj.adversario), '×', K.comEscudo(c)]), h('small', { class: 'muted' }, pj.rotulo + (pj.emCasa ? ' · em casa' : ' · fora')))
         : h('span', null, 'Sem jogo marcado');
     const botoes = g.fim ? h('button', { class: 'btn hot', id: 'jogar', onclick: () => ir('fim') }, 'Fim da temporada')
       : !multi ? h('button', { class: 'btn hot', id: 'jogar', onclick: jogarProximo }, 'Jogar próximo jogo')
@@ -3134,7 +3198,7 @@ window.ESCUDOS_REAIS = {};
       if (G.sort.k === 'pos' && K.SETOR[p.pos] !== setor) { setor = K.SETOR[p.pos]; linhas.push(h('tr', { class: 'sep' }, h('td', { colspan: COLS.length }, setor))); }
       const lim = (v) => (v >= 70 ? 'hi' : v < 35 ? 'lo' : ''), [st, stc] = situacao(p);
       linhas.push(h('tr', { 'data-id': p.id, class: p.id === G[selKey] ? 'sel' : '', tabindex: 0, onclick: () => selecionar(p.id, selKey), onkeydown: (e) => { if (e.key === 'Enter') selecionar(p.id, selKey); } },
-        h('td', null, p.num), h('td', { class: 'l nm' }, tits.has(p.id) ? h('span', { class: 'tit', title: 'Titular na escalação atual' }) : null, p.nome, p.estrela ? K.estrela() : null),
+        h('td', null, p.num), h('td', { class: 'l nm' }, tits.has(p.id) ? h('span', { class: 'tit', title: 'Titular na escalação atual', html: JOGADORINHO }) : null, p.nome, p.estrela ? K.estrela() : null),
         h('td', null, K.bandeira(p.nac)), h('td', { class: 'pos' }, p.pos), h('td', null, p.idade), h('td', { 'data-tip': K.PE_NOME[p.pe] }, K.PE_SIGLA[p.pe]), h('td', null, K.metros(p.altura)), h('td', null, p.peso), h('td', { class: 'ovr' }, Math.round(PL.overall(p))),
         ...K.ATTRS.map((a) => h('td', { class: lim(p.attr[a]) }, p.attr[a])),
         h('td', null, PL.DISCIPLINAS[p.disciplina]), h('td', null, K.barra(p.stamina)), h('td', null, K.barra(p.moral)),
@@ -3150,7 +3214,7 @@ window.ESCUDOS_REAIS = {};
         h('div', { class: 'tablewrap' }, h('table', { 'aria-label': 'Plantel de ' + c.nome }, h('thead', null, h('tr', null, ths)), h('tbody', null, linhas))),
         painel(c, c.elenco.find((p) => p.id === G[selKey]), ro)),
       ro ? null : h('div', { class: 'rodape' },
-        h('p', { class: 'footnote' }, h('span', { class: 'tit' }), 'Titular na escalação atual. ', K.estrela(), ' Estrela. Clique em um jogador para ver os detalhes e no título de uma coluna para ordenar. Passe o mouse nos títulos para ver o que cada atributo significa.'),
+        h('p', { class: 'footnote' }, h('span', { class: 'tit', html: JOGADORINHO }), 'Titular na escalação atual. ', K.estrela(), ' Estrela. Clique em um jogador para ver os detalhes e no título de uma coluna para ordenar. Passe o mouse nos títulos para ver o que cada atributo significa.'),
         K.moralTreinadorBox()));
   }
   const MK = BF.Mercado;
@@ -3158,6 +3222,7 @@ window.ESCUDOS_REAIS = {};
     const n = G.g.noticias.slice(0, 4); if (!n.length) return null;
     return h('section', { class: 'noticias', 'aria-label': 'Notícias' }, h('h3', null, 'Notícias'), h('ul', null, n.map((x) => h('li', { class: 'nt-' + x.tipo }, h('small', { class: 'num' }, GM.fmtDataCurta(x.data)), h('span', null, x.texto)))));
   }
+  const JOGADORINHO = '<svg viewBox="0 0 12 16" aria-hidden="true"><circle cx="6" cy="3.2" r="2.6" fill="currentColor"/><path d="M1.5 15V8.5C1.5 6.8 2.8 6 4 6h4c1.2 0 2.5.8 2.5 2.5V15H8.3v-5H3.7v5z" fill="currentColor"/></svg>';
   const info = (t, v) => h('div', null, h('small', null, t), h('b', null, v));
   // estádio: nome e, embaixo, a capacidade em pessoas (e o público do último jogo em casa)
   function estadioInfo(c) {
