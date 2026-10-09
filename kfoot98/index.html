@@ -492,35 +492,52 @@ table.liga tr.z-sobe td.z { box-shadow: inset 4px 0 var(--st-verde); }
 .seg button[disabled] { opacity: .5; cursor: not-allowed; }
 .bingo { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 18px; align-items: start; background: #0f2f1c; color: #eef6ea; border: 1px solid var(--line); border-left: 6px solid var(--hot); padding: 18px; }
 @media (max-width: 800px) { .bingo { grid-template-columns: minmax(0, 1fr); } }
-.tray { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin-top: 8px; }
+.tray { display: grid; grid-template-columns: repeat(auto-fit, 88px); justify-content: center; gap: 10px; margin-top: 8px; }
 .tray.vazia { display: none; }
-.bola { aspect-ratio: 1; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; text-align: center; padding: 4px; position: relative; color: #fff; font: 800 9.5px/1.02 var(--body); background: radial-gradient(circle at 32% 26%, rgb(255 255 255 / .5) 0, rgb(255 255 255 / 0) 34%), var(--bc, #1d4ed8); border: 4px solid var(--b1, #fff); outline: 2px solid var(--b2, #fff); outline-offset: -6px; box-shadow: inset -7px -9px 12px rgb(0 0 0 / .3), 0 2px 5px rgb(0 0 0 / .45); overflow: hidden; }
-.bola .escudo { width: 30px; height: 31px; flex: none; }
+.bola { width: 88px; aspect-ratio: 1; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; text-align: center; padding: 4px; position: relative; color: #fff; font: 800 13px/1.02 var(--body); background: radial-gradient(circle at 32% 26%, rgb(255 255 255 / .5) 0, rgb(255 255 255 / 0) 34%), var(--bc, #1d4ed8); border: 4px solid var(--b1, #fff); outline: 2px solid var(--b2, #fff); outline-offset: -6px; box-shadow: inset -7px -9px 12px rgb(0 0 0 / .3), 0 2px 5px rgb(0 0 0 / .45); overflow: hidden; }
+.bola .escudo { width: 38px; height: 40px; flex: none; }
 .bola .bn { overflow-wrap: anywhere; text-shadow: 0 1px 2px rgb(0 0 0 / .6); padding: 0 2px; }
 .bola.saiu, .bola.fora { visibility: hidden; }
 .bola.voando { position: fixed; z-index: 70; margin: 0; pointer-events: none; }
-.globowrap { position: relative; width: min(330px, 100%); margin: 10px auto 0; padding-bottom: 14px; }
-.globo { position: relative; width: 100%; aspect-ratio: 1; border-radius: 50%; border: 5px solid #cfe8d5; overflow: hidden; background: radial-gradient(circle at 35% 28%, rgb(255 255 255 / .22), rgb(255 255 255 / .05) 55%, rgb(0 0 0 / .3)); box-shadow: inset 0 0 30px rgb(0 0 0 / .5); }
-.globo .bola { position: absolute; width: 21%; font-size: 8px; padding: 2px; border-width: 3px; outline-offset: -5px; }
-.globo .bola .escudo { width: 22px; height: 23px; }
-.globobase { position: absolute; left: 20%; right: 20%; bottom: 0; height: 16px; border-radius: 6px 6px 12px 12px; background: linear-gradient(#cfe8d5, #6f9a7d); }
-.globo.gira { animation: balanca .9s ease-in-out infinite alternate; }
+.globowrap { position: relative; width: min(250px, 100%); margin: 14px auto 0; padding-bottom: 30px; }
+.globo { position: relative; width: 100%; aspect-ratio: 1; border-radius: 50%; border: 4px solid #b8c4b8; overflow: hidden; background: radial-gradient(circle at 35% 28%, rgb(255 255 255 / .25), rgb(255 255 255 / .06) 55%, rgb(0 0 0 / .3)); box-shadow: inset 0 0 26px rgb(0 0 0 / .5), 0 0 0 2px #7d8a7d; }
+.globo .bola { position: absolute; width: 23%; font-size: 10px; padding: 2px; border-width: 3px; outline-offset: -5px; }
+.gaiola { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+.gaiola svg { width: 100%; height: 100%; }
+.gaiola circle, .gaiola line, .gaiola ellipse { fill: none; stroke: rgb(235 245 235 / .75); stroke-width: 1.3; transform-origin: 50px 50px; }
+.globowrap.gira .gaiola .e1 { animation: gaiolaX 1.5s linear infinite; }
+.globowrap.gira .gaiola .e2 { animation: gaiolaX 1.5s linear infinite -.5s; }
+.globowrap.gira .gaiola .e3 { animation: gaiolaX 1.5s linear infinite -1s; }
+@keyframes gaiolaX { 0% { transform: scaleX(1); } 50% { transform: scaleX(.06); } 100% { transform: scaleX(1); } }
+.manivela { position: absolute; right: -26px; top: 46%; width: 30px; height: 6px; background: #b8c4b8; border-radius: 3px; transform-origin: 2px 50%; z-index: 4; }
+.manivela::after { content: ''; position: absolute; right: -6px; top: -5px; width: 14px; height: 14px; border-radius: 50%; background: var(--hot); box-shadow: 0 1px 3px rgb(0 0 0 / .5); }
+.globowrap.gira .manivela { animation: manivela .75s linear infinite; }
+@keyframes manivela { to { transform: rotate(360deg); } }
+.globo .bola .escudo { width: 26px; height: 27px; }
+.globobase { position: absolute; left: 14%; right: 14%; bottom: 0; height: 26px; border-radius: 8px 8px 4px 4px; background: linear-gradient(#b8c4b8, #5f6f62); clip-path: polygon(8% 0, 92% 0, 100% 100%, 0 100%); }
+
 .globo.gira .bola:not(.fora) { animation: rodopia var(--dur, 1s) linear infinite; animation-delay: var(--atraso, 0s); }
 @keyframes balanca { from { transform: rotate(-3deg); } to { transform: rotate(3deg); } }
 @keyframes rodopia { 0% { transform: translate(0, 0) rotate(0); } 25% { transform: translate(var(--ax), var(--ay)) rotate(90deg); } 50% { transform: translate(var(--bx), var(--by)) rotate(180deg); } 75% { transform: translate(var(--cx), var(--cy)) rotate(270deg); } 100% { transform: translate(0, 0) rotate(360deg); } }
-.bingo-msg { margin-top: 10px; font-weight: 700; min-height: 1.5em; }
+.bingo-msg { margin-top: 8px; font-weight: 700; font-size: 18px; min-height: 1.5em; text-align: center; }
+.quem-sorteio { color: #ffd23f; font-family: var(--display); font-weight: 400; font-size: 24px; }
+.giratxt { margin: 2px 0 0; min-height: 1.3em; text-align: center; font-family: var(--display); font-size: 42px; line-height: 1.1; letter-spacing: .05em; color: #ffd23f; text-shadow: 0 3px 0 #b3261e, 0 0 14px rgb(0 0 0 / .5); }
+.giratxt span { display: inline-block; animation: pop .4s ease-out; }
+.giratxt.giroou { font-size: 56px; color: #ff6a3d; text-shadow: 0 3px 0 #7a1108, 0 0 18px rgb(255 106 61 / .6); }
+@keyframes pop { 0% { transform: scale(.4); opacity: 0; } 60% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1); } }
 .sorteados { display: flex; flex-direction: column; gap: 10px; }
-.linha-tec { display: grid; grid-template-columns: minmax(0, 1fr) 74px; gap: 10px; align-items: center; background: rgb(255 255 255 / .06); border: 1px solid rgb(255 255 255 / .16); padding: 8px 10px; min-height: 88px; }
+.linha-tec { display: grid; grid-template-columns: minmax(0, 1fr) 92px; gap: 10px; align-items: center; background: rgb(255 255 255 / .06); border: 1px solid rgb(255 255 255 / .16); padding: 8px 10px; min-height: 104px; }
 .linha-tec.pronto { background: rgb(255 255 255 / .11); border-color: var(--hot); }
 .linha-tec .quem { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .linha-tec .quem small { letter-spacing: .1em; text-transform: uppercase; font-weight: 700; color: #b9ccb9; font-size: 12px; }
 .linha-tec .quem b { font-family: var(--display); font-weight: 400; font-size: 22px; line-height: 1.05; overflow-wrap: anywhere; }
-.clube-sorteado { display: flex; align-items: center; gap: 8px; font-size: 17px; font-weight: 700; color: var(--hot); }
+.clube-sorteado { display: flex; align-items: center; gap: 8px; font-size: 21px; font-weight: 800; color: var(--hot); }
+.clube-sorteado .escudo { width: 34px; height: 36px; flex: none; }
 .clube-sorteado .muted { color: #8aa593; }
-.linha-tec .alvo { width: 70px; height: 70px; border-radius: 50%; border: 2px dashed rgb(255 255 255 / .3); display: flex; }
+.linha-tec .alvo { width: 88px; height: 88px; border-radius: 50%; border: 2px dashed rgb(255 255 255 / .3); display: flex; }
 .linha-tec.pronto .alvo { border: 0; }
-.linha-tec .alvo .bola { width: 100%; font-size: 7px; padding: 2px; border-width: 3px; outline-offset: -5px; }
-.linha-tec .alvo .bola .escudo { width: 20px; height: 21px; }
+.linha-tec .alvo .bola { width: 100%; }
+.linha-tec .alvo .bola .escudo { width: 38px; height: 40px; }
 .tecbar { display: flex; gap: 6px; flex-wrap: wrap; border-bottom: 2px solid var(--line); }
 .tecbar .tabbtn { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; }
 .tecbar .okmark { color: #2fa84f; font-family: var(--body); }
@@ -569,6 +586,15 @@ li.clicavel[data-tip] { text-decoration: none; }
 .modal .moeda input { color: #111; background: #fff; }
 .modal .moeda i { color: #333; background: #e4eadf; }
 .modal small.muted { color: var(--ink); font-weight: 600; }
+
+/* classificação: técnicos humanos */
+table.liga td.nm { font-weight: 500; }
+table.liga tr.humano td { background: color-mix(in srgb, var(--accent) 14%, var(--panel)); }
+table.liga tr.humano td.nm { background: color-mix(in srgb, var(--accent) 14%, var(--panel)); font-weight: 600; }
+table.liga tr.meu td, table.liga tr.meu td.nm { background: color-mix(in srgb, var(--hot) 30%, var(--panel)); font-weight: 800; }
+table.liga tr.meu td.nm .cn > span:last-child { font-weight: 800; }
+.tec-tag { display: block; font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: .02em; line-height: 1.1; }
+table.liga tr.meu .tec-tag { color: var(--ink); }
 
 </style>
 <div id="app"></div>
@@ -2293,7 +2319,7 @@ window.ESCUDOS_REAIS = {};
       const c = g.porId.get(r.id), zona = sobe && i < 4 ? 'z-sobe' : desce && i >= 16 ? 'z-desce' : '', sg = r.gp - r.gc;
       const dica = zona === 'z-sobe' ? 'Zona de acesso: os 4 primeiros sobem para a ' + DN['ABCD'[idx - 1]] + '.' : zona === 'z-desce' ? 'Zona de rebaixamento: os 4 últimos caem para a ' + DN['ABCD'[idx + 1]] + '.' : false;
       return h('tr', { class: [zona, r.id === meuId ? 'meu' : '', g.humanoIds.has(r.id) ? 'humano' : ''].join(' '), style: K.coresClube(c) },
-        h('td', { class: 'z', 'data-tip': dica }, i + 1), h('td', { class: 'l nm' }, clube(r.id)), h('td', { class: 'ovr' }, r.pts), h('td', null, r.j), h('td', null, r.v), h('td', null, r.e), h('td', null, r.d),
+        h('td', { class: 'z', 'data-tip': dica }, i + 1), h('td', { class: 'l nm' }, clube(r.id), (() => { const hu = (G.humanos || []).find((x) => x.clubId === r.id); return hu ? h('small', { class: 'tec-tag' }, '* ' + hu.nome) : null; })()), h('td', { class: 'ovr' }, r.pts), h('td', null, r.j), h('td', null, r.v), h('td', null, r.e), h('td', null, r.d),
         h('td', null, r.gp), h('td', null, r.gc), h('td', null, (sg > 0 ? '+' : '') + sg), h('td', null, r.j ? Math.round(r.pts / (r.j * 3) * 100) + '%' : '–'));
     });
     return h('div', { class: 'tablewrap' }, h('table', { class: 'liga', 'aria-label': 'Classificação ' + DN[div] },
@@ -2363,7 +2389,7 @@ window.ESCUDOS_REAIS = {};
     else if (copa) corpo = copaView(g, c.id);
     else corpo = h('div', { class: 'ligabox' }, classificacao(g, G.tabDiv, c.id),
       h('div', { class: 'ligalado' }, rodadaBox(g, G.tabDiv, c.id),
-        h('p', { class: 'legend' }, G.tabDiv !== 'A' ? h('span', null, h('i', { class: 'sw sobe' }), ' acesso (4 primeiros)') : null, G.tabDiv !== 'D' ? h('span', null, h('i', { class: 'sw desce' }), ' rebaixamento (4 últimos)') : null)));
+        h('p', { class: 'legend' }, (G.humanos || []).length ? h('span', null, '* técnico humano') : null, G.tabDiv !== 'A' ? h('span', null, h('i', { class: 'sw sobe' }), ' acesso (4 primeiros)') : null, G.tabDiv !== 'D' ? h('span', null, h('i', { class: 'sw desce' }), ' rebaixamento (4 últimos)') : null)));
     return h('div', { class: 'tabelawrap' }, h('div', { class: 'subtabs' }, abas), h('div', { class: 'subvista' }, vista, h('span', { class: 'muted' }, 'Clique em um clube para ver o plantel e os dados dele.')), corpo);
   };
 })();
@@ -2986,9 +3012,10 @@ window.ESCUDOS_REAIS = {};
   const esperar = (ms) => new Promise((ok) => setTimeout(ok, ms));
   const reduzMov = () => G.pularBingo || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
   const PALETA = ['#d62839', '#f4a300', '#2a9d8f', '#1d4ed8', '#7b2cbf', '#e85d9b', '#2d6a4f', '#ee6c1a', '#0ea5e9', '#6b4f3a'];   // uma cor diferente para cada bola
-  const REPOUSO = [[19, 70], [39.5, 70], [60, 70], [19, 50], [39.5, 50], [60, 50], [29, 30], [50, 30], [29, 10], [50, 10]];   // bolas empilhadas no fundo do globo
+  const REPOUSO = [[19, 68], [42, 68], [65, 68], [7, 45], [30, 45], [53, 45], [76, 45], [19, 22], [42, 22], [65, 22]];   // bolas empilhadas no fundo do globo
   const bolaEl = (c, i, extra) => h('span', { class: 'bola ' + (extra || ''), style: '--bc:' + PALETA[i % PALETA.length] + ';--b1:' + c.cores[0] + ';--b2:' + c.cores[1], 'data-club': c.id }, K.escudo(c), h('span', { class: 'bn' }, c.nome));
   const idxPool = (c) => poolSorteio().findIndex((x) => x.id === c.id);
+  const GAIOLA = '<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="48"/><line x1="2" y1="50" x2="98" y2="50"/><ellipse class="e1" cx="50" cy="50" rx="48" ry="48"/><ellipse class="e2" cx="50" cy="50" rx="48" ry="48"/><ellipse class="e3" cx="50" cy="50" rx="48" ry="48"/></svg>';
   const poolSorteio = () => BF.CLUBS.filter((c) => c.selecionavel);
 
   function tela3() {
@@ -2999,7 +3026,7 @@ window.ESCUDOS_REAIS = {};
       h('input', { id: i ? 'nome' + (i + 1) : 'nome', maxlength: 24, placeholder: i ? 'Nome do técnico ' + (i + 1) : 'Seu nome', autocomplete: 'off', value: G.nomes[i] || '', disabled: travado, oninput: (e) => { G.nomes[i] = e.target.value; }, onkeydown: (e) => { if (e.key === 'Enter') sortear(); } })));
     const usados = new Set(G.humanos.map((x) => x.clubId));
     const bandeja = h('div', { class: 'tray' + (depois ? ' vazia' : ''), id: 'bandeja', role: 'img', 'aria-label': 'As 10 bolas dos clubes sorteáveis' }, pool.map((c, i) => bolaEl(c, i)));
-    const globo = h('div', { class: 'globo', id: 'globo', role: 'img', 'aria-label': 'Globo do sorteio' }, pool.map((c, i) => { const b = bolaEl(c, i, depois && !usados.has(c.id) ? '' : 'fora'); b.style.left = REPOUSO[i][0] + '%'; b.style.top = REPOUSO[i][1] + '%'; return b; }));
+    const globo = h('div', { class: 'globo', id: 'globo', role: 'img', 'aria-label': 'Globo do sorteio' }, pool.map((c, i) => { const b = bolaEl(c, i, depois && !usados.has(c.id) ? '' : 'fora'); b.style.left = REPOUSO[i][0] + '%'; b.style.top = REPOUSO[i][1] + '%'; return b; }).concat(h('i', { class: 'gaiola', 'aria-hidden': 'true', html: GAIOLA })));
     const linhas = Array.from({ length: n }, (_, i) => {
       const hu = G.humanos[i], c = hu && BF.CLUBS.find((x) => x.id === hu.clubId);
       return h('div', { class: 'linha-tec' + (c ? ' pronto' : ''), id: 'lt' + i },
@@ -3012,13 +3039,62 @@ window.ESCUDOS_REAIS = {};
       h('div', { class: 'card' }, h('div', { class: 'ntec' }, h('span', { class: 'eyebrow' }, 'Quantos técnicos?'), segN, n > 1 ? h('small', { class: 'muted' }, 'No mesmo aparelho: cada um alterna pela barra de técnicos e marca "Estou pronto" antes da rodada.') : null),
         h('div', { class: 'slots' }, slots), h('p', { class: 'err', id: 'erro', role: 'alert' }, G.erro)),
       h('div', { class: 'bingo', 'aria-live': 'polite' },
-        h('div', null, h('span', { class: 'eyebrow', style: 'color:#b9ccb9' }, 'Sorteio dos clubes'), bandeja, h('div', { class: 'globowrap' }, globo, h('i', { class: 'globobase' })), h('p', { class: 'bingo-msg', id: 'bingomsg' }, depois ? 'Sorteio concluído.' : 'Estas são as 10 bolas. Elas vão para o globo.')),
+        h('div', null, h('span', { class: 'eyebrow', style: 'color:#b9ccb9' }, 'Sorteio dos clubes'), bandeja, h('div', { class: 'globowrap', id: 'globowrap' }, globo, h('i', { class: 'manivela', 'aria-hidden': 'true' }), h('i', { class: 'globobase', 'aria-hidden': 'true' })), h('p', { class: 'bingo-msg', id: 'bingomsg' }, depois ? 'Sorteio concluído.' : 'Estas são as 10 bolas. Elas vão para o globo.'), h('p', { class: 'giratxt', id: 'giratxt', 'aria-hidden': 'true' })),
         h('div', { class: 'sorteados' }, linhas)),
       h('div', { class: 'actions' }, h('button', { class: 'btn alt', disabled: G.sorteando, onclick: () => ir(2) }, 'Voltar'),
-        G.sorteando ? h('button', { class: 'btn alt', id: 'pularbingo', onclick: () => { G.pularBingo = true; } }, 'Pular animação') : null,
+        h('button', { class: 'btn alt', id: 'som', 'aria-pressed': G.mudo ? 'false' : 'true', onclick: (e) => { G.mudo = !G.mudo; if (G.mudo) Som.parar(); else Som.preparar(); e.currentTarget.textContent = G.mudo ? 'Som: desligado' : 'Som: ligado'; e.currentTarget.setAttribute('aria-pressed', G.mudo ? 'false' : 'true'); } }, G.mudo ? 'Som: desligado' : 'Som: ligado'),
+        G.sorteando ? h('button', { class: 'btn alt', id: 'pularbingo', onclick: () => { G.pularBingo = true; Som.parar(); } }, 'Pular animação') : null,
         depois && !G.sorteando ? [h('button', { class: 'btn alt', id: 'sortearde', onclick: () => { G.humanos = []; G.g = null; render(); } }, 'Sortear de novo'), h('button', { class: 'btn hot', id: 'seguir3', onclick: () => ir(4) }, 'Continuar')]
           : !G.sorteando ? h('button', { class: 'btn', id: 'sortear', onclick: sortear }, n > 1 ? 'Sortear os clubes' : 'Sortear meu clube') : null));
   }
+
+  // ---------- som: jingle original de auditório (Web Audio) + narração por voz sintetizada do navegador ----------
+  const Som = (() => {
+    let ctx = null, fim = 0;
+    const ac = () => { if (!ctx) { const A = window.AudioContext || window.webkitAudioContext; if (!A) return null; ctx = new A(); } if (ctx.state === 'suspended') ctx.resume(); return ctx; };
+    const hz = (m) => 440 * Math.pow(2, (m - 69) / 12);
+    function nota(c, t, m, dur, tipo, vol, filtro) {
+      const o = c.createOscillator(), g = c.createGain(); o.type = tipo; o.frequency.value = hz(m);
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.015); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      let saida = g; if (filtro) { const f = c.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = filtro; o.connect(f); f.connect(g); } else o.connect(g);
+      g.connect(c.destination); o.start(t); o.stop(t + dur + 0.05);
+    }
+    function ruido(c, t, dur, vol, hp) {
+      const n = Math.max(1, Math.floor(c.sampleRate * dur)), b = c.createBuffer(1, n, c.sampleRate), d = b.getChannelData(0);
+      for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+      const s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain(); s.buffer = b; f.type = 'highpass'; f.frequency.value = hp;
+      g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); s.connect(f); f.connect(g); g.connect(c.destination); s.start(t);
+    }
+    // 3 segundos de marchinha (8 tempos a 160 bpm) e, no instante 3,0 s, a fanfarra do "GIROOOOU"
+    const MELODIA = [[0, 76, .5], [.5, 76, .5], [1, 79, .5], [1.5, 76, .5], [2, 72, 1], [3, 74, .5], [3.5, 76, .5], [4, 79, .5], [4.5, 81, .5], [5, 79, 1], [6, 76, .5], [6.5, 74, .5], [7, 72, .5], [7.5, 67, .5]];
+    return {
+      preparar() { try { if (!G.mudo) ac(); } catch (e) { /* sem áudio */ } },
+      jingle() {
+        if (G.mudo || G.pularBingo) return; try {
+          const c = ac(); if (!c) return; const t0 = c.currentTime + 0.05, B = 0.375;
+          for (let i = 0; i < 8; i++) {
+            nota(c, t0 + i * B, i % 2 ? 43 : 48, 0.22, 'triangle', 0.16);                                  // baixo "ump-pa"
+            [60, 64, 67].forEach((m) => nota(c, t0 + (i + 0.5) * B, m, 0.1, 'square', 0.025, 2200));         // acorde
+            if (i % 2) ruido(c, t0 + i * B, 0.1, 0.05, 1800);                                                // caixa
+          }
+          MELODIA.forEach(([b, m, d]) => nota(c, t0 + b * B, m, d * B * 0.95, 'sawtooth', 0.05, 3200));
+          for (let k = 0; k < 6; k++) ruido(c, t0 + 2.5 + k * 0.083, 0.07, 0.03 + k * 0.012, 2500);          // rufar de tambor
+          const f = t0 + 8 * B;                                                                              // fanfarra
+          [72, 76, 79, 84].forEach((m) => nota(c, f, m, 1.1, 'sawtooth', 0.05, 3600)); nota(c, f, 48, 1.1, 'triangle', 0.2);
+          ruido(c, f, 0.9, 0.09, 4500); fim = f + 1.2;
+        } catch (e) { /* sem áudio */ }
+      },
+      fala(txt) {
+        if (G.mudo || G.pularBingo || !window.speechSynthesis) return; try {
+          const u = new SpeechSynthesisUtterance(txt), vozes = speechSynthesis.getVoices(), v = vozes.find((x) => /pt[-_]BR/i.test(x.lang)) || vozes.find((x) => /^pt/i.test(x.lang));
+          u.lang = 'pt-BR'; if (v) u.voice = v; u.rate = 1.15; u.pitch = 1.15; u.volume = 1; speechSynthesis.speak(u);
+        } catch (e) { /* sem voz */ }
+      },
+      parar() { try { if (window.speechSynthesis) speechSynthesis.cancel(); if (ctx && ctx.state === 'running') { ctx.close(); ctx = null; } } catch (e) { ctx = null; } },
+    };
+  })();
+  K.somSorteio = Som;
+  const mostraGira = (txt, final) => { const el = document.getElementById('giratxt'); if (!el) return; el.className = 'giratxt' + (final ? ' giroou' : ''); el.replaceChildren(h('span', null, txt)); };
 
   const rects = (el) => el.getBoundingClientRect();
   // voa uma cópia da bola de um ponto a outro (com escala)
@@ -3032,7 +3108,7 @@ window.ESCUDOS_REAIS = {};
     clone.remove();
   }
   function girar(globo, ligado) {
-    globo.classList.toggle('gira', ligado);
+    globo.classList.toggle('gira', ligado); const w = document.getElementById('globowrap'); if (w) w.classList.toggle('gira', ligado);
     if (!ligado) return;
     const r = (k) => Math.round((Math.random() * 2 - 1) * k) + '%';
     globo.querySelectorAll('.bola:not(.fora):not(.saiu)').forEach((b) => {
@@ -3050,9 +3126,11 @@ window.ESCUDOS_REAIS = {};
     bandeja.classList.add('vazia'); await esperar(reduzMov() ? 0 : 300);
     for (let i = 0; i < escolhidos.length; i++) {
       const c = escolhidos[i];
-      // 3: o globo gira por 5 segundos
-      msg.textContent = 'O globo está girando… sorteio do clube de ' + nomes[i];
-      girar(globo, true); await esperar(reduzMov() ? 0 : 5000); girar(globo, false);
+      // 3: o globo gira por 3 segundos, com a narração "GIRA GIRA GIRA" a cada segundo
+      msg.replaceChildren('Sorteando o clube do jogador ', h('b', { class: 'quem-sorteio' }, nomes[i]));
+      girar(globo, true); Som.jingle();
+      for (let k = 0; k < 3; k++) { mostraGira('GIRA GIRA GIRA'); Som.fala('Gira, gira, gira!'); await esperar(reduzMov() ? 0 : 1000); }
+      girar(globo, false); mostraGira('GIROOOOU!', true); Som.fala('Giroooou!');
       // 4: sai a bola do clube sorteado e vai para o técnico
       const bola = globo.querySelector('[data-club="' + c.id + '"]'), alvo = document.getElementById('alvo' + i);
       if (!reduzMov()) await mover(bola, alvo, { ms: 800, sobe: 60, pausa: 400 });
@@ -3060,7 +3138,7 @@ window.ESCUDOS_REAIS = {};
       alvo.replaceChildren(bolaEl(c, idxPool(c), 'noalvo'));
       const cs = document.getElementById('cs' + i); cs.replaceChildren(K.escudo(c), h('span', null, c.nome)); document.getElementById('lt' + i).classList.add('pronto');
       msg.textContent = nomes[i] + ' vai treinar o ' + c.nome + '!';
-      await esperar(reduzMov() ? 0 : 700);
+      await esperar(reduzMov() ? 0 : 1400); mostraGira('');
     }
   }
   async function sortear() {
@@ -3073,8 +3151,9 @@ window.ESCUDOS_REAIS = {};
     G.seed = (Math.random() * 2 ** 31) >>> 0;          // semente única do mundo: base do multiplayer determinístico
     const rng = BF.RNG.create(G.seed ^ 0x5eed);
     const escolhidos = S.embaralhar(rng, poolSorteio()).slice(0, n);   // um clube por técnico, na ordem, sem repetir
-    render();
+    Som.preparar(); render();
     await bingo(escolhidos, nomes);
+    Som.parar();
     G.humanos = nomes.map((nome, i) => ({ id: i + 1, nome, clubId: escolhidos[i].id }));
     G.g = GM.novo({ seed: G.seed, humanos: G.humanos, config: G.config });
     G.ativo = 0; G.prontos = new Set(); G.sel = null; G.selX = null; G.escSlot = null; G.aba = 'plantel';
