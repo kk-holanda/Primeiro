@@ -677,6 +677,19 @@ tr.sep td .sepl { position: sticky; left: 10px; display: inline-block; }
 .posse .pf { display: block; transition: width .4s; min-width: 0; }
 .posse .pf + .pf { border-left: 2px solid var(--panel); }
 .sublinha.indisp { opacity: .55; }
+/* calendário, mercado, premiações */
+.calendario tr.prox td { background: color-mix(in srgb, var(--hot) 28%, var(--panel)); font-weight: 700; }
+.calendario tr.cal-copa td:first-child { box-shadow: inset 4px 0 var(--hot); }
+.calendario tr.cal-def td { opacity: .6; font-style: italic; }
+.calendario .local { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 1px 6px; border: 1px solid var(--line); }
+.calendario .local.casa { background: var(--panel2); }
+.mercado .filtros { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0; }
+.mercado .filtros input[type=search], .mercado .filtros select { font: inherit; padding: 6px 8px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); }
+.mercado tr[tabindex] { cursor: pointer; } .mercado tr[tabindex]:hover td, .mercado tr[tabindex]:focus td { background: var(--panel2); }
+.mercado tr.caro td { opacity: .75; }
+.mercado .attrs .chip { display: inline-block; margin-right: 8px; }
+.premios .premlista { list-style: none; padding: 0; margin: 6px 0; } .premios .premlista li { display: flex; justify-content: space-between; gap: 12px; padding: 3px 0; border-bottom: 1px dotted var(--line); flex-wrap: wrap; }
+.premios .premlista small { color: var(--muted); }
 
 </style>
 <div id="app"></div>
@@ -1252,7 +1265,7 @@ window.ESCUDOS_REAIS = {};
         const passador = sorteia(A, rng, ['M', 'A', 'D'], (j) => j.p.attr.PAS * (P().GRUPO[j.slot] === 'M' ? 2 : 1));
         passador.passes++;
         if (rng.chance(pChute)) {
-          const atk = sorteia(A, rng, ['A', 'M', 'D'], (j) => Math.pow(j.p.attr.CHU, 2) * { A: 4, M: 1.5, D: 0.25 }[P().GRUPO[j.slot]]);
+          const atk = sorteia(A, rng, ['A', 'M', 'D'], (j) => Math.pow(j.p.attr.CHU, 1.3) * { A: 4, M: 1.5, D: 0.25 }[P().GRUPO[j.slot]]);
           stats[a].chutes++; atk.chutes++;
           const eff = atk.p.attr.CHU * mStam(atk.p.stamina) * mMoral(atk.p.moral);
           const gkj = D.campo.find((j) => j.slot === 'GOL');
@@ -1783,7 +1796,7 @@ window.ESCUDOS_REAIS = {};
   }
   function novaTemporada(g) {
     g.dias = gerarDias(g.ano); g.idx = 0; g.fim = false; g.live = null;
-    g.artilharia = { A: {}, B: {}, C: {}, D: {}, copa: {} };
+    g.artilharia = { A: {}, B: {}, C: {}, D: {}, copa: {} }; g.premios = null;
     criarLigas(g); g.copa = S().copaCriar(g.clubes, g.rng);
   }
 
@@ -1827,7 +1840,7 @@ window.ESCUDOS_REAIS = {};
     };
     g.clubes.forEach((c) => { c.tecnico = PL().nomeTecnico(rng); g.moralTreinador[c.id] = { v: 60, hist: [{ data: g.data, v: 60, res: null, adv: null }] }; });
     g.humanos.forEach((hu) => { g.porId.get(hu.clubId).tecnico = hu.nome; });
-    novaTemporada(g);
+    novaTemporada(g); bf.Mercado.gerarLivres(g, 40);
     return g;
   }
 
@@ -1846,6 +1859,32 @@ window.ESCUDOS_REAIS = {};
     return fase.confrontos.map((c) => ({ comp: 'copa', casa: ida ? c.a : c.b, fora: ida ? c.b : c.a, confronto: c, perna: ida ? 'ida' : 'volta', fase: fase.nome, rotulo: 'Copa do Brasil · ' + fase.nome + (fase.nome === 'Fase preliminar' || true ? (ida ? ' (ida)' : ' (volta)') : '') }));
   }
   const proximoDia = (g) => g.dias[g.idx] || null;
+  const FASES_COPA = ['Fase preliminar', '1ª fase (64)', 'Segunda fase (32)', 'Oitavas de final', 'Quartas de final', 'Semifinais', 'Final'];
+  // todas as partidas do clube na temporada: [{ data, comp:'liga'|'copa', rotulo, adv, casa, placar|null, jogado, adefinir }]
+  function calendarioClube(g, id) {
+    const c = g.porId.get(id), rows = [], dataDe = (tipo, k, v) => { const d = g.dias.find((x) => x.tipo === tipo && x[k] === v); return d ? d.data : null; };
+    const L = g.ligas[c.div];
+    L.rodadas.forEach((jogos, r) => {
+      const j = jogos.find(([h, a]) => h === id || a === id); if (!j) return;
+      const casa = j[0] === id, res = (L.res[r] || []).find((x) => x[0] === j[0] && x[1] === j[1]);
+      rows.push({ data: dataDe('liga', 'rodada', r), comp: 'liga', div: c.div, rodada: r + 1, rotulo: DIV_NOME[c.div] + ' · rodada ' + (r + 1), adv: casa ? j[1] : j[0], casa, placar: res ? (casa ? [res[2], res[3]] : [res[3], res[2]]) : null, jogado: !!res });
+    });
+    const fases = g.copa.fases; let ultimo = null;
+    fases.forEach((f, fi) => {
+      const cf = f.confrontos.find((x) => x.a === id || x.b === id); if (!cf) return; ultimo = cf;
+      [0, 1].forEach((leg) => {
+        const casa = leg === 0 ? cf.a === id : cf.b === id, r = leg === 0 ? cf.ida : cf.volta;
+        rows.push({ data: dataDe('copa', 'perna', 2 * fi + leg), comp: 'copa', rodada: null, rotulo: 'Copa do Brasil · ' + f.nome + (leg ? ' (volta)' : ' (ida)'), adv: cf.a === id ? cf.b : cf.a, casa, placar: r ? (casa ? [r[0], r[1]] : [r[1], r[0]]) : null, jogado: !!r });
+      });
+    });
+    const direto = g.copa.diretos.includes(id), vivo = !g.copa.campeao ? (ultimo ? (!ultimo.vencedor || ultimo.vencedor === id) : direto) : false;
+    if (vivo) for (let fi = ultimo ? fases.length : Math.max(1, fases.length); fi < 7; fi++) {
+      if (ultimo && ultimo.vencedor === id && fi < fases.length) continue;
+      [0, 1].forEach((leg) => rows.push({ data: dataDe('copa', 'perna', 2 * fi + leg), comp: 'copa', rotulo: 'Copa do Brasil · ' + FASES_COPA[fi] + (leg ? ' (volta)' : ' (ida)'), adv: null, casa: null, placar: null, jogado: false, adefinir: true }));
+    }
+    return rows.filter((r) => r.data).sort((a, b) => (a.data < b.data ? -1 : a.data > b.data ? 1 : 0));
+  }
+
   const envolveHumano = (g, jogos) => jogos.some((j) => g.humanoIds.has(j.casa) || g.humanoIds.has(j.fora));
 
   // próximo jogo de um clube (só enxerga a fase atual da Copa)
@@ -1990,7 +2029,7 @@ window.ESCUDOS_REAIS = {};
     }
     bf.Mercado.processarVendas(g); bf.Mercado.processarContratos(g);
     g.idx++; g.live = null;
-    if (g.idx >= g.dias.length) { g.fim = true; g.data = g.ano + '-12-15'; }   // pós-temporada: dá tempo de renovar contratos
+    if (g.idx >= g.dias.length) { g.fim = true; g.data = g.ano + '-12-15'; premiar(g); }   // pós-temporada: dá tempo de renovar contratos
     return resumos;
   }
   function simularDia(g) { iniciarDia(g); completarDia(g); return finalizarDia(g); }
@@ -2004,7 +2043,73 @@ window.ESCUDOS_REAIS = {};
       if (jogos.length) simularDia(g); else { g.idx++; if (g.idx >= g.dias.length) g.fim = true; }
       if (!g.fim) g.data = dia.data;
     }
+    premiar(g);
     return { fim: true };
+  }
+
+  // ---- premiações (R$ de 1998; valores em proporção à cota de TV de cada série) ----
+  const PREMIO = {
+    serie: { A: [4.0e6, 2.4e6, 1.5e6, 0.9e6, 0.5e6], B: [1.2e6, 0.7e6, 0.45e6, 0.25e6], C: [0.4e6, 0.25e6, 0.15e6, 0.09e6], D: [0.18e6, 0.11e6, 0.07e6, 0.04e6] },   // 5 primeiros da A, 4 primeiros das demais
+    copa: [3.0e6, 1.5e6, 0.75e6],                                    // campeão, vice e 3º colocado
+    clubeArtilheiro: { A: 0.6e6, B: 0.2e6, C: 0.08e6, D: 0.04e6 },   // clube do 1º artilheiro da série; 2º recebe 60% e 3º 35%
+    clubeArtGeral: 1.0e6,                                            // extra para o clube do artilheiro geral (todas as séries)
+    pctArt: [1, 0.6, 0.35],
+    attrSerie: [5, 3, 2], attrCopa: [4, 3, 2], attrGeral: 8,         // pontos de atributo para os 3 primeiros artilheiros
+    sobe: [2.0, 1.6, 1.2, 0.8], desce: [-0.8, -1.2, -1.6, -2.0],     // pontos de atributo por jogador do clube (posições 1-4 da série; 17º ao 20º)
+    moralSobe: 12, moralDesce: -10, tecSobe: 15, tecDesce: -12,
+  };
+  const ATTRS6 = ['RIT', 'CHU', 'PAS', 'DRI', 'DEF', 'FIS'];
+  function darAtributos(g, p, pts, pref) {
+    const got = {};
+    for (let i = 0; i < pts; i++) {
+      const k = pref ? (g.rng.chance(0.5) ? 'CHU' : pref[g.rng.int(0, pref.length - 1)]) : ATTRS6[g.rng.int(0, 5)];
+      if (p.attr[k] >= 92 || (p.attr[k] >= 80 && g.rng.chance(0.5))) continue; p.attr[k]++; got[k] = (got[k] || 0) + 1;   // retorno decrescente: quem já é craque evolui menos
+    }
+    return got;
+  }
+  const inteiro = (g, x) => Math.floor(Math.abs(x)) + (g.rng.chance(Math.abs(x) % 1) ? 1 : 0);
+  function premiar(g) {
+    if (g.premios) return g.premios;
+    const P = PREMIO, cl = classificacao(g), clubes = {}, jogadores = [], mor = {};
+    const nome = (id) => g.porId.get(id).nome;
+    const dar = (id, valor, rotulo) => { const c = g.porId.get(id); c.caixa += valor; bf.Fin.lancar(g, c, 'rec', 'premios', valor); (clubes[id] = clubes[id] || { total: 0, itens: [] }); clubes[id].total += valor; clubes[id].itens.push({ rotulo, valor }); };
+    const achar = (e) => { const c = g.porId.get(e.clubId); let p = c && c.elenco.find((x) => x.id === e.id); if (!p) for (const x of g.clubes) { p = x.elenco.find((y) => y.id === e.id); if (p) break; } return p; };
+    const top3 = (chave) => Object.values(g.artilharia[chave] || {}).filter((e) => e.gols > 0).sort((a, b) => b.gols - a.gols || a.jogos - b.jogos).slice(0, 3);
+    // 1) colocação nas séries
+    for (const d of S().ORDEM) P.serie[d].forEach((v, i) => dar(cl[d][i], v, (i + 1) + 'º lugar na ' + DIV_NOME[d]));
+    // 2) Copa do Brasil: campeão, vice e 3º (semifinalista derrotado com melhor saldo de gols na campanha)
+    const fin = g.copa.fases[g.copa.fases.length - 1];
+    if (g.copa.campeao && fin.nome === 'Final') {
+      const cf = fin.confrontos[0], vice = cf.a === g.copa.campeao ? cf.b : cf.a, semi = g.copa.fases[g.copa.fases.length - 2];
+      const saldo = (id) => g.copa.fases.reduce((s, f) => { const x = f.confrontos.find((y) => (y.a === id || y.b === id) && y.agregado); return x ? s + (x.a === id ? x.agregado[0] - x.agregado[1] : x.agregado[1] - x.agregado[0]) : s; }, 0);
+      const terceiro = semi.confrontos.map((x) => (x.vencedor === x.a ? x.b : x.a)).filter((id) => id !== g.copa.campeao && id !== vice).sort((a, b) => saldo(b) - saldo(a))[0];
+      dar(g.copa.campeao, P.copa[0], 'Campeão da Copa do Brasil'); dar(vice, P.copa[1], 'Vice-campeão da Copa do Brasil'); if (terceiro) dar(terceiro, P.copa[2], '3º colocado da Copa do Brasil');
+    }
+    // 3) artilheiros: Copa (só atributos; o 1º vira estrela) e séries (dinheiro para o clube + atributos; o 1º vira estrela); o artilheiro geral ganha mais
+    const premiarArt = (lista, rotulo, pontos, estrela, dinheiro, geral) => lista.forEach((e, i) => {
+      const p = achar(e); if (!p) return;
+      const got = darAtributos(g, p, geral && i === 0 ? P.attrGeral : pontos[i], ['RIT', 'PAS', 'DRI', 'CHU', 'FIS']);
+      if (estrela && i === 0) p.estrela = true;
+      if (dinheiro) dar(e.clubId, dinheiro * P.pctArt[i] + (geral && i === 0 ? P.clubeArtGeral : 0), (i + 1) + 'º artilheiro ' + rotulo + ' (' + e.nome + ')' + (geral && i === 0 ? ' · artilheiro geral' : ''));
+      jogadores.push({ id: p.id, nome: p.nome, clube: e.clubId, rotulo: (i + 1) + 'º artilheiro ' + rotulo, gols: e.gols, pts: Object.values(got).reduce((a, b) => a + b, 0), got, estrela: !!(estrela && i === 0), geral: !!(geral && i === 0) });
+    });
+    premiarArt(top3('copa'), 'da Copa do Brasil', P.attrCopa, true, 0, false);
+    const topSeries = {}, melhorGeral = { gols: 0 };
+    for (const d of S().ORDEM) { topSeries[d] = top3(d); const e = topSeries[d][0]; if (e && e.gols > melhorGeral.gols) { melhorGeral.gols = e.gols; melhorGeral.d = d; } }
+    for (const d of S().ORDEM) premiarArt(topSeries[d], 'da ' + DIV_NOME[d], P.attrSerie, true, P.clubeArtilheiro[d], melhorGeral.d === d);
+    // 4) acesso e descenso: moral (técnico e jogadores) e atributos conforme a posição
+    const efeito = (id, pts, moral, tec, rotulo) => {
+      const c = g.porId.get(id); let n = 0;
+      c.elenco.forEach((p) => { const k = inteiro(g, pts); n += k; if (pts > 0) darAtributos(g, p, k); else for (let i = 0; i < k; i++) { const a = ATTRS6[g.rng.int(0, 5)]; if (p.attr[a] > 20) p.attr[a]--; } });
+      mor[id] = moral; const mt = g.moralTreinador[id]; if (mt) { mt.v = Math.max(0, Math.min(100, mt.v + tec)); mt.hist.push({ data: g.data, v: mt.v, res: null, adv: null }); }
+      (clubes[id] = clubes[id] || { total: 0, itens: [] }).efeito = { rotulo, pts, moral, tec };
+      if (g.humanoIds.has(id)) bf.Mercado.noticia(g, rotulo + ': ' + (pts > 0 ? 'jogadores evoluem' : 'jogadores perdem rendimento') + ', moral do técnico ' + (tec > 0 ? '+' : '') + tec + '.', pts > 0 ? 'info' : 'alerta');
+    };
+    ['B', 'C', 'D'].forEach((d) => P.sobe.forEach((pts, i) => efeito(cl[d][i], pts, P.moralSobe, P.tecSobe, 'Acesso (' + (i + 1) + 'º da ' + DIV_NOME[d] + ')')));
+    ['A', 'B', 'C'].forEach((d) => P.desce.forEach((pts, i) => { const id = cl[d][cl[d].length - 4 + i]; efeito(id, pts, P.moralDesce, P.tecDesce, 'Rebaixamento (' + (cl[d].length - 3 + i) + 'º da ' + DIV_NOME[d] + ')'); }));
+    for (const id in clubes) if (g.humanoIds.has(id) && clubes[id].total) bf.Mercado.noticia(g, 'Premiações da temporada: ' + bf.Mercado.reais(clubes[id].total) + ' para o ' + nome(id) + '.', 'venda');
+    g.premios = { ano: g.ano, clubes, jogadores, moral: mor, artilheiros: topSeries, artilheirosCopa: top3('copa'), geral: melhorGeral.d || null };
+    return g.premios;
   }
 
   // ---- virada de temporada ----
@@ -2024,12 +2129,12 @@ window.ESCUDOS_REAIS = {};
     });
     g.clubes.forEach((c) => c.elenco.forEach((p) => {
       PR().virarAno(p, g.rng);
-      p.stamina = 100; p.moral = 60; p.suspenso = 0; p.amarelosAcum = 0; p.treino = null; p.treinoCd = 0; if (p.lesao > 0) p.lesao = 0;
+      p.stamina = 100; p.moral = Math.max(0, Math.min(100, 60 + ((g.premios && g.premios.moral[c.id]) || 0))); p.suspenso = 0; p.amarelosAcum = 0; p.treino = null; p.treinoCd = 0; if (p.lesao > 0) p.lesao = 0;
     }));
     reg.aposentados = bf.Mercado.aposentarEReporElencos(g);   // veteranos se aposentam; clubes do computador repõem com a base
     const dEntre = difDias(g.ano + '-10-26', g.ano + 1 + '-01-31');
     const entre = new Map(); g.clubes.forEach((c) => { const v = Math.round(bf.Economy.folhaMensal(c.elenco) * dEntre / 30.4); c.caixa -= v; entre.set(c.id, v); }); // salários da entressafra
-    g.ano++; g.data = g.ano + '-01-31'; novaTemporada(g); bf.Fin.novoAno(g, entre);
+    g.ano++; g.data = g.ano + '-01-31'; novaTemporada(g); bf.Fin.novoAno(g, entre); bf.Mercado.gerarLivres(g, 40);
     bf.Mercado.processarContratos(g);   // quem estava com contrato vencido sai (computador renova)
     return { registro: reg, mov };
   }
@@ -2046,7 +2151,7 @@ window.ESCUDOS_REAIS = {};
     if (g.humanoIds.has(clubId)) g.porId.get(clubId).elenco.forEach((p) => { p.moral = clamp(p.moral + (mt.v - 50) * 0.02, 0, 100); }); // clima do vestiário
   }
 
-  bf.Game = { novo, gerarDias, jogosDoDia, proximoDia, proximoJogo, ultimosJogos, escalacaoDe, iniciarDia, passoDia, completarDia, finalizarDia, simularDia, avancar, classificacao, virarTemporada, envolveHumano, fimContrato, fmtData, fmtDataCurta, formaRecente, addDias, addMeses, fimDoMes, difDias, DIV_NOME };
+  bf.Game = { calendarioClube, premiar, PREMIO, novo, gerarDias, jogosDoDia, proximoDia, proximoJogo, ultimosJogos, escalacaoDe, iniciarDia, passoDia, completarDia, finalizarDia, simularDia, avancar, classificacao, virarTemporada, envolveHumano, fimContrato, fmtData, fmtDataCurta, formaRecente, addDias, addMeses, fimDoMes, difDias, DIV_NOME };
 })(typeof globalThis !== 'undefined' ? globalThis : this);
 
 ;
@@ -2146,6 +2251,57 @@ window.ESCUDOS_REAIS = {};
     transferir(g, p, c, lider, atual, tx);
     noticia(g, p.nome + ' foi vendido em leilão ao ' + lider.nome + ' por ' + reais(atual) + (tx ? ' + multa de ' + reais(tx) : '') + '.', 'venda');
     return { ok: true, vendido: true, comprador: lider.id, preco: atual, multa: tx, rodadas };
+  }
+
+  // ---------- MERCADO: comprar de outros clubes e contratar livres ----------
+  const LIMITE_ELENCO = 30;
+  const donoDe = (g, p) => g.clubes.find((c) => c.elenco.includes(p)) || null;
+  // todos os jogadores que o técnico pode tentar contratar: elencos de outros clubes + livres
+  function listarMercado(g, c) {
+    const out = [];
+    for (const x of g.clubes) { if (x === c) continue; for (const p of x.elenco) out.push({ p, clube: x.id, div: x.div }); }
+    for (const p of g.livres) out.push({ p, clube: null, div: null });
+    return out;
+  }
+  // quanto o clube vendedor pede: valor de mercado + ágio por titular e por estrela
+  function precoPedido(g, p, dono) {
+    const v = E().valorMercado(p); if (!dono) return 0;
+    const titular = dono.elenco.slice().sort((a, b) => PL().overall(b) - PL().overall(a)).indexOf(p) < 11;
+    const f = 1 + (titular ? 0.1 : 0) + (p.estrela ? 0.25 : 0);
+    return Math.round(v * (p.aVenda ? Math.min(f, p.aVenda.preco / Math.max(1, v)) : f) / 1000) * 1000;
+  }
+  // proposta de compra: aceita se cobrir o preço pedido; até 12% abaixo o clube faz contraproposta; abaixo disso recusa
+  function proporCompra(g, comp, p, oferta, confirmar) {
+    const dono = donoDe(g, p); if (!dono || dono === comp) return { ok: false, motivo: 'Jogador indisponível.' };
+    if (comp.elenco.length >= LIMITE_ELENCO) return { ok: false, motivo: 'Seu elenco já tem ' + LIMITE_ELENCO + ' jogadores. Venda ou dispense antes.' };
+    if (!(oferta > 0)) return { ok: false, motivo: 'Informe um valor.' };
+    const erro = podeVender(g, dono, p); if (erro) return { ok: false, motivo: dono.nome + ' não pode vendê-lo agora: ' + erro };
+    const tx = multa(g, p), pedido = precoPedido(g, p, dono);
+    if (comp.caixa < oferta + tx) return { ok: false, motivo: 'Caixa insuficiente: a oferta (' + reais(oferta) + ')' + (tx ? ' mais a multa de ' + reais(tx) : '') + ' passa de ' + reais(comp.caixa) + '.' };
+    if (oferta >= pedido) { if (confirmar !== false) { transferir(g, p, dono, comp, oferta, tx); p.contratoAte = GM().addMeses(g.data, Math.max(12, Math.round(mesesRestantes(g, p)))); noticia(g, p.nome + ' chegou do ' + dono.nome + ' por ' + reais(oferta) + (tx ? ' + multa de ' + reais(tx) : '') + '.', 'contrato'); } return { ok: true, resultado: 'aceita', pedido, multa: tx }; }
+    if (oferta >= pedido * 0.88) return { ok: true, resultado: 'contra', pedido, multa: tx };
+    return { ok: true, resultado: 'recusa', pedido, multa: tx };
+  }
+  // livres: salário pedido e luvas (2 salários)
+  function propostaLivre(g, p) { const salario = salarioEsperado(p, 12), luvas = salario * 2; return { salario, luvas }; }
+  function contratarLivre(g, c, p) {
+    if (!g.livres.includes(p)) return { ok: false, motivo: 'Jogador indisponível.' };
+    if (c.elenco.length >= LIMITE_ELENCO) return { ok: false, motivo: 'Seu elenco já tem ' + LIMITE_ELENCO + ' jogadores.' };
+    const { salario, luvas } = propostaLivre(g, p);
+    if (c.caixa < luvas) return { ok: false, motivo: 'Caixa insuficiente para as luvas de ' + reais(luvas) + '.' };
+    g.livres = g.livres.filter((x) => x !== p); p.contratoAte = GM().addMeses(g.data, 12); p.salario = salario; p.num = numeroLivre(c); p.aVenda = null; p.stamina = 100; p.moral = Math.max(p.moral, 65);
+    c.elenco.push(p); c.caixa -= luvas; bf.Fin.lancar(g, c, 'des', 'compras', luvas);
+    noticia(g, p.nome + ' foi contratado como jogador livre (salário ' + reais(salario) + ', luvas ' + reais(luvas) + ').', 'contrato');
+    return { ok: true, salario, luvas };
+  }
+  // jogadores livres para o mercado não ficar vazio: veteranos e atletas sem clube, de nível de Série D a B
+  function gerarLivres(g, ate) {
+    const need = ['GOL', 'ZAG', 'LD', 'LE', 'VOL', 'MC', 'MEI', 'PD', 'PE', 'CA', 'SA'];
+    g.livres = g.livres.filter((p) => p.idade < 36);
+    while (g.livres.length < ate) {
+      const pos = need[g.rng.int(0, need.length - 1)], nivel = g.rng.int(36, 56), idade = g.rng.int(21, 34);
+      const p = PL().gerarJogador(g.rng, pos, nivel, idade, undefined, 'BRA'); p.contratoAte = g.data; p.salario = E().salarioBase(p); p.avisos = 0; p.stamina = 100; p.moral = 65; g.livres.push(p);
+    }
   }
 
   // ---------- RENOVAR ----------
@@ -2254,7 +2410,7 @@ window.ESCUDOS_REAIS = {};
     return ganho;
   }
 
-  bf.Mercado = { reais, noticia, diasRestantes, mesesRestantes, podeRenovar, multa, transferir, podeVender, colocarAVenda, retirarVenda, chanceDeProposta, processarVendas, leiloar, opcoesRenovacao, salarioEsperado, negociar, aplicarRenovacao, processarContratos, gerarJuniores, aposentarEReporElencos, TREINOS, TREINO_CFG, ganhoEsperado, faixas, seguidas, iniciarTreino, concluirTreino, MIN_ELENCO };
+  bf.Mercado = { reais, noticia, diasRestantes, mesesRestantes, podeRenovar, multa, transferir, podeVender, colocarAVenda, retirarVenda, chanceDeProposta, processarVendas, leiloar, opcoesRenovacao, salarioEsperado, negociar, aplicarRenovacao, processarContratos, gerarJuniores, aposentarEReporElencos, noticia, reais, listarMercado, precoPedido, proporCompra, propostaLivre, contratarLivre, gerarLivres, LIMITE_ELENCO, TREINOS, TREINO_CFG, ganhoEsperado, faixas, seguidas, iniciarTreino, concluirTreino, MIN_ELENCO };
 })(typeof globalThis !== 'undefined' ? globalThis : this);
 
 ;
@@ -3234,7 +3390,7 @@ window.ESCUDOS_REAIS = {};
     return h('main', { class: 'wrap page' },
       h('div', { class: 'head' }, h('span', { class: 'eyebrow' }, 'Temporada ' + g.ano), h('h2', null, 'Fim da temporada'), h('p', null, faixa + ' ' + c.nome + ' terminou em ' + pos + 'º na ' + K.DIV_NOME[c.div] + '.')),
       h('div', { class: 'rules' }, ['A', 'B', 'C', 'D'].map((d) => h('div', { class: 'rule' }, h('b', null, 'Campeão ' + K.DIV_NOME[d]), h('span', null, nm(cl[d][0])))), h('div', { class: 'rule' }, h('b', null, 'Copa do Brasil'), h('span', null, g.copa.campeao ? nm(g.copa.campeao) : '—'))),
-      h('h3', null, 'Acesso e descenso'), h('div', { class: 'rules' }, mov),
+      h('h3', null, 'Acesso e descenso'), h('div', { class: 'rules' }, mov), K.premiosBox(),
       h('div', { class: 'actions' }, h('button', { class: 'btn alt', onclick: () => { G.aba = 'tabela'; G.tabDiv = c.div; K.ir(5); } }, 'Ver a tabela final'),
         h('button', { class: 'btn hot', id: 'nova', onclick: () => { GM.virarTemporada(g); G.tabDiv = null; G.aba = 'plantel'; G.sel = null; K.ir(5); } }, 'Começar a temporada ' + (g.ano + 1))));
   };
@@ -3245,7 +3401,7 @@ window.ESCUDOS_REAIS = {};
 (function (root) {
   const bf = (root.BF98 = root.BF98 || {});
   const E = () => bf.Economy;
-  const REC = { bilheteria: 'Bilheteria', tv: 'Cota de TV', patrocinio: 'Patrocínio', vendas: 'Venda de jogadores', multas: 'Multas rescisórias' };
+  const REC = { bilheteria: 'Bilheteria', tv: 'Cota de TV', patrocinio: 'Patrocínio', vendas: 'Venda de jogadores', multas: 'Multas rescisórias', premios: 'Premiações' };
   const DES = { salarios: 'Salários', fixas: 'Despesas fixas', custosJogo: 'Custos do jogo', compras: 'Compra de jogadores', obras: 'Obras no estádio', marketing: 'Marketing' };
   const MAX_NIVEL = 5, RODADAS = 38, ESPERA = 4, OBRA_PCT = [0.1, 0.25, 0.5];
   const PRECO_MIN = 0.5, PRECO_MAX = 3;
@@ -3447,6 +3603,125 @@ window.ESCUDOS_REAIS = {};
           : h('p', { class: 'vazio' }, 'Ainda não há jogos disputados. O balanço de cada partida aparece aqui.'),
         anos.length ? [h('div', { class: 'eyebrow' }, 'Temporadas anteriores'), h('ul', { class: 'anos' }, anos.slice().reverse().map((a) => { const rr = F.soma(a.rec), dd = F.soma(a.des); return h('li', null, h('b', null, a.ano), ' · receita ' + reais(rr) + ' · despesa ' + reais(dd) + ' · ', h('b', { class: rr - dd < 0 ? 'bad' : 'hi' }, din(rr - dd))); }))] : null));
   };
+})();
+;
+// Aba Calendário (todas as partidas do clube na temporada) e quadro de premiações do fim da temporada.
+(function () {
+  const K = window.K, BF = window.BF98, h = K.h, GM = BF.Game, G = K.G, reais = K.reais;
+  const resultado = (r) => (r.placar[0] > r.placar[1] ? 'V' : r.placar[0] < r.placar[1] ? 'D' : 'E');
+  K.telas.calendario = function () {
+    const g = G.g, c = K.clubeHumano(), rows = GM.calendarioClube(g, c.id), filtro = G.calFiltro || 'todos';
+    const prox = rows.find((r) => !r.jogado && !r.adefinir);
+    const feitos = rows.filter((r) => r.jogado), falta = rows.filter((r) => !r.jogado && !r.adefinir), casaF = falta.filter((r) => r.casa).length;
+    const vis = rows.filter((r) => filtro === 'liga' ? r.comp === 'liga' : filtro === 'copa' ? r.comp === 'copa' : filtro === 'restantes' ? !r.jogado : true);
+    const abas = [['todos', 'Todos'], ['restantes', 'Restantes'], ['liga', K.DIV_NOME[c.div]], ['copa', 'Copa do Brasil']];
+    const tr = (r, i) => h('tr', { class: (r === prox ? 'prox ' : '') + (r.comp === 'copa' ? 'cal-copa ' : '') + (r.adefinir ? 'cal-def' : '') },
+      h('td', { class: 'num' }, i + 1), h('td', { class: 'l' }, GM.fmtData(r.data)), h('td', { class: 'l' }, r.rotulo + (r === prox ? ' · próximo' : '')),
+      h('td', null, r.adefinir ? '—' : h('span', { class: 'local ' + (r.casa ? 'casa' : 'fora') }, r.casa ? 'Casa' : 'Fora')),
+      h('td', { class: 'l' }, r.adefinir ? h('span', { class: 'muted' }, 'a definir (se classificado)') : K.advLink(r.adv)),
+      h('td', null, r.jogado ? [h('i', { class: 'res r' + resultado(r) }, resultado(r)), ' ', h('b', { class: 'num' }, r.placar[0] + ' × ' + r.placar[1])] : h('span', { class: 'muted' }, '—')));
+    return h('div', { class: 'calendario', style: K.coresClube(c) },
+      h('div', { class: 'strip' }, h('div', null, h('small', null, 'Partidas na temporada'), h('b', null, rows.filter((r) => !r.adefinir).length)), h('div', null, h('small', null, 'Já jogadas'), h('b', null, feitos.length)),
+        h('div', null, h('small', null, 'Restantes'), h('b', null, falta.length), h('span', { class: 'sub' }, casaF + ' em casa · ' + (falta.length - casaF) + ' fora')),
+        h('div', null, h('small', null, 'Próximo jogo'), h('b', null, prox ? GM.fmtDataCurta(prox.data) : '—'))),
+      h('div', { class: 'tabs', role: 'tablist' }, abas.map(([k, t]) => h('button', { class: 'tabbtn' + (filtro === k ? ' on' : ''), role: 'tab', 'aria-selected': filtro === k ? 'true' : 'false', onclick: () => { G.calFiltro = k; K.render(); } }, t))),
+      h('div', { class: 'tablewrap' }, h('table', { 'aria-label': 'Calendário de ' + c.nome },
+        h('thead', null, h('tr', null, ['#', 'Data', 'Competição', 'Local', 'Adversário', 'Resultado'].map((t, i) => h('th', { class: i === 1 || i === 2 || i === 4 ? 'l' : '', style: 'cursor:default' }, t)))),
+        h('tbody', null, vis.map((r) => tr(r, rows.indexOf(r)))))),
+      h('p', { class: 'footnote' }, 'As fases futuras da Copa do Brasil só aparecem enquanto o clube estiver vivo na competição; o adversário é sorteado quando a fase começa.'));
+  };
+
+  // ---------- premiações do fim da temporada ----------
+  K.premiosBox = function () {
+    const g = G.g, c = K.clubeHumano(), pr = GM.premiar(g), P = GM.PREMIO, meu = pr.clubes[c.id];
+    const nome = (id) => g.porId.get(id).nome, DIV = K.DIV_NOME;
+    const attrTxt = (got) => Object.entries(got).map(([k, v]) => '+' + v + ' ' + K.ATTR_SIGLA[k]).join(' ');
+    const art = (lista, rot) => h('div', { class: 'rule' }, h('b', null, rot), lista.length ? lista.map((e, i) => { const j = pr.jogadores.find((x) => x.id === e.id && x.rotulo.startsWith((i + 1) + 'º artilheiro ' + (rot === 'Copa do Brasil' ? 'da Copa' : 'da ' + rot))); return h('span', null, (i + 1) + 'º ' + e.nome + (j && j.estrela ? ' ★' : '') + ' (' + nome(e.clubId) + ') · ' + e.gols + ' gols' + (j ? ' · ' + attrTxt(j.got) : '')); }) : h('span', { class: 'muted' }, '—'));
+    return h('section', { class: 'premios', 'aria-label': 'Premiações da temporada' },
+      h('h3', null, 'Premiações da temporada'),
+      h('div', { class: 'card' }, h('h4', null, 'Seu clube'),
+        meu && meu.itens.length ? [h('ul', { class: 'premlista' }, meu.itens.map((i) => h('li', null, h('span', null, i.rotulo), h('b', { class: 'num hi' }, '+ ' + reais(i.valor))))), h('p', null, 'Total: ', h('b', { class: 'num' }, reais(meu.total)), ' (já creditado no caixa).')]
+          : h('p', { class: 'muted' }, 'Seu clube não ficou entre os premiados em dinheiro neste ano.'),
+        meu && meu.efeito ? h('p', { class: meu.efeito.pts > 0 ? 'hi' : 'bad' }, meu.efeito.rotulo + ': jogadores ' + (meu.efeito.pts > 0 ? 'ganham' : 'perdem') + ' cerca de ' + Math.abs(meu.efeito.pts).toString().replace('.', ',') + ' ponto(s) de atributo cada, moral dos jogadores ' + (meu.efeito.moral > 0 ? '+' : '') + meu.efeito.moral + ' e do técnico ' + (meu.efeito.tec > 0 ? '+' : '') + meu.efeito.tec + '.') : null),
+      h('div', { class: 'rules' }, ['A', 'B', 'C', 'D'].map((d) => art(pr.artilheiros[d], DIV[d])), art(pr.artilheirosCopa, 'Copa do Brasil')),
+      pr.geral && pr.artilheiros[pr.geral][0] ? h('p', { class: 'footnote' }, 'Artilheiro geral de todas as séries: ', h('b', null, pr.artilheiros[pr.geral][0].nome + ' (' + nome(pr.artilheiros[pr.geral][0].clubId) + ', ' + pr.artilheiros[pr.geral][0].gols + ' gols)'), ' — maior bônus de atributos e prêmio extra para o clube.') : null,
+      h('details', { class: 'det' }, h('summary', null, 'Tabela de prêmios por colocação'),
+        h('ul', { class: 'premlista' }, ['A', 'B', 'C', 'D'].map((d) => h('li', null, h('span', null, DIV[d]), h('small', null, P.serie[d].map((v, i) => (i + 1) + 'º ' + reais(v)).join(' · ')))), h('li', null, h('span', null, 'Copa do Brasil'), h('small', null, 'Campeão ' + reais(P.copa[0]) + ' · vice ' + reais(P.copa[1]) + ' · 3º ' + reais(P.copa[2]))),
+          h('li', null, h('span', null, 'Clube do artilheiro da série'), h('small', null, ['A', 'B', 'C', 'D'].map((d) => DIV[d] + ' ' + reais(P.clubeArtilheiro[d])).join(' · ') + ' (2º recebe 60%, 3º 35%; artilheiro geral: +' + reais(P.clubeArtGeral) + ')')),
+          h('li', null, h('span', null, 'Bônus de atributos'), h('small', null, 'Artilheiros das séries ' + P.attrSerie.join('/') + ' pontos, da Copa ' + P.attrCopa.join('/') + ', geral ' + P.attrGeral + '. O 1º de cada série e da Copa vira estrela.')),
+          h('li', null, h('span', null, 'Acesso e rebaixamento'), h('small', null, 'Quem sobe ganha moral (+' + P.moralSobe + ' jogadores, +' + P.tecSobe + ' técnico) e evolui até ' + P.sobe[0] + ' ponto(s) por jogador (1º) a ' + P.sobe[3] + ' (4º). Quem cai perde moral (' + P.moralDesce + ' / ' + P.tecDesce + ') e de ' + Math.abs(P.desce[0]) + ' (17º) a ' + Math.abs(P.desce[3]) + ' ponto(s) (20º).')))));
+  };
+})();
+;
+// Aba Mercado (1ª versão): compra de jogadores de outros clubes (proposta com contraproposta) e contratação de jogadores livres.
+(function () {
+  const K = window.K, BF = window.BF98, h = K.h, MK = BF.Mercado, E = BF.Economy, PL = BF.Players, GM = BF.Game, G = K.G, reais = K.reais;
+  const valor = (el) => Math.max(0, parseInt(String(el.value).replace(/\D/g, ''), 10) || 0);
+  const COL = {
+    nome: (x) => x.p.nome, clube: (x) => (x.clube ? G.g.porId.get(x.clube).nome : 'zz'), div: (x) => (x.div || 'Z'), pos: (x) => K.ORDEM_POS.indexOf(x.p.pos), idade: (x) => x.p.idade, ovr: (x) => PL.overall(x.p),
+    valor: (x) => E.valorMercado(x.p), pedido: (x) => x.pedido, contrato: (x) => x.p.contratoAte,
+  };
+  K.telas.mercado = function () {
+    const g = G.g, c = K.clubeHumano(), F = G.mf = G.mf || { q: '', pos: '', div: '', min: 0, caber: false, sort: 'ovr', dir: -1 };
+    const todos = MK.listarMercado(g, c).map((x) => { const dono = x.clube ? g.porId.get(x.clube) : null; return { ...x, pedido: dono ? MK.precoPedido(g, x.p, dono) : 0, multa: dono ? MK.multa(g, x.p) : 0 }; });
+    const tbody = h('tbody'), cont = h('p', { class: 'footnote' }), caixaEl = h('b', { class: 'num' }, reais(c.caixa));
+    const filtrar = () => {
+      const q = F.q.trim().toLowerCase();
+      let l = todos.filter((x) => (!q || x.p.nome.toLowerCase().includes(q)) && (!F.pos || x.p.pos === F.pos) && (!F.div || (F.div === 'L' ? !x.clube : x.div === F.div)) && PL.overall(x.p) >= F.min && (!F.caber || (x.clube ? x.pedido + x.multa : MK.propostaLivre(g, x.p).luvas) <= c.caixa));
+      const f = COL[F.sort] || COL.ovr; l.sort((a, b) => { const u = f(a), v = f(b); return (typeof u === 'string' ? u.localeCompare(v, 'pt-BR') : u - v) * F.dir; });
+      return l;
+    };
+    const pintar = () => {
+      const l = filtrar(), mostra = l.slice(0, 120);
+      tbody.replaceChildren(...mostra.map((x) => {
+        const p = x.p, ovr = Math.round(PL.overall(p)), caber = x.clube ? x.pedido + x.multa <= c.caixa : MK.propostaLivre(g, p).luvas <= c.caixa;
+        return h('tr', { tabindex: 0, class: caber ? '' : 'caro', onclick: () => abrir(c, x), onkeydown: (e) => { if (e.key === 'Enter') abrir(c, x); } },
+          h('td', { class: 'l nm' }, p.nome, p.estrela ? K.estrela() : null), h('td', { class: 'l' }, x.clube ? K.comEscudo(x.clube, null, { link: false }) : h('span', { class: 'muted' }, 'Livre')), h('td', null, x.div ? K.DIV_NOME[x.div].replace('Série ', '') : '—'),
+          h('td', { class: 'pos' }, p.pos), h('td', null, p.idade), h('td', { class: 'ovr' }, ovr), ...K.ATTRS.map((a) => h('td', { class: p.attr[a] >= 70 ? 'hi' : p.attr[a] < 35 ? 'lo' : '' }, p.attr[a])),
+          h('td', null, reais(E.valorMercado(p))), h('td', { class: caber ? '' : 'bad' }, x.clube ? reais(x.pedido) : 'luvas ' + reais(MK.propostaLivre(g, p).luvas)), h('td', null, x.clube ? (x.multa ? reais(x.multa) : '—') : '—'), h('td', null, x.clube ? GM.fimContrato(g, p) : '—'));
+      }));
+      cont.textContent = l.length + ' jogador(es) encontrados' + (l.length > mostra.length ? ' · mostrando os ' + mostra.length + ' primeiros pela ordenação (refine os filtros)' : '') + '.';
+      caixaEl.textContent = reais(c.caixa);
+    };
+    const campoTxt = h('input', { type: 'search', placeholder: 'Buscar nome', value: F.q, 'aria-label': 'Buscar jogador', oninput: (e) => { F.q = e.target.value; pintar(); } });
+    const selPos = h('select', { 'aria-label': 'Posição', onchange: (e) => { F.pos = e.target.value; pintar(); } }, h('option', { value: '' }, 'Todas as posições'), K.ORDEM_POS.map((p) => h('option', { value: p, selected: F.pos === p }, p)));
+    const selDiv = h('select', { 'aria-label': 'Origem', onchange: (e) => { F.div = e.target.value; pintar(); } }, [['', 'Todas as origens'], ['A', 'Série A'], ['B', 'Série B'], ['C', 'Série C'], ['D', 'Série D'], ['L', 'Jogadores livres']].map(([v, t]) => h('option', { value: v, selected: F.div === v }, t)));
+    const selMin = h('select', { 'aria-label': 'Média mínima', onchange: (e) => { F.min = +e.target.value; pintar(); } }, [0, 40, 50, 55, 60, 65, 70].map((v) => h('option', { value: v, selected: F.min === v }, v ? 'Média ' + v + '+' : 'Qualquer média')));
+    const chk = h('input', { type: 'checkbox', checked: F.caber, onchange: (e) => { F.caber = e.target.checked; pintar(); } });
+    const ths = [['nome', 'Jogador'], ['clube', 'Clube'], ['div', 'Sér.'], ['pos', 'Pos'], ['idade', 'Id'], ['ovr', 'Méd'], ...K.ATTRS.map((a) => [null, K.ATTR_SIGLA[a]]), ['valor', 'Valor'], ['pedido', 'Pedido'], [null, 'Multa'], ['contrato', 'Contrato']]
+      .map(([k, t]) => h('th', { class: (k === 'nome' || k === 'clube' ? 'l ' : '') + (k && F.sort === k ? 'sorted' : ''), scope: 'col', style: k ? '' : 'cursor:default', 'data-tip': t === 'Pedido' ? 'Quanto o clube vendedor pede (valor de mercado + ágio por titular e estrela). Livres: luvas de 2 salários.' : t === 'Multa' ? 'Multa rescisória paga ao clube vendedor além do preço.' : false, onclick: k ? () => { F.dir = F.sort === k ? -F.dir : (k === 'nome' || k === 'clube' || k === 'pos' || k === 'contrato' ? 1 : -1); F.sort = k; K.render(); } : null }, t));
+    pintar();
+    return h('div', { class: 'mercado', style: K.coresClube(c) },
+      h('div', { class: 'strip' }, h('div', null, h('small', null, 'Caixa'), caixaEl), h('div', null, h('small', null, 'Elenco'), h('b', null, c.elenco.length + ' / ' + MK.LIMITE_ELENCO)), h('div', null, h('small', null, 'Livres no mercado'), h('b', null, g.livres.length))),
+      h('p', { class: 'footnote' }, 'Clique em um jogador para fazer uma proposta. O clube aceita se você cobrir o preço pedido; até 12% abaixo ele faz uma contraproposta. Quem tem contrato ativo exige também a multa rescisória. Jogadores livres pedem salário e luvas.'),
+      h('div', { class: 'filtros' }, campoTxt, selPos, selDiv, selMin, h('label', { class: 'chk' }, chk, ' Só o que cabe no caixa')),
+      h('div', { class: 'tablewrap' }, h('table', { 'aria-label': 'Mercado de jogadores' }, h('thead', null, h('tr', null, ths)), tbody)), cont);
+  };
+
+  const campoMoeda = (id, rot, v) => h('label', { class: 'campo', for: id }, h('span', null, rot), h('div', { class: 'moeda' }, h('i', null, 'R$'), h('input', { id, type: 'text', inputmode: 'numeric', value: String(v), autocomplete: 'off' })));
+  function abrir(c, x) {
+    const g = G.g, p = x.p, dono = x.clube ? g.porId.get(x.clube) : null, err = h('p', { class: 'err', role: 'alert' }), info = h('p', { class: 'estimativa' });
+    const ficha = h('div', { class: 'mj' }, K.bandeira(p.nac), h('b', null, p.nome), p.estrela ? K.estrela() : null, h('span', { class: 'muted' }, ' · ' + p.pos + ' · ' + p.idade + ' anos · Média ' + Math.round(PL.overall(p)) + (dono ? ' · ' + dono.nome + ' (' + K.DIV_NOME[dono.div] + ')' : ' · jogador livre')));
+    const attrs = h('p', { class: 'attrs' }, K.ATTRS.map((a) => h('span', { class: 'chip' }, K.ATTR_SIGLA[a] + ' ', h('b', { class: p.attr[a] >= 70 ? 'hi' : p.attr[a] < 35 ? 'lo' : '' }, p.attr[a]))), ' · Disciplina ' + PL.DISCIPLINAS[p.disciplina]);
+    const fim = (txt) => { m.corpo.replaceChildren(ficha, h('p', { class: 'hi' }, txt), h('div', { class: 'actions' }, h('button', { class: 'btn hot', id: 'fechar-mercado', onclick: m.fechar }, 'Fechar'))); };
+    let m;
+    if (!dono) {
+      const pl = MK.propostaLivre(g, p);
+      m = K.modal('Contratar ' + p.nome, [ficha, attrs, h('p', null, 'Jogador sem clube. Contrato de 12 meses.'), h('p', null, 'Salário: ', h('b', null, reais(pl.salario) + '/mês'), ' · luvas (2 salários): ', h('b', null, reais(pl.luvas))), err,
+        h('div', { class: 'actions' }, h('button', { class: 'btn', id: 'contratar', onclick: () => { const r = MK.contratarLivre(g, c, p); if (!r.ok) { err.textContent = r.motivo; return; } fim(p.nome + ' é o novo reforço do ' + c.nome + '.'); } }, 'Contratar'), h('button', { class: 'btn alt', onclick: () => m.fechar() }, 'Cancelar'))], { aoFechar: () => K.render() });
+      return;
+    }
+    const pedido = x.pedido, campo = campoMoeda('oferta', 'Sua oferta', pedido), input = campo.querySelector('input');
+    info.textContent = 'Valor de mercado: ' + reais(E.valorMercado(p)) + ' · o clube pede ' + reais(pedido) + (x.multa ? ' + multa de ' + reais(x.multa) : '') + ' · seu caixa: ' + reais(c.caixa);
+    m = K.modal('Comprar ' + p.nome, [ficha, attrs, info, campo, err,
+      h('div', { class: 'actions' }, h('button', { class: 'btn', id: 'propor', onclick: () => {
+        const r = MK.proporCompra(g, c, p, valor(input), false); err.textContent = ''; err.className = 'err';
+        if (!r.ok) { err.textContent = r.motivo; return; }
+        if (r.resultado === 'aceita') { const rr = MK.proporCompra(g, c, p, valor(input)); if (!rr.ok) { err.textContent = rr.motivo; return; } fim(p.nome + ' foi contratado do ' + dono.nome + ' por ' + reais(valor(input)) + (r.multa ? ' + multa de ' + reais(r.multa) : '') + '.'); }
+        else if (r.resultado === 'contra') { err.className = 'warn'; err.textContent = dono.nome + ' faz uma contraproposta: ' + reais(r.pedido) + '. Ajustei o valor; confirme para fechar.'; input.value = String(r.pedido); }
+        else { err.textContent = dono.nome + ' recusou: a oferta ficou muito abaixo do que pedem (' + reais(r.pedido) + ').'; }
+      } }, 'Fazer proposta'), h('button', { class: 'btn alt', onclick: () => m.fechar() }, 'Cancelar'))], { aoFechar: () => K.render() });
+  }
 })();
 ;
 // Kfoot 98 — interface principal: boas-vindas, campeonato, técnico/sorteio, clubes, e a "casa" do jogo (plantel).
@@ -3844,10 +4119,10 @@ window.ESCUDOS_REAIS = {};
     if (r.fim) { ir('fim'); return; }
     G.resumoSel = null; GM.iniciarDia(G.g); K.jogoIniciar(); ir('jogo');
   }
-    const ABAS = [['plantel', 'Plantel'], ['escalacao', 'Escalação'], ['tabela', 'Tabela'], ['mercado', 'Mercado'], ['financas', 'Finanças']];
+    const ABAS = [['plantel', 'Plantel'], ['escalacao', 'Escalação'], ['tabela', 'Tabela'], ['calendario', 'Calendário'], ['mercado', 'Mercado'], ['financas', 'Finanças']];
   function casa() {
     const c = clubeHumano(), hu = G.humanos[G.ativo], [c1, c2] = c.cores;
-    const conteudo = G.aba === 'escalacao' ? K.telas.escalacao() : G.aba === 'tabela' ? K.telas.tabela() : G.aba === 'financas' ? K.telas.financas() : plantel(c);
+    const conteudo = G.aba === 'escalacao' ? K.telas.escalacao() : G.aba === 'tabela' ? K.telas.tabela() : G.aba === 'financas' ? K.telas.financas() : G.aba === 'mercado' ? K.telas.mercado() : G.aba === 'calendario' ? K.telas.calendario() : plantel(c);
     return h('main', { class: 'wrap page', style: K.coresClube(c) },
       K.tecnicosBar(),
       h('div', { class: 'gamehead' },
@@ -3857,9 +4132,7 @@ window.ESCUDOS_REAIS = {};
           h('span', { class: 'faixa', style: 'background:linear-gradient(90deg,' + c1 + ' 50%,' + c2 + ' 50%)' }),
           h('span', { class: 'eyebrow' }, 'Técnico ' + hu.nome + ' · ' + G.g.ano + ' · ' + c.cidade + '/' + c.uf)),
         statusBox(c), K.prontosBox()),
-      h('div', { class: 'tabs', role: 'tablist' }, ABAS.map(([k, t]) => k === 'mercado'
-        ? h('span', { class: 'soon', role: 'tab', 'aria-disabled': 'true' }, t)
-        : h('button', { class: 'tabbtn' + (G.aba === k ? ' on' : ''), role: 'tab', 'aria-selected': G.aba === k ? 'true' : 'false', onclick: () => { G.aba = k; render(); } }, t))),
+      h('div', { class: 'tabs', role: 'tablist' }, ABAS.map(([k, t]) => h('button', { class: 'tabbtn' + (G.aba === k ? ' on' : ''), role: 'tab', 'aria-selected': G.aba === k ? 'true' : 'false', onclick: () => { G.aba = k; render(); } }, t))),
       conteudo);
   }
   K.telas.casa = casa;
