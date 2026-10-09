@@ -1,4 +1,4 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body>
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"></head><body>
 <title>Kfoot 98</title>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Semi+Condensed:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -622,6 +622,22 @@ table.liga tr.meu .tec-tag { color: var(--ink); }
 .formdesc .hi { color: var(--st-verde); } .formdesc .bad { color: var(--st-vermelho); }
 .strip { align-items: flex-start; }
 
+.bola.voando.cheia { font-size: 13px; padding: 4px; border-width: 4px; outline-offset: -6px; }
+.bola.voando.cheia .escudo { width: 38px; height: 40px; }
+/* cabeçalho "Jogador" sempre visível: fica acima das células fixas da coluna do nome */
+th { z-index: 3; }
+td.nm { z-index: 1; }
+.plantel th.l, .lista th.l { left: 0; z-index: 4; }
+.treino-ic { display: inline-block; margin-left: 4px; font-size: 12px; cursor: help; }
+.escbox { margin: 10px 0; display: flex; flex-direction: column; gap: 8px; }
+.escjogo .escinfo { margin: 8px 0 4px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.sublista.escj { max-height: none; }
+.leitura { border: 2px solid var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--panel)); padding: 8px 10px; margin-bottom: 8px; }
+.leitura ul { margin: 6px 0 0; padding-left: 18px; }
+.escult { margin: 0; padding: 0; list-style: none; columns: 2; font-size: 14px; }
+.escult .pos { display: inline-block; min-width: 34px; font-weight: 700; color: var(--muted); }
+.mkt { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; } .mkt-acao { display: flex; flex-direction: column; gap: 6px; }
+
 </style>
 <div id="app"></div>
 <script>
@@ -757,9 +773,9 @@ table.liga tr.meu .tec-tag { color: var(--ink); }
   // Parâmetros econômicos por divisão (R$ de 1998; R$1 ≈ US$1). ESTIMATIVAS — ver docs/GDD.md §7.
   const DIV = {
     A: { caixaBase: 10_000_000, ingresso: 15, demandaK: 1.0, tv: 3_000_000 },
-    B: { caixaBase: 2_500_000, ingresso: 9, demandaK: 0.55, tv: 800_000 },
-    C: { caixaBase: 700_000, ingresso: 6, demandaK: 0.45, tv: 250_000 },
-    D: { caixaBase: 150_000, ingresso: 4, demandaK: 0.55, tv: 80_000 },
+    B: { caixaBase: 2_500_000, ingresso: 9, demandaK: 0.70, tv: 800_000 },
+    C: { caixaBase: 700_000, ingresso: 6, demandaK: 0.75, tv: 250_000 },
+    D: { caixaBase: 150_000, ingresso: 4, demandaK: 1.0, tv: 80_000 },
   };
 
   const clubs = R.map((r, i) => {
@@ -1014,11 +1030,13 @@ window.ESCUDOS_REAIS = {};
     '3-5-2': ['GOL', 'ZAG', 'ZAG', 'LIB', 'ALA', 'VOL', 'VOL', 'MEI', 'ALA', 'CA', 'SA'],
     '3-4-3': ['GOL', 'ZAG', 'ZAG', 'LIB', 'VOL', 'VOL', 'ALA', 'ALA', 'PD', 'CA', 'PE'],
   };
-  // efeito de cada formação sobre as forças do time (pequeno: ±4%); o 4-4-2 é a referência
+  // efeito de cada formação sobre as forças do time (±5%); o 4-4-2 é a referência. Cada uma tem um custo: nenhuma é "melhor em tudo".
   const FORM_MOD = {
-    '4-3-3': { atk: 1.03, def: 0.99, ctl: 1 }, '4-2-3-1': { atk: 1, def: 1, ctl: 1.03 }, '4-4-2': { atk: 1, def: 1, ctl: 1 },
-    '4-5-1': { atk: 0.97, def: 1.01, ctl: 1.03 }, '3-5-2': { atk: 1, def: 0.98, ctl: 1.04 }, '3-4-3': { atk: 1.04, def: 0.96, ctl: 1 },
+    '4-3-3': { atk: 1.07, def: 0.98, ctl: 1.016 }, '4-2-3-1': { atk: 0.97, def: 1.0, ctl: 0.986 }, '4-4-2': { atk: 1, def: 1, ctl: 0.994 },
+    '4-5-1': { atk: 0.95, def: 1.03, ctl: 0.990 }, '3-5-2': { atk: 0.96, def: 0.97, ctl: 0.996 }, '3-4-3': { atk: 1.09, def: 0.94, ctl: 1.019 },
   };
+  // Qual tática é a melhor resposta a qual (pedra-papel-tesoura, medido por simulação)
+  const CONTRA = { ofensivo: ['contra'], equilibrado: ['ofensivo'], defensivo: ['ofensivo'], contra: ['defensivo', 'equilibrado'] };
   // tática: ofensivo/equilibrado/defensivo
   // Táticas (pedra-papel-tesoura, calibradas por tools/balance.js):
   //  atk/def  = multiplicador da força de ataque/defesa     tempo    = ritmo: quem tem mais lances (e o total de lances do jogo)
@@ -1027,10 +1045,10 @@ window.ESCUDOS_REAIS = {};
   //  comp     = compactação: contra quem joga fechado, a vantagem de qualidade do adversário rende menos (ajuda o time mais fraco)
   //  contraK  = bônus nas finalizações do time de contra-ataque, proporcional à abertura do adversário
   const TATICA = {
-    ofensivo: { atk: 1.05, def: 0.96, tempo: 1.06, faltas: 1.10, abertura: 1, fecha: 0, comp: 1, contraK: 0 },
+    ofensivo: { atk: 1.08, def: 0.94, tempo: 1.08, faltas: 1.10, abertura: 1, fecha: 0, comp: 1, contraK: 0 },
     equilibrado: { atk: 1.0, def: 1.0, tempo: 1.0, faltas: 1.0, abertura: 0, fecha: 0, comp: 1, contraK: 0 },
-    defensivo: { atk: 0.97, def: 1.03, tempo: 0.94, faltas: 1.0, abertura: -1, fecha: 0.02, comp: 0.8, contraK: 0 },
-    contra: { atk: 0.99, def: 1.02, tempo: 0.90, faltas: 1.0, abertura: -0.5, fecha: 0, comp: 0.88, contraK: 0.13 },
+    defensivo: { atk: 0.95, def: 1.06, tempo: 0.92, faltas: 1.0, abertura: -1, fecha: 0.02, comp: 0.8, contraK: 0 },
+    contra: { atk: 0.98, def: 1.04, tempo: 0.88, faltas: 1.0, abertura: -0.5, fecha: 0, comp: 0.88, contraK: 0.17 },
   };
   const CFG = {
     ataquesPorMinuto: 0.52, mandante: 1.07, expoControle: 2.2,
@@ -1041,7 +1059,7 @@ window.ESCUDOS_REAIS = {};
 
   const mStam = (s) => CFG.staminaMin + (1 - CFG.staminaMin) * (s / 100);
   const mMoral = (m) => 0.95 + 0.10 * (m / 100);
-  const forca = (j) => j.base * mStam(j.p.stamina) * mMoral(j.p.moral);
+  const forca = (j) => j.base * mStam(j.p.stamina) * mMoral(j.p.moral) * (j.fresco || 1);
 
   // time = { nome, elenco[], formacao, tatica, titulares[ids em ordem dos slots], banco[ids], mando:boolean }
   function montar(time, rng) {
@@ -1054,11 +1072,68 @@ window.ESCUDOS_REAIS = {};
     return { time, slots, campo, banco: time.banco.map((id) => porId.get(id)), subs: 0, maxSubs: time.maxSubs || CFG.maxSubs, todos: new Map(campo.map((j) => [j.p.id, j])), gols: 0, rng };
   }
   function novo(p, slot) {
-    return { p, slot, base: P().ovrNoSlot(p, slot), nota: 6.0, g: 0, ast: 0, desarmes: 0, passes: 0, defesas: 0, faltas: 0, amarelos: 0, expulso: false, lesionado: false, minutos: 0, entrou: 0, saiu: null };
+    return { p, slot, base: P().ovrNoSlot(p, slot), nota: 6.0, g: 0, ast: 0, desarmes: 0, passes: 0, defesas: 0, faltas: 0, amarelos: 0, expulso: false, lesionado: false, minutos: 0, entrou: 0, saiu: null, chutes: 0, noGol: 0, fresco: 1 };
+  }
+
+  // Sinergia: a tática e a formação rendem mais quando os jogadores certos estão nos lugares certos.
+  // Mede a ESPECIALIZAÇÃO do XI (atributo do papel acima da média do próprio time), então é neutra para quem não monta nada de especial.
+  const A6 = ['RIT', 'CHU', 'PAS', 'DRI', 'DEF', 'FIS'];
+  function sinergia(side) {
+    const campo = side.campo.filter((j) => j.slot !== 'GOL'), nul = { atk: 0, def: 0, ctl: 0 };
+    if (campo.length < 8) return nul;
+    const mt = campo.reduce((x, j) => x + A6.reduce((y, k) => y + j.p.attr[k], 0) / 6, 0) / campo.length;
+    const rel = (sl, at) => { const l = campo.filter((j) => sl.includes(j.slot)); if (!l.length) return 0; return (l.reduce((x, j) => x + at.reduce((y, k) => y + j.p.attr[k], 0) / at.length, 0) / l.length - mt) / 100; };
+    const gr = (g, at) => rel(campo.filter((j) => P().GRUPO[j.slot] === g).map((j) => j.slot), at);
+    const o = { atk: 0, def: 0, ctl: 0 }, K = 0.4, KF = 0.45;
+    switch (side.time.tatica) {
+      case 'ofensivo': o.atk += K * gr('A', ['CHU', 'DRI']); o.ctl += K * 0.5 * gr('M', ['PAS', 'DRI']); break;
+      case 'defensivo': o.def += K * gr('D', ['DEF', 'FIS']); o.ctl += K * 0.3 * gr('M', ['DEF', 'FIS']); break;
+      case 'contra': o.atk += K * gr('A', ['RIT', 'CHU']); o.def += K * 0.5 * gr('D', ['DEF', 'FIS']); break;
+      default: o.ctl += K * 0.7 * gr('M', ['PAS', 'DRI']); o.def += K * 0.5 * gr('D', ['DEF']); o.atk += K * 0.5 * gr('A', ['CHU']);
+    }
+    switch (side.time.formacao) {
+      case '4-3-3': o.atk += KF * rel(['PD', 'PE'], ['RIT', 'DRI']); break;                                   // pontas rápidos e driblador es
+      case '4-2-3-1': o.ctl += KF * rel(['MEI'], ['PAS', 'DRI']) + 0.5 * KF * rel(['VOL'], ['DEF', 'PAS']); break;   // camisa 10 e volantes de saída
+      case '4-4-2': o.atk += KF * 0.7 * rel(['CA', 'SA'], ['CHU']); o.def += KF * 0.5 * rel(['LD', 'LE'], ['DEF', 'FIS']); break;
+      case '4-5-1': o.def += KF * rel(['VOL'], ['DEF', 'FIS']); o.atk += KF * 0.7 * rel(['CA'], ['CHU', 'FIS']); break;
+      case '3-5-2': o.ctl += KF * rel(['ALA'], ['FIS', 'RIT']); o.def += KF * 0.7 * rel(['LIB', 'ZAG'], ['DEF']); break;   // alas que cobrem o campo todo
+      case '3-4-3': o.atk += KF * rel(['PD', 'PE', 'CA'], ['CHU', 'RIT']); o.def += KF * 0.5 * rel(['ZAG', 'LIB'], ['DEF']); break;
+    }
+    const c = (x) => Math.max(-0.06, Math.min(0.06, x));
+    return { atk: c(o.atk), def: c(o.def), ctl: c(o.ctl) };
+  }
+
+  // Ajuste de intervalo: mudanças bem pensadas no 2º tempo rendem bônus (até +5%); mudanças ruins custam.
+  const ofensiv = (f) => { const sl = FORMACOES[f]; return sl.filter((x) => P().GRUPO[x] === 'A').length - 0.5 * sl.filter((x) => P().GRUPO[x] === 'D').length; };
+  function leitura(m, lado) {
+    const s = m.S[lado], o = m.S[1 - lado], itens = []; let b = 0;
+    if (!s.h1) return { b: 0, itens };
+    const mudouT = s.time.tatica !== s.h1.tatica, mudouF = s.time.formacao !== s.h1.formacao, d = s.h1.dif;
+    if (mudouT) {
+      if ((CONTRA[o.time.tatica] || []).includes(s.time.tatica)) { b += 0.03; itens.push(['bom', 'A tática ' + s.time.tatica + ' é a resposta certa ao ' + o.time.tatica + ' do adversário (+3%).']); }
+      else if ((CONTRA[s.time.tatica] || []).includes(o.time.tatica)) { b -= 0.02; itens.push(['ruim', 'O adversário (' + o.time.tatica + ') anula a nova tática (−2%).']); }
+      else itens.push(['neutro', 'Troca de tática sem vantagem clara sobre o ' + o.time.tatica + ' do adversário.']);
+    }
+    if (mudouF) {
+      const di = ofensiv(s.time.formacao) - ofensiv(s.h1.formacao);
+      if (d < 0 && di > 0) { b += 0.02; itens.push(['bom', 'Perdendo, você avançou o time com o ' + s.time.formacao + ' (+2%).']); }
+      else if (d > 0 && di < 0) { b += 0.02; itens.push(['bom', 'Ganhando, você fechou o time com o ' + s.time.formacao + ' (+2%).']); }
+      else if ((d < 0 && di < 0) || (d > 0 && di > 0)) { b -= 0.015; itens.push(['ruim', d < 0 ? 'Perdendo, o ' + s.time.formacao + ' recuou o time (−1,5%).' : 'Ganhando, o ' + s.time.formacao + ' expõe o time (−1,5%).']); }
+      else itens.push(['neutro', 'Mudança de formação para o ' + s.time.formacao + ' sem efeito claro no placar atual.']);
+    }
+    return { b: Math.max(-0.03, Math.min(0.05, b)), itens };
+  }
+  // O computador também lê o jogo no intervalo (acerta 60% das vezes): responde ao adversário
+  function iaIntervalo(m, lado) {
+    const s = m.S[lado], o = m.S[1 - lado]; if (!s.h1 || m.min !== 45) return;
+    const rs = m.rng ? m.rng.next() : Math.random();
+    if (rs < 0.6) { const alvo = (CONTRA[o.time.tatica] || [])[0]; if (alvo && alvo !== s.time.tatica) { s.time.tatica = alvo; } }
+    recalcular(m);
   }
 
   function forcas(side, adv) {
-    const t = TATICA[side.time.tatica], fm = FORM_MOD[side.time.formacao] || { atk: 1, def: 1, ctl: 1 };
+    const t = TATICA[side.time.tatica], fm0 = FORM_MOD[side.time.formacao] || { atk: 1, def: 1, ctl: 1 }, sn = sinergia(side), ai = 1 + (side.ajusteInt || 0);
+    const fm = { atk: fm0.atk * (1 + sn.atk) * ai, def: fm0.def * (1 + sn.def) * ai, ctl: fm0.ctl * (1 + sn.ctl) * (1 + (side.ajusteInt || 0) / 2) };
     const fd = side.formaDia === undefined ? (side.formaDia = 1 + side.rng.gauss() * 0.03) : side.formaDia; // 'dia inspirado' ±3%
     const por = { G: [], D: [], M: [], A: [] };
     side.campo.forEach((j) => por[P().GRUPO[j.slot]].push(forca(j)));
@@ -1066,7 +1141,7 @@ window.ESCUDOS_REAIS = {};
     // faltando jogadores (expulsão) diminui a média de forma natural: soma/11 em vez de média
     const n = side.campo.length / 11;
     const ataque = (0.60 * avg(por.A) + 0.30 * avg(por.M) + 0.10 * avg(por.D)) * t.atk * fm.atk * n * fd;
-    const defesa = (0.45 * avg(por.D) + 0.25 * avg(por.M) + 0.30 * avg(por.G)) * t.def * fm.def * n * fd;
+    const defesa = (0.72 * avg(por.D) + 0.10 * avg(por.M) + 0.18 * avg(por.G)) * t.def * fm.def * n * fd;
     const controle = (0.60 * avg(por.M) + 0.20 * avg(por.A) + 0.20 * avg(por.D)) * fm.ctl * n;
     const gk = por.G.length ? por.G[0] : 20;
     return { ataque, defesa, controle: controle * (side.time.mando ? CFG.mandante : 1), gk, t };
@@ -1093,10 +1168,12 @@ window.ESCUDOS_REAIS = {};
     const min = ++m.min;
     const ctrl = () => { const a = Math.pow(m.F[0].controle, CFG.expoControle), b = Math.pow(m.F[1].controle, CFG.expoControle); return a / (a + b); };
     const ev = (min, tipo, lado, jog, extra) => eventos.push({ min, tipo, lado, jogador: jog && jog.p.nome, ...extra });
+    if (min === 46) { S.forEach((s, i) => { s.ajusteInt = leitura(m, i).b; }); recalcular(m); }
     if (min % 5 === 0) recalcular(m);
       // cansaço: perda por minuto depende do atributo FIS (FIS 99 ≈ -13 por jogo; FIS 30 ≈ -26)
       for (const s of S) for (const j of s.campo) {
         j.minutos++;
+        j.fresco = j.entrou > 0 && min - j.entrou < 25 ? 1 + 0.07 * (1 - (min - j.entrou) / 25) : 1;   // pernas frescas de quem entrou
         const perda = (26 - j.p.attr.FIS * 0.13) / 90 * (s.time.tatica === 'ofensivo' ? 1.1 : s.time.tatica === 'defensivo' ? 0.95 : 1) * P().fatorGasto(j.p.idade);
         j.p.stamina = Math.max(0, j.p.stamina - perda);
         if (rng.chance(CFG.lesaoPorJogadorMin * (1.4 - j.p.attr.FIS / 200)) && !j.lesionado) {
@@ -1122,12 +1199,13 @@ window.ESCUDOS_REAIS = {};
         passador.passes++;
         if (rng.chance(pChute)) {
           const atk = sorteia(A, rng, ['A', 'M', 'D'], (j) => Math.pow(j.p.attr.CHU, 2) * { A: 4, M: 1.5, D: 0.25 }[P().GRUPO[j.slot]]);
-          stats[a].chutes++;
+          stats[a].chutes++; atk.chutes++;
           const eff = atk.p.attr.CHU * mStam(atk.p.stamina) * mMoral(atk.p.moral);
           const gkj = D.campo.find((j) => j.slot === 'GOL');
           const gkEff = gkj ? gkj.p.attr.DEF * 0.6 * mStam(gkj.p.stamina) * mMoral(gkj.p.moral) + gkj.base * 0.4 : 20;
-          const noGol = rng.chance(P().clamp(0.38 + (eff - 50) * 0.004, 0.2, 0.62));
-          if (noGol) stats[a].no_gol++;
+          const marc = sorteia(D, rng, ['D', 'M'], (j) => j.p.attr.DEF * (P().GRUPO[j.slot] === 'D' ? 3 : 1)), mEff = marc.p.attr.DEF * mStam(marc.p.stamina) * mMoral(marc.p.moral);   // o marcador atrapalha a finalização
+          const noGol = rng.chance(P().clamp(0.425 + (eff - 50) * 0.004 - (mEff - 50) * 0.0030, 0.16, 0.66));
+          if (noGol) { stats[a].no_gol++; atk.noGol++; }
           const pGol = P().clamp(0.36 + (eff - gkEff) * 0.0032, 0.14, 0.58);
           if (noGol && rng.chance(pGol)) {
             A.gols++; atk.g++; atk.p.gols++;
@@ -1140,6 +1218,7 @@ window.ESCUDOS_REAIS = {};
           des.desarmes++;
         }
       }
+      if (min === 45) fimDoTempo(m);
       // faltas (cometidas pelo time sem a bola, de preferência)
       if (rng.chance(CFG.faltaBase * 2)) {
         const lado = rng.chance(0.5 + (0.5 - ctrl()) * 0.3) ? 0 : 1; // quem tem menos a bola faz mais falta
@@ -1156,6 +1235,8 @@ window.ESCUDOS_REAIS = {};
       }
   }
 
+  function fimDoTempo(m) { m.S.forEach((s, i) => { s.h1 = { tatica: s.time.tatica, formacao: s.time.formacao, dif: s.gols - m.S[1 - i].gols }; }); }
+
   function finalizar(m) {
     const placar = placarDe(m);
     m.S.forEach((s, i) => { for (const j of s.todos.values()) j.nota = calcNota(j, i, placar); });
@@ -1167,18 +1248,18 @@ window.ESCUDOS_REAIS = {};
   function simular(timeCasa, timeFora, rng, opts = {}) {
     const m = criar(timeCasa, timeFora, rng);
     for (let i = 1; i <= 90; i++) {
-      if (i === 46 && opts.intervalo) { opts.intervalo(m.S, m.stats, m.eventos); recalcular(m); }
+      if (i === 46) { if (opts.ia) m.S.forEach((s, k) => iaIntervalo(m, k)); if (opts.intervalo) opts.intervalo(m.S, m.stats, m.eventos); recalcular(m); }
       if (opts.ia && (i === 60 || i === 70 || i === 80)) m.S.forEach((s) => iaSubstituicoes(m, s));
       passo(m);
     }
     return finalizar(m);
   }
 
-  // Troca automática do computador: tira quem está mais cansado (stamina < 45) e põe o melhor reserva para o slot.
+  // Troca automática do computador: tira quem está mais cansado (stamina < 65) e põe o melhor reserva para o slot.
   function iaSubstituicoes(m, s) {
     if (s.subs >= s.maxSubs) return;
     const cand = s.campo.filter((j) => j.slot !== 'GOL').sort((a, b) => a.p.stamina - b.p.stamina)[0];
-    if (!cand || cand.p.stamina > 45) return;
+    if (!cand || cand.p.stamina > 65) return;
     const livres = s.banco.filter((p) => p.lesao === 0 && p.pos !== 'GOL');
     if (!livres.length) return;
     const nota = (p) => P().ovrNoSlot(p, cand.slot) * (0.8 + p.stamina / 500);
@@ -1261,7 +1342,7 @@ window.ESCUDOS_REAIS = {};
     return { ok: true };
   }
 
-  bf.Match = { mudarFormacao, FORMACOES, FORM_MOD, TATICA, CFG, criar, passo, finalizar, recalcular, placarDe, simular, calcNota, substituir, substituirM, iaSubstituicoes };
+  bf.Match = { leitura, iaIntervalo, sinergia, CONTRA, ofensiv, mudarFormacao, FORMACOES, FORM_MOD, TATICA, CFG, criar, passo, finalizar, recalcular, placarDe, simular, calcNota, substituir, substituirM, iaSubstituicoes };
 })(typeof globalThis !== 'undefined' ? globalThis : this);
 
 ;
@@ -1273,9 +1354,11 @@ window.ESCUDOS_REAIS = {};
 
   // valor: ovr 40 -> ~15 mil | 55 -> ~120 mil | 65 -> ~500 mil | 75 -> ~2 mi | 85 -> ~8 mi | 95 -> ~33 mi
   function fatorIdade(i) { return i <= 20 ? 1.35 : i <= 23 ? 1.2 : i <= 27 ? 1.0 : i <= 30 ? 0.8 : i <= 33 ? 0.5 : 0.3; }
+  // o jogo valoriza mais quem protege o gol e o meio e menos o centroavante "fácil de achar"
+  const FATOR_POS = { ZAG: 1.3, LIB: 1.25, LD: 1.2, LE: 1.2, VOL: 1.1, MC: 1.05, MEI: 1.0, ALA: 1.0, GOL: 0.95, PD: 0.95, PE: 0.95, CA: 0.88, SA: 0.9 };
   function valorMercado(p) {
     const ovr = P().overall(p);
-    const v = 15000 * Math.exp((ovr - 40) * 0.14) * fatorIdade(p.idade);
+    const v = 15000 * Math.exp((ovr - 40) * 0.14) * fatorIdade(p.idade) * (FATOR_POS[p.pos] || 1);
     return Math.round(v / 1000) * 1000;
   }
   // salário mensal: 1,2% do valor, piso R$ 500 (13 pagamentos/ano)
@@ -1288,10 +1371,11 @@ window.ESCUDOS_REAIS = {};
   // público: demanda do clube * forma recente * preço; limitado pela capacidade
   // forma: -1..+1 (últimos 5 jogos). rival: 1.0 normal, 1.25 clássico.
   // elasticidade -1,3: ingresso mais caro afasta mais gente do que rende; por isso existe um preço "ótimo" (estádio quase lotado)
-  const demandaBruta = (clube, forma = 0, rival = 1, precoRelativo = 1) => clube.demanda * (1 + 0.35 * forma) * rival * Math.pow(precoRelativo, -1.3);
+  const promo = (c) => ((c.campanha && c.campanha.jogos > 0) ? c.campanha.mult : 1) * (c.evento ? c.evento.mult : 1);
+  const demandaBruta = (clube, forma = 0, rival = 1, precoRelativo = 1) => Math.max(clube.demanda * (1 + 0.35 * forma) * rival * promo(clube), clube.estadio.capacidade * 0.03) * Math.pow(precoRelativo, -1.3);
   function publico(clube, forma = 0, rival = 1, precoRelativo = 1) {
     const d = demandaBruta(clube, forma, rival, precoRelativo);
-    return Math.round(clamp(d, clube.estadio.capacidade * 0.03, clube.estadio.capacidade));
+    return Math.round(Math.min(d, clube.estadio.capacidade));
   }
   const rendaJogo = (clube, ...a) => publico(clube, ...a) * clube.precoIngresso * 0.85; // 15% de custos de jogo/imposto
 
@@ -1322,7 +1406,7 @@ window.ESCUDOS_REAIS = {};
   // chance de aceitar a proposta: cresce com desempenho (posição na tabela 0..1, 1=líder)
   const chanceAceite = (clube, spons, desempenho) => clamp(0.25 + 0.5 * desempenho + (clube.prestigio - spons.minPrestigio) / 200, 0.05, 0.95);
 
-  bf.Economy = { demandaBruta, valorMercado, salarioBase, salario, folhaMensal, publico, rendaJogo, ampliar, valorPatrocinio, podePatrocinar, chanceAceite, CUSTO_FIXO, FATOR_DIV, CUSTO_LUGAR };
+  bf.Economy = { promo, demandaBruta, valorMercado, salarioBase, salario, folhaMensal, publico, rendaJogo, ampliar, valorPatrocinio, podePatrocinar, chanceAceite, CUSTO_FIXO, FATOR_DIV, CUSTO_LUGAR };
 })(typeof globalThis !== 'undefined' ? globalThis : this);
 
 ;
@@ -1360,16 +1444,19 @@ window.ESCUDOS_REAIS = {};
       while (p.xp[a] <= -1 && p.attr[a] > 1) { p.xp[a] += 1; p.attr[a]--; mudancas.push(a + '-1'); }
     }
     // moral: nota boa sobe, nota ruim desce
-    p.moral = clamp(p.moral + delta * 5, 0, 100);
+    // reserva que entra em campo: sente a confiança do técnico (+3), perde só metade se for mal e não cai abaixo de ~40
+    const sub = j.entrou > 0, dm = sub ? (delta < 0 ? delta * 2.5 : delta * 5) + 3 : delta * 5;
+    p.moral = clamp(p.moral + dm, sub ? Math.min(p.moral, 40) : 0, 100);
     p.jogos++;
     return mudancas;
   }
   // Moral dos reservas que não jogam desce devagar (e a de todo mundo tende a 50 com tempo)
-  function semJogar(p) { p.moral = clamp(p.moral + (50 - p.moral) * 0.04 - 1, 0, 100); }
+  function semJogar(p) { p.moral = clamp(p.moral + (50 - p.moral) * 0.04 - 1, Math.min(p.moral, 40), 100); }   // reserva parado não afunda abaixo de ~40
   // Recuperação entre jogos: dias de descanso. FIS alto recupera melhor. Lesionado só volta quando lesao = 0.
   function descansar(p, dias) {
-    const taxa = (6 + p.attr.FIS * 0.08) * dias * P().fatorRecup(p.idade); // ex.: FIS 50 => ~10/dia ; FIS 90 => ~13/dia ; veteranos de 35 anos ~16% menos
-    p.stamina = clamp(p.stamina + taxa * (p.lesao ? 0.3 : 1), 0, 100);
+    // recupera uma fração do que falta: FIS 50 => ~16%/dia ; FIS 90 => ~18%/dia ; veteranos de 35 anos ~16% menos. 3-4 dias devolvem ~40%, uma semana ~65%.
+    const r = (0.11 + p.attr.FIS * 0.0005) * P().fatorRecup(p.idade), q = 1 - Math.exp(-r * dias);
+    p.stamina = clamp(p.stamina + (100 - p.stamina) * q * (p.lesao ? 0.3 : 1), 0, 100);
     if (p.lesao > 0 && dias >= 3) { p.lesaoAc = (p.lesaoAc || 0) + P().fatorLesao(p.idade); if (p.lesaoAc >= 1) { p.lesaoAc -= 1; p.lesao--; } }
   }
   // Fim de temporada: envelhece e aplica declínio dos veteranos / tendência de queda se sem jogar
@@ -1569,13 +1656,35 @@ window.ESCUDOS_REAIS = {};
     criarLigas(g); g.copa = S().copaCriar(g.clubes, g.rng);
   }
 
+  // [nome, posição, nacionalidade (se não for brasileiro)]. Fontes: súmulas, Acervo Santista, NetVasco (inscritos na Libertadores 1998), imprensa esportiva.
+  const REAIS = {
+    corinthians: [['Nei', 'GOL'], ['Rodrigo', 'LD'], ['Índio', 'LD'], ['Silvinho', 'LE'], ['Gamarra', 'ZAG', 'PAR'], ['Batata', 'ZAG'], ['Márcio Costa', 'ZAG'], ['Cris', 'ZAG'], ['Vampeta', 'VOL'], ['Gilmar', 'VOL'], ['Amaral', 'VOL'], ['Freddy Rincón', 'MEI', 'COL'], ['Ricardinho', 'MC'], ['Marcelinho Carioca', 'MEI'], ['Edílson', 'CA'], ['Didi', 'SA'], ['Mirandinha', 'CA'], ['Dinei', 'CA']],
+    santos: [['Zetti', 'GOL'], ['Fernando Leão', 'GOL'], ['Marcelo', 'GOL'], ['Argel', 'ZAG'], ['Baiano', 'ZAG'], ['Ânderson Lima', 'ZAG'], ['Rogério Seves', 'ZAG'], ['Jean', 'LD'], ['Athirson', 'LE'], ['Gustavo Nery', 'LE'], ['Élder', 'VOL'], ['Marcos Bazílio', 'VOL'], ['Claudiomiro', 'VOL'], ['Jorginho', 'MC'], ['Narciso', 'MC'], ['Bechara', 'MC'], ['Robson Luís', 'MEI'], ['Viola', 'CA'], ['Aristizábal', 'CA', 'COL'], ['Alessandro Cambalhota', 'SA'], ['Adiel', 'CA']],
+    vasco: [['Carlos Germano', 'GOL'], ['Márcio', 'GOL'], ['Caetano', 'GOL'], ['Vágner', 'LD'], ['Maricá', 'LD'], ['Felipe', 'LE'], ['Vítor', 'LE'], ['Mauro Galvão', 'ZAG'], ['Odvan', 'ZAG'], ['Géder', 'ZAG'], ['Nasa', 'VOL'], ['Luisinho', 'VOL'], ['Valber', 'VOL'], ['Fabiano Eller', 'VOL'], ['Juninho Pernambucano', 'MEI'], ['Pedrinho', 'MEI'], ['Ramon', 'MEI'], ['Luizão', 'CA'], ['Donizete', 'CA'], ['Sorato', 'CA'], ['Mauricinho', 'CA']],
+    saopaulo: [['Rogério Ceni', 'GOL'], ['Belletti', 'LD'], ['Fábio Aurélio', 'LE'], ['Edmílson', 'ZAG'], ['Bordon', 'ZAG', 'ARG'], ['Fabiano', 'VOL'], ['Souza', 'VOL'], ['Denílson', 'MEI'], ['Raí', 'MEI'], ['Marcelinho Paraíba', 'MEI'], ['Carlos Miguel', 'MC'], ['Dodô', 'CA'], ['França', 'CA'], ['Adriano', 'CA'], ['Marcelo Sergipano', 'CA']],
+    palmeiras: [['Velloso', 'GOL'], ['Marcos', 'GOL'], ['Júnior Baiano', 'ZAG'], ['Cléber', 'ZAG'], ['Agnaldo Liz', 'ZAG'], ['Arce', 'LD', 'PAR'], ['Júnior', 'LE'], ['César Sampaio', 'VOL'], ['Tiago Silva', 'VOL'], ['Alex', 'MEI'], ['Zinho', 'MEI'], ['Rogério', 'MC'], ['Paulo Nunes', 'CA'], ['Oséas', 'CA'], ['Evair', 'CA'], ['Euller', 'CA']],
+    cruzeiro: [['Paulo César', 'GOL'], ['Gustavo', 'LD'], ['Gilberto', 'LE'], ['Marcelo Djian', 'ZAG'], ['Wílson Gottardo', 'ZAG'], ['Valdir', 'VOL'], ['Ricardinho', 'MC'], ['Marcos Paulo', 'MEI'], ['Bentinho', 'MC'], ['Elivélton', 'PE'], ['Marcelo Ramos', 'CA'], ['Fábio Júnior', 'CA'], ['Giovanni', 'SA']],
+    gremio: [['Danrlei', 'GOL'], ['Itaqui', 'LD'], ['Scheidt', 'ZAG'], ['André Silva', 'ZAG'], ['Goiano', 'VOL'], ['Otacílio', 'VOL'], ['Beto', 'MC'], ['Aílton', 'MEI'], ['Maurílio', 'PE'], ['Guilherme', 'CA']],
+    flamengo: [['Clemer', 'GOL'], ['Ricardo Rocha', 'ZAG'], ['Beto', 'MC'], ['Lúcio', 'CA'], ['Leandro Machado', 'CA']],
+    atleticomg: [['Taffarel', 'GOL']],
+    botafogo: [['Sérgio Manoel', 'MEI'], ['Fábio Augusto', 'VOL'], ['Bebeto', 'CA'], ['Túlio Maravilha', 'CA']],
+  };
+  function nomesReais(c) {
+    const lista = REAIS[c.id]; if (!lista) return;
+    const GR = PL().GRUPO, ov = (p) => PL().overall(p), livres = () => c.elenco.filter((p) => !p.real);
+    // as posições mais raras primeiro; cada nome real fica com o melhor jogador gerado da mesma posição (senão do mesmo setor)
+    lista.forEach(([nome, pos, nac]) => {
+      const cand = livres().filter((p) => p.pos === pos).sort((a, b) => ov(b) - ov(a))[0] || livres().filter((p) => GR[p.pos] === GR[pos]).sort((a, b) => ov(b) - ov(a))[0];
+      if (!cand) return; cand.nome = nome; cand.real = true; if (nac) cand.nac = nac;
+    });
+  }
   // opts: { seed, humanos:[{id,nome,clubId}], config:{maxSubs} }
   function novo(opts) {
     PL().resetNomes();
     const rng = bf.RNG.create(opts.seed);
     const clubes = bf.CLUBS.map((c) => {
       const cl = { ...c, estadio: { ...c.estadio }, patrocinadores: [], elenco: PL().gerarElenco(rng, c) };
-      numerar(cl.elenco); return cl;
+      numerar(cl.elenco); nomesReais(cl); return cl;
     });
     const E = bf.Economy, hoje = '1998-01-31';
     clubes.forEach((c) => c.elenco.forEach((p) => { p.contratoAte = addMeses(hoje, rng.int(11, 17)); p.salario = E.salarioBase(p); p.avisos = 0; p.stamina = 100; p.moral = 70; }));
@@ -1624,8 +1733,9 @@ window.ESCUDOS_REAIS = {};
     let formacao = (cfg && cfg.formacao) || '4-4-2', tatica = (cfg && cfg.tatica) || 'equilibrado';
     if (!g.humanoIds.has(clube.id)) { // computador escolhe pelo confronto
       const d = clube.prestigio - adversario.prestigio;
-      tatica = d > 15 ? 'ofensivo' : d < -15 ? (g.rng.chance(0.5) ? 'contra' : 'defensivo') : 'equilibrado';
-      formacao = d > 15 ? '4-3-3' : d < -15 ? '4-5-1' : '4-4-2';
+      tatica = d > 15 ? 'ofensivo' : d < -15 ? (g.rng.chance(0.5) ? 'contra' : 'defensivo') : (g.rng.chance(0.2) ? (g.rng.chance(0.5) ? 'ofensivo' : 'defensivo') : 'equilibrado');
+      const opc = d > 15 ? ['4-3-3', '3-4-3', '4-2-3-1'] : d < -15 ? ['4-5-1', '3-5-2', '4-4-2'] : ['4-4-2', '4-2-3-1', '3-5-2', '4-3-3'];
+      formacao = opc[g.rng.int(0, opc.length - 1)];
     }
     return S().escalarAuto(clube, formacao, tatica, g.config.maxSubs, cfg && g.humanoIds.has(clube.id) ? cfg.titulares : []);
   }
@@ -1633,12 +1743,19 @@ window.ESCUDOS_REAIS = {};
   // ---- público e finanças ----
   function formaRecente(g, id) {
     const h = (g.hist.get(id) || []).slice(-5); if (!h.length) return 0;
-    return h.reduce((a, r) => a + (r.gp > r.gc ? 1 : r.gp < r.gc ? -1 : 0), 0) / h.length;
+    // 60% resultados, 25% saldo de gols (goleada conta mais), 15% posição na tabela (briga por título/rebaixamento)
+    const res = h.reduce((a, r) => a + (r.gp > r.gc ? 1 : r.gp < r.gc ? -1 : 0), 0) / h.length;
+    const sg = Math.max(-1, Math.min(1, h.reduce((a, r) => a + (r.gp - r.gc), 0) / h.length / 2));
+    let pos = 0; const c = g.porId.get(id), L = c && g.ligas[c.div];
+    if (L && L.res.length) { const t = S().ordenar(L.tabela), i = t.findIndex((r) => r.id === id); if (i >= 0) pos = 1 - 2 * i / (t.length - 1); }
+    return Math.max(-1, Math.min(1, 0.6 * res + 0.25 * sg + 0.15 * pos));
   }
   function publicoDe(g, jogo) {
     const C = g.porId.get(jogo.casa), F = g.porId.get(jogo.fora);
     const rival = (C.cidade === F.cidade ? 1.25 : 1) * Math.max(0.9, Math.min(1.3, 1 + (F.prestigio - C.prestigio) / 200));
     const base = bf.Economy.publico(C, formaRecente(g, C.id), rival, C.precoIngresso / bf.DIVISOES[C.div].ingresso), ruido = 0.92 + g.rng.next() * 0.16;
+    if (C.campanha && C.campanha.jogos > 0) C.campanha.jogos--;
+    if (C.evento) C.evento = null;
     return Math.max(50, Math.min(C.estadio.capacidade, Math.round(base * ruido)));
   }
   // balanço de um clube no dia: salários proporcionais aos dias desde o último jogo, custos fixos, bilheteria (só em casa) e cota de TV da rodada
@@ -1673,6 +1790,7 @@ window.ESCUDOS_REAIS = {};
     const L = g.live; L.min++;
     for (const p of L.partidas) {
       if (p.m.min >= 90) continue;
+      if (p.m.min === 45) p.m.S.forEach((s, i) => { if (!p.humano[i]) M().iaIntervalo(p.m, i); });
       if (p.m.min === 59 || p.m.min === 69 || p.m.min === 79) p.m.S.forEach((s, i) => { if (!p.humano[i]) M().iaSubstituicoes(p.m, s); });
       M().passo(p.m);
     }
@@ -1687,6 +1805,7 @@ window.ESCUDOS_REAIS = {};
     const jogaram = new Set();
     for (const part of L.partidas) {
       const { jogo, m } = part, res = M().finalizar(m), [gh, ga] = res.placar;
+      g.ultEsc = g.ultEsc || new Map(); [jogo.casa, jogo.fora].forEach((id, i) => g.ultEsc.set(id, { formacao: part.inicial[i].formacao, tatica: part.inicial[i].tatica, titulares: part.inicial[i].titulares.slice(), adv: i === 0 ? jogo.fora : jogo.casa, data: dia.data }));
       [jogo.casa, jogo.fora].forEach((id, i) => {   // a escalação deste jogo vira o padrão do próximo (só para técnicos humanos)
         if (!part.humano[i]) return;
         const cfg = g.taticas.get(id) || {}, ini = part.inicial[i];
@@ -1712,7 +1831,7 @@ window.ESCUDOS_REAIS = {};
           p.faltas = (p.faltas || 0) + j.faltas; p.cartAm = (p.cartAm || 0) + j.amarelos; p.cartVm = (p.cartVm || 0) + (j.expulso ? 1 : 0);
           if (j.expulso) p.suspenso = 1;
           else if (j.amarelos > 0) { p.amarelosAcum++; if (p.amarelosAcum >= 3) { p.suspenso = 1; p.amarelosAcum = 0; } }
-          detalhes[i].push({ id: p.id, nome: p.nome, num: p.num, slot: j.slot, pos: p.pos, nota: j.nota, g: j.g, ast: j.ast, defesas: j.defesas, desarmes: j.desarmes, faltas: j.faltas, amarelos: j.amarelos, expulso: j.expulso, minutos: j.minutos, entrou: j.entrou, saiu: j.saiu, lesao: j.lesionado, mudancas: mud, moralAntes, moralDepois: p.moral, stamina: p.stamina });
+          detalhes[i].push({ id: p.id, nome: p.nome, num: p.num, slot: j.slot, pos: p.pos, nota: j.nota, g: j.g, ast: j.ast, defesas: j.defesas, desarmes: j.desarmes, faltas: j.faltas, amarelos: j.amarelos, expulso: j.expulso, chutes: j.chutes, noGol: j.noGol, minutos: j.minutos, chutes: j.chutes || 0, noGol: j.noGol || 0, entrou: j.entrou, saiu: j.saiu, lesao: j.lesionado, mudancas: mud, moralAntes, moralDepois: p.moral, stamina: p.stamina });
         }
       });
       const fin = [balanco(g, g.porId.get(jogo.casa), jogo, part.publico, true, gap), balanco(g, g.porId.get(jogo.fora), jogo, part.publico, false, gap)];
@@ -1762,10 +1881,19 @@ window.ESCUDOS_REAIS = {};
     const reg = { ano: g.ano, campeoes: { A: cl.A[0], B: cl.B[0], C: cl.C[0], D: cl.D[0] }, copa: g.copa.campeao };
     const mov = S().promoRebaixa(cl, g.porId);
     reg.subiram = mov.subiram; reg.desceram = mov.desceram; g.historico.push(reg);
+    // prestígio dinâmico: campanha da liga (-1,5 a +1,5), título, acesso/descenso e Copa do Brasil mexem devagar com a torcida
+    g.clubes.forEach((c) => {
+      const t = S().ordenar(g.ligas[c.div].tabela), i = t.findIndex((r) => r.id === c.id); let d = (0.5 - i / (t.length - 1)) * 3;
+      if (i === 0) d += 2; if (Object.values(mov.subiram).flat().includes(c.id)) d += 2; if (Object.values(mov.desceram).flat().includes(c.id)) d -= 2;
+      const fases = g.copa.fases || [], fn = fases.length, ult = fases[fn - 1];
+      if (g.copa.campeao === c.id) d += 3; else if (ult && fn >= 4 && ult.confrontos.some((x) => x.a === c.id || x.b === c.id)) d += fn >= 6 ? 1 : 0.5;
+      c.prestigio = Math.max(5, Math.min(99, Math.round((c.prestigio + d) * 10) / 10));
+    });
     g.clubes.forEach((c) => c.elenco.forEach((p) => {
       PR().virarAno(p, g.rng);
       p.stamina = 100; p.moral = 60; p.suspenso = 0; p.amarelosAcum = 0; p.treino = null; p.treinoCd = 0; if (p.lesao > 0) p.lesao = 0;
     }));
+    reg.aposentados = bf.Mercado.aposentarEReporElencos(g);   // veteranos se aposentam; clubes do computador repõem com a base
     const dEntre = difDias(g.ano + '-10-26', g.ano + 1 + '-01-31');
     const entre = new Map(); g.clubes.forEach((c) => { const v = Math.round(bf.Economy.folhaMensal(c.elenco) * dEntre / 30.4); c.caixa -= v; entre.set(c.id, v); }); // salários da entressafra
     g.ano++; g.data = g.ano + '-01-31'; novaTemporada(g); bf.Fin.novoAno(g, entre);
@@ -1924,7 +2052,23 @@ window.ESCUDOS_REAIS = {};
       if (humano && c.elenco.length < 20) gerarJuniores(g, c, 20 - c.elenco.length);
     }
   }
-  function gerarJuniores(g, c, n) {
+  // Fim do ano: veteranos se aposentam (computador a partir dos 35 anos; técnicos humanos, 37+) e o computador completa o elenco com a base
+  function aposentarEReporElencos(g) {
+    const quem = [];
+    for (const c of g.clubes) {
+      const humano = g.humanoIds.has(c.id);
+      for (const p of c.elenco.slice()) {
+        const limite = humano ? 36 : 34, pr = Math.min(0.95, Math.max(0, p.idade - limite) * (humano ? 0.25 : 0.2));
+        if (pr > 0 && g.rng.chance(pr)) {
+          c.elenco = c.elenco.filter((x) => x !== p); p.treino = null; p.aVenda = null; quem.push({ clube: c.id, nome: p.nome, idade: p.idade });
+          if (humano) noticia(g, p.nome + ' (' + p.idade + ' anos) anunciou a aposentadoria.', 'info');
+        }
+      }
+      if (!humano && c.elenco.length < 24) gerarJuniores(g, c, 24 - c.elenco.length, true);
+    }
+    return quem;
+  }
+  function gerarJuniores(g, c, n, quieto) {
     const have = (pos) => c.elenco.filter((p) => p.pos === pos).length;
     const need = ['GOL', 'ZAG', 'LD', 'LE', 'VOL', 'MC', 'MEI', 'PD', 'PE', 'CA', 'SA'];
     for (let i = 0; i < n; i++) {
@@ -1933,7 +2077,7 @@ window.ESCUDOS_REAIS = {};
       p.contratoAte = GM().addMeses(g.data, g.rng.int(12, 18)); p.salario = E().salarioBase(p); p.num = numeroLivre(c); p.stamina = 100; p.moral = 70;
       c.elenco.push(p);
     }
-    noticia(g, n + ' jogador(es) da base subiram para completar o elenco.', 'info');
+    if (!quieto) noticia(g, n + ' jogador(es) da base subiram para completar o elenco.', 'info');
   }
 
   // ---------- TREINAR ----------
@@ -1941,34 +2085,43 @@ window.ESCUDOS_REAIS = {};
     corrida: { attr: 'RIT', nome: 'Treino de corrida' }, finalizacao: { attr: 'CHU', nome: 'Treino de finalização' }, passes: { attr: 'PAS', nome: 'Treino de passes' },
     tecnico: { attr: 'DRI', nome: 'Treino técnico' }, defesa: { attr: 'DEF', nome: 'Treino de defesa' }, forca: { attr: 'FIS', nome: 'Treino de força' },
   };
-  const TREINO_CFG = { moralPorJogo: 4, staminaPorJogo: 12, cooldown: 4, maxSimultaneo: 3,
+  const TREINO_CFG = { moralJogo: [3, 5], staminaJogo: [10, 14], cooldown: 4, maxSimultaneo: 3, maxSeguidas: 3, repeticao: [1, 0.7, 0.5],
     fatorAttr: { RIT: 0.7, CHU: 0.9, PAS: 0.9, DRI: 0.9, DEF: 0.9, FIS: 0.8 } };
   const baseIdade = (i) => (i <= 20 ? 0.9 : i <= 24 ? 0.75 : i <= 28 ? 0.55 : i <= 31 ? 0.3 : 0.12);
-  // pontos esperados: jogos × idade × atributo × retorno decrescente × moral
+  // quantas vezes seguidas o jogador já treinou esta valência (zera ao treinar outra)
+  const seguidas = (p, attr) => (p.treinoHist && p.treinoHist.attr === attr ? p.treinoHist.n : 0);
+  // pontos esperados: jogos × idade × atributo × retorno decrescente × moral × repetição da mesma valência
   function ganhoEsperado(p, attr, n) {
-    const rd = clamp((92 - p.attr[attr]) / 50, 0.15, 1.1), m = 0.75 + 0.5 * (p.moral / 100);
-    return n * baseIdade(p.idade) * TREINO_CFG.fatorAttr[attr] * rd * m;
+    const rd = clamp((92 - p.attr[attr]) / 50, 0.15, 1.1), m = 0.75 + 0.5 * (p.moral / 100), rep = TREINO_CFG.repeticao[seguidas(p, attr)] || 0;
+    return n * baseIdade(p.idade) * TREINO_CFG.fatorAttr[attr] * rd * m * rep;
+  }
+  // faixas mostradas ao técnico (o valor exato é sorteado ao fim do treino)
+  function faixas(p, attr, n) {
+    const e = ganhoEsperado(p, attr, n), C = TREINO_CFG;
+    return { ganho: [e * 0.75, e * 1.25], moral: [C.moralJogo[0] * n, C.moralJogo[1] * n], stamina: [C.staminaJogo[0] * n, C.staminaJogo[1] * n] };
   }
   function iniciarTreino(g, c, p, tipo, n) {
     if (!TREINOS[tipo] || !(n >= 1 && n <= 3)) return { ok: false, motivo: 'Escolha o treino e de 1 a 3 jogos.' };
     if (p.treino) return { ok: false, motivo: 'Já está em treino.' };
     if (p.lesao > 0) return { ok: false, motivo: 'Lesionado não pode treinar.' };
     if (p.treinoCd > 0) return { ok: false, motivo: 'Descansando do último treino (mais ' + p.treinoCd + ' jogo(s)).' };
+    if (seguidas(p, TREINOS[tipo].attr) >= TREINO_CFG.maxSeguidas) return { ok: false, motivo: 'Já treinou esta valência ' + TREINO_CFG.maxSeguidas + ' vezes seguidas. Treine outra antes de repetir.' };
     if (c.elenco.filter((x) => x.treino).length >= TREINO_CFG.maxSimultaneo) return { ok: false, motivo: 'No máximo ' + TREINO_CFG.maxSimultaneo + ' jogadores treinando ao mesmo tempo.' };
     p.treino = { tipo, attr: TREINOS[tipo].attr, restante: n, total: n };
     return { ok: true };
   }
   function concluirTreino(g, c, p) {
-    const t = p.treino, e = ganhoEsperado(p, t.attr, t.total), ganho = Math.floor(e) + (g.rng.next() < e - Math.floor(e) ? 1 : 0);
+    const t = p.treino, C = TREINO_CFG, e = ganhoEsperado(p, t.attr, t.total) * (0.75 + 0.5 * g.rng.next()), ganho = Math.floor(e) + (g.rng.next() < e - Math.floor(e) ? 1 : 0);
     p.attr[t.attr] = Math.min(99, p.attr[t.attr] + ganho);
-    p.moral = Math.max(0, p.moral - TREINO_CFG.moralPorJogo * t.total);
-    p.stamina = Math.min(100, p.stamina + TREINO_CFG.staminaPorJogo * t.total);
-    p.treinoCd = TREINO_CFG.cooldown; p.treino = null;
+    p.moral = Math.max(0, p.moral - t.total * (C.moralJogo[0] + (C.moralJogo[1] - C.moralJogo[0]) * g.rng.next()));
+    p.stamina = Math.min(100, p.stamina + t.total * (C.staminaJogo[0] + (C.staminaJogo[1] - C.staminaJogo[0]) * g.rng.next()));
+    p.treinoHist = { attr: t.attr, n: seguidas(p, t.attr) + 1 };
+    p.treinoCd = C.cooldown; p.treino = null;
     noticia(g, p.nome + ' voltou do ' + TREINOS[t.tipo].nome.toLowerCase() + ': ' + (ganho ? t.attr + ' +' + ganho : 'sem evolução desta vez') + '.', 'treino');
     return ganho;
   }
 
-  bf.Mercado = { reais, noticia, diasRestantes, mesesRestantes, podeRenovar, multa, transferir, podeVender, colocarAVenda, retirarVenda, chanceDeProposta, processarVendas, leiloar, opcoesRenovacao, salarioEsperado, negociar, aplicarRenovacao, processarContratos, gerarJuniores, TREINOS, TREINO_CFG, ganhoEsperado, iniciarTreino, concluirTreino, MIN_ELENCO };
+  bf.Mercado = { reais, noticia, diasRestantes, mesesRestantes, podeRenovar, multa, transferir, podeVender, colocarAVenda, retirarVenda, chanceDeProposta, processarVendas, leiloar, opcoesRenovacao, salarioEsperado, negociar, aplicarRenovacao, processarContratos, gerarJuniores, aposentarEReporElencos, TREINOS, TREINO_CFG, ganhoEsperado, faixas, seguidas, iniciarTreino, concluirTreino, MIN_ELENCO };
 })(typeof globalThis !== 'undefined' ? globalThis : this);
 
 ;
@@ -2030,7 +2183,7 @@ window.ESCUDOS_REAIS = {};
     valor: 'Valor de mercado do jogador.',
   };
   // barra colorida pela porcentagem: verde (≥90), verde-claro (70-89), amarelo (50-69), laranja (20-49), vermelho (<20)
-  K.barra = (v, cls) => K.h('span', { class: 'bar ' + (cls || ''), role: 'img', 'aria-label': Math.round(v) + '%' }, K.h('i', { class: 'c-' + PR.cor(v), style: 'width:' + Math.max(2, Math.round(v)) + '%' }));
+  K.barra = (v, cls, nome) => K.h('span', { class: 'bar ' + (cls || ''), role: 'img', 'aria-label': (nome ? nome + ' ' : '') + Math.round(v) + '%', 'data-tip': (nome ? nome + ': ' : '') + Math.round(v) + '%' }, K.h('i', { class: 'c-' + PR.cor(v), style: 'width:' + Math.max(2, Math.round(v)) + '%' }));
   K.barraPct = (v) => K.h('span', { class: 'barpct' }, K.barra(v), K.h('b', { class: 'num' }, Math.round(v) + '%'));
   K.situacao = (p) => (p.lesao > 0 ? 'LES ' + p.lesao : p.suspenso > 0 ? 'SUSP' : '');
 
@@ -2309,23 +2462,32 @@ window.ESCUDOS_REAIS = {};
   };
 
   // ---------- TREINAR ----------
+  const dec = (x) => x.toFixed(1).replace('.', ',');
+  const faixaGanho = (f) => '+' + dec(f.ganho[0]) + ' a +' + dec(f.ganho[1]);
+  K.treinoDica = (p) => {
+    const t = p.treino, f = MK.faixas(p, t.attr, t.total);
+    return p.nome + ' está no ' + MK.TREINOS[t.tipo].nome.toLowerCase() + ' (' + K.ATTR_NOME[t.attr] + '). Faltam ' + t.restante + ' de ' + t.total + ' jogo(s). Ganho esperado: ' + faixaGanho(f) + '. Moral: −' + f.moral[0] + ' a −' + f.moral[1] + '. Stamina: +' + f.stamina[0] + ' a +' + f.stamina[1] + '.';
+  };
+  K.treinoIcone = (p) => (p.treino ? K.h('span', { class: 'treino-ic', 'data-tip': K.treinoDica(p), tabindex: 0, 'aria-label': 'Em treino' }, '🏋️') : null);
   D.treinar = (c, p) => {
     let tipo = 'corrida', n = 2; const err = h('p', { class: 'err', role: 'alert' }), C = MK.TREINO_CFG;
     const m = K.modal('Treinar ' + p.nome, h('div'));
     const desenha = () => {
       const seg = h('div', { class: 'seg', role: 'group', 'aria-label': 'Jogos de ausência' }, [1, 2, 3].map((k) => h('button', { type: 'button', 'aria-pressed': n === k ? 'true' : 'false', onclick: () => { n = k; desenha(); } }, k + (k === 1 ? ' jogo' : ' jogos'))));
       const cards = h('div', { class: 'treinos' }, Object.entries(MK.TREINOS).map(([k, t]) => {
-        const e = MK.ganhoEsperado(p, t.attr, n);
-        return h('button', { type: 'button', class: 'treino-card' + (tipo === k ? ' on' : ''), 'aria-pressed': tipo === k ? 'true' : 'false', onclick: () => { tipo = k; desenha(); } },
-          h('b', null, t.nome), h('span', { class: 'muted' }, K.ATTR_NOME[t.attr] + ' ' + p.attr[t.attr]), h('span', { class: 'ganho' }, '+' + e.toFixed(1) + ' esperado'));
+        const f = MK.faixas(p, t.attr, n), sg = MK.seguidas(p, t.attr), trav = sg >= C.maxSeguidas;
+        return h('button', { type: 'button', class: 'treino-card' + (tipo === k ? ' on' : ''), disabled: trav, 'aria-pressed': tipo === k ? 'true' : 'false', onclick: () => { tipo = k; desenha(); } },
+          h('b', null, t.nome), h('span', { class: 'muted' }, K.ATTR_NOME[t.attr] + ' ' + p.attr[t.attr]),
+          trav ? h('span', { class: 'bad' }, 'Já treinou ' + sg + 'x seguidas: faça outra valência')
+            : [h('span', { class: 'ganho' }, faixaGanho(f) + ' esperado'), sg ? h('small', { class: 'muted' }, sg + 'x seguida(s): ganho reduzido') : null]);
       }));
       m.corpo.replaceChildren(resumo(p),
         h('p', null, 'O jogador fica fora das próximas partidas para treinar um atributo. Quanto mais jogos fora, maior o ganho, mas maior o custo de moral.'),
         h('div', { class: 'eyebrow' }, 'Quantos jogos fora'), seg, h('div', { class: 'eyebrow' }, 'Tipo de treino'), cards,
         h('ul', { class: 'efeitos' },
           h('li', null, 'Fora dos próximos ', h('b', null, n + (n === 1 ? ' jogo' : ' jogos'))),
-          h('li', null, 'Moral: ', h('b', { class: 'bad' }, '−' + C.moralPorJogo * n)), h('li', null, 'Stamina: ', h('b', { class: 'hi' }, '+' + C.staminaPorJogo * n)),
-          h('li', { class: 'muted' }, 'O ganho depende da idade, do valor atual do atributo (quanto mais alto, mais difícil) e da moral. Depois de treinar, o jogador descansa ' + C.cooldown + ' jogos antes de poder treinar de novo. Máximo de ' + C.maxSimultaneo + ' jogadores treinando juntos.')),
+          h('li', null, 'Moral: ', h('b', { class: 'bad' }, '−' + C.moralJogo[0] * n + ' a −' + C.moralJogo[1] * n)), h('li', null, 'Stamina: ', h('b', { class: 'hi' }, '+' + C.staminaJogo[0] * n + ' a +' + C.staminaJogo[1] * n)),
+          h('li', { class: 'muted' }, 'Os valores são faixas: o resultado exato é sorteado ao fim do treino. O ganho depende da idade, do valor atual do atributo (quanto mais alto, mais difícil) e da moral, e diminui se você repetir a mesma valência (no máximo ' + C.maxSeguidas + ' vezes seguidas). Depois de treinar, o jogador descansa ' + C.cooldown + ' jogos antes de poder treinar de novo. Máximo de ' + C.maxSimultaneo + ' jogadores treinando juntos.')),
         err,
         h('div', { class: 'actions' },
           h('button', { class: 'btn', id: 'conftreino', onclick: () => { const r = MK.iniciarTreino(G.g, c, p, tipo, n); if (!r.ok) { err.textContent = r.motivo; return; } m.fechar(); refresh(); } }, 'Começar treino'),
@@ -2369,6 +2531,7 @@ window.ESCUDOS_REAIS = {};
       h('thead', null, h('tr', null, ['#', 'Clube', 'P', 'J', 'V', 'E', 'D', 'GP', 'GC', 'SG', '%'].map(cab))), h('tbody', null, tr)));
   }
 
+  K.classificacao = classificacao;
   function rodadaBox(g, div, meuId) {
     const L = g.ligas[div], feitas = L.res.length;
     const mostra = (titulo, jogos, placar) => h('div', { class: 'rodada' }, h('h3', null, titulo),
@@ -2441,6 +2604,13 @@ window.ESCUDOS_REAIS = {};
 // Visão de outro clube (a partir da Tabela): técnico, moral do técnico, estádio, próximo jogo, últimos 3 jogos e o plantel com os atributos de cada jogador.
 (function () {
   const K = window.K, BF = window.BF98, h = K.h, GM = BF.Game, G = K.G, nf = K.nf;
+  K.ultEscCard = (c) => {
+    const u = K.ultEsc(c.id); if (!u) return h('section', { class: 'card' }, h('h3', null, 'Última escalação'), h('p', { class: 'muted' }, 'O clube ainda não jogou nesta temporada, então não há escalação para mostrar.'));
+    const fs = BF.Match.FORMACOES[u.formacao] || [], tat = K.TATICAS.find((x) => x[0] === u.tatica), adv = G.g.porId.get(u.adv);
+    return h('section', { class: 'card' }, h('h3', null, 'Última escalação'),
+      h('p', { class: 'muted' }, GM.fmtDataCurta(u.data) + (adv ? ' · contra ' + adv.nome : '') + ' · ', h('b', null, u.formacao), ' · tática ', h('b', null, tat ? tat[1] : u.tatica)),
+      h('ol', { class: 'escult' }, u.titulares.map((pid, i) => { const p = c.elenco.find((x) => x.id === pid); return p ? h('li', null, h('span', { class: 'pos' }, fs[i] || p.pos), ' ', p.nome) : null; })));
+  };
   K.verClube = (id) => { G.clubeVisto = id; G.aba = 'tabela'; if (G.tela !== 5) G.tela = 5; K.render(); window.scrollTo(0, 0); };
 
   K.telas.clubeVisto = function () {
@@ -2461,6 +2631,7 @@ window.ESCUDOS_REAIS = {};
         h('section', { class: 'card' }, h('h3', null, 'Jogos'),
           h('div', { class: 'srow' }, h('small', null, 'Próximo'), pj ? h('span', null, h('span', { class: 'confronto' }, h('b', null, GM.fmtDataCurta(pj.data)), pj.emCasa ? [K.comEscudo(c), '×', K.comEscudo(pj.adversario, null, { link: true })] : [K.comEscudo(pj.adversario, null, { link: true }), '×', K.comEscudo(c)]), h('small', { class: 'muted' }, pj.rotulo + (pj.emCasa ? ' · em casa' : ' · fora'))) : h('span', { class: 'muted' }, g.fim ? 'Temporada encerrada' : 'Sem jogo marcado')),
           h('div', { class: 'srow' }, h('small', null, 'Últimos 3'), ult.length ? h('div', { class: 'ult' }, ult.map((r) => h('span', { class: 'rl' }, h('i', { class: 'res r' + res(r) }, res(r)), placar(r), h('small', { class: 'muted' }, r.comp)))) : h('span', { class: 'muted' }, 'Nenhum jogo disputado ainda'))),
+        K.ultEscCard(c),
         K.moralTreinadorBox(c.id)),
       h('h3', { class: 'cv-tit' }, 'Plantel'),
       K.plantelGenerico(c, { readonly: true }));
@@ -2546,8 +2717,8 @@ window.ESCUDOS_REAIS = {};
             h('span', { class: 'cnome' }, p.nome, p.estrela ? K.estrela() : null),
             h('span', { class: 'cmed', 'data-tip': 'Média do jogador na posição em que está jogando' + (fora ? ' (a posição natural dele é ' + p.pos + ', por isso rende menos aqui)' : '') + '.' }, h('small', null, 'Média da Posição'), h('b', { class: 'num' }, Math.round(v))),
             fora ? h('span', { class: 'cnat' }, 'natural: ' + p.pos) : null,
-            h('span', { class: 'cbar' }, h('small', null, 'E'), K.barra(p.stamina, 'mini')),
-            h('span', { class: 'cbar' }, h('small', null, 'M'), K.barra(p.moral, 'mini'))));
+            h('span', { class: 'cbar' }, h('small', null, 'E'), K.barra(p.stamina, 'mini', 'Stamina')),
+            h('span', { class: 'cbar' }, h('small', null, 'M'), K.barra(p.moral, 'mini', 'Moral'))));
       }));
 
     // lista do elenco
@@ -2558,8 +2729,8 @@ window.ESCUDOS_REAIS = {};
       const v = slotSel ? PL.ovrNoSlot(p, slotSel) : PL.overall(p);
       const sit = p.lesao ? 'LES ' + p.lesao : p.suspenso ? 'SUSP' : p.treino ? 'TREINO' : '';
       return h('tr', { 'data-id': p.id, tabindex: 0, class: (slotDe.has(p.id) ? 'tit-row ' : '') + (!S.disponivel(p) ? 'indisp' : ''), onclick: () => colocar(p), onkeydown: (e) => { if (e.key === 'Enter') colocar(p); } },
-        h('td', null, p.num), h('td', { class: 'l nm' }, p.nome, p.estrela ? K.estrela() : null), h('td', { class: 'pos' }, p.pos), h('td', { class: 'ovr' }, Math.round(v)),
-        h('td', null, K.barra(p.stamina)), h('td', null, K.barra(p.moral)), h('td', { class: p.lesao ? 'bad' : p.suspenso ? 'warn' : '' }, sit || st));
+        h('td', null, p.num), h('td', { class: 'l nm' }, p.nome, p.estrela ? K.estrela() : null, K.treinoIcone(p)), h('td', { class: 'pos' }, p.pos), h('td', { class: 'ovr' }, Math.round(v)),
+        h('td', null, K.barra(p.stamina, '', 'Stamina')), h('td', null, K.barra(p.moral, '', 'Moral')), h('td', { class: p.lesao ? 'bad' : p.suspenso ? 'warn' : '' }, sit || st));
     });
     const media = cfg.titulares.map((id, i) => PL.ovrNoSlot(porId.get(id), slots[i])).reduce((a, b) => a + b, 0) / 11;
     const fora = cfg.titulares.filter((id, i) => PL.afinidade(porId.get(id).pos, slots[i]) < 0.9).length;
@@ -2634,6 +2805,7 @@ window.ESCUDOS_REAIS = {};
   }
   function pintarStats(P) {
     const st = P.m.stats, n = Math.max(1, P.m.min);
+    if (REFS.escFn) REFS.escFn(P);
     REFS.stats.forEach(([k, el]) => { el.textContent = k === 'posse' ? Math.round(st[0].posse / n * 100) + '% — ' + Math.round(st[1].posse / n * 100) + '%' : st[0][k] + ' — ' + st[1][k]; });
   }
   function atualizar() {
@@ -2653,7 +2825,7 @@ window.ESCUDOS_REAIS = {};
 
   K.telas.jogo = function () {
     const g = G.g, live = L(), P = partidaHumana(), jg = G.jg;
-    REFS.rows = new Map(); REFS.stats = [];
+    REFS.rows = new Map(); REFS.stats = []; REFS.escFn = null;
     const lado = P ? ladoHumano(P) : 0;
     // coluna dos outros jogos
     const grupos = new Map();
@@ -2691,6 +2863,7 @@ window.ESCUDOS_REAIS = {};
       h('div', { class: 'publico', 'data-tip': 'Pessoas no estádio neste jogo.' }, h('b', { class: 'num' }, nf(P.publico)), ' pessoas · ' + nome(P.jogo.casa) + ' · ' + G.g.porId.get(P.jogo.casa).estadio.nome + ' (' + nf(G.g.porId.get(P.jogo.casa).estadio.capacidade) + ' lugares)'),
       h('div', { class: 'stats' }, stat('Posse de bola', 'posse'), stat('Chutes', 'chutes'), stat('No gol', 'no_gol'), stat('Faltas', 'faltas'), stat('Amarelos', 'amarelos'), stat('Vermelhos', 'vermelhos')),
       jg.painel ? painelSubs(P, lado) : null,
+      escalacoesBox(P, lado),
       h('h3', null, 'Lances'), REFS.feed) : h('p', null, 'Sem jogo seu neste dia.');
 
     const el = h('main', { class: 'wrap page jogo' },
@@ -2702,6 +2875,28 @@ window.ESCUDOS_REAIS = {};
     return el;
   };
 
+  // escalação em campo dos dois times (formação, tática e jogadores com stamina), atualizada a cada minuto
+  function escalacoesBox(P, lado) {
+    const jg = G.jg, cont = h('div', { class: 'escjogo' });
+    const fill = (PP) => {
+      const ld = jg.verAdv ? 1 - lado : lado, side = PP.m.S[ld], id = ld === 0 ? PP.jogo.casa : PP.jogo.fora, tat = K.TATICAS.find((x) => x[0] === side.time.tatica);
+      cont.replaceChildren(
+        h('div', { class: 'seg', role: 'group', 'aria-label': 'Time' }, [[false, 'Meu time'], [true, 'Adversário']].map(([v, t]) => h('button', { type: 'button', 'aria-pressed': !!jg.verAdv === v ? 'true' : 'false', onclick: () => { jg.verAdv = v; fill(PP); } }, t))),
+        h('p', { class: 'escinfo' }, K.comEscudo(id), ' ', h('b', null, side.time.formacao || '4-4-2'), ' · tática ', h('b', null, tat ? tat[1] : side.time.tatica), ' · substituições ' + side.subs + '/' + side.maxSubs),
+        h('ul', { class: 'sublista escj' }, side.campo.map((j) => h('li', { class: 'sublinha' }, h('span', { class: 'pos' }, j.slot), h('span', { class: 'sn' }, j.p.nome, j.p.estrela ? K.estrela() : null, j.amarelos ? h('i', { class: 'cartao am', title: 'Amarelo' }) : null, j.g ? ' ⚽'.repeat(j.g) : null), h('b', { class: 'num' }, Math.round(PL.overall(j.p))), K.barraPct(j.p.stamina), K.barraPct(j.p.moral)))),
+        side.banco.length ? h('p', { class: 'footnote' }, h('b', null, 'Banco: '), side.banco.map((p) => p.nome).join(', ')) : null);
+    };
+    REFS.escFn = (PP) => { if (jg.escAberto) fill(PP); };
+    return h('div', { class: 'escbox' },
+      h('button', { class: 'btn alt sm', id: 'ver-esc', 'aria-expanded': jg.escAberto ? 'true' : 'false', onclick: () => { jg.escAberto = !jg.escAberto; K.render(); } }, jg.escAberto ? 'Esconder escalações' : 'Ver escalação e formação dos times'),
+      jg.escAberto ? (fill(P), cont) : null);
+  }
+  // o que o ajuste de intervalo está rendendo para o seu time
+  function leituraBox(P, lado) {
+    const r = M.leitura(P.m, lado), pct = (r.b * 100).toFixed(1).replace('.', ',');
+    return h('div', { class: 'leitura' }, h('b', null, 'Leitura do intervalo: ', h('span', { class: r.b > 0 ? 'hi' : r.b < 0 ? 'bad' : 'muted' }, (r.b > 0 ? '+' : '') + pct + '% de força no 2º tempo')),
+      r.itens.length ? h('ul', null, r.itens.map(([t, x]) => h('li', { class: t === 'bom' ? 'hi' : t === 'ruim' ? 'bad' : 'muted' }, x))) : h('small', { class: 'muted' }, ' Mude a tática ou a formação lendo o jogo: responder à tática do adversário e ajustar a formação ao placar rendem bônus; escolhas erradas custam força.'));
+  }
   // ---------- painel de substituições (stamina e moral à vista) ----------
   function painelSubs(P, lado) {
     const jg = G.jg, side = P.m.S[lado], max = side.maxSubs;
@@ -2716,6 +2911,7 @@ window.ESCUDOS_REAIS = {};
     const msg = side.subs >= max ? 'Limite de substituições atingido.' : (jg.msgSub || '');
     return h('div', { class: 'subpanel' },
       P.m.min === 45 ? h('div', { class: 'subform' }, h('b', null, 'Formação'), h('div', { class: 'seg', role: 'group', 'aria-label': 'Formação' }, Object.keys(M.FORMACOES).map((f) => h('button', { type: 'button', 'aria-pressed': (side.time.formacao || '4-4-2') === f ? 'true' : 'false', 'data-tip': K.FORM_INFO[f].estr + '. Forte: ' + K.FORM_INFO[f].forte + ' Fraco: ' + K.FORM_INFO[f].fraco, onclick: () => { const r = M.mudarFormacao(P.m, lado, f); jg.msgSub = r.ok ? '' : r.motivo; jg.selOut = jg.selIn = null; K.render(); } }, f))), h('small', { class: 'muted' }, 'A formação só pode mudar no intervalo.')) : null,
+      P.m.min === 45 ? leituraBox(P, lado) : null,
       h('div', { class: 'subtop' }, h('b', null, 'Substituições: ' + side.subs + ' de ' + max),
         h('div', { class: 'seg', role: 'group', 'aria-label': 'Tática' }, K.TATICAS.map(([k, t]) => h('button', { type: 'button', 'aria-pressed': side.time.tatica === k ? 'true' : 'false', 'data-tip': K.DESC_TATICA[k], onclick: () => { side.time.tatica = k; M.recalcular(P.m); K.render(); } }, t)))),
       h('div', { class: 'subcols' },
@@ -2733,11 +2929,11 @@ window.ESCUDOS_REAIS = {};
     const ord = det.slice().sort((a, b) => b.nota - a.nota);
     return h('div', null, h('h3', null, titulo),
       h('div', { class: 'tablewrap' }, h('table', { class: 'notas' },
-        h('thead', null, h('tr', null, ['Nº', 'Jogador', 'Pos', 'Min', 'Nota', 'Gols', 'Ass', 'Des', 'Def', 'Falt', 'Cart', eu ? 'Evolução' : null, eu ? 'Moral' : null].filter(Boolean).map((t, i) => h('th', { class: i === 1 ? 'l' : '', style: 'cursor:default', 'data-tip': t === 'Des' ? 'Desarmes certos' : t === 'Def' ? 'Defesas do goleiro' : t === 'Ass' ? 'Assistências' : t === 'Falt' ? 'Faltas cometidas' : false }, t)))),
+        h('thead', null, h('tr', null, ['Nº', 'Jogador', 'Pos', 'Min', 'Nota', 'Gols', 'Ass', 'Des', 'Def', 'Falt', 'Chut', 'Stam', 'Cart', eu ? 'Evolução' : null, eu ? 'Moral' : null].filter(Boolean).map((t, i) => h('th', { class: i === 1 ? 'l' : '', style: 'cursor:default', 'data-tip': t === 'Des' ? 'Desarmes certos' : t === 'Def' ? 'Defesas do goleiro' : t === 'Ass' ? 'Assistências' : t === 'Falt' ? 'Faltas cometidas' : t === 'Chut' ? 'Chutes ao gol / chutes totais do jogador' : t === 'Stam' ? 'Stamina com que o jogador terminou a partida' : false }, t)))),
         h('tbody', null, ord.map((d) => h('tr', null,
           h('td', null, d.num), h('td', { class: 'l nm' }, d.nome), h('td', { class: 'pos' }, d.slot), h('td', null, d.minutos),
           h('td', null, h('span', { class: 'nota ' + notaCls(d.nota) }, d.nota.toFixed(1))),
-          h('td', null, d.g || '·'), h('td', null, d.ast || '·'), h('td', null, d.desarmes || '·'), h('td', null, d.defesas || '·'), h('td', null, d.faltas || '·'), h('td', null, cartoes(d)),
+          h('td', null, d.g || '·'), h('td', null, d.ast || '·'), h('td', null, d.desarmes || '·'), h('td', null, d.defesas || '·'), h('td', null, d.faltas || '·'), h('td', { 'data-tip': (d.noGol || 0) + ' no gol em ' + (d.chutes || 0) + ' chute(s)' }, d.chutes ? (d.noGol || 0) + '/' + d.chutes : '·'), h('td', { class: 'num ' + (d.stamina < 50 ? 'bad' : d.stamina < 75 ? 'warn' : ''), 'data-tip': 'Terminou com ' + Math.round(d.stamina) + '% de stamina' }, Math.round(d.stamina) + '%'), h('td', null, cartoes(d)),
           eu ? h('td', { class: 'evol' }, resumoMud(d.mudancas) || '·') : null,
           eu ? h('td', { class: 'num ' + (Math.round(d.moralDepois - d.moralAntes) > 0 ? 'hi' : Math.round(d.moralDepois - d.moralAntes) < 0 ? 'bad' : 'lo') }, (() => { const dm = Math.round(d.moralDepois - d.moralAntes); return dm > 0 ? '+' + dm : dm < 0 ? '−' + Math.abs(dm) : '0'; })()) : null))))));
   }
@@ -2754,6 +2950,24 @@ window.ESCUDOS_REAIS = {};
       lin('Saldo do jogo', f.saldo, f.saldo >= 0 ? 'saldo pos' : 'saldo neg'), lin('Caixa do clube', f.caixa, 'cx'));
   }
 
+  // depois do resumo: a tabela da divisão (jogo de campeonato) ou os times eliminados na fase (jogo de volta da Copa)
+  function posJogo(R, meuClube) {
+    const g = G.g;
+    if (R.jogo.comp === 'liga') {
+      const div = G.posTab || R.jogo.div;
+      return h('section', { class: 'card postab' }, h('h3', null, 'Classificação depois da rodada'),
+        h('div', { class: 'tabs', role: 'tablist' }, ['A', 'B', 'C', 'D'].map((d) => h('button', { class: 'tabbtn' + (div === d ? ' on' : ''), role: 'tab', 'aria-selected': div === d ? 'true' : 'false', onclick: () => { G.posTab = d; K.ir('resumo'); } }, K.DIV_NOME[d]))),
+        K.classificacao(g, div, meuClube));
+    }
+    if (R.copa) {
+      const fase = g.copa.fases.find((f) => f.nome === R.jogo.fase), els = fase ? fase.confrontos.filter((c) => c.vencedor).map((c) => ({ c, perd: c.vencedor === c.a ? c.b : c.a })) : [];
+      return h('section', { class: 'card postab' }, h('h3', null, 'Eliminados na ' + (fase ? fase.nome : 'fase')),
+        els.length ? h('ul', { class: 'elim' }, els.map(({ c, perd }) => h('li', { class: perd === meuClube ? 'meu' : '' }, K.comEscudo(perd, null, { link: false }), h('small', { class: 'muted' }, ' perdeu para '), K.comEscudo(c.vencedor, null, { link: false }),
+          h('small', { class: 'muted num' }, c.agregado ? ' · ' + c.agregado[0] + '×' + c.agregado[1] + (c.penaltis ? ' (pên. ' + c.penaltis[0] + '×' + c.penaltis[1] + ')' : '') : ''))))
+          : h('p', { class: 'muted' }, 'Nenhum confronto decidido ainda.'));
+    }
+    return null;
+  }
   K.telas.resumo = function () {
     const g = G.g, rs = G.resumos, meuClube = K.clubeHumano().id, doHumano = (r) => r.humano[0] || r.humano[1];
     const meu = rs.find((r) => r.jogo.casa === meuClube || r.jogo.fora === meuClube) || rs.find(doHumano) || rs[0];
@@ -2786,7 +3000,8 @@ window.ESCUDOS_REAIS = {};
       h('details', { class: 'det', open: true }, h('summary', null, 'Outros jogos do dia · clique em um jogo para ver o resumo'),
         Object.entries(grupos).map(([t, arr]) => h('section', { class: 'jdiv' }, h('h3', null, t), h('ul', null, arr.map((r) => h('li', { class: 'clicavel' + (doHumano(r) ? ' meu' : ''), tabindex: 0, role: 'button', 'aria-label': 'Ver resumo de ' + r.casaNome + ' ' + r.placar[0] + ' a ' + r.placar[1] + ' ' + r.foraNome, 'data-tip': 'Ver o resumo deste jogo', onclick: () => abrir(r), onkeydown: (e) => { if (e.key === 'Enter') abrir(r); } },
           h('span', { class: 'tc' }, K.comEscudo(r.jogo.casa)), h('b', { class: 'num pl' }, r.placar[0] + ' × ' + r.placar[1]), h('span', { class: 'tf' }, K.comEscudo(r.jogo.fora)), h('small', { class: 'pub num' }, fmtPub(r.publico)))))))),
-      h('div', { class: 'actions' }, h('button', { class: 'btn hot', id: 'continuar', onclick: () => { G.aba = 'plantel'; G.resumos = null; G.resumoSel = null; G.prontos.clear(); if (g.fim) K.ir('fim'); else K.ir(5); } }, g.fim ? 'Ver fim da temporada' : 'Continuar')));
+      posJogo(R, meuClube),
+      h('div', { class: 'actions' }, h('button', { class: 'btn hot', id: 'continuar', onclick: () => { G.aba = 'plantel'; G.resumos = null; G.resumoSel = null; G.posTab = null; G.prontos.clear(); if (g.fim) K.ir('fim'); else K.ir(5); } }, g.fim ? 'Ver fim da temporada' : 'Continuar')));
   };
 
   // ---------- fim de temporada ----------
@@ -2810,7 +3025,7 @@ window.ESCUDOS_REAIS = {};
   const bf = (root.BF98 = root.BF98 || {});
   const E = () => bf.Economy;
   const REC = { bilheteria: 'Bilheteria', tv: 'Cota de TV', patrocinio: 'Patrocínio', vendas: 'Venda de jogadores', multas: 'Multas rescisórias' };
-  const DES = { salarios: 'Salários', fixas: 'Despesas fixas', custosJogo: 'Custos do jogo', compras: 'Compra de jogadores', obras: 'Obras no estádio' };
+  const DES = { salarios: 'Salários', fixas: 'Despesas fixas', custosJogo: 'Custos do jogo', compras: 'Compra de jogadores', obras: 'Obras no estádio', marketing: 'Marketing' };
   const MAX_NIVEL = 5, RODADAS = 38, ESPERA = 4, OBRA_PCT = [0.1, 0.25, 0.5];
   const PRECO_MIN = 0.5, PRECO_MAX = 3;
 
@@ -2843,6 +3058,20 @@ window.ESCUDOS_REAIS = {};
     const rel = preco / precoPadrao(c), forma = bf.Game.formaRecente(g, c.id);
     const bruto = E().demandaBruta(c, forma, 1, rel), publico = E().publico(c, forma, 1, rel);
     return { publico, bruto: Math.round(bruto), renda: Math.round(publico * preco * 0.85), lotacao: publico / c.estadio.capacidade, cheio: bruto >= c.estadio.capacidade };
+  }
+
+  // ---------- marketing: campanha de sócios (vários jogos) e jogo-evento (um jogo) ----------
+  const MARKETING = { campanha: { mult: 1.18, jogos: 10, vezes: 8 }, evento: { mult: 1.35, vezes: 3 } };
+  const custoMkt = (g, c, tipo) => Math.round(projecao(g, c, c.precoIngresso).renda * MARKETING[tipo].vezes);
+  function marketing(g, c, tipo) {
+    const M = MARKETING[tipo]; if (!M) return { ok: false, motivo: 'Ação desconhecida.' };
+    if (tipo === 'campanha' && c.campanha && c.campanha.jogos > 0) return { ok: false, motivo: 'A campanha de sócios atual ainda está valendo (' + c.campanha.jogos + ' jogo(s) em casa).' };
+    if (tipo === 'evento' && c.evento) return { ok: false, motivo: 'Já existe um jogo-evento marcado para o próximo jogo em casa.' };
+    const custo = custoMkt(g, c, tipo); if (c.caixa < custo) return { ok: false, motivo: 'Caixa insuficiente.' };
+    c.caixa -= custo; lancar(g, c, 'des', 'marketing', custo);
+    if (tipo === 'campanha') c.campanha = { mult: M.mult, jogos: M.jogos }; else c.evento = { mult: M.mult };
+    bf.Mercado.noticia(g, tipo === 'campanha' ? 'Campanha de sócios lançada: mais torcedores nos próximos ' + M.jogos + ' jogos em casa.' : 'Jogo-evento marcado: o próximo jogo em casa terá casa mais cheia.', 'info');
+    return { ok: true, custo };
   }
 
   // ---------- estádio ----------
@@ -2884,7 +3113,7 @@ window.ESCUDOS_REAIS = {};
     return { ok: true, aceitou: false, nome: o.s.nome };
   }
 
-  bf.Fin = { REC, DES, MAX_NIVEL, RODADAS, ESPERA, opcoesObra, custoLugar, razao, lancar, soma, registrarJogo, novoAno, precoPadrao, limitesPreco, definirPreco, projecao, ampliar, patrocinioPorRodada, desempenho, ofertas, propor };
+  bf.Fin = { MARKETING, custoMkt, marketing, REC, DES, MAX_NIVEL, RODADAS, ESPERA, opcoesObra, custoLugar, razao, lancar, soma, registrarJogo, novoAno, precoPadrao, limitesPreco, definirPreco, projecao, ampliar, patrocinioPorRodada, desempenho, ofertas, propor };
 })(typeof globalThis !== 'undefined' ? globalThis : this);
 ;
 // Aba Finanças: situação do caixa, receitas e despesas da temporada, preço do ingresso, obras no estádio, patrocínio e últimos jogos.
@@ -2927,6 +3156,19 @@ window.ESCUDOS_REAIS = {};
         return h('button', { class: 'btn alt sm', id: 'obra-' + i, disabled: cheio || sem, 'data-tip': cheio ? 'Nível máximo de obras.' : sem ? 'Caixa insuficiente.' : false,
           onclick: () => { const r = F.ampliar(g, c, n); G.finMsg = r.ok ? 'Obra concluída: +' + nf.format(n) + ' lugares por ' + reais(r.custo) + '.' : r.motivo; K.renderKeep(); } }, '+' + nf.format(n) + ' lugares · ' + reais(custo)); })),
       h('p', { class: 'muted fin-dica' }, p.bruto <= c.estadio.capacidade ? 'Hoje ampliar não traz público novo: a demanda cabe no estádio.' : 'A demanda ultrapassa a capacidade em ' + nf.format(p.bruto - c.estadio.capacidade) + ' pessoas.'));
+  }
+
+  function secMarketing(g, c) {
+    const ativa = c.campanha && c.campanha.jogos > 0, ev = !!c.evento;
+    const acao = (tipo, titulo, desc, id) => { const custo = F.custoMkt(g, c, tipo), bloq = tipo === 'campanha' ? ativa : ev, sem = c.caixa < custo;
+      return h('div', { class: 'mkt-acao' }, h('b', null, titulo), h('p', { class: 'muted' }, desc),
+        h('button', { class: 'btn alt sm', id, disabled: bloq || sem, 'data-tip': bloq ? 'Já está valendo.' : sem ? 'Caixa insuficiente.' : false,
+          onclick: () => { const r = F.marketing(g, c, tipo); G.finMsg = r.ok ? titulo + ' contratada por ' + reais(r.custo) + '.' : r.motivo; K.renderKeep(); } }, (bloq ? 'Em andamento' : 'Contratar') + ' · ' + reais(custo))); };
+    return h('section', { class: 'card' }, h('h3', null, 'Marketing'),
+      h('p', { class: 'muted' }, 'Aumentam a demanda de ingressos. Só adiantam quando o estádio ainda tem lugares vazios: com casa cheia, o dinheiro é jogado fora.'),
+      h('div', { class: 'mkt' },
+        acao('campanha', 'Campanha de sócios', '+18% de demanda nos próximos 10 jogos em casa' + (ativa ? ' (restam ' + c.campanha.jogos + ')' : '') + '.', 'mkt-campanha'),
+        acao('evento', 'Jogo-evento', '+35% de demanda no próximo jogo em casa' + (ev ? ' (já marcado)' : '') + '.', 'mkt-evento')));
   }
 
   function secPatrocinio(g, c) {
@@ -2974,6 +3216,7 @@ window.ESCUDOS_REAIS = {};
           h('div', { class: 'eyebrow' }, 'Despesas'), Object.entries(F.DES).map(([k, t]) => linhaCat(t, r.des[k] || 0, max, 'des')),
           h('div', { class: 'strow2 fin saldo ' + (rec - des < 0 ? 'neg' : 'pos') }, h('span', null, 'Resultado'), h('b', { class: 'num' }, din(rec - des)))),
         h('div', { class: 'finlado' }, secIngresso(g, c), secEstadio(g, c))),
+      secMarketing(g, c),
       secPatrocinio(g, c),
       h('section', { class: 'card' }, h('h3', null, 'Últimos jogos'),
         ultimos.length ? h('div', { class: 'tablewrap' }, h('table', { 'aria-label': 'Balanço dos últimos jogos' },
@@ -3140,18 +3383,22 @@ window.ESCUDOS_REAIS = {};
           u.lang = 'pt-BR'; if (v) u.voice = v; u.rate = 1.15; u.pitch = 1.15; u.volume = 1; speechSynthesis.speak(u);
         } catch (e) { /* sem voz */ }
       },
-      // som de gol (time de um técnico humano): torcida, buzina e fanfarra curta
+      // som de gol (time de um técnico humano): a torcida gritando "GOOOL!" bem rápido, sintetizada com vozes de vogal "ó" (formantes) + ruído de arquibancada
       gol() {
         if (G.mudo) return; try {
-          const c = ac(); if (!c) return; const t = c.currentTime + 0.02;
-          const n = Math.floor(c.sampleRate * 2.6), b = c.createBuffer(1, n, c.sampleRate), d = b.getChannelData(0); for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
-          const r = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain(); r.buffer = b; f.type = 'bandpass'; f.frequency.setValueAtTime(700, t); f.frequency.linearRampToValueAtTime(1500, t + 0.6); f.Q.value = 0.6;
-          g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.35, t + 0.35); g.gain.exponentialRampToValueAtTime(0.0001, t + 2.5); r.connect(f); f.connect(g); g.connect(c.destination); r.start(t);
-          [233, 349, 466].forEach((fr, i) => { const o = c.createOscillator(), og = c.createGain(), lp = c.createBiquadFilter(), vib = c.createOscillator(), vg = c.createGain(); o.type = 'sawtooth'; o.frequency.value = fr; lp.type = 'lowpass'; lp.frequency.value = 2200;
-            vib.frequency.value = 6; vg.gain.value = 4; vib.connect(vg); vg.connect(o.frequency);
-            og.gain.setValueAtTime(0.0001, t + 0.05); og.gain.exponentialRampToValueAtTime(0.07 - i * 0.012, t + 0.1); og.gain.setValueAtTime(0.07 - i * 0.012, t + 1.1); og.gain.exponentialRampToValueAtTime(0.0001, t + 1.5);
-            o.connect(lp); lp.connect(og); og.connect(c.destination); o.start(t + 0.05); o.stop(t + 1.6); vib.start(t + 0.05); vib.stop(t + 1.6); });
-          [72, 76, 79, 84].forEach((m, i) => nota(c, t + 1.0 + i * 0.1, m, 0.5, 'square', 0.05, 3000));
+          const c = ac(); if (!c) return; const t = c.currentTime + 0.01, dur = 0.95;
+          const mestre = c.createGain(); mestre.gain.setValueAtTime(0.0001, t); mestre.gain.exponentialRampToValueAtTime(0.9, t + 0.05); mestre.gain.setValueAtTime(0.9, t + 0.55); mestre.gain.exponentialRampToValueAtTime(0.0001, t + dur); mestre.connect(c.destination);
+          for (let v = 0; v < 16; v++) {                                  // 16 vozes levemente desafinadas e fora de sincronia = multidão
+            const o = c.createOscillator(), vg = c.createGain(), t0 = t + Math.random() * 0.07, f0 = (v % 2 ? 105 : 190) * (0.93 + Math.random() * 0.16);
+            o.type = 'sawtooth'; o.frequency.setValueAtTime(f0 * 0.85, t0); o.frequency.exponentialRampToValueAtTime(f0 * 1.12, t0 + 0.18); o.frequency.exponentialRampToValueAtTime(f0 * 0.95, t0 + dur);
+            const f1 = c.createBiquadFilter(), f2 = c.createBiquadFilter(); f1.type = f2.type = 'bandpass'; f1.Q.value = 5; f2.Q.value = 7;
+            f1.frequency.setValueAtTime(600, t0); f1.frequency.linearRampToValueAtTime(480, t0 + 0.3); f1.frequency.linearRampToValueAtTime(380, t0 + 0.8);       // "gó" → "l"
+            f2.frequency.setValueAtTime(900, t0); f2.frequency.linearRampToValueAtTime(850, t0 + 0.3); f2.frequency.linearRampToValueAtTime(1350, t0 + 0.8);
+            vg.gain.value = 0.11 / 2; o.connect(f1); o.connect(f2); f1.connect(vg); f2.connect(vg); vg.connect(mestre); o.start(t0); o.stop(t + dur + 0.05);
+          }
+          const n = Math.floor(c.sampleRate * dur), b = c.createBuffer(1, n, c.sampleRate), d = b.getChannelData(0); for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;   // arquibancada
+          const r = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain(); r.buffer = b; f.type = 'bandpass'; f.frequency.value = 1100; f.Q.value = 0.5;
+          g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.22, t + 0.08); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); r.connect(f); f.connect(g); g.connect(c.destination); r.start(t);
         } catch (e) { /* sem áudio */ }
       },
       parar() { try { if (window.speechSynthesis) speechSynthesis.cancel(); if (ctx && ctx.state === 'running') { ctx.close(); ctx = null; } } catch (e) { ctx = null; } },
@@ -3163,12 +3410,14 @@ window.ESCUDOS_REAIS = {};
   const rects = (el) => el.getBoundingClientRect();
   // voa uma cópia da bola de um ponto a outro (com escala)
   async function mover(origem, destino, { ms = 800, sobe = 0, pausa = 0 } = {}) {
-    const r = rects(origem), t = rects(destino), clone = origem.cloneNode(true);
-    clone.classList.remove('fora', 'saiu'); clone.classList.add('voando'); clone.style.cssText += ';left:' + r.left + 'px;top:' + r.top + 'px;width:' + r.width + 'px;height:' + r.height + 'px;';
+    // o clone sai do globo com o tamanho cheio da bola (88px) e é só reduzido/ampliado: assim nome e brasão nunca são cortados
+    const r = rects(origem), t = rects(destino), clone = origem.cloneNode(true), B = 88;
+    clone.classList.remove('fora', 'saiu'); clone.classList.add('voando', 'cheia'); clone.style.cssText += ';left:' + (r.left + r.width / 2 - B / 2) + 'px;top:' + (r.top + r.height / 2 - B / 2) + 'px;width:' + B + 'px;height:' + B + 'px;';
     document.body.append(clone);
-    const dx = t.left + t.width / 2 - (r.left + r.width / 2), dy = t.top + t.height / 2 - (r.top + r.height / 2), s = t.width / r.width;
-    if (sobe) { await clone.animate([{ transform: 'translate(0,0) scale(1)' }, { transform: 'translate(0,' + (-sobe) + 'px) scale(1.5)' }], { duration: 480, easing: 'ease-out', fill: 'forwards' }).finished; await esperar(pausa); }
-    await clone.animate([{ transform: sobe ? 'translate(0,' + (-sobe) + 'px) scale(1.5)' : 'translate(0,0) scale(1)' }, { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(' + s + ')' }], { duration: ms, easing: 'cubic-bezier(.45,0,.2,1)', fill: 'forwards' }).finished;
+    const dx = t.left + t.width / 2 - (r.left + r.width / 2), dy = t.top + t.height / 2 - (r.top + r.height / 2), s0 = r.width / B, s1 = t.width / B;
+    const grande = Math.max(1.5, s0 * 1.5);
+    if (sobe) { await clone.animate([{ transform: 'translate(0,0) scale(' + s0 + ')' }, { transform: 'translate(0,' + (-sobe) + 'px) scale(' + grande + ')' }], { duration: 480, easing: 'ease-out', fill: 'forwards' }).finished; await esperar(pausa); }
+    await clone.animate([{ transform: sobe ? 'translate(0,' + (-sobe) + 'px) scale(' + grande + ')' : 'translate(0,0) scale(' + s0 + ')' }, { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(' + s1 + ')' }], { duration: ms, easing: 'cubic-bezier(.45,0,.2,1)', fill: 'forwards' }).finished;
     clone.remove();
   }
   function girar(globo, ligado) {
@@ -3254,6 +3503,15 @@ window.ESCUDOS_REAIS = {};
     if (pj && pj.comp === 'copa') return 'Copa do Brasil · ' + pj.fase + ' (' + pj.perna + ') · ' + pos + 'º na ' + DN;
     return 'Brasileirão ' + DN + ' · ' + pos + 'º lugar · ' + (n + 1) + 'ª rodada';
   };
+  // última escalação que um clube usou (formação, tática e titulares); sem jogos anteriores não há o que mostrar
+  K.ultEsc = (id) => (G.g.ultEsc && G.g.ultEsc.get(id)) || null;
+  K.dicaEsc = (id) => {
+    const u = K.ultEsc(id), cl = G.g.porId.get(id); if (!u) return null;
+    const fs = BF.Match.FORMACOES[u.formacao] || [], tat = K.TATICAS.find((x) => x[0] === u.tatica), adv = G.g.porId.get(u.adv);
+    const nomes = u.titulares.map((pid, i) => { const p = cl.elenco.find((x) => x.id === pid); return p ? (fs[i] || p.pos) + ' ' + p.nome : null; }).filter(Boolean).join(', ');
+    return 'Última escalação (' + GM.fmtDataCurta(u.data) + (adv ? ' contra ' + adv.nome : '') + '): ' + u.formacao + ', tática ' + (tat ? tat[1] : u.tatica) + '. ' + nomes + '. Clique para ver o plantel.';
+  };
+  K.advLink = (id) => { const el = K.comEscudo(id, null, { link: true }); el.setAttribute('data-tip', K.dicaEsc(id) || 'Ver o plantel de ' + G.g.porId.get(id).nome + ' (ainda sem escalação anterior)'); return el; };
   const todosProntos = () => G.humanos.every((hu) => G.prontos.has(hu.clubId));
   function trocarTecnico(i) { G.ativo = i; G.sel = null; G.escSlot = null; G.clubeVisto = null; G.finPreco = null; G.finMsg = ''; G.finMsgPat = ''; if (G.jg) { G.jg.selOut = G.jg.selIn = null; G.jg.msgSub = ''; } render(); }
   // barra para alternar entre os técnicos (só aparece com 2 ou mais)
@@ -3275,7 +3533,7 @@ window.ESCUDOS_REAIS = {};
   function statusBox(c) {
     const g = G.g, pj = GM.proximoJogo(g, c.id), ult = GM.ultimosJogos(g, c.id, 2), multi = G.humanos.length > 1, pronto = G.prontos.has(c.id);
     const prox = g.fim ? h('span', null, 'Temporada encerrada')
-      : pj ? h('span', null, h('span', { class: 'confronto' }, h('b', null, GM.fmtDataCurta(pj.data)), pj.emCasa ? [K.comEscudo(c), '×', K.comEscudo(pj.adversario), posAdv(pj.adversario)] : [K.comEscudo(pj.adversario), posAdv(pj.adversario), '×', K.comEscudo(c)]), h('small', { class: 'muted' }, pj.rotulo + (pj.emCasa ? ' · em casa' : ' · fora')))
+      : pj ? h('span', null, h('span', { class: 'confronto' }, h('b', null, GM.fmtDataCurta(pj.data)), pj.emCasa ? [K.comEscudo(c), '×', K.advLink(pj.adversario), posAdv(pj.adversario)] : [K.advLink(pj.adversario), posAdv(pj.adversario), '×', K.comEscudo(c)]), h('small', { class: 'muted' }, pj.rotulo + (pj.emCasa ? ' · em casa' : ' · fora')))
         : h('span', null, 'Sem jogo marcado');
     const botoes = g.fim ? h('button', { class: 'btn hot', id: 'jogar', onclick: () => ir('fim') }, 'Fim da temporada')
       : !multi ? h('button', { class: 'btn hot', id: 'jogar', onclick: jogarProximo }, 'Jogar próximo jogo')
@@ -3327,7 +3585,7 @@ window.ESCUDOS_REAIS = {};
   function situacao(p) { return p.lesao > 0 ? ['LES ' + p.lesao, 'bad'] : p.suspenso > 0 ? ['SUSP', 'warn'] : p.treino ? ['TREINO ' + p.treino.restante, 'treino'] : p.aVenda ? ['À VENDA', 'venda'] : ['', '']; }
   function plantel(c, opts = {}) {
     const ro = !!opts.readonly, selKey = ro ? 'selX' : 'sel';
-    const esc = GM.escalacaoDe(G.g, c, ro ? G.g.porId.get(c.id) : c), tits = new Set(esc.titulares);
+    const esc = GM.escalacaoDe(G.g, c, ro ? G.g.porId.get(c.id) : c), ue = ro ? K.ultEsc(c.id) : null, tits = new Set(ro ? (ue ? ue.titulares : []) : esc.titulares);
     const dir = G.sort.dir, col = COLS.find((x) => x[0] === G.sort.k) || COLS[3];
     const lista = c.elenco.slice();
     if (G.sort.k === 'pos') lista.sort((a, b) => K.ORDEM_POS.indexOf(a.pos) - K.ORDEM_POS.indexOf(b.pos) || PL.overall(b) - PL.overall(a));
@@ -3341,10 +3599,10 @@ window.ESCUDOS_REAIS = {};
       if (G.sort.k === 'pos' && K.SETOR[p.pos] !== setor) { setor = K.SETOR[p.pos]; linhas.push(h('tr', { class: 'sep' }, h('td', { colspan: COLS.length }, setor))); }
       const lim = (v) => (v >= 70 ? 'hi' : v < 35 ? 'lo' : ''), [st, stc] = situacao(p);
       linhas.push(h('tr', { 'data-id': p.id, class: p.id === G[selKey] ? 'sel' : '', tabindex: 0, onclick: () => selecionar(p.id, selKey), onkeydown: (e) => { if (e.key === 'Enter') selecionar(p.id, selKey); } },
-        h('td', null, p.num), h('td', { class: 'l nm', 'data-tip': p.nome + ' nesta temporada: ' + (p.gols || 0) + (p.gols === 1 ? ' gol' : ' gols') + ' · ' + (p.faltas || 0) + ' faltas · ' + (p.cartAm || 0) + ' amarelos · ' + (p.cartVm || 0) + ' vermelhos' }, tits.has(p.id) ? h('span', { class: 'tit', title: 'Titular na escalação atual', html: JOGADORINHO }) : null, p.nome, p.estrela ? K.estrela() : null),
+        h('td', null, p.num), h('td', { class: 'l nm', 'data-tip': p.nome + ' nesta temporada: ' + (p.gols || 0) + (p.gols === 1 ? ' gol' : ' gols') + ' · ' + (p.faltas || 0) + ' faltas · ' + (p.cartAm || 0) + ' amarelos · ' + (p.cartVm || 0) + ' vermelhos' }, tits.has(p.id) ? h('span', { class: 'tit', title: 'Titular na escalação atual', html: JOGADORINHO }) : null, p.nome, p.estrela ? K.estrela() : null, K.treinoIcone(p)),
         h('td', null, K.bandeira(p.nac)), h('td', { class: 'pos' }, p.pos), h('td', null, p.idade), h('td', { 'data-tip': K.PE_NOME[p.pe] }, K.PE_SIGLA[p.pe]), h('td', null, K.metros(p.altura)), h('td', null, p.peso), h('td', { class: 'ovr' }, Math.round(PL.overall(p))),
         ...K.ATTRS.map((a) => h('td', { class: lim(p.attr[a]) }, p.attr[a])),
-        h('td', null, PL.DISCIPLINAS[p.disciplina]), h('td', null, K.barra(p.stamina)), h('td', null, K.barra(p.moral)),
+        h('td', null, PL.DISCIPLINAS[p.disciplina]), h('td', null, K.barra(p.stamina, '', 'Stamina')), h('td', null, K.barra(p.moral, '', 'Moral')),
         h('td', { class: stc }, st),
         h('td', { class: MK.podeRenovar(G.g, p) ? 'warn' : '', 'data-tip': MK.podeRenovar(G.g, p) ? 'Últimos 3 meses de contrato: já é possível renovar.' : false }, GM.fimContrato(G.g, p)), h('td', null, reais(E.salario(p))), h('td', null, reais(E.valorMercado(p)))));
     });
@@ -3377,7 +3635,7 @@ window.ESCUDOS_REAIS = {};
     const geral = c.elenco.reduce((a, p) => a + PL.overall(p), 0) / c.elenco.length;
     return h('div', { class: 'dica', tabindex: 0, 'data-tip': 'Média do time titular: ' + mediaTit.toFixed(1) + ' · Média dos reservas: ' + mr.toFixed(1) + ' (' + reservas.length + ' jogadores).' }, h('small', null, 'Média do time'), h('b', null, geral.toFixed(1)));
   }
-  function selecionar(id, key = 'sel') { G[key] = id; const x = document.querySelector('.tablewrap').scrollLeft, y = window.scrollY; render(); document.querySelector('.tablewrap').scrollLeft = x; window.scrollTo(0, y); }
+  function selecionar(id, key = 'sel') { G[key] = id; const q = () => document.querySelector('.plantel .tablewrap'), w = q(), x = w ? w.scrollLeft : 0, t = w ? w.scrollTop : 0, y = window.scrollY; render(); const w2 = q(); if (w2) { w2.scrollLeft = x; w2.scrollTop = t; } window.scrollTo(0, y); }
   K.plantelGenerico = plantel;
   function painel(c, p, ro) {
     const encaixes = K.ORDEM_POS.map((pos) => [pos, Math.round(PL.ovrNoSlot(p, pos))]).sort((a, b) => b[1] - a[1]).slice(0, 4);
