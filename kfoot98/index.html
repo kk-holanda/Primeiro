@@ -654,6 +654,19 @@ tr.sep td .sepl { position: sticky; left: 10px; display: inline-block; }
 .escgrid .lista tr.tit-row td { background: color-mix(in srgb, var(--accent) 10%, var(--panel)); }
 .escgrid .lista tr.tit-row td:first-child { box-shadow: inset 4px 0 var(--accent); }
 .escgrid .lista tbody tr:nth-child(even):not(.tit-row) td { background: color-mix(in srgb, var(--panel2) 55%, var(--panel)); }
+.mediatopo { display: flex; align-items: baseline; gap: 10px; padding: 6px 10px; background: var(--panel); border: 1px solid var(--line); border-bottom: 3px solid var(--accent); }
+.mediatopo small { text-transform: uppercase; letter-spacing: .08em; font-weight: 700; color: var(--muted); } .mediatopo b { font-size: 26px; }
+.bola-ic { margin: 0 4px; font-size: 14px; }
+.etag.pen { background: #7c3aed; color: #fff; border-color: #7c3aed; }
+.penpop { width: min(760px, 100%); } .penbody { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+.pensteps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; font-size: 20px; }
+.pensteps li { padding: 8px 12px; background: var(--panel2); border-left: 5px solid var(--accent); animation: entra .3s ease; }
+.pensteps li.apito { border-color: #f2c200; font-weight: 800; } .pensteps li.gol { border-color: var(--hot); font-weight: 800; font-size: 30px; } .pensteps li.perdeu { border-color: var(--st-vermelho); font-weight: 800; }
+@keyframes entra { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.penlista td.at { color: var(--muted); } .penlista td.at.hi { color: var(--ink); font-weight: 800; } .penlista td.at.dest { background: color-mix(in srgb, var(--accent) 18%, transparent); font-weight: 800; }
+.penlista tbody tr { cursor: pointer; } .penlista tbody tr.sel td { background: color-mix(in srgb, var(--hot) 35%, var(--panel)); } .penlista tbody tr:hover td { background: color-mix(in srgb, var(--hot) 20%, var(--panel)); }
+.penlista td.l { text-align: left; }
+@media (prefers-reduced-motion: reduce) { .pensteps li { animation: none; } }
 
 </style>
 <div id="app"></div>
@@ -1183,6 +1196,7 @@ window.ESCUDOS_REAIS = {};
   function passo(m) {
     const { S, rng, stats, eventos } = m;
     const min = ++m.min;
+    if (m.penPend) cobrarPenalti(m, m.penPend.lado, null);
     const ctrl = () => { const a = Math.pow(m.F[0].controle, CFG.expoControle), b = Math.pow(m.F[1].controle, CFG.expoControle); return a / (a + b); };
     const ev = (min, tipo, lado, jog, extra) => eventos.push({ min, tipo, lado, jogador: jog && jog.p.nome, ...extra });
     if (min === 46) { S.forEach((s, i) => { s.ajusteInt = leitura(m, i).b; }); recalcular(m); }
@@ -1196,7 +1210,8 @@ window.ESCUDOS_REAIS = {};
         if (rng.chance(CFG.lesaoPorJogadorMin * (1.4 - j.p.attr.FIS / 200)) && !j.lesionado) {
           j.lesionado = true; j.p.lesao = rng.int(1, 8); j.p.stamina = Math.min(j.p.stamina, 15);
           ev(min, 'lesao', S.indexOf(s), j);
-          trocarForcado(s, j, min, rng, ev, S.indexOf(s));
+          if (s.manual) { const idx = s.campo.indexOf(j); s.campo = s.campo.filter((x) => x !== j); j.saiu = min; (s.vagas = s.vagas || []).push({ slot: j.slot, idx, nome: j.p.nome, motivo: 'lesao', pos: j.slot }); }
+          else trocarForcado(s, j, min, rng, ev, S.indexOf(s));
           recalcular(m);
         }
       }
@@ -1221,7 +1236,7 @@ window.ESCUDOS_REAIS = {};
           const gkj = D.campo.find((j) => j.slot === 'GOL');
           const gkEff = gkj ? gkj.p.attr.DEF * 0.6 * mStam(gkj.p.stamina) * mMoral(gkj.p.moral) + gkj.base * 0.4 : 20;
           const marc = sorteia(D, rng, ['D', 'M'], (j) => j.p.attr.DEF * (P().GRUPO[j.slot] === 'D' ? 3 : 1)), mEff = marc.p.attr.DEF * mStam(marc.p.stamina) * mMoral(marc.p.moral);   // o marcador atrapalha a finalização
-          const noGol = rng.chance(P().clamp(0.425 + (eff - 50) * 0.004 - (mEff - 50) * 0.0030, 0.16, 0.66));
+          const noGol = rng.chance(P().clamp(0.385 + (eff - 50) * 0.004 - (mEff - 50) * 0.0030, 0.16, 0.66));
           if (noGol) { stats[a].no_gol++; atk.noGol++; }
           const pGol = P().clamp(0.36 + (eff - gkEff) * 0.0032, 0.14, 0.58);
           if (noGol && rng.chance(pGol)) {
@@ -1236,6 +1251,13 @@ window.ESCUDOS_REAIS = {};
         }
       }
       if (min === 45) fimDoTempo(m);
+      if (!m.penPend && rng.chance(PEN_P)) {   // pênalti: favorece quem mais ataca; o time humano escolhe o batedor
+        const pa = Math.pow(m.F[0].ataque, 1.6), pb = Math.pow(m.F[1].ataque, 1.6), a = rng.chance(pa / (pa + pb)) ? 0 : 1, d = 1 - a;
+        const cj = S[d].campo.filter((j) => j.slot !== 'GOL'), fj = rng.weighted(cj.length ? cj : S[d].campo, (j) => P().DISC_FALTA[j.p.disciplina] * (1.2 - j.p.attr.DEF / 300));
+        fj.faltas++; stats[d].faltas++;
+        if (!fj.amarelos && rng.chance(0.3 * P().DISC_CARTAO[fj.p.disciplina])) { fj.amarelos++; stats[d].amarelos++; ev(min, 'amarelo', d, fj); }
+        if (S[a].manual) m.penPend = { lado: a, min, faltoso: fj.p.nome }; else cobrarPenalti(m, a, null, fj.p.nome);
+      }
       // faltas (cometidas pelo time sem a bola, de preferência)
       if (rng.chance(CFG.faltaBase * 2)) {
         const lado = rng.chance(0.5 + (0.5 - ctrl()) * 0.3) ? 0 : 1; // quem tem menos a bola faz mais falta
@@ -1286,8 +1308,78 @@ window.ESCUDOS_REAIS = {};
 
   function expulsar(s, j, min, ev, lado, stats, motivo) {
     j.expulso = true; stats[lado].vermelhos++; ev(min, 'vermelho', lado, j, { motivo });
+    const idx = s.campo.indexOf(j);
     s.campo = s.campo.filter((x) => x !== j); j.saiu = min;
+    abrirVaga(s, j, idx, min, ev, lado, 'vermelho');
   }
+  // técnico humano escolhe quem entra (vaga fica pendente); computador preenche na hora com o melhor reserva
+  function abrirVaga(s, j, idx, min, ev, lado, motivo) {
+    if (s.manual) { (s.vagas = s.vagas || []).push({ slot: j.slot, idx, nome: j.p.nome, motivo, pos: j.slot }); return; }
+    preencherAuto(s, j.slot, idx, min, ev, lado, j.p.nome);
+  }
+  function preencherAuto(s, slot, idx, min, ev, lado, saiuNome) {
+    if (s.subs >= s.maxSubs) return false;
+    const ok = s.banco.filter((b) => b.lesao === 0 && b.stamina > 50); if (!ok.length) return false;
+    const novoP = ok.sort((a, b) => P().ovrNoSlot(b, slot) - P().ovrNoSlot(a, slot))[0];
+    s.banco = s.banco.filter((b) => b !== novoP); s.subs++;
+    const nj = novo(novoP, slot); nj.entrou = min; s.todos.set(novoP.id, nj);
+    s.campo.splice(Math.min(idx, s.campo.length), 0, nj);
+    ev(min, 'substituicao', lado, nj, { saiu: saiuNome, motivo: 'vaga' });
+    return true;
+  }
+  function preencherVaga(m, lado, entraId) {
+    const s = m.S[lado], v = (s.vagas || [])[0]; if (!v) return { ok: false, motivo: 'Não há vaga a preencher.' };
+    if (s.subs >= s.maxSubs) return { ok: false, motivo: 'Limite de ' + s.maxSubs + ' substituições atingido.' };
+    const p = s.banco.find((b) => b.id === entraId); if (!p) return { ok: false, motivo: 'Escolha um jogador do banco.' };
+    if (p.lesao > 0) return { ok: false, motivo: 'Jogador lesionado.' };
+    s.banco = s.banco.filter((b) => b !== p); s.subs++;
+    const nj = novo(p, v.slot); nj.entrou = m.min; s.todos.set(p.id, nj); s.campo.splice(Math.min(v.idx, s.campo.length), 0, nj);
+    s.vagas.shift(); m.eventos.push({ min: m.min, tipo: 'substituicao', lado, jogador: p.nome, saiu: v.nome, motivo: 'vaga' }); recalcular(m);
+    return { ok: true };
+  }
+  function ignorarVagas(m, lado) { m.S[lado].vagas = []; recalcular(m); }
+  function resolverVagasAuto(m) {
+    m.S.forEach((s, i) => { (s.vagas || []).forEach((v) => preencherAuto(s, v.slot, v.idx, m.min, (mm, t, l, j, x) => m.eventos.push({ min: mm, tipo: t, lado: l, jogador: j && j.p.nome, ...x }), i, v.nome)); s.vagas = []; });
+    recalcular(m);
+  }
+
+  // --- pênalti: o resultado depende de finalização, moral e cansaço do batedor e da defesa do goleiro (~75% de conversão)
+  const PEN_P = 0.0033;   // ≈ 0,3 pênalti por jogo
+  const PEN_DIR = [['canto esquerdo', 'no canto esquerdo', 0.20], ['canto direito', 'no canto direito', 0.20], ['ângulo esquerdo', 'no ângulo esquerdo', 0.12], ['ângulo direito', 'no ângulo direito', 0.12], ['meio', 'no meio do gol', 0.10], ['em cima do meio', 'em cima do meio', 0.07]];
+  const PEN_SAVE = { 'canto esquerdo': 0.22, 'canto direito': 0.22, 'ângulo esquerdo': 0.05, 'ângulo direito': 0.05, 'meio': 0.30, 'em cima do meio': 0.10 };
+  const penNota = (j) => (j.p.attr.CHU * 0.7 + j.p.moral * 0.3) * mStam(j.p.stamina);
+  function penaltiResultado(atk, gkj, rng) {
+    const chu = atk.p.attr.CHU, mor = atk.p.moral, gkd = gkj ? gkj.p.attr.DEF : 40;
+    const pMiss = P().clamp(0.115 - (chu - 55) * 0.0018 - (mor - 60) * 0.0008 + (100 - atk.p.stamina) * 0.0004, 0.04, 0.22);
+    if (rng.chance(pMiss)) {
+      const r = rng.next();
+      if (r < 0.45) return { desfecho: 'fora', noAlvo: false, frase: 'pra fora' };
+      if (r < 0.75) { const e = rng.chance(0.5); return { desfecho: 'trave', noAlvo: false, frase: e ? 'na trave esquerda' : 'na trave direita' }; }
+      return { desfecho: 'travessao', noAlvo: false, frase: 'no travessão' };
+    }
+    // quem finaliza bem procura os cantos e os ângulos
+    const ang = P().clamp(1 + (chu - 55) * 0.012, 0.5, 1.8);
+    const pesos = PEN_DIR.map(([k, , w]) => w * (k.startsWith('ângulo') ? ang : k === 'meio' ? 1 / ang : 1)), tot = pesos.reduce((x, y) => x + y, 0);
+    let r = rng.next() * tot, i = 0; while (i < pesos.length - 1 && r > pesos[i]) { r -= pesos[i]; i++; }
+    const [dir, frase] = PEN_DIR[i], gkf = P().clamp(1 + (gkd - 50) * 0.008, 0.7, 1.4) * P().clamp(1 - (chu - 50) * 0.003, 0.7, 1.2);
+    const defendeu = rng.chance(P().clamp(PEN_SAVE[dir] * gkf * 0.72, 0.02, 0.5));
+    return { desfecho: defendeu ? 'defendeu' : 'gol', noAlvo: true, direcao: dir, frase };
+  }
+  function cobrarPenalti(m, lado, batedorId, faltoso) {
+    const { S, rng, stats } = m, min = m.min, A = S[lado], D = S[1 - lado];
+    faltoso = faltoso || (m.penPend && m.penPend.faltoso); m.penPend = null;
+    let atk = A.campo.find((j) => j.p.id === batedorId);
+    if (!atk) atk = A.campo.filter((j) => j.slot !== 'GOL').sort((x, y) => penNota(y) - penNota(x))[0] || A.campo[0];
+    const gkj = D.campo.find((j) => j.slot === 'GOL'), r = penaltiResultado(atk, gkj, rng);
+    stats[lado].chutes++; atk.chutes = (atk.chutes || 0) + 1;
+    if (r.noAlvo) { stats[lado].no_gol++; atk.noGol = (atk.noGol || 0) + 1; }
+    const entry = { ...r, lado, min, batedor: atk.p.nome, batedorId: atk.p.id, pos: atk.slot, goleiro: gkj && gkj.p.nome, faltoso, pop: !!(A.manual || D.manual), favorHumano: !!A.manual, contraHumano: !!D.manual, visto: false };
+    (m.penLog = m.penLog || []).push(entry);
+    if (r.desfecho === 'gol') { A.gols++; atk.g++; atk.p.gols++; m.eventos.push({ min, tipo: 'gol', lado, jogador: atk.p.nome, assist: null, pen: true, placar: [S[0].gols, S[1].gols] }); }
+    else { if (r.desfecho === 'defendeu' && gkj) gkj.defesas++; m.eventos.push({ min, tipo: 'penalti', lado, jogador: atk.p.nome, desfecho: r.desfecho, goleiro: gkj && gkj.p.nome, texto: r.desfecho === 'defendeu' ? 'defendido por ' + (gkj ? gkj.p.nome : 'o goleiro') : r.frase }); }
+    return entry;
+  }
+
   function trocarForcado(s, j, min, rng, ev, lado) {
     const ok = s.subs < s.maxSubs ? s.banco.filter((b) => b.lesao === 0 && b.stamina > 50) : [];
     if (ok.length) {
@@ -1359,7 +1451,7 @@ window.ESCUDOS_REAIS = {};
     return { ok: true };
   }
 
-  bf.Match = { leitura, iaIntervalo, sinergia, CONTRA, ofensiv, mudarFormacao, FORMACOES, FORM_MOD, TATICA, CFG, criar, passo, finalizar, recalcular, placarDe, simular, calcNota, substituir, substituirM, iaSubstituicoes };
+  bf.Match = { cobrarPenalti, penaltiResultado, preencherVaga, ignorarVagas, resolverVagasAuto, leitura, iaIntervalo, sinergia, CONTRA, ofensiv, mudarFormacao, FORMACOES, FORM_MOD, TATICA, CFG, criar, passo, finalizar, recalcular, placarDe, simular, calcNota, substituir, substituirM, iaSubstituicoes };
 })(typeof globalThis !== 'undefined' ? globalThis : this);
 
 ;
@@ -1814,7 +1906,7 @@ window.ESCUDOS_REAIS = {};
     return L.min;
   }
   // termina as partidas que ainda não acabaram (modo instantâneo)
-  function completarDia(g) { while (g.live.partidas.some((p) => p.m.min < 90)) passoDia(g); }
+  function completarDia(g) { g.live.partidas.forEach((p) => { M().resolverVagasAuto(p.m); p.m.S.forEach((s) => { s.manual = false; }); }); while (g.live.partidas.some((p) => p.m.min < 90)) passoDia(g); }
 
   function finalizarDia(g) {
     const L = g.live, dia = L.dia, resumos = [];
@@ -2766,7 +2858,7 @@ window.ESCUDOS_REAIS = {};
       cfg.deJogo ? h('p', { class: 'footnote' }, 'Escalação padrão: a do último jogo (contra ' + K.nomeClube(cfg.deJogo.adv) + ', ' + GM.fmtDataCurta(cfg.deJogo.data) + '). Jogadores lesionados, suspensos ou em treino são trocados automaticamente.') : null,
       h('p', { class: 'escmsg', role: 'status' }, msg || (sel != null ? 'Posição ' + slotSel + ' escolhida. Clique em um jogador da lista para colocá-lo.' : 'Clique em uma posição no campo e depois em um jogador da lista. Qualquer jogador pode jogar em qualquer posição, mas rende menos fora da sua.')),
       h('div', { class: 'escgrid' },
-        h('div', { class: 'campocol' }, campo,
+        h('div', { class: 'campocol' }, h('div', { class: 'mediatopo' }, h('small', null, 'Média do time'), h('b', { class: 'num' }, media.toFixed(1)), fora ? h('span', { class: 'warn' }, fora + ' jogador(es) fora de posição') : null), campo,
           h('p', { class: 'footnote' }, 'Média do time nesta escalação: ', h('b', null, media.toFixed(1)), fora ? ' · ' + fora + ' jogador(es) fora de posição' : ''),
           h('p', { class: 'footnote legenda' }, h('b', null, 'Como ler: '), 'a faixa de cima é a posição em que o jogador joga e o número da camisa. "Média da Posição" é a nota dele nessa posição (cai se jogar fora da natural). E = stamina e M = moral. ▲ ▼ mostram se a tática avança ou recua o jogador.')),
         h('div', { class: 'tablewrap lista' }, h('table', { 'aria-label': 'Elenco' },
@@ -2782,7 +2874,7 @@ window.ESCUDOS_REAIS = {};
   const G = K.G;
   const VELS = [['Lento', 500], ['Normal', 250], ['Rápido', 70]];
 
-  K.jogoIniciar = () => { G.jg = { vel: (G.jg && G.jg.vel) || 250, pausado: true, painel: false, selOut: null, selIn: null, evtN: 0, aviso: 'Apito inicial' }; G.resumos = null; };
+  K.jogoIniciar = () => { G.jg = { vel: (G.jg && G.jg.vel) || 250, pausado: true, painel: false, selOut: null, selIn: null, evtN: 0, aviso: 'Apito inicial' }; G.resumos = null; const P0 = partidaHumana(); if (P0) P0.m.S[ladoHumano(P0)].manual = true; };
   K.jogoParar = () => { if (G.jg && G.jg.timer) { clearInterval(G.jg.timer); G.jg.timer = null; } };
 
   const partidaHumana = () => { const id = K.clubeHumano().id, ps = G.g.live.partidas; return ps.find((p) => p.jogo.casa === id || p.jogo.fora === id) || ps.find((p) => p.humano[0] || p.humano[1]); };
@@ -2795,20 +2887,95 @@ window.ESCUDOS_REAIS = {};
   function retomar() { G.jg.pausado = false; G.jg.aviso = ''; G.jg.painel = false; K.render(); }
   function tick() {
     const live = L(); if (live.min >= 90) { K.jogoParar(); return; }
-    GM.passoDia(G.g); atualizar();
+    GM.passoDia(G.g);
+    const esp = eventoEspecial(partidaHumana()); atualizar(esp === 'pen');
+    if (esp) return;
+    posTick(live);
+  }
+  function posTick(live) {
     if (live.min === 45) { G.jg.painel = true; pausar('FIM DO PRIMEIRO TEMPO'); }
     else if (live.min >= 90) pausar('Fim de jogo');
   }
+  const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
+  const temVaga = (P) => !!P && (P.m.S[ladoHumano(P)].vagas || []).length > 0;
+  // pênalti (escolha do batedor / sequência) e vagas abertas por lesão ou expulsão: o jogo para até o técnico resolver
+  function eventoEspecial(P) {
+    if (!P) return false;
+    const m = P.m, lado = ladoHumano(P), s = m.S[lado];
+    if (m.penPend) { K.jogoParar(); escolherBatedor(P); return 'pen'; }
+    const pen = (m.penLog || []).find((x) => x.pop && !x.visto);
+    if (pen) { K.jogoParar(); sequenciaPenalti(P, pen); return 'pen'; }
+    const vg = (s.vagas || [])[0];
+    if (vg) {
+      if (s.subs >= s.maxSubs) { M.ignorarVagas(m, lado); return false; }
+      K.jogoParar();
+      if (vg.motivo === 'lesao') { G.jg.painel = true; pausar(vg.nome + ' (' + vg.pos + ') se lesionou. Escolha quem entra.'); }
+      else avisoExpulsao(P, lado, vg);
+      return 'vaga';
+    }
+    return false;
+  }
+  function retomarDepois(P) { const live = L(); atualizar(false); if (!eventoEspecial(P)) { posTick(live); if (!G.jg.pausado && live.min < 90) iniciarTimer(); } }
+  function overlayJogo(titulo) {
+    const caixa = h('div', { class: 'modal penpop', role: 'dialog', 'aria-modal': 'true', 'aria-label': titulo }), ov = h('div', { class: 'overlay', style: 'z-index:60' }, caixa);
+    document.body.append(ov); return { caixa, fechar: () => ov.remove() };
+  }
+  function avisoExpulsao(P, lado, vg) {
+    const { caixa, fechar } = overlayJogo('Expulsão');
+    caixa.replaceChildren(h('header', null, h('h3', null, 'Expulsão!')),
+      h('div', { class: 'penbody' }, h('p', null, h('b', null, vg.nome), ' (' + vg.pos + ') foi expulso. Você quer fazer uma substituição?'), h('p', { class: 'muted' }, 'Substituições usadas: ' + P.m.S[lado].subs + ' de ' + P.m.S[lado].maxSubs + '.'),
+        h('div', { class: 'actions' },
+          h('button', { class: 'btn', id: 'exp-sim', onclick: () => { fechar(); G.jg.painel = true; pausar('Expulsão: escolha quem entra no lugar de ' + vg.nome + '.'); } }, 'Substituir'),
+          h('button', { class: 'btn alt', id: 'exp-nao', onclick: () => { fechar(); M.ignorarVagas(P.m, lado); retomarDepois(P); } }, 'Seguir com um a menos'))));
+  }
+  // tabela de atributos para escolher o batedor ou o substituto
+  const colunasJog = () => [h('th', null, 'Pos'), h('th', { class: 'l' }, 'Jogador'), h('th', { 'data-tip': K.TIPS.media }, 'Méd'), ...K.ATTRS.map((a) => h('th', { 'data-tip': K.TIPS[a] }, K.ATTR_SIGLA[a])), h('th', null, 'Stam'), h('th', null, 'Moral')];
+  const celulasJog = (p, slot, destaque) => [h('td', { class: 'pos' }, slot || p.pos), h('td', { class: 'l nm' }, p.nome, p.estrela ? K.estrela() : null), h('td', { class: 'ovr' }, Math.round(slot ? PL.ovrNoSlot(p, slot) : PL.overall(p))),
+    ...K.ATTRS.map((a) => h('td', { class: 'at ' + (a === destaque ? 'dest ' : '') + (p.attr[a] >= 70 ? 'hi' : p.attr[a] < 35 ? 'lo' : '') }, p.attr[a])), h('td', null, Math.round(p.stamina) + '%'), h('td', null, Math.round(p.moral) + '%')];
+  function escolherBatedor(P) {
+    const m = P.m, lado = m.penPend.lado, side = m.S[lado], { caixa, fechar } = overlayJogo('Pênalti a favor');
+    const cands = side.campo.filter((j) => j.slot !== 'GOL').slice().sort((a, b) => b.p.attr.CHU - a.p.attr.CHU);
+    let sel = null;
+    const desenha = () => caixa.replaceChildren(h('header', null, h('h3', null, 'Pênalti a favor do ' + nome(lado === 0 ? P.jogo.casa : P.jogo.fora) + '!')),
+      h('div', { class: 'penbody' }, h('p', null, h('b', null, m.penPend.faltoso), ' derrubou na área aos ' + m.min + "'. Escolha quem vai bater. A finalização e a moral pesam mais."),
+        h('div', { class: 'tablewrap' }, h('table', { class: 'penlista' }, h('thead', null, h('tr', null, colunasJog())),
+          h('tbody', null, cands.map((j) => h('tr', { class: sel === j.p.id ? 'sel' : '', tabindex: 0, 'data-id': j.p.id, onclick: () => { sel = j.p.id; desenha(); }, onkeydown: (e) => { if (e.key === 'Enter') { sel = j.p.id; desenha(); } } }, celulasJog(j.p, j.slot, 'CHU')))))),
+        h('div', { class: 'actions' }, h('button', { class: 'btn', id: 'bater', disabled: !sel, onclick: () => { const e = M.cobrarPenalti(m, lado, sel); fechar(); sequenciaPenalti(P, e); } }, sel ? 'Confirmar batedor' : 'Escolha o batedor'))));
+    desenha();
+  }
+  async function sequenciaPenalti(P, e) {
+    const { caixa, fechar } = overlayJogo('Pênalti'), clube = (l) => nome(l === 0 ? P.jogo.casa : P.jogo.fora), linhas = h('ol', { class: 'pensteps' });
+    caixa.replaceChildren(h('header', null, h('h3', null, 'Pênalti · ' + e.min + "' · " + clube(e.lado))), h('div', { class: 'penbody' }, linhas));
+    const passo = (txt, cls) => linhas.append(h('li', { class: cls || '' }, txt)), S = K.somSorteio;
+    passo(e.batedor + ' (' + e.pos + ') se prepara pra bater'); await esperar(1700);
+    passo('O juiz apita!', 'apito'); S.apito(); await esperar(1100);
+    passo(e.batedor + ' chuta ' + e.frase + (e.noAlvo ? '…' : '!')); await esperar(1300);
+    const gol = e.desfecho === 'gol';
+    if (gol) passo('GOOOL!', 'gol'); else if (e.desfecho === 'defendeu') passo('Defendeu! ' + (e.goleiro || 'O goleiro') + ' pega o pênalti.', 'perdeu'); else passo('Perdeu o pênalti!', 'perdeu');
+    const meu = e.favorHumano ? gol : !gol;   // pênalti a favor: gol é festa; contra: gol é lamento (e perder o pênalti adversário é festa)
+    if (meu) S.gol(); else S.sofreu();
+    await esperar(2200); fechar(); e.visto = true; retomarDepois(P);
+  }
+  function painelVaga(P, lado) {
+    const jg = G.jg, side = P.m.S[lado], vg = side.vagas[0];
+    const linhas = side.banco.map((p) => h('tr', { class: jg.selIn === p.id ? 'sel' : '', tabindex: 0, onclick: () => { jg.selIn = p.id; K.render(); }, onkeydown: (ev) => { if (ev.key === 'Enter') { jg.selIn = p.id; K.render(); } } }, celulasJog(p)));
+    return h('div', { class: 'subpanel vaga' },
+      h('p', null, h('b', null, vg.nome + ' (' + vg.pos + ')'), vg.motivo === 'lesao' ? ' se lesionou.' : ' foi expulso.', ' Escolha quem entra. Substituições: ' + side.subs + ' de ' + side.maxSubs + '.'),
+      h('div', { class: 'tablewrap' }, h('table', { class: 'penlista' }, h('thead', null, h('tr', null, colunasJog())), h('tbody', null, linhas))),
+      h('div', { class: 'actions' }, h('button', { class: 'btn', id: 'confvaga', disabled: !jg.selIn, onclick: () => { const r = M.preencherVaga(P.m, lado, jg.selIn); jg.msgSub = r.ok ? '' : r.motivo; if (r.ok) jg.selIn = null; K.render(); } }, 'Confirmar substituição'),
+        h('button', { class: 'btn alt', id: 'comdez', onclick: () => { M.ignorarVagas(P.m, lado); jg.selIn = null; K.render(); } }, 'Seguir com um a menos'), h('span', { class: 'err' }, jg.msgSub || '')));
+  }
   function iniciarTimer() { K.jogoParar(); if (!G.jg.pausado && L().min < 90) G.jg.timer = setInterval(tick, G.jg.vel); }
 
-  const tagEv = (e) => ({ gol: ['GOL', 'gol'], amarelo: ['AMARELO', 'am'], vermelho: ['VERMELHO', 'vm'], lesao: ['LESÃO', 'les'], substituicao: ['SUBST.', 'sub'], formacao: ['FORMAÇÃO', 'sub'] }[e.tipo]);
+  const tagEv = (e) => ({ gol: ['GOL', 'gol'], amarelo: ['AMARELO', 'am'], vermelho: ['VERMELHO', 'vm'], lesao: ['LESÃO', 'les'], substituicao: ['SUBST.', 'sub'], formacao: ['FORMAÇÃO', 'sub'], penalti: ['PÊNALTI', 'pen'] }[e.tipo]);
   function eventoLinha(e, p) {
     const [t, c] = tagEv(e), id = e.lado === 0 ? p.jogo.casa : p.jogo.fora, clube = nome(id), cl = G.g.porId.get(id);
     let txt = e.jogador + ' (' + clube + ')';
-    if (e.tipo === 'gol') txt = e.jogador + ' (' + clube + ')' + (e.assist ? ', passe de ' + e.assist : '') + ' · ' + e.placar[0] + ' × ' + e.placar[1];
+    if (e.tipo === 'penalti') txt = e.jogador + ' *pen (' + clube + ') perdeu: ' + e.texto;
+    if (e.tipo === 'gol') txt = e.jogador + (e.pen ? ' *pen' : '') + ' (' + clube + ')' + (e.assist ? ', passe de ' + e.assist : '') + ' · ' + e.placar[0] + ' × ' + e.placar[1];
     if (e.tipo === 'substituicao') txt = 'Entra ' + e.jogador + ', sai ' + e.saiu + ' (' + clube + ')';
     if (e.tipo === 'formacao') txt = clube + ': ' + e.texto;
-    return h('li', { class: 'ev ' + c, style: 'border-left:5px solid ' + cl.cores[0] + ';box-shadow:inset 5px 0 0 -2px ' + cl.cores[1] }, h('span', { class: 'mn num' }, e.min + "'"), K.escudo(cl), h('span', { class: 'etag ' + c }, t), h('span', null, txt));
+    return h('li', { class: 'ev ' + c, style: 'border-left:5px solid ' + cl.cores[0] + ';box-shadow:inset 5px 0 0 -2px ' + cl.cores[1] }, h('span', { class: 'mn num' }, e.min + "'"), K.escudo(cl), e.tipo === 'gol' ? h('span', { class: 'bola-ic', 'aria-label': 'Gol', title: 'Gol' }, '⚽') : null, e.tipo === 'amarelo' || e.tipo === 'vermelho' ? h('i', { class: 'cartao ' + (e.tipo === 'amarelo' ? 'am' : 'vm'), title: e.tipo === 'amarelo' ? 'Cartão amarelo' : 'Cartão vermelho' }) : h('span', { class: 'etag ' + c }, t), h('span', null, txt));
   }
   const fmtPub = (n) => (n >= 10000 ? Math.round(n / 1000) + ' mil' : n >= 1000 ? (n / 1000).toFixed(1).replace('.', ',') + ' mil' : String(n));
   const nf = (n) => K.nf.format(n);
@@ -2826,17 +2993,17 @@ window.ESCUDOS_REAIS = {};
     if (REFS.escFn) REFS.escFn(P);
     REFS.stats.forEach(([k, el]) => { el.textContent = k === 'posse' && P.m.min === 0 ? '— —' : k === 'posse' ? Math.round(st[0].posse / n * 100) + '% — ' + Math.round(st[1].posse / n * 100) + '%' : st[0][k] + ' — ' + st[1][k]; });
   }
-  function atualizar() {
+  function atualizar(esperaPen) {
     const live = L(), P = partidaHumana();
     REFS.clock.textContent = live.min + "'";
     for (const p of live.partidas) {
       const r = REFS.rows.get(p), pl = M.placarDe(p.m), s = pl[0] + ' × ' + pl[1];
       if (r.el.textContent !== s) { r.el.textContent = s; r.li.classList.add('flash'); setTimeout(() => r.li.classList.remove('flash'), 1500); }
     }
-    if (P) {
+    if (P && !esperaPen) {
       const pl = M.placarDe(P.m); REFS.pl0.textContent = pl[0]; REFS.pl1.textContent = pl[1];
       pintarStats(P); pintarAgg(P);
-      while (G.jg.evtN < P.m.eventos.length) { const ev = P.m.eventos[G.jg.evtN]; REFS.feed.prepend(eventoLinha(ev, P)); G.jg.evtN++; if (ev.tipo === 'gol') { if (G.g.humanoIds.has(ev.lado === 0 ? P.jogo.casa : P.jogo.fora)) K.somSorteio.gol(); else if (G.g.humanoIds.has(ev.lado === 0 ? P.jogo.fora : P.jogo.casa)) K.somSorteio.sofreu(); } }
+      while (G.jg.evtN < P.m.eventos.length) { const ev = P.m.eventos[G.jg.evtN]; REFS.feed.prepend(eventoLinha(ev, P)); G.jg.evtN++; if (ev.tipo === 'gol' && !ev.pen) { if (G.g.humanoIds.has(ev.lado === 0 ? P.jogo.casa : P.jogo.fora)) K.somSorteio.gol(); else if (G.g.humanoIds.has(ev.lado === 0 ? P.jogo.fora : P.jogo.casa)) K.somSorteio.sofreu(); } }
     }
     if (REFS.bar) REFS.bar.style.width = Math.min(100, live.min / 90 * 100) + '%';
   }
@@ -2867,7 +3034,7 @@ window.ESCUDOS_REAIS = {};
     const fim = live.min >= 90;
     const ctrl = h('div', { class: 'jctrl' },
       fim ? h('button', { class: 'btn hot', id: 'verresumo', onclick: () => { K.jogoParar(); G.resumos = GM.finalizarDia(G.g); G.resumoSel = null; G.prontos.clear(); K.ir('resumo'); } }, 'Ver resumo do jogo')
-        : jg.pausado ? h('button', { class: 'btn', id: 'play', onclick: retomar }, live.min === 0 ? 'Iniciar o jogo' : live.min === 45 ? 'Começar o 2º tempo' : 'Continuar')
+        : jg.pausado ? h('button', { class: 'btn', id: 'play', disabled: temVaga(P), 'data-tip': temVaga(P) ? 'Preencha a vaga (ou siga com um a menos) para continuar.' : false, onclick: retomar }, live.min === 0 ? 'Iniciar o jogo' : live.min === 45 ? 'Começar o 2º tempo' : 'Continuar')
           : h('button', { class: 'btn alt', id: 'pause', onclick: () => pausar('Jogo pausado') }, 'Pausar'),
       !fim ? h('div', { class: 'seg', role: 'group', 'aria-label': 'Velocidade' }, VELS.map(([t, v]) => h('button', { type: 'button', 'aria-pressed': jg.vel === v ? 'true' : 'false', onclick: () => { jg.vel = v; if (!jg.pausado) iniciarTimer(); K.render(); } }, t))) : null,
       !fim ? h('button', { class: 'btn alt sm', id: 'somjogo', 'aria-pressed': G.mudo ? 'false' : 'true', onclick: (e) => { G.mudo = !G.mudo; e.currentTarget.textContent = G.mudo ? 'Som: desligado' : 'Som: ligado'; e.currentTarget.setAttribute('aria-pressed', G.mudo ? 'false' : 'true'); } }, G.mudo ? 'Som: desligado' : 'Som: ligado') : null,
@@ -2918,6 +3085,7 @@ window.ESCUDOS_REAIS = {};
   // ---------- painel de substituições (stamina e moral à vista) ----------
   function painelSubs(P, lado) {
     const jg = G.jg, side = P.m.S[lado], max = side.maxSubs;
+    if ((side.vagas || []).length) return painelVaga(P, lado);
     const cab = h('li', { class: 'sublinha cab' }, h('span', null, 'Pos'), h('span', null, 'Jogador'), h('span', { 'data-tip': K.TIPS.media }, 'Méd'), h('span', { 'data-tip': K.TIPS.stamina }, 'Stamina'), h('span', { 'data-tip': K.TIPS.moral }, 'Moral'));
     const linha = (p, tipo, j) => {
       const sel = tipo === 'out' ? jg.selOut === p.id : jg.selIn === p.id, ind = tipo === 'in' && p.lesao > 0;
@@ -2995,7 +3163,7 @@ window.ESCUDOS_REAIS = {};
     const res = neutro ? '' : meus > deles ? 'Vitória' : meus < deles ? 'Derrota' : 'Empate';
     const melhor = R.detalhes.flat().sort((a, b) => b.nota - a.nota)[0];
     const st = R.stats, linha = (rot, a, b) => h('div', { class: 'strow2' }, h('span', { class: 'num' }, a), h('small', null, rot), h('span', { class: 'num' }, b));
-    const feed = h('ol', { class: 'feed estatico' }, R.eventos.filter((e) => ['gol', 'amarelo', 'vermelho', 'lesao', 'substituicao', 'formacao'].includes(e.tipo)).map((e) => eventoLinha(e, R)));
+    const feed = h('ol', { class: 'feed estatico' }, R.eventos.filter((e) => ['gol', 'penalti', 'amarelo', 'vermelho', 'lesao', 'substituicao', 'formacao'].includes(e.tipo)).map((e) => eventoLinha(e, R)));
     const abrir = (r) => { G.resumoSel = rs.indexOf(r); K.ir('resumo'); };
     const grupos = {};
     rs.filter((r) => r !== R).forEach((r) => { const k = r.jogo.comp === 'liga' ? K.DIV_NOME[r.jogo.div] : r.jogo.rotulo; (grupos[k] = grupos[k] || []).push(r); });
@@ -3407,43 +3575,70 @@ window.ESCUDOS_REAIS = {};
           u.lang = 'pt-BR'; if (v) u.voice = v; u.rate = ritmo; u.pitch = tom; u.volume = 1; speechSynthesis.speak(u);
         } catch (e) { /* sem voz */ }
       },
-      // som de gol (time de um técnico humano): torcida gritando "GOOOL!" bem rápido. Sintetizada: 28 vozes com vogal "ó" (formantes), ataque de consoante "g",
-      // ruído de arquibancada e reverberação de estádio.
-      gol() {
+      // som de gol (time de um técnico humano): torcida em festa gritando "GOOOL!" bem rápido, em 3 variações alegres sorteadas (fanfarra, samba e buzina de festa)
+      gol(variante) {
         if (G.mudo) return; try {
-          const c = ac(); if (!c) return; const t = c.currentTime + 0.01, dur = 1.15, rv = reverb(c);
-          const mestre = c.createGain(); mestre.gain.setValueAtTime(0.0001, t); mestre.gain.exponentialRampToValueAtTime(1, t + 0.04); mestre.gain.setValueAtTime(1, t + 0.6); mestre.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+          const c = ac(); if (!c) return; const v = variante != null ? variante : Math.floor(Math.random() * 3), t = c.currentTime + 0.01, dur = 1.3, rv = reverb(c);
+          const mestre = c.createGain(); mestre.gain.setValueAtTime(0.0001, t); mestre.gain.exponentialRampToValueAtTime(1, t + 0.04); mestre.gain.setValueAtTime(1, t + 0.75); mestre.gain.exponentialRampToValueAtTime(0.0001, t + dur);
           mestre.connect(c.destination); mestre.connect(rv);
-          for (let v = 0; v < 28; v++) {                                  // multidão: vozes graves e agudas, desafinadas e fora de sincronia
-            const o = c.createOscillator(), vg = c.createGain(), t0 = t + Math.random() * 0.06, f0 = (v % 3 === 0 ? 215 : v % 3 === 1 ? 135 : 105) * (0.92 + Math.random() * 0.18);
-            o.type = 'sawtooth'; o.frequency.setValueAtTime(f0 * 0.82, t0); o.frequency.exponentialRampToValueAtTime(f0 * 1.15, t0 + 0.12); o.frequency.exponentialRampToValueAtTime(f0 * 0.97, t0 + dur);
-            const lf = c.createOscillator(), lg = c.createGain(); lf.frequency.value = 5 + Math.random() * 2; lg.gain.value = f0 * 0.012; lf.connect(lg); lg.connect(o.frequency); lf.start(t0); lf.stop(t + dur + 0.05);   // vibrato natural
+          for (let k = 0; k < 30; k++) {                                   // multidão alegre: vozes mais agudas e abertas, subindo no fim ("gooool!")
+            const o = c.createOscillator(), vg = c.createGain(), t0 = t + Math.random() * 0.06, f0 = (k % 3 === 0 ? 250 : k % 3 === 1 ? 160 : 120) * (0.92 + Math.random() * 0.18);
+            o.type = 'sawtooth'; o.frequency.setValueAtTime(f0 * 0.85, t0); o.frequency.exponentialRampToValueAtTime(f0 * 1.2, t0 + 0.14); o.frequency.linearRampToValueAtTime(f0 * 1.12, t0 + 0.8); o.frequency.exponentialRampToValueAtTime(f0 * 1.3, t0 + dur - 0.1);
+            const lf = c.createOscillator(), lg = c.createGain(); lf.frequency.value = 5 + Math.random() * 2.5; lg.gain.value = f0 * 0.012; lf.connect(lg); lg.connect(o.frequency); lf.start(t0); lf.stop(t + dur + 0.05);
             const f1 = c.createBiquadFilter(), f2 = c.createBiquadFilter(), f3 = c.createBiquadFilter(); f1.type = f2.type = f3.type = 'bandpass'; f1.Q.value = 6; f2.Q.value = 8; f3.Q.value = 9;
-            f1.frequency.setValueAtTime(380, t0); f1.frequency.linearRampToValueAtTime(620, t0 + 0.1); f1.frequency.linearRampToValueAtTime(560, t0 + 0.65); f1.frequency.linearRampToValueAtTime(400, t0 + 0.95);      // g-ó-l
-            f2.frequency.setValueAtTime(800, t0); f2.frequency.linearRampToValueAtTime(960, t0 + 0.1); f2.frequency.linearRampToValueAtTime(900, t0 + 0.65); f2.frequency.linearRampToValueAtTime(1400, t0 + 0.95);
-            f3.frequency.value = 2500; vg.gain.value = 0.05;
+            f1.frequency.setValueAtTime(400, t0); f1.frequency.linearRampToValueAtTime(680, t0 + 0.1); f1.frequency.linearRampToValueAtTime(640, t0 + 0.85); f1.frequency.linearRampToValueAtTime(420, t0 + 1.1);
+            f2.frequency.setValueAtTime(850, t0); f2.frequency.linearRampToValueAtTime(1050, t0 + 0.1); f2.frequency.linearRampToValueAtTime(1000, t0 + 0.85); f2.frequency.linearRampToValueAtTime(1500, t0 + 1.1);
+            f3.frequency.value = 2900; vg.gain.value = 0.05;
             o.connect(f1); o.connect(f2); o.connect(f3); f1.connect(vg); f2.connect(vg); f3.connect(vg); vg.connect(mestre); o.start(t0); o.stop(t + dur + 0.05);
           }
-          const n = Math.floor(c.sampleRate * dur), b = c.createBuffer(1, n, c.sampleRate), d = b.getChannelData(0); for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;      // arquibancada
-          const r = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain(); r.buffer = b; f.type = 'bandpass'; f.frequency.value = 1300; f.Q.value = 0.6;
-          g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.28, t + 0.07); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); r.connect(f); f.connect(g); g.connect(c.destination); g.connect(rv); r.start(t);
+          const n = Math.floor(c.sampleRate * dur), b = c.createBuffer(1, n, c.sampleRate), d = b.getChannelData(0); for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+          const r = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain(); r.buffer = b; f.type = 'bandpass'; f.frequency.value = 1600; f.Q.value = 0.6;
+          g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.26, t + 0.07); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); r.connect(f); f.connect(g); g.connect(c.destination); g.connect(rv); r.start(t);
           ruido(c, t, 0.05, 0.12, 300);                                    // "g" inicial
+          if (v === 0) {                                                   // fanfarra: arpejo de metais em dó maior
+            [72, 76, 79, 84].forEach((m, i) => nota(c, t + 0.05 + i * 0.1, m, 0.45, 'sawtooth', 0.07, 3200));
+            [60, 64, 67, 72].forEach((m) => nota(c, t + 0.5, m, 0.7, 'sawtooth', 0.05, 2600));
+          } else if (v === 1) {                                            // samba: tamborim, apito de bateria e baixo
+            for (let i = 0; i < 9; i++) ruido(c, t + 0.05 + i * 0.12, 0.05, i % 3 === 0 ? 0.16 : 0.09, 5200);
+            [48, 55, 48, 55, 52, 55].forEach((m, i) => nota(c, t + i * 0.18, m, 0.16, 'triangle', 0.2));
+            for (let i = 0; i < 8; i++) nota(c, t + 0.3 + i * 0.04, 88 + (i % 2) * 2, 0.04, 'sine', 0.06);   // trinado
+          } else {                                                         // festa: buzina de torcida e sininhos subindo
+            [466, 622].forEach((fr, i) => { const o = c.createOscillator(), og = c.createGain(), lp = c.createBiquadFilter(); o.type = 'sawtooth'; o.frequency.value = fr * (1 + i * 0.004); lp.type = 'lowpass'; lp.frequency.value = 2200;
+              og.gain.setValueAtTime(0.0001, t + 0.05); og.gain.exponentialRampToValueAtTime(0.07, t + 0.1); og.gain.setValueAtTime(0.07, t + 0.55); og.gain.exponentialRampToValueAtTime(0.0001, t + 0.7); o.connect(lp); lp.connect(og); og.connect(c.destination); o.start(t + 0.05); o.stop(t + 0.75); });
+            [84, 88, 91, 96].forEach((m, i) => nota(c, t + 0.55 + i * 0.1, m, 0.3, 'triangle', 0.08));
+          }
         } catch (e) { /* sem áudio */ }
       },
-      // gol sofrido (time de um técnico humano): lamento da torcida e um palavrão sorteado, em voz sintetizada do navegador
+      // gol sofrido (time de um técnico humano): a torcida explode de raiva (muita gente gritando, voz rouca e distorcida) e um palavrão sorteado em voz do navegador
       sofreu() {
         if (G.mudo) return; try {
-          const frases = ['Puta que pariu!', 'Caralho!', 'Que merda!'], frase = frases[Math.floor(Math.random() * frases.length)];
+          const frases = ['Puta que pariu!', 'Caralho!', 'Que merda!', 'Porra!'], frase = frases[Math.floor(Math.random() * frases.length)];
           const c = ac(); if (c) {
-            const t = c.currentTime + 0.01, dur = 1.1, rv = reverb(c), mestre = c.createGain(); mestre.gain.setValueAtTime(0.0001, t); mestre.gain.exponentialRampToValueAtTime(0.7, t + 0.12); mestre.gain.exponentialRampToValueAtTime(0.0001, t + dur); mestre.connect(c.destination); mestre.connect(rv);
-            for (let v = 0; v < 16; v++) {                                 // "ôôôh" descendente
-              const o = c.createOscillator(), vg = c.createGain(), t0 = t + Math.random() * 0.1, f0 = (v % 2 ? 150 : 110) * (0.92 + Math.random() * 0.16);
-              o.type = 'sawtooth'; o.frequency.setValueAtTime(f0 * 1.1, t0); o.frequency.exponentialRampToValueAtTime(f0 * 0.7, t0 + dur);
-              const f1 = c.createBiquadFilter(), f2 = c.createBiquadFilter(); f1.type = f2.type = 'bandpass'; f1.Q.value = 5; f2.Q.value = 7; f1.frequency.value = 430; f2.frequency.value = 780; vg.gain.value = 0.05;
-              o.connect(f1); o.connect(f2); f1.connect(vg); f2.connect(vg); vg.connect(mestre); o.start(t0); o.stop(t + dur + 0.05);
+            const t = c.currentTime + 0.01, dur = 1.5, rv = reverb(c), mestre = c.createGain(); mestre.gain.setValueAtTime(0.0001, t); mestre.gain.exponentialRampToValueAtTime(1, t + 0.06); mestre.gain.setValueAtTime(1, t + 0.8); mestre.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+            const dist = c.createWaveShaper(), curva = new Float32Array(256); for (let i = 0; i < 256; i++) { const x = i / 128 - 1; curva[i] = Math.tanh(x * 3.2); } dist.curve = curva;   // rouquidão da raiva
+            dist.connect(mestre); mestre.connect(c.destination); mestre.connect(rv);
+            for (let k = 0; k < 46; k++) {                                  // 46 vozes gritando "AAAARGH / NÃÃÃO": graves, ásperas e caindo
+              const o = c.createOscillator(), vg = c.createGain(), t0 = t + Math.random() * 0.12, f0 = (k % 3 === 0 ? 190 : k % 3 === 1 ? 130 : 95) * (0.9 + Math.random() * 0.22);
+              o.type = 'sawtooth'; o.frequency.setValueAtTime(f0 * 1.25, t0); o.frequency.exponentialRampToValueAtTime(f0 * 0.8, t0 + dur);
+              const lf = c.createOscillator(), lg = c.createGain(); lf.frequency.value = 9 + Math.random() * 6; lg.gain.value = f0 * 0.035; lf.connect(lg); lg.connect(o.frequency); lf.start(t0); lf.stop(t + dur + 0.05);   // tremor de grito
+              const f1 = c.createBiquadFilter(), f2 = c.createBiquadFilter(); f1.type = f2.type = 'bandpass'; f1.Q.value = 4; f2.Q.value = 5; f1.frequency.value = 720; f2.frequency.setValueAtTime(1250, t0); f2.frequency.linearRampToValueAtTime(950, t0 + dur); vg.gain.value = 0.06;
+              o.connect(f1); o.connect(f2); f1.connect(vg); f2.connect(vg); vg.connect(dist); o.start(t0); o.stop(t + dur + 0.05);
             }
+            const n = Math.floor(c.sampleRate * dur), b = c.createBuffer(1, n, c.sampleRate), d = b.getChannelData(0); for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;     // arquibancada em fúria
+            const r = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain(); r.buffer = b; f.type = 'bandpass'; f.frequency.value = 900; f.Q.value = 0.7;
+            g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.38, t + 0.08); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); r.connect(f); f.connect(g); g.connect(c.destination); g.connect(rv); r.start(t);
+            nota(c, t, 36, 0.35, 'sawtooth', 0.25, 400);                   // "soco na mesa"
           }
-          this.fala(frase, 1.0, 0.65);
+          setTimeout(() => this.fala(frase, 1.1, 0.55), 120);
+        } catch (e) { /* sem áudio */ }
+      },
+      // apito do juiz (pênalti)
+      apito() {
+        if (G.mudo) return; try {
+          const c = ac(); if (!c) return; const t = c.currentTime + 0.01, o = c.createOscillator(), lf = c.createOscillator(), lg = c.createGain(), g = c.createGain();
+          o.type = 'sine'; o.frequency.value = 3000; lf.frequency.value = 32; lg.gain.value = 190; lf.connect(lg); lg.connect(o.frequency);
+          g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.35, t + 0.02); g.gain.setValueAtTime(0.35, t + 0.55); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.65);
+          o.connect(g); g.connect(c.destination); o.start(t); lf.start(t); o.stop(t + 0.7); lf.stop(t + 0.7);
         } catch (e) { /* sem áudio */ }
       },
       parar() { try { if (window.speechSynthesis) speechSynthesis.cancel(); if (ctx && ctx.state === 'running') { ctx.close(); ctx = null; } } catch (e) { ctx = null; } },
