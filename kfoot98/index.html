@@ -1796,7 +1796,7 @@ window.ESCUDOS_REAIS = {};
   }
   function novaTemporada(g) {
     g.dias = gerarDias(g.ano); g.idx = 0; g.fim = false; g.live = null;
-    g.artilharia = { A: {}, B: {}, C: {}, D: {}, copa: {} }; g.premios = null;
+    g.artilharia = { A: {}, B: {}, C: {}, D: {}, copa: {} }; g.premios = null; g.stats = { A: {}, B: {}, C: {}, D: {} };
     criarLigas(g); g.copa = S().copaCriar(g.clubes, g.rng);
   }
 
@@ -1970,6 +1970,12 @@ window.ESCUDOS_REAIS = {};
   // termina as partidas que ainda não acabaram (modo instantâneo)
   function completarDia(g) { g.live.partidas.forEach((p) => { M().resolverVagasAuto(p.m); p.m.S.forEach((s) => { s.manual = false; }); }); while (g.live.partidas.some((p) => p.m.min < 90)) passoDia(g); }
 
+  // estatísticas da liga na temporada (por jogador) para os prêmios extras
+  function acumular(g, div, d, clubId, golsContra) {
+    const st = g.stats[div], e = (st[d.id] = st[d.id] || { id: d.id, nome: d.nome, clubId, pos: d.pos, idade: (g.porId.get(clubId).elenco.find((x) => x.id === d.id) || {}).idade || 99, jogos: 0, nota: 0, ast: 0, gj: 0, gc: 0 });
+    e.clubId = clubId; e.jogos++; e.nota += d.nota; e.ast += d.ast || 0;
+    if (d.slot === 'GOL' && d.minutos >= 45) { e.gj++; e.gc += golsContra; }
+  }
   function finalizarDia(g) {
     const L = g.live, dia = L.dia, resumos = [];
     const prox = g.dias[g.idx + 1], gap = prox ? Math.max(1, difDias(dia.data, prox.data)) : 7;
@@ -2009,7 +2015,7 @@ window.ESCUDOS_REAIS = {};
       const chave = jogo.comp === 'liga' ? jogo.div : 'copa';
       detalhes.forEach((lista, i) => lista.forEach((d) => {
         const e = (g.artilharia[chave][d.id] = g.artilharia[chave][d.id] || { id: d.id, nome: d.nome, clubId: i === 0 ? jogo.casa : jogo.fora, pos: d.pos, gols: 0, jogos: 0 });
-        e.jogos++; e.gols += d.g; e.clubId = i === 0 ? jogo.casa : jogo.fora;
+        e.jogos++; e.gols += d.g; e.clubId = i === 0 ? jogo.casa : jogo.fora; if (chave !== 'copa') acumular(g, chave, d, e.clubId, i === 0 ? ga : gh);
       }));
       resumos.push({ jogo, publico: part.publico, financas: fin, placar: res.placar, stats: res.stats, eventos: res.eventos, detalhes, humano: part.humano, casaNome: g.porId.get(jogo.casa).nome, foraNome: g.porId.get(jogo.fora).nome });
     }
@@ -2052,17 +2058,18 @@ window.ESCUDOS_REAIS = {};
     serie: { A: [4.0e6, 2.4e6, 1.5e6, 0.9e6, 0.5e6], B: [1.2e6, 0.7e6, 0.45e6, 0.25e6], C: [0.4e6, 0.25e6, 0.15e6, 0.09e6], D: [0.18e6, 0.11e6, 0.07e6, 0.04e6] },   // 5 primeiros da A, 4 primeiros das demais
     copa: [3.0e6, 1.5e6, 0.75e6],                                    // campeão, vice e 3º colocado
     clubeArtilheiro: { A: 0.6e6, B: 0.2e6, C: 0.08e6, D: 0.04e6 },   // clube do 1º artilheiro da série; 2º recebe 60% e 3º 35%
-    clubeArtGeral: 1.0e6,                                            // extra para o clube do artilheiro geral (todas as séries)
+    clubeArtGeral: 1.0e6,
+    extraClube: { A: 0.4e6, B: 0.15e6, C: 0.06e6, D: 0.03e6 }, tecClube: { A: 0.5e6, B: 0.2e6, C: 0.08e6, D: 0.04e6 }, extraAttr: 3, tecMoral: 8,   // melhor goleiro, revelação, garçom (1º de cada série) e melhor técnico                                            // extra para o clube do artilheiro geral (todas as séries)
     pctArt: [1, 0.6, 0.35],
     attrSerie: [5, 3, 2], attrCopa: [4, 3, 2], attrGeral: 8,         // pontos de atributo para os 3 primeiros artilheiros
     sobe: [2.0, 1.6, 1.2, 0.8], desce: [-0.8, -1.2, -1.6, -2.0],     // pontos de atributo por jogador do clube (posições 1-4 da série; 17º ao 20º)
     moralSobe: 12, moralDesce: -10, tecSobe: 15, tecDesce: -12,
   };
   const ATTRS6 = ['RIT', 'CHU', 'PAS', 'DRI', 'DEF', 'FIS'];
-  function darAtributos(g, p, pts, pref) {
+  function darAtributos(g, p, pts, pref, foco) {
     const got = {};
     for (let i = 0; i < pts; i++) {
-      const k = pref ? (g.rng.chance(0.5) ? 'CHU' : pref[g.rng.int(0, pref.length - 1)]) : ATTRS6[g.rng.int(0, 5)];
+      const k = pref ? (g.rng.chance(0.5) ? (foco || 'CHU') : pref[g.rng.int(0, pref.length - 1)]) : ATTRS6[g.rng.int(0, 5)];
       if (p.attr[k] >= 92 || (p.attr[k] >= 80 && g.rng.chance(0.5))) continue; p.attr[k]++; got[k] = (got[k] || 0) + 1;   // retorno decrescente: quem já é craque evolui menos
     }
     return got;
@@ -2097,6 +2104,31 @@ window.ESCUDOS_REAIS = {};
     const topSeries = {}, melhorGeral = { gols: 0 };
     for (const d of S().ORDEM) { topSeries[d] = top3(d); const e = topSeries[d][0]; if (e && e.gols > melhorGeral.gols) { melhorGeral.gols = e.gols; melhorGeral.d = d; } }
     for (const d of S().ORDEM) premiarArt(topSeries[d], 'da ' + DIV_NOME[d], P.attrSerie, true, P.clubeArtilheiro[d], melhorGeral.d === d);
+    // 3b) prêmios extras por série: melhor goleiro, revelação, garçom e melhor técnico
+    const extras = [], notaMedia = (e) => e.nota / Math.max(1, e.jogos);
+    const premioJog = (tipo, d, e, rotulo, detalhe, foco, pref) => {
+      if (!e) return; const p = achar(e); if (!p) return;
+      const got = darAtributos(g, p, P.extraAttr, pref, foco);
+      dar(e.clubId, P.extraClube[d], rotulo + ' da ' + DIV_NOME[d] + ' (' + e.nome + ')');
+      extras.push({ tipo, serie: d, id: p.id, nome: p.nome, clube: e.clubId, detalhe, got });
+    };
+    for (const d of S().ORDEM) {
+      const st = Object.values(g.stats[d] || {});
+      const gks = st.filter((e) => e.gj >= 20).sort((a, b) => a.gc / a.gj - b.gc / b.gj || b.gj - a.gj)[0];
+      premioJog('goleiro', d, gks, 'Melhor goleiro', gks && (gks.gc / gks.gj).toFixed(2).replace('.', ',') + ' gol sofrido por jogo', 'DEF', ['DEF', 'FIS', 'PAS']);
+      const rev = st.filter((e) => e.idade <= 21 && e.jogos >= 12).sort((a, b) => notaMedia(b) - notaMedia(a))[0];
+      premioJog('revelacao', d, rev, 'Revelação', rev && 'nota média ' + notaMedia(rev).toFixed(2).replace('.', ',') + ' aos ' + rev.idade + ' anos', null, ATTRS6);
+      const gar = st.filter((e) => e.ast > 0).sort((a, b) => b.ast - a.ast || b.jogos - a.jogos)[0];
+      premioJog('garcom', d, gar, 'Garçom (mais assistências)', gar && gar.ast + ' assistências', 'PAS', ['PAS', 'DRI', 'RIT']);
+      // melhor técnico: quem mais superou o esperado pelo prestígio (posição esperada menos posição final)
+      const ord = cl[d], esp = ord.slice().sort((a, b) => g.porId.get(b).prestigio - g.porId.get(a).prestigio), sup = (id) => esp.indexOf(id) - ord.indexOf(id);
+      const mt = ord.slice().sort((a, b) => sup(b) - sup(a) || ord.indexOf(a) - ord.indexOf(b))[0];
+      if (sup(mt) > 0) {
+        dar(mt, P.tecClube[d], 'Melhor técnico da ' + DIV_NOME[d]);
+        const m = g.moralTreinador[mt]; if (m) { m.v = Math.min(100, m.v + P.tecMoral); m.hist.push({ data: g.data, v: m.v, res: null, adv: null }); }
+        extras.push({ tipo: 'tecnico', serie: d, clube: mt, tecnico: g.porId.get(mt).tecnico, detalhe: 'esperado ' + (esp.indexOf(mt) + 1) + 'º, terminou em ' + (ord.indexOf(mt) + 1) + 'º' });
+      }
+    }
     // 4) acesso e descenso: moral (técnico e jogadores) e atributos conforme a posição
     const efeito = (id, pts, moral, tec, rotulo) => {
       const c = g.porId.get(id); let n = 0;
@@ -2108,7 +2140,7 @@ window.ESCUDOS_REAIS = {};
     ['B', 'C', 'D'].forEach((d) => P.sobe.forEach((pts, i) => efeito(cl[d][i], pts, P.moralSobe, P.tecSobe, 'Acesso (' + (i + 1) + 'º da ' + DIV_NOME[d] + ')')));
     ['A', 'B', 'C'].forEach((d) => P.desce.forEach((pts, i) => { const id = cl[d][cl[d].length - 4 + i]; efeito(id, pts, P.moralDesce, P.tecDesce, 'Rebaixamento (' + (cl[d].length - 3 + i) + 'º da ' + DIV_NOME[d] + ')'); }));
     for (const id in clubes) if (g.humanoIds.has(id) && clubes[id].total) bf.Mercado.noticia(g, 'Premiações da temporada: ' + bf.Mercado.reais(clubes[id].total) + ' para o ' + nome(id) + '.', 'venda');
-    g.premios = { ano: g.ano, clubes, jogadores, moral: mor, artilheiros: topSeries, artilheirosCopa: top3('copa'), geral: melhorGeral.d || null };
+    g.premios = { ano: g.ano, extras, clubes, jogadores, moral: mor, artilheiros: topSeries, artilheirosCopa: top3('copa'), geral: melhorGeral.d || null };
     return g.premios;
   }
 
@@ -3645,9 +3677,13 @@ window.ESCUDOS_REAIS = {};
         meu && meu.efeito ? h('p', { class: meu.efeito.pts > 0 ? 'hi' : 'bad' }, meu.efeito.rotulo + ': jogadores ' + (meu.efeito.pts > 0 ? 'ganham' : 'perdem') + ' cerca de ' + Math.abs(meu.efeito.pts).toString().replace('.', ',') + ' ponto(s) de atributo cada, moral dos jogadores ' + (meu.efeito.moral > 0 ? '+' : '') + meu.efeito.moral + ' e do técnico ' + (meu.efeito.tec > 0 ? '+' : '') + meu.efeito.tec + '.') : null),
       h('div', { class: 'rules' }, ['A', 'B', 'C', 'D'].map((d) => art(pr.artilheiros[d], DIV[d])), art(pr.artilheirosCopa, 'Copa do Brasil')),
       pr.geral && pr.artilheiros[pr.geral][0] ? h('p', { class: 'footnote' }, 'Artilheiro geral de todas as séries: ', h('b', null, pr.artilheiros[pr.geral][0].nome + ' (' + nome(pr.artilheiros[pr.geral][0].clubId) + ', ' + pr.artilheiros[pr.geral][0].gols + ' gols)'), ' — maior bônus de atributos e prêmio extra para o clube.') : null,
+      h('h4', null, 'Prêmios extras por série'),
+      h('div', { class: 'rules' }, ['A', 'B', 'C', 'D'].map((d) => h('div', { class: 'rule' }, h('b', null, DIV[d]),
+        (pr.extras || []).filter((x) => x.serie === d).map((x) => h('span', null, ({ goleiro: 'Melhor goleiro', revelacao: 'Revelação', garcom: 'Garçom', tecnico: 'Melhor técnico' })[x.tipo] + ': ' + (x.tipo === 'tecnico' ? x.tecnico + ' (' + nome(x.clube) + ')' : x.nome + ' (' + nome(x.clube) + ')') + ' · ' + x.detalhe + (x.got ? ' · ' + attrTxt(x.got) : '')))))),
       h('details', { class: 'det' }, h('summary', null, 'Tabela de prêmios por colocação'),
         h('ul', { class: 'premlista' }, ['A', 'B', 'C', 'D'].map((d) => h('li', null, h('span', null, DIV[d]), h('small', null, P.serie[d].map((v, i) => (i + 1) + 'º ' + reais(v)).join(' · ')))), h('li', null, h('span', null, 'Copa do Brasil'), h('small', null, 'Campeão ' + reais(P.copa[0]) + ' · vice ' + reais(P.copa[1]) + ' · 3º ' + reais(P.copa[2]))),
           h('li', null, h('span', null, 'Clube do artilheiro da série'), h('small', null, ['A', 'B', 'C', 'D'].map((d) => DIV[d] + ' ' + reais(P.clubeArtilheiro[d])).join(' · ') + ' (2º recebe 60%, 3º 35%; artilheiro geral: +' + reais(P.clubeArtGeral) + ')')),
+          h('li', null, h('span', null, 'Prêmios extras (1º de cada série)'), h('small', null, 'Melhor goleiro, revelação (até 21 anos) e garçom: clube recebe ' + ['A', 'B', 'C', 'D'].map((d) => DIV[d] + ' ' + reais(P.extraClube[d])).join(' · ') + ' e o jogador +' + P.extraAttr + ' pontos de atributo. Melhor técnico (quem mais superou o prestígio): clube ' + ['A', 'B', 'C', 'D'].map((d) => reais(P.tecClube[d])).join(' / ') + ' e +' + P.tecMoral + ' de moral do técnico.')),
           h('li', null, h('span', null, 'Bônus de atributos'), h('small', null, 'Artilheiros das séries ' + P.attrSerie.join('/') + ' pontos, da Copa ' + P.attrCopa.join('/') + ', geral ' + P.attrGeral + '. O 1º de cada série e da Copa vira estrela.')),
           h('li', null, h('span', null, 'Acesso e rebaixamento'), h('small', null, 'Quem sobe ganha moral (+' + P.moralSobe + ' jogadores, +' + P.tecSobe + ' técnico) e evolui até ' + P.sobe[0] + ' ponto(s) por jogador (1º) a ' + P.sobe[3] + ' (4º). Quem cai perde moral (' + P.moralDesce + ' / ' + P.tecDesce + ') e de ' + Math.abs(P.desce[0]) + ' (17º) a ' + Math.abs(P.desce[3]) + ' ponto(s) (20º).')))));
   };
