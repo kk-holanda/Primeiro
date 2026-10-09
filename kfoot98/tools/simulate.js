@@ -4,26 +4,8 @@ const { RNG, CLUBS, Players: PL, Match: M, Economy: E, Progression: PR } = BF;
 const temporadas = +process.argv[2] || 1, seed = +process.argv[3] || 1998;
 const rng = RNG.create(seed);
 
-function melhorTime(clube, formacao = '4-4-2', tatica = 'equilibrado') {
-  const slots = M.FORMACOES[formacao], usados = new Set(), tit = [];
-  for (const slot of slots) {
-    const disp = clube.elenco.filter((p) => !usados.has(p.id) && p.lesao === 0);
-    // escolhe o melhor considerando stamina (técnico "inteligente" descansa quem está vermelho)
-    disp.sort((a, b) => PL.ovrNoSlot(b, slot) * (0.8 + b.stamina / 500) - PL.ovrNoSlot(a, slot) * (0.8 + a.stamina / 500));
-    usados.add(disp[0].id); tit.push(disp[0].id);
-  }
-  const banco = clube.elenco.filter((p) => !usados.has(p.id) && p.lesao === 0).sort((a, b) => PL.overall(b) - PL.overall(a)).slice(0, 7).map((p) => p.id);
-  return { nome: clube.nome, elenco: clube.elenco, formacao, tatica, titulares: tit, banco };
-}
-function calendario(ids) { // método do círculo, ida e volta
-  const n = ids.length, arr = ids.slice(), rodadas = [];
-  for (let r = 0; r < n - 1; r++) {
-    const jogos = [];
-    for (let i = 0; i < n / 2; i++) { const a = arr[i], b = arr[n - 1 - i]; jogos.push(r % 2 ? [b, a] : [a, b]); }
-    rodadas.push(jogos); arr.splice(1, 0, arr.pop());
-  }
-  return rodadas.concat(rodadas.map((r) => r.map(([a, b]) => [b, a])));
-}
+const melhorTime = (c, f, t) => BF.Season.escalarAuto(c, f, t);
+const calendario = BF.Season.calendarioLiga;
 function jogarDiv(div, cl, acc) {
   const tab = new Map(div.map((c) => [c.id, { c, pts: 0, v: 0, e: 0, d: 0, gp: 0, gc: 0 }]));
   for (const rod of calendario(div.map((c) => c.id))) {

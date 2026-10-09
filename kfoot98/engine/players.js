@@ -62,7 +62,7 @@
       id: 'p' + Math.floor(rng.next() * 1e9).toString(36), nome: rng.pick(NOMES) + ' ' + rng.pick(SOBRENOMES),
       pos, idade, attr, xp: { RIT: 0, CHU: 0, PAS: 0, DRI: 0, DEF: 0, FIS: 0 },
       disciplina: rng.weighted([0, 1, 2, 3, 4], (d) => [10, 25, 35, 20, 10][d] * ((GRUPO[pos] === 'D' || pos === 'VOL') && d >= 3 ? 1.4 : 1)),
-      stamina: 100, moral: 60, lesao: 0, contrato: rng.int(1, 3), // temporadas restantes
+      stamina: rng.int(88, 100), moral: rng.int(48, 72), lesao: 0, contrato: rng.int(1, 3), // temporadas restantes
       gols: 0, jogos: 0,
     };
     // ajusta o nível geral: corrige para que o overall caia perto do alvo

@@ -1,4 +1,4 @@
-# Brasfoot 98 — Documento de Design
+# Kfoot 98 — Documento de Design
 
 Jogo de gerenciamento de futebol (estilo Brasfoot/Elifoot) ambientado em **1998**. Você começa como técnico na **Série D**.
 Tecnologia sugerida: HTML5 + JavaScript puro (igual ao KKart), motor 100% determinístico por semente para permitir multiplayer.
@@ -202,7 +202,7 @@ Sem patrocínio, o clube médio de D tem saldo anual de **−R$ 5 mil a −84 mi
 
 ## 11. Estrutura do projeto (já no repositório)
 ```
-brasfoot98/
+kfoot98/
   docs/GDD.md               este documento
   data/clubs.js             80 clubes (A–D), estádios, caixa, demanda
   data/sponsors.js          30 patrocinadores fictícios em 12 categorias
@@ -214,7 +214,7 @@ brasfoot98/
   engine/economy.js         valor, salário, bilheteria, estádio, patrocínio
   tools/simulate.js         simula temporadas inteiras e mede o balanceamento
 ```
-Rodar a simulação: `node brasfoot98/tools/simulate.js 6` (6 temporadas, semente opcional).
+Rodar a simulação: `node kfoot98/tools/simulate.js 6` (6 temporadas, semente opcional).
 
 ## 12. Roadmap sugerido
 1. **Interface mínima:** tela de escolha de clube, escalação, rodada ao vivo (4 divisões), resumo pós-jogo com notas.

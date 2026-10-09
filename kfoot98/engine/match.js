@@ -36,7 +36,7 @@
       const p = porId.get(id);
       return novo(p, slots[i]);
     });
-    return { time, slots, campo, banco: time.banco.map((id) => porId.get(id)), subs: 0, todos: new Map(campo.map((j) => [j.p.id, j])), gols: 0, rng };
+    return { time, slots, campo, banco: time.banco.map((id) => porId.get(id)), subs: 0, maxSubs: time.maxSubs || CFG.maxSubs, todos: new Map(campo.map((j) => [j.p.id, j])), gols: 0, rng };
   }
   function novo(p, slot) {
     return { p, slot, base: P().ovrNoSlot(p, slot), nota: 6.0, g: 0, ast: 0, desarmes: 0, passes: 0, defesas: 0, faltas: 0, amarelos: 0, expulso: false, lesionado: false, minutos: 0, entrou: 0, saiu: null };
@@ -146,7 +146,7 @@
     s.campo = s.campo.filter((x) => x !== j); j.saiu = min;
   }
   function trocarForcado(s, j, min, rng, ev, lado) {
-    const ok = s.subs < CFG.maxSubs ? s.banco.filter((b) => b.lesao === 0 && b.stamina > 50) : [];
+    const ok = s.subs < s.maxSubs ? s.banco.filter((b) => b.lesao === 0 && b.stamina > 50) : [];
     if (ok.length) {
       // escolhe o reserva de maior encaixe no slot
       const novoP = ok.sort((a, b) => P().ovrNoSlot(b, j.slot) - P().ovrNoSlot(a, j.slot))[0];
@@ -174,5 +174,19 @@
     return Math.round(P().clamp(n, 0, 10) * 10) / 10;
   }
 
-  bf.Match = { FORMACOES, TATICA, CFG, simular, calcNota };
+  // Substituição manual (intervalo ou pausa). Respeita o limite de trocas do time (3 em 1998; 5 no modo moderno).
+  function substituir(side, saiId, entraId, min) {
+    if (side.subs >= side.maxSubs) return { ok: false, motivo: 'Limite de ' + side.maxSubs + ' substituições atingido' };
+    const sai = side.campo.find((j) => j.p.id === saiId);
+    const entra = side.banco.find((p) => p.id === entraId);
+    if (!sai) return { ok: false, motivo: 'Jogador não está em campo' };
+    if (!entra) return { ok: false, motivo: 'Jogador não está no banco' };
+    if (entra.lesao > 0) return { ok: false, motivo: 'Jogador lesionado' };
+    const nj = novo(entra, sai.slot); nj.entrou = min;
+    side.banco = side.banco.filter((b) => b !== entra); side.subs++;
+    side.todos.set(entra.id, nj); side.campo[side.campo.indexOf(sai)] = nj; sai.saiu = min;
+    return { ok: true };
+  }
+
+  bf.Match = { FORMACOES, TATICA, CFG, simular, calcNota, substituir };
 })(typeof globalThis !== 'undefined' ? globalThis : this);

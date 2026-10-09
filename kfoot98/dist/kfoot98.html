@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kfoot 98</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Semi+Condensed:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* Kfoot 98 — layout: moldura de "placar eletrônico de estádio": cabeçalho fino com passos, conteúdo em painéis planos, tabelas densas estilo Brasfoot */
+:root {
+  --bg: #e6ece4; --panel: #f6f8f2; --panel2: #eaf0e6; --ink: #13241a; --muted: #566a5c; --line: #c3d0c1;
+  --accent: #0b6e3f; --accent-ink: #ffffff; --hot: #e8ab00; --hot-ink: #1d1500;
+  --st-verde: #2fa84f; --st-vclaro: #9ccc3c; --st-amarelo: #e6c200; --st-laranja: #ec8a1c; --st-vermelho: #d63a2f;
+  --display: "Anton", "Arial Narrow", Impact, sans-serif;
+  --body: "Barlow Semi Condensed", "Arial Narrow", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b1810; --panel: #112219; --panel2: #16301f; --ink: #e7f0e5; --muted: #8ea796; --line: #234030;
+    --accent: #37c47c; --accent-ink: #06150c; --hot: #f2b705; --hot-ink: #1d1500; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0b1810; --panel: #112219; --panel2: #16301f; --ink: #e7f0e5; --muted: #8ea796; --line: #234030;
+  --accent: #37c47c; --accent-ink: #06150c; --hot: #f2b705; --hot-ink: #1d1500; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font: 16px/1.45 var(--body); }
+button, input, select { font: inherit; color: inherit; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-inline: 16px; padding-block: 0 48px; }
+h1, h2, h3 { margin: 0; font-weight: 400; text-wrap: balance; }
+h2 { font-family: var(--display); font-size: clamp(28px, 5vw, 40px); letter-spacing: .02em; text-transform: uppercase; line-height: 1.05; }
+h3 { font-family: var(--display); font-size: 20px; letter-spacing: .03em; text-transform: uppercase; }
+p { margin: 0; }
+.muted { color: var(--muted); }
+.num { font-variant-numeric: tabular-nums; }
+.eyebrow { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+
+/* barra superior com passos */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--panel); border-bottom: 1px solid var(--line); }
+.top .wrap { display: flex; align-items: center; gap: 16px; padding-block: 10px; flex-wrap: wrap; }
+.brand { font-family: var(--display); font-size: 22px; letter-spacing: .04em; text-transform: uppercase; }
+.brand b { background: var(--hot); color: var(--hot-ink); padding: 0 6px; margin-left: 4px; font-weight: 400; }
+.steps { display: flex; gap: 6px; margin-left: auto; list-style: none; padding: 0; margin-block: 0; flex-wrap: wrap; }
+.steps li { font-size: 13px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); padding: 3px 9px; border: 1px solid var(--line); }
+.steps li.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.steps li.ok { color: var(--ink); }
+
+/* botões */
+.btn { appearance: none; border: 2px solid var(--accent); background: var(--accent); color: var(--accent-ink); padding: 11px 22px; font-family: var(--display); font-size: 18px; letter-spacing: .06em; text-transform: uppercase; cursor: pointer; transition: transform .08s; }
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: translateY(1px); }
+.btn.alt { background: transparent; color: var(--ink); border-color: var(--line); }
+.btn.hot { background: var(--hot); border-color: var(--hot); color: var(--hot-ink); }
+.btn[disabled] { opacity: .45; cursor: not-allowed; transform: none; }
+:focus-visible { outline: 3px solid var(--hot); outline-offset: 2px; }
+.actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+
+/* tela 1 */
+.hero { position: relative; overflow: hidden; background: #0f2f1c; color: #eef6ea; border-bottom: 4px solid var(--hot); }
+.hero svg.pitch { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .22; }
+.hero .wrap { position: relative; display: flex; flex-direction: column; gap: 28px; align-items: flex-start; padding-block: clamp(48px, 12vw, 120px); }
+.logo { font-family: var(--display); line-height: .86; text-transform: uppercase; display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap; }
+.logo .k { font-size: clamp(88px, 22vw, 220px); letter-spacing: .01em; }
+.logo .y { font-size: clamp(88px, 22vw, 220px); background: var(--hot); color: #1d1500; padding: 0 .09em; }
+.hero .lead { max-width: 34ch; font-size: clamp(19px, 2.6vw, 26px); line-height: 1.3; }
+.hero .btn { border-color: var(--hot); background: var(--hot); color: #1d1500; font-size: 22px; padding: 14px 30px; }
+.hero small { opacity: .7; font-size: 14px; letter-spacing: .08em; text-transform: uppercase; }
+.ticker { background: var(--panel); border-bottom: 1px solid var(--line); }
+.ticker .wrap { display: flex; gap: 8px 28px; flex-wrap: wrap; padding-block: 14px; font-size: 15px; }
+.ticker span b { font-family: var(--display); font-weight: 400; font-size: 20px; margin-right: 6px; color: var(--accent); }
+
+/* telas 2-5 */
+.page { padding-block: 28px 8px; display: flex; flex-direction: column; gap: 22px; }
+.head { display: flex; flex-direction: column; gap: 8px; }
+.head p { max-width: 70ch; color: var(--muted); }
+.rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
+.rule { background: var(--panel); border: 1px solid var(--line); padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.rule b { font-family: var(--display); font-weight: 400; font-size: 18px; letter-spacing: .03em; text-transform: uppercase; }
+.rule span { font-size: 15px; color: var(--muted); }
+.seg { display: inline-flex; border: 1px solid var(--line); margin-top: 4px; align-self: flex-start; }
+.seg button { appearance: none; background: transparent; border: 0; padding: 4px 12px; cursor: pointer; font-weight: 600; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.divs { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; align-items: start; }
+.div { background: var(--panel); border: 1px solid var(--line); min-width: 0; }
+.div > header { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 12px; background: var(--panel2); border-bottom: 1px solid var(--line); gap: 8px; }
+.div ol { list-style: none; margin: 0; padding: 0; counter-reset: c; }
+.div li { display: flex; gap: 8px; align-items: baseline; padding: 4px 12px; border-bottom: 1px dotted var(--line); font-size: 15px; counter-increment: c; }
+.div li::before { content: counter(c); width: 1.6em; text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; font-size: 13px; }
+.div li .n { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.div li .uf { font-size: 12px; color: var(--muted); letter-spacing: .06em; }
+.div li.sorteavel { background: color-mix(in srgb, var(--hot) 22%, transparent); font-weight: 600; }
+.div li.bloq { color: var(--muted); }
+.tag { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; padding: 1px 6px; border: 1px solid currentColor; white-space: nowrap; }
+.tag.hot { background: var(--hot); color: var(--hot-ink); border-color: var(--hot); }
+.legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 14px; color: var(--muted); }
+
+.card { background: var(--panel); border: 1px solid var(--line); padding: 18px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.slots { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.slot { border: 1px dashed var(--line); padding: 12px; display: flex; flex-direction: column; gap: 6px; color: var(--muted); min-width: 0; }
+.slot.me { border-style: solid; border-color: var(--accent); color: var(--ink); background: var(--panel2); }
+.slot label { font-size: 13px; letter-spacing: .1em; text-transform: uppercase; font-weight: 600; }
+.slot input { padding: 10px 12px; border: 2px solid var(--line); background: var(--panel); font-size: 18px; width: 100%; min-width: 0; }
+.slot input:focus-visible { border-color: var(--accent); outline-offset: 0; }
+.err { color: #c0322a; font-weight: 600; min-height: 1.4em; }
+:root[data-theme="dark"] .err { color: #ff7a6e; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .err { color: #ff7a6e; } }
+
+.draw { background: #0f2f1c; color: #eef6ea; border: 1px solid var(--line); padding: 22px 18px; display: flex; flex-direction: column; gap: 6px; align-items: flex-start; border-left: 6px solid var(--hot); }
+.draw .big { font-family: var(--display); font-size: clamp(34px, 8vw, 68px); line-height: 1; text-transform: uppercase; min-height: 1.1em; overflow-wrap: anywhere; }
+.draw .big.rolling { opacity: .75; }
+
+.assign { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+.club { background: var(--panel); border: 1px solid var(--line); border-top: 6px solid var(--hot); padding: 16px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.club .who { font-size: 14px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.club .nm { font-family: var(--display); font-size: 36px; text-transform: uppercase; line-height: 1; overflow-wrap: anywhere; }
+dl.kv { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; margin: 0; font-size: 15px; }
+dl.kv dt { color: var(--muted); }
+dl.kv dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+
+/* plantel */
+.strip { display: flex; flex-wrap: wrap; gap: 6px 26px; background: var(--panel); border: 1px solid var(--line); padding: 10px 14px; }
+.strip div { display: flex; flex-direction: column; min-width: 0; }
+.strip small { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.strip b { font-size: 17px; font-variant-numeric: tabular-nums; }
+.tabs { display: flex; gap: 4px; flex-wrap: wrap; border-bottom: 2px solid var(--line); }
+.tabs span { padding: 7px 16px; font-family: var(--display); letter-spacing: .05em; text-transform: uppercase; font-size: 16px; color: var(--muted); }
+.tabs span.on { background: var(--accent); color: var(--accent-ink); }
+.tabs span.soon::after { content: " · em breve"; font-family: var(--body); font-size: 11px; text-transform: none; letter-spacing: 0; }
+.plantel { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 14px; align-items: start; }
+@media (max-width: 960px) { .plantel { grid-template-columns: minmax(0, 1fr); } }
+.tablewrap { overflow-x: auto; border: 1px solid var(--line); background: var(--panel); }
+table { border-collapse: collapse; width: 100%; font-size: 15px; font-variant-numeric: tabular-nums; }
+th, td { padding: 4px 8px; text-align: center; white-space: nowrap; border-bottom: 1px solid var(--line); }
+th { position: sticky; top: 0; background: var(--panel2); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); cursor: pointer; user-select: none; font-weight: 700; }
+th.sorted { color: var(--ink); box-shadow: inset 0 -3px var(--hot); }
+td.l, th.l { text-align: left; }
+td.nm { font-weight: 600; position: sticky; left: 0; background: var(--panel); }
+tr.sep td { background: var(--panel2); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; color: var(--muted); text-align: left; }
+tbody tr[data-id] { cursor: pointer; }
+tbody tr[data-id]:hover td, tbody tr[data-id]:hover td.nm { background: color-mix(in srgb, var(--hot) 20%, var(--panel)); }
+tr.sel td, tr.sel td.nm { background: color-mix(in srgb, var(--accent) 22%, var(--panel)); }
+td.pos { font-weight: 700; }
+.tit { display: inline-block; width: 8px; height: 8px; background: var(--accent); margin-right: 6px; }
+.ovr { font-weight: 800; }
+.hi { color: var(--accent); font-weight: 700; }
+.lo { color: var(--muted); }
+.bar { display: inline-block; width: 56px; height: 9px; background: var(--line); vertical-align: middle; position: relative; }
+.bar i { position: absolute; inset: 0 auto 0 0; display: block; }
+.c-verde { background: var(--st-verde); } .c-verde-claro { background: var(--st-vclaro); } .c-amarelo { background: var(--st-amarelo); } .c-laranja { background: var(--st-laranja); } .c-vermelho { background: var(--st-vermelho); }
+.panel { background: var(--panel); border: 1px solid var(--line); padding: 14px; display: flex; flex-direction: column; gap: 12px; min-width: 0; position: sticky; top: calc(64px + env(safe-area-inset-top, 0px)); }
+@media (max-width: 960px) { .panel { position: static; } }
+.panel .pn { font-family: var(--display); font-size: 28px; text-transform: uppercase; line-height: 1.05; overflow-wrap: anywhere; }
+.attr { display: grid; grid-template-columns: 38px 1fr 28px; gap: 8px; align-items: center; font-size: 14px; }
+.attr .bar { width: 100%; height: 10px; }
+.attr .bar i { background: var(--accent); }
+.attr b { text-align: right; }
+.fit { display: flex; gap: 6px; flex-wrap: wrap; }
+.fit span { border: 1px solid var(--line); padding: 2px 8px; font-size: 14px; }
+.fit span b { margin-left: 4px; }
+.footnote { font-size: 14px; color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { .btn { transition: none; } }
+
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+// Gerador pseudo-aleatório com semente (mulberry32): mesma semente = mesmo campeonato.
+// Essencial para o multiplayer: servidor e clientes chegam aos mesmos resultados.
+(function (root) {
+  function create(seed) {
+    let a = seed >>> 0;
+    const next = () => {
+      a = (a + 0x6D2B79F5) >>> 0;
+      let t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+    return {
+      next,
+      int: (lo, hi) => lo + Math.floor(next() * (hi - lo + 1)),
+      gauss: () => { let s = 0; for (let i = 0; i < 6; i++) s += next(); return (s - 3) / 0.7071; },
+      pick: (arr) => arr[Math.floor(next() * arr.length)],
+      chance: (p) => next() < p,
+      weighted(items, weightFn) {
+        let total = 0; const w = items.map((it) => { const x = Math.max(0, weightFn(it)); total += x; return x; });
+        if (total <= 0) return items[Math.floor(next() * items.length)];
+        let r = next() * total;
+        for (let i = 0; i < items.length; i++) { r -= w[i]; if (r <= 0) return items[i]; }
+        return items[items.length - 1];
+      },
+    };
+  }
+  (root.BF98 = root.BF98 || {}).RNG = { create };
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+
+;
+// 80 clubes: 4 divisões x 20. Temporada 1998.
+// ATENÇÃO: a Série D NÃO existiu em 1998 (só foi criada em 2009). As divisões A e B usam
+// majoritariamente clubes reais daquele ano (A tem 20 dos 24 reais); C e D são ficcionais no formato,
+// preenchidas com clubes reais que disputavam séries inferiores/estaduais.
+// Capacidades e "prestígio" são ESTIMATIVAS para jogo, não dados oficiais.
+// Colunas: id, nome, cidade, UF, divisão, prestígio(1-100), estádio, capacidade
+(function (root) {
+  const R = [
+    // ---------------- SÉRIE A ----------------
+    ['corinthians', 'Corinthians', 'São Paulo', 'SP', 'A', 97, 'Pacaembu', 37000],
+    ['flamengo', 'Flamengo', 'Rio de Janeiro', 'RJ', 'A', 96, 'Maracanã', 100000],
+    ['palmeiras', 'Palmeiras', 'São Paulo', 'SP', 'A', 95, 'Palestra Itália', 32000],
+    ['saopaulo', 'São Paulo', 'São Paulo', 'SP', 'A', 94, 'Morumbi', 80000],
+    ['vasco', 'Vasco da Gama', 'Rio de Janeiro', 'RJ', 'A', 93, 'São Januário', 35000],
+    ['cruzeiro', 'Cruzeiro', 'Belo Horizonte', 'MG', 'A', 91, 'Mineirão', 75000],
+    ['gremio', 'Grêmio', 'Porto Alegre', 'RS', 'A', 89, 'Olímpico', 45000],
+    ['internacional', 'Internacional', 'Porto Alegre', 'RS', 'A', 87, 'Beira-Rio', 55000],
+    ['atleticomg', 'Atlético-MG', 'Belo Horizonte', 'MG', 'A', 86, 'Mineirão', 75000],
+    ['santos', 'Santos', 'Santos', 'SP', 'A', 82, 'Vila Belmiro', 20000],
+    ['botafogo', 'Botafogo', 'Rio de Janeiro', 'RJ', 'A', 80, 'Maracanã', 100000],
+    ['bahia', 'Bahia', 'Salvador', 'BA', 'A', 78, 'Fonte Nova', 66000],
+    ['vitoria', 'Vitória', 'Salvador', 'BA', 'A', 76, 'Barradão', 30000],
+    ['portuguesa', 'Portuguesa', 'São Paulo', 'SP', 'A', 74, 'Canindé', 20000],
+    ['coritiba', 'Coritiba', 'Curitiba', 'PR', 'A', 72, 'Couto Pereira', 37000],
+    ['atleticopr', 'Atlético-PR', 'Curitiba', 'PR', 'A', 70, 'Joaquim Américo', 20000],
+    ['sport', 'Sport', 'Recife', 'PE', 'A', 68, 'Ilha do Retiro', 32000],
+    ['guarani', 'Guarani', 'Campinas', 'SP', 'A', 66, 'Brinco de Ouro', 29000],
+    ['parana', 'Paraná', 'Curitiba', 'PR', 'A', 62, 'Vila Capanema', 20000],
+    ['juventude', 'Juventude', 'Caxias do Sul', 'RS', 'A', 60, 'Alfredo Jaconi', 19000],
+    // ---------------- SÉRIE B ----------------
+    ['fluminense', 'Fluminense', 'Rio de Janeiro', 'RJ', 'B', 75, 'Maracanã', 100000],
+    ['ceara', 'Ceará', 'Fortaleza', 'CE', 'B', 66, 'Castelão', 60000],
+    ['fortaleza', 'Fortaleza', 'Fortaleza', 'CE', 'B', 65, 'Pici', 10000],
+    ['nautico', 'Náutico', 'Recife', 'PE', 'B', 64, 'Aflitos', 22000],
+    ['santacruz', 'Santa Cruz', 'Recife', 'PE', 'B', 63, 'Arruda', 60000],
+    ['goias', 'Goiás', 'Goiânia', 'GO', 'B', 63, 'Serra Dourada', 41000],
+    ['pontepreta', 'Ponte Preta', 'Campinas', 'SP', 'B', 62, 'Moisés Lucarelli', 30000],
+    ['remo', 'Remo', 'Belém', 'PA', 'B', 61, 'Baenão', 17000],
+    ['paysandu', 'Paysandu', 'Belém', 'PA', 'B', 60, 'Curuzu', 15000],
+    ['bragantino', 'Bragantino', 'Bragança Paulista', 'SP', 'B', 58, 'Nabi Abi Chedid', 17000],
+    ['avai', 'Avaí', 'Florianópolis', 'SC', 'B', 57, 'Ressacada', 17000],
+    ['criciuma', 'Criciúma', 'Criciúma', 'SC', 'B', 56, 'Heriberto Hülse', 19000],
+    ['americamg', 'América-MG', 'Belo Horizonte', 'MG', 'B', 55, 'Independência', 23000],
+    ['figueirense', 'Figueirense', 'Florianópolis', 'SC', 'B', 54, 'Orlando Scarpelli', 20000],
+    ['vilanova', 'Vila Nova', 'Goiânia', 'GO', 'B', 53, 'Onésio Brasileiro Alvarenga', 11000],
+    ['sampaio', 'Sampaio Corrêa', 'São Luís', 'MA', 'B', 52, 'Castelão-MA', 40000],
+    ['botafogosp', 'Botafogo-SP', 'Ribeirão Preto', 'SP', 'B', 50, 'Santa Cruz', 27000],
+    ['atleticogo', 'Atlético-GO', 'Goiânia', 'GO', 'B', 48, 'Antônio Accioly', 12000],
+    ['xv', 'XV de Piracicaba', 'Piracicaba', 'SP', 'B', 47, 'Barão de Serra Negra', 18000],
+    ['gama', 'Gama', 'Gama', 'DF', 'B', 45, 'Bezerrão', 20000],
+    // ---------------- SÉRIE C ----------------
+    ['joinville', 'Joinville', 'Joinville', 'SC', 'C', 46, 'Ernestão', 16000],
+    ['londrina', 'Londrina', 'Londrina', 'PR', 'C', 44, 'do Café', 32000],
+    ['csa', 'CSA', 'Maceió', 'AL', 'C', 43, 'Rei Pelé', 20000],
+    ['americarn', 'América-RN', 'Natal', 'RN', 'C', 42, 'Machadão', 40000],
+    ['crb', 'CRB', 'Maceió', 'AL', 'C', 42, 'Rei Pelé', 20000],
+    ['mogimirim', 'Mogi Mirim', 'Mogi Mirim', 'SP', 'C', 41, 'Vail Chaves', 19000],
+    ['saocaetano', 'São Caetano', 'São Caetano do Sul', 'SP', 'C', 40, 'Anacleto Campanella', 15000],
+    ['caxias', 'Caxias', 'Caxias do Sul', 'RS', 'C', 40, 'Centenário', 22000],
+    ['treze', 'Treze', 'Campina Grande', 'PB', 'C', 39, 'Amigão', 35000],
+    ['voltaredonda', 'Volta Redonda', 'Volta Redonda', 'RJ', 'C', 38, 'Raulino de Oliveira', 20000],
+    ['campinense', 'Campinense', 'Campina Grande', 'PB', 'C', 38, 'Renatão', 20000],
+    ['brasilpel', 'Brasil de Pelotas', 'Pelotas', 'RS', 'C', 38, 'Bento Freitas', 18000],
+    ['juventus', 'Juventus-SP', 'São Paulo', 'SP', 'C', 37, 'Rua Javari', 6000],
+    ['confianca', 'Confiança', 'Aracaju', 'SE', 'C', 37, 'Batistão', 15000],
+    ['americano', 'Americano', 'Campos', 'RJ', 'C', 36, 'Godofredo Cruz', 8000],
+    ['motoclub', 'Moto Club', 'São Luís', 'MA', 'C', 36, 'Nhozinho Santos', 15000],
+    ['santoandre', 'Santo André', 'Santo André', 'SP', 'C', 36, 'Bruno José Daniel', 16000],
+    ['operariosms', 'Operário-MS', 'Campo Grande', 'MS', 'C', 35, 'Morenão', 30000],
+    ['ituano', 'Ituano', 'Itu', 'SP', 'C', 35, 'Novelli Júnior', 18000],
+    ['central', 'Central', 'Caruaru', 'PE', 'C', 34, 'Lacerdão', 19000],
+    // ---------------- SÉRIE D — 10 melhores (NÃO selecionáveis no multiplayer) ----------------
+    ['tupi', 'Tupi', 'Juiz de Fora', 'MG', 'D', 30, 'Mário Helênio', 15000],
+    ['ypiranga', 'Ypiranga-RS', 'Erechim', 'RS', 'D', 29, 'Colosso da Lagoa', 22000],
+    ['villanova', 'Villa Nova-MG', 'Nova Lima', 'MG', 'D', 28, 'Castor Cifuentes', 9000],
+    ['ferroviario', 'Ferroviário', 'Fortaleza', 'CE', 'D', 27, 'Elzir Cabral', 12000],
+    ['nacionalam', 'Nacional-AM', 'Manaus', 'AM', 'D', 26, 'Vivaldão', 43000],
+    ['anapolis', 'Anápolis', 'Anápolis', 'GO', 'D', 26, 'Jonas Duarte', 17000],
+    ['comercialms', 'Comercial-MS', 'Campo Grande', 'MS', 'D', 25, 'Jacques da Luz', 8000],
+    ['riobrancoac', 'Rio Branco-AC', 'Rio Branco', 'AC', 'D', 24, 'José de Melo', 12000],
+    ['operariovg', 'Operário-VG', 'Várzea Grande', 'MT', 'D', 24, 'Louro Veloso', 8000],
+    ['itabaiana', 'Itabaiana', 'Itabaiana', 'SE', 'D', 23, 'Mendonção', 12000],
+    // ---------------- SÉRIE D — 10 piores (SELECIONÁVEIS: sorteio dos jogadores humanos) ----------------
+    ['bangu', 'Bangu', 'Rio de Janeiro', 'RJ', 'D', 20, 'Moça Bonita', 17000],
+    ['madureira', 'Madureira', 'Rio de Janeiro', 'RJ', 'D', 17, 'Conselheiro Galvão', 10000],
+    ['marilia', 'Marília', 'Marília', 'SP', 'D', 15, 'Bento de Abreu', 19000],
+    ['olaria', 'Olaria', 'Rio de Janeiro', 'RJ', 'D', 14, 'Bariri', 8000],
+    ['sertaozinho', 'Sertãozinho', 'Sertãozinho', 'SP', 'D', 13, 'Frederico Dalmaso', 8000],
+    ['riobrancoes', 'Rio Branco-ES', 'Vitória', 'ES', 'D', 12, 'Engenheiro Araripe', 5000],
+    ['tunaluso', 'Tuna Luso', 'Belém', 'PA', 'D', 11, 'Soares de Carvalho', 5000],
+    ['colatina', 'Colatina', 'Colatina', 'ES', 'D', 10, 'Justiniano de Melo', 5000],
+    ['ceilandia', 'Ceilândia', 'Ceilândia', 'DF', 'D', 9, 'Abadião', 6000],
+    ['guaranybage', 'Guarany de Bagé', 'Bagé', 'RS', 'D', 8, 'Carlos Salzano', 10000],
+  ];
+
+  // Parâmetros econômicos por divisão (R$ de 1998; R$1 ≈ US$1). ESTIMATIVAS — ver docs/GDD.md §7.
+  const DIV = {
+    A: { caixaBase: 10_000_000, ingresso: 15, demandaK: 1.0, tv: 3_000_000 },
+    B: { caixaBase: 2_500_000, ingresso: 9, demandaK: 0.55, tv: 800_000 },
+    C: { caixaBase: 700_000, ingresso: 6, demandaK: 0.45, tv: 250_000 },
+    D: { caixaBase: 150_000, ingresso: 4, demandaK: 0.55, tv: 80_000 },
+  };
+
+  const clubs = R.map((r, i) => {
+    const [id, nome, cidade, uf, div, prestigio, estadio, capacidade] = r;
+    const d = DIV[div];
+    return {
+      id, nome, cidade, uf, div, prestigio,
+      estadio: { nome: estadio, capacidade, nivel: 0 },
+      // demanda média de público (pessoas/jogo) — cresce com prestígio^1.55
+      demanda: Math.round(25 * Math.pow(prestigio, 1.55) * d.demandaK),
+      caixa: Math.round(d.caixaBase * (0.4 + prestigio / 100 * 1.2) / 1000) * 1000,
+      precoIngresso: d.ingresso,
+      // dos 20 clubes da Série D, os 10 últimos da lista são os sorteáveis no multiplayer
+      selecionavel: div === 'D' && i >= R.length - 10,
+    };
+  });
+
+  const bf = (root.BF98 = root.BF98 || {});
+  bf.CLUBS = clubs;
+  bf.DIVISOES = DIV;
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+
+;
+// Patrocinadores FICTÍCIOS. Regras: máx. 2 por clube, nunca 2 da mesma categoria.
+// valor = R$ por temporada para um clube de prestígio 100 na Série A; o valor real é
+// valor * fatorClube (ver engine/economy.js). minPrestigio = prestígio mínimo do clube para aceitar.
+(function (root) {
+  const CATEGORIAS = {
+    refrigerante: 'Refrigerantes', cerveja: 'Cervejas', banco: 'Bancos', varejo: 'Lojas / Varejo',
+    material: 'Material de construção', esporte: 'Material esportivo', telecom: 'Telefonia',
+    alimento: 'Alimentos', automovel: 'Automóveis', energia: 'Energia / Combustíveis',
+    saude: 'Planos de saúde', comunicacao: 'Rádio / TV / Jornais',
+  };
+  // [id, nome, categoria, valorBase, minPrestigio]
+  const S = [
+    ['guaranapampa', 'Guaraná Pampa', 'refrigerante', 6_000_000, 40], ['colinha', 'Cola Colinha', 'refrigerante', 5_000_000, 0],
+    ['fizzbr', 'Fizz Brasil', 'refrigerante', 2_000_000, 0],
+    ['cervejapilar', 'Cerveja Pilar', 'cerveja', 7_000_000, 55], ['brahmanova', 'Nova Lager', 'cerveja', 4_500_000, 20],
+    ['bancosertao', 'Banco do Sertão', 'banco', 8_000_000, 60], ['credimais', 'Credimais', 'banco', 3_000_000, 15],
+    ['caixaunida', 'Caixa Unida', 'banco', 1_200_000, 0],
+    ['lojasbarateira', 'Lojas Barateira', 'varejo', 4_000_000, 25], ['magazineaurora', 'Magazine Aurora', 'varejo', 5_500_000, 45],
+    ['casabahiana', 'Casa Popular', 'varejo', 1_500_000, 0],
+    ['cimentoforte', 'Cimento Forte', 'material', 3_500_000, 20], ['tijolaco', 'Tijolaço Materiais', 'material', 1_200_000, 0],
+    ['tintasarco', 'Tintas Arco-Íris', 'material', 2_200_000, 10],
+    ['atletaplus', 'Atleta Plus', 'esporte', 7_500_000, 65], ['golaco', 'Golaço Sports', 'esporte', 3_000_000, 15],
+    ['chuteirabr', 'Chuteira Brasil', 'esporte', 900_000, 0],
+    ['telebrasa', 'TeleBrasa', 'telecom', 6_500_000, 50], ['conectacel', 'Conecta Celular', 'telecom', 2_800_000, 15],
+    ['macarraomassa', 'Massa Nonna', 'alimento', 2_500_000, 10], ['frangoleve', 'Frango Leve', 'alimento', 1_800_000, 0],
+    ['biscoitinho', 'Biscoitos Dona Lia', 'alimento', 800_000, 0],
+    ['motorvia', 'Motorvia Veículos', 'automovel', 5_000_000, 45], ['autojet', 'AutoJet Concessionária', 'automovel', 1_400_000, 0],
+    ['petrosul', 'PetroSul', 'energia', 6_000_000, 55], ['postoestrela', 'Postos Estrela', 'energia', 1_000_000, 0],
+    ['vidasaude', 'Vida Saúde', 'saude', 4_000_000, 35], ['clinicamais', 'Clínica Mais', 'saude', 900_000, 0],
+    ['radioalvorada', 'Rádio Alvorada', 'comunicacao', 1_500_000, 0], ['jornaldodia', 'Jornal do Dia', 'comunicacao', 2_000_000, 10],
+  ];
+  const sponsors = S.map(([id, nome, categoria, valorBase, minPrestigio]) => ({ id, nome, categoria, valorBase, minPrestigio }));
+  const bf = (root.BF98 = root.BF98 || {});
+  bf.SPONSORS = sponsors;
+  bf.SPONSOR_CATEGORIAS = CATEGORIAS;
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+
+;
+// Clubes sul-americanos da Libertadores 1998 (20 na fase de grupos: 2 por país x 10 países,
+// o México era convidado). Fonte: Wikipédia/RSSSF (ver docs/GDD.md). "ovr" = força média do time (0-99), estimada.
+// O 2º clube peruano não foi confirmado na pesquisa (marcado ?). Aqui entra como Sporting Cristal.
+(function (root) {
+  const F = [
+    ['river', 'River Plate', 'ARG', 80], ['colon', 'Colón', 'ARG', 62], ['boca', 'Boca Juniors', 'ARG', 80],
+    ['bolivar', 'Bolívar', 'BOL', 52], ['oriente', 'Oriente Petrolero', 'BOL', 48],
+    ['colocolo', 'Colo-Colo', 'CHI', 66], ['ucatolica', 'Universidad Católica', 'CHI', 62],
+    ['americacali', 'América de Cali', 'COL', 66], ['bucaramanga', 'Atlético Bucaramanga', 'COL', 56],
+    ['barcelonaecu', 'Barcelona de Guayaquil', 'EQU', 62], ['dquito', 'Deportivo Quito', 'EQU', 54],
+    ['olimpia', 'Olimpia', 'PAR', 64], ['cerro', 'Cerro Porteño', 'PAR', 62],
+    ['alianza', 'Alianza Lima', 'PER', 56], ['cristal', 'Sporting Cristal (?)', 'PER', 56],
+    ['penarol', 'Peñarol', 'URU', 68], ['nacionaluru', 'Nacional', 'URU', 68],
+    ['guadalajara', 'Guadalajara', 'MEX', 64], ['americamex', 'América (MEX)', 'MEX', 64],
+  ];
+  (root.BF98 = root.BF98 || {}).FOREIGN = F.map(([id, nome, pais, ovr]) => ({ id, nome, pais, ovr }));
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+
+;
+// Jogadores: atributos, overall por posição, penalidade fora de posição e gerador de elencos.
+(function (root) {
+  const bf = (root.BF98 = root.BF98 || {});
+  const ATTRS = ['RIT', 'CHU', 'PAS', 'DRI', 'DEF', 'FIS'];
+  // pesos por posição, na ordem RIT CHU PAS DRI DEF FIS (somam 1)
+  const PESOS = {
+    GOL: [.05, 0, .10, .15, .55, .15], ZAG: [.05, 0, .08, .07, .55, .25], LIB: [.05, 0, .20, .10, .45, .20],
+    LD: [.20, .03, .15, .12, .35, .15], LE: [.20, .03, .15, .12, .35, .15],
+    VOL: [.07, .05, .18, .10, .40, .20], MC: [.07, .10, .30, .20, .20, .13], MEI: [.08, .18, .30, .30, .05, .09],
+    ALA: [.20, .08, .20, .20, .20, .12], PD: [.28, .17, .15, .30, 0, .10], PE: [.28, .17, .15, .30, 0, .10],
+    CA: [.12, .42, .07, .14, 0, .25], SA: [.18, .32, .15, .28, 0, .07],
+  };
+  const GRUPO = { GOL: 'G', ZAG: 'D', LIB: 'D', LD: 'D', LE: 'D', VOL: 'M', MC: 'M', MEI: 'M', ALA: 'M', PD: 'A', PE: 'A', CA: 'A', SA: 'A' };
+  const PARES = { // afinidade especial (simétrica)
+    'ZAG-LIB': .97, 'LD-LE': .93, 'LD-ALA': .92, 'LE-ALA': .92, 'VOL-MC': .95, 'MC-MEI': .95, 'VOL-LIB': .9,
+    'PD-PE': .93, 'CA-SA': .95, 'MEI-SA': .9, 'PD-ALA': .9, 'PE-ALA': .9, 'MC-ALA': .92, 'ZAG-VOL': .88, 'LD-ZAG': .85, 'LE-ZAG': .85,
+  };
+  function afinidade(natural, slot) {
+    if (natural === slot) return 1;
+    const k = PARES[natural + '-' + slot] || PARES[slot + '-' + natural];
+    if (k) return k;
+    const g1 = GRUPO[natural], g2 = GRUPO[slot];
+    if (g1 === 'G') return 0.35;      // goleiro de linha é desastre
+    if (g2 === 'G') return 0.25;      // jogador de linha no gol, pior ainda
+    if (g1 === g2) return 0.88;
+    const ordem = 'DMA';
+    return Math.abs(ordem.indexOf(g1) - ordem.indexOf(g2)) === 1 ? 0.78 : 0.65;
+  }
+  function overallEm(p, pos) {
+    const w = PESOS[pos]; let s = 0;
+    for (let i = 0; i < 6; i++) s += p.attr[ATTRS[i]] * w[i];
+    return s;
+  }
+  const overall = (p) => overallEm(p, p.pos);
+  // ovr efetivo naquele slot (já com penalidade de posição, sem stamina/moral)
+  const ovrNoSlot = (p, slot) => overallEm(p, slot) * afinidade(p.pos, slot);
+
+  // deslocamento do atributo por posição (dá "cara" ao jogador)
+  const PERFIL = {
+    GOL: [-12, -30, -5, 0, 14, 4], ZAG: [-6, -15, -4, -10, 12, 8], LIB: [-5, -12, 4, -4, 10, 4],
+    LD: [8, -8, 0, 0, 5, 2], LE: [8, -8, 0, 0, 5, 2], VOL: [-4, -6, 2, -4, 10, 6],
+    MC: [0, -2, 8, 3, 0, 0], MEI: [0, 4, 10, 10, -14, -8], ALA: [8, -2, 2, 3, 0, 0],
+    PD: [10, 0, 0, 8, -20, -6], PE: [10, 0, 0, 8, -20, -6], CA: [0, 12, -6, 0, -22, 8], SA: [4, 8, 4, 8, -22, -8],
+  };
+  const DISCIPLINAS = ['Fair player', 'De boa', 'Equilibrado', 'Porradeiro', 'Macetador'];
+  // multiplicador de faltas e de cartões por disciplina
+  const DISC_FALTA = [0.55, 0.85, 1.0, 1.3, 1.7];
+  const DISC_CARTAO = [0.4, 0.8, 1.0, 1.6, 2.4];
+
+  const NOMES = ['Adriano', 'Alex', 'André', 'Anderson', 'Antônio', 'Bruno', 'Carlos', 'Cláudio', 'Cleber', 'Daniel', 'Diego', 'Edu', 'Edson', 'Eduardo', 'Fábio', 'Fernando', 'Flávio', 'Gilmar', 'Gustavo', 'Helton', 'Ivan', 'Jair', 'João', 'Jorge', 'José', 'Júlio', 'Leandro', 'Leonardo', 'Lúcio', 'Luís', 'Marcelo', 'Márcio', 'Marcos', 'Mauro', 'Nélio', 'Neto', 'Paulo', 'Pedro', 'Rafael', 'Reinaldo', 'Renato', 'Ricardo', 'Roberto', 'Rodrigo', 'Ronaldo', 'Sérgio', 'Thiago', 'Valdir', 'Wagner', 'Wellington'];
+  const SOBRENOMES = ['Silva', 'Santos', 'Oliveira', 'Souza', 'Pereira', 'Costa', 'Rodrigues', 'Almeida', 'Nascimento', 'Lima', 'Araújo', 'Ribeiro', 'Carvalho', 'Gomes', 'Martins', 'Barbosa', 'Rocha', 'Dias', 'Moreira', 'Cardoso', 'Teixeira', 'Mendes', 'Freitas', 'Pinto', 'Batista', 'Moura', 'Campos', 'Cunha', 'Monteiro', 'Nunes'];
+
+  // composição de um elenco de 24
+  const ELENCO = ['GOL', 'GOL', 'GOL', 'ZAG', 'ZAG', 'ZAG', 'ZAG', 'LD', 'LD', 'LE', 'LE', 'VOL', 'VOL', 'VOL', 'MC', 'MC', 'MEI', 'MEI', 'PD', 'PE', 'CA', 'CA', 'CA', 'SA'];
+
+  const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+
+  function gerarJogador(rng, pos, alvo, idade) {
+    const attr = {};
+    ATTRS.forEach((a, i) => { attr[a] = clamp(Math.round(alvo + PERFIL[pos][i] + rng.gauss() * 4.5), 5, 97); });
+    const p = {
+      id: 'p' + Math.floor(rng.next() * 1e9).toString(36), nome: rng.pick(NOMES) + ' ' + rng.pick(SOBRENOMES),
+      pos, idade, attr, xp: { RIT: 0, CHU: 0, PAS: 0, DRI: 0, DEF: 0, FIS: 0 },
+      disciplina: rng.weighted([0, 1, 2, 3, 4], (d) => [10, 25, 35, 20, 10][d] * ((GRUPO[pos] === 'D' || pos === 'VOL') && d >= 3 ? 1.4 : 1)),
+      stamina: rng.int(88, 100), moral: rng.int(48, 72), lesao: 0, contrato: rng.int(1, 3), // temporadas restantes
+      gols: 0, jogos: 0,
+    };
+    // ajusta o nível geral: corrige para que o overall caia perto do alvo
+    const diff = alvo - overall(p);
+    ATTRS.forEach((a) => { p.attr[a] = clamp(Math.round(p.attr[a] + diff), 5, 97); });
+    return p;
+  }
+
+  // prestigio -> nível médio do elenco: 36 + 0.36 * prestígio  (97 -> 71 ; 8 -> 39)
+  const nivelDoClube = (prestigio) => 36 + prestigio * 0.36;
+
+  function gerarElenco(rng, clube) {
+    const base = nivelDoClube(clube.prestigio);
+    // elenco "pirâmide": titulares melhores que reservas
+    return ELENCO.map((pos, i) => {
+      const titular = i < 14 ? 3 + rng.next() * 5 : -(2 + rng.next() * 6);
+      const idade = clamp(Math.round(26 + rng.gauss() * 4.2), 17, 37);
+      const bonusIdade = idade <= 20 ? -3 : 0; // garotos ainda verdes
+      return gerarJogador(rng, pos, base + titular + bonusIdade, idade);
+    });
+  }
+
+  bf.Players = { ATTRS, PESOS, GRUPO, DISCIPLINAS, DISC_FALTA, DISC_CARTAO, afinidade, overall, overallEm, ovrNoSlot, gerarElenco, gerarJogador, nivelDoClube, clamp };
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+
+;
+// Motor de partida: 90 minutos simulados minuto a minuto; só o placar/eventos são exibidos ao jogador.
+// Cada jogador entra com a nota (0-10) calculada a partir do que fez em campo.
+(function (root) {
+  const bf = (root.BF98 = root.BF98 || {});
+  const P = () => bf.Players;
+
+  // slots de cada formação (11 posições)
+  const FORMACOES = {
+    '4-4-2': ['GOL', 'LD', 'ZAG', 'ZAG', 'LE', 'VOL', 'MC', 'ALA', 'ALA', 'CA', 'SA'],
+    '4-3-3': ['GOL', 'LD', 'ZAG', 'ZAG', 'LE', 'VOL', 'MC', 'MEI', 'PD', 'CA', 'PE'],
+    '3-5-2': ['GOL', 'ZAG', 'ZAG', 'LIB', 'ALA', 'VOL', 'VOL', 'MEI', 'ALA', 'CA', 'SA'],
+    '4-5-1': ['GOL', 'LD', 'ZAG', 'ZAG', 'LE', 'VOL', 'VOL', 'MC', 'MEI', 'ALA', 'CA'],
+  };
+  // tática: ofensivo/equilibrado/defensivo
+  const TATICA = {
+    ofensivo: { atk: 1.06, def: 0.94, tempo: 1.10, faltas: 1.10 },
+    equilibrado: { atk: 1.0, def: 1.0, tempo: 1.0, faltas: 1.0 },
+    defensivo: { atk: 0.94, def: 1.06, tempo: 0.90, faltas: 1.0 },
+  };
+  const CFG = {
+    ataquesPorMinuto: 0.52, mandante: 1.07, expoControle: 2.2,
+    maxSubs: 3,            // 1998: 3 substituições (configurável para 5 no modo "moderno")
+    staminaMin: 0.70,      // multiplicador de força com stamina 0 (1.00 com stamina 100)
+    faltaBase: 0.125, amareloPorFalta: 0.105, vermelhoDireto: 0.0005, lesaoPorJogadorMin: 0.00012,
+  };
+
+  const mStam = (s) => CFG.staminaMin + (1 - CFG.staminaMin) * (s / 100);
+  const mMoral = (m) => 0.95 + 0.10 * (m / 100);
+  const forca = (j) => j.base * mStam(j.p.stamina) * mMoral(j.p.moral);
+
+  // time = { nome, elenco[], formacao, tatica, titulares[ids em ordem dos slots], banco[ids], mando:boolean }
+  function montar(time, rng) {
+    const slots = FORMACOES[time.formacao];
+    const porId = new Map(time.elenco.map((p) => [p.id, p]));
+    const campo = time.titulares.map((id, i) => {
+      const p = porId.get(id);
+      return novo(p, slots[i]);
+    });
+    return { time, slots, campo, banco: time.banco.map((id) => porId.get(id)), subs: 0, maxSubs: time.maxSubs || CFG.maxSubs, todos: new Map(campo.map((j) => [j.p.id, j])), gols: 0, rng };
+  }
+  function novo(p, slot) {
+    return { p, slot, base: P().ovrNoSlot(p, slot), nota: 6.0, g: 0, ast: 0, desarmes: 0, passes: 0, defesas: 0, faltas: 0, amarelos: 0, expulso: false, lesionado: false, minutos: 0, entrou: 0, saiu: null };
+  }
+
+  function forcas(side, adv) {
+    const t = TATICA[side.time.tatica];
+    const fd = side.formaDia === undefined ? (side.formaDia = 1 + side.rng.gauss() * 0.03) : side.formaDia; // 'dia inspirado' ±3%
+    const por = { G: [], D: [], M: [], A: [] };
+    side.campo.forEach((j) => por[P().GRUPO[j.slot]].push(forca(j)));
+    const avg = (a) => a.length ? a.reduce((x, y) => x + y, 0) / a.length : 30;
+    // faltando jogadores (expulsão) diminui a média de forma natural: soma/11 em vez de média
+    const n = side.campo.length / 11;
+    const ataque = (0.60 * avg(por.A) + 0.30 * avg(por.M) + 0.10 * avg(por.D)) * t.atk * n * fd;
+    const defesa = (0.45 * avg(por.D) + 0.25 * avg(por.M) + 0.30 * avg(por.G)) * t.def * n * fd;
+    const controle = (0.60 * avg(por.M) + 0.20 * avg(por.A) + 0.20 * avg(por.D)) * n;
+    const gk = por.G.length ? por.G[0] : 20;
+    return { ataque, defesa, controle: controle * (side.time.mando ? CFG.mandante : 1), gk, t };
+  }
+
+  function sorteia(side, rng, grupos, peso) {
+    const c = side.campo.filter((j) => grupos.includes(P().GRUPO[j.slot]));
+    return rng.weighted(c.length ? c : side.campo, peso);
+  }
+
+  function simular(timeCasa, timeFora, rng, opts = {}) {
+    const S = [montar(timeCasa, rng), montar(timeFora, rng)];
+    S[0].time.mando = true; S[1].time.mando = false;
+    const eventos = [];
+    let F = [forcas(S[0]), forcas(S[1])];
+    const ctrl = () => { const a = Math.pow(F[0].controle, CFG.expoControle), b = Math.pow(F[1].controle, CFG.expoControle); return a / (a + b); };
+    const stats = [{ chutes: 0, no_gol: 0, faltas: 0, amarelos: 0, vermelhos: 0, posse: 0 }, { chutes: 0, no_gol: 0, faltas: 0, amarelos: 0, vermelhos: 0, posse: 0 }];
+    const ev = (min, tipo, lado, jog, extra) => eventos.push({ min, tipo, lado, jogador: jog && jog.p.nome, ...extra });
+
+    for (let min = 1; min <= 90; min++) {
+      // IA/jogador pode intervir no intervalo (min 45) via opts.intervalo(S, eventos)
+      if (min === 46 && opts.intervalo) { opts.intervalo(S, stats, eventos); F = [forcas(S[0]), forcas(S[1])]; }
+      if (min % 5 === 0) F = [forcas(S[0]), forcas(S[1])];
+      // cansaço: perda por minuto depende do atributo FIS (FIS 99 ≈ -13 por jogo; FIS 30 ≈ -26)
+      for (const s of S) for (const j of s.campo) {
+        j.minutos++;
+        const perda = (26 - j.p.attr.FIS * 0.13) / 90 * (s.time.tatica === 'ofensivo' ? 1.1 : s.time.tatica === 'defensivo' ? 0.95 : 1);
+        j.p.stamina = Math.max(0, j.p.stamina - perda);
+        if (rng.chance(CFG.lesaoPorJogadorMin * (1.4 - j.p.attr.FIS / 200)) && !j.lesionado) {
+          j.lesionado = true; j.p.lesao = rng.int(1, 8); j.p.stamina = Math.min(j.p.stamina, 15);
+          ev(min, 'lesao', S.indexOf(s), j);
+          trocarForcado(s, j, min, rng, ev, S.indexOf(s));
+          F = [forcas(S[0]), forcas(S[1])];
+        }
+      }
+      // quem tem a bola neste minuto?
+      const pc = ctrl();
+      const nAtaques = rng.chance(CFG.ataquesPorMinuto) ? 1 : 0;
+      stats[0].posse += pc; stats[1].posse += 1 - pc;
+      if (nAtaques) {
+        const peso0 = pc * F[0].t.tempo, peso1 = (1 - pc) * F[1].t.tempo;
+        const a = rng.chance(peso0 / (peso0 + peso1)) ? 0 : 1, d = 1 - a;
+        const A = S[a], D = S[d];
+        const pChute = P().clamp(0.48 + (F[a].ataque - F[d].defesa) * 0.0065, 0.22, 0.75);
+        // passe/assistência
+        const passador = sorteia(A, rng, ['M', 'A', 'D'], (j) => j.p.attr.PAS * (P().GRUPO[j.slot] === 'M' ? 2 : 1));
+        passador.passes++;
+        if (rng.chance(pChute)) {
+          const atk = sorteia(A, rng, ['A', 'M', 'D'], (j) => Math.pow(j.p.attr.CHU, 2) * { A: 4, M: 1.5, D: 0.25 }[P().GRUPO[j.slot]]);
+          stats[a].chutes++;
+          const eff = atk.p.attr.CHU * mStam(atk.p.stamina) * mMoral(atk.p.moral);
+          const gkj = D.campo.find((j) => j.slot === 'GOL');
+          const gkEff = gkj ? gkj.p.attr.DEF * 0.6 * mStam(gkj.p.stamina) * mMoral(gkj.p.moral) + gkj.base * 0.4 : 20;
+          const noGol = rng.chance(P().clamp(0.38 + (eff - 50) * 0.004, 0.2, 0.62));
+          if (noGol) stats[a].no_gol++;
+          const pGol = P().clamp(0.36 + (eff - gkEff) * 0.0032, 0.14, 0.58);
+          if (noGol && rng.chance(pGol)) {
+            A.gols++; atk.g++; atk.p.gols++;
+            let ass = null;
+            if (passador !== atk && rng.chance(0.65)) { passador.ast++; ass = passador; }
+            ev(min, 'gol', a, atk, { assist: ass && ass.p.nome, placar: [S[0].gols, S[1].gols] });
+          } else if (noGol && gkj) { gkj.defesas++; }
+        } else {
+          const des = sorteia(D, rng, ['D', 'M'], (j) => j.p.attr.DEF * (P().GRUPO[j.slot] === 'D' ? 2 : 1));
+          des.desarmes++;
+        }
+      }
+      // faltas (cometidas pelo time sem a bola, de preferência)
+      if (rng.chance(CFG.faltaBase * 2)) {
+        const lado = rng.chance(0.5 + (0.5 - ctrl()) * 0.3) ? 0 : 1; // quem tem menos a bola faz mais falta
+        const S1 = S[lado];
+        const fj = rng.weighted(S1.campo, (j) => P().DISC_FALTA[j.p.disciplina] * (P().GRUPO[j.slot] === 'A' ? 0.6 : 1) * (1.2 - j.p.attr.DEF / 300));
+        fj.faltas++; stats[lado].faltas++;
+        const pc = CFG.amareloPorFalta * P().DISC_CARTAO[fj.p.disciplina] * (fj.amarelos ? 0.6 : 1); // quem já tem amarelo pega leve
+        if (rng.chance(CFG.vermelhoDireto * P().DISC_CARTAO[fj.p.disciplina])) { expulsar(S1, fj, min, ev, lado, stats, 'vermelho'); F = [forcas(S[0]), forcas(S[1])]; }
+        else if (rng.chance(pc)) {
+          fj.amarelos++; stats[lado].amarelos++;
+          ev(min, 'amarelo', lado, fj);
+          if (fj.amarelos >= 2) { expulsar(S1, fj, min, ev, lado, stats, 'vermelho (2º amarelo)'); F = [forcas(S[0]), forcas(S[1])]; }
+        }
+      }
+    }
+    // notas
+    const placar = [S[0].gols, S[1].gols];
+    const jogs = [];
+    S.forEach((s, i) => { for (const j of s.todos.values()) { j.nota = calcNota(j, i, placar); jogs.push(j); } });
+    return { placar, eventos, stats: stats.map((x) => ({ ...x, posse: Math.round(x.posse / 90 * 100) })), lados: S };
+  }
+
+  function expulsar(s, j, min, ev, lado, stats, motivo) {
+    j.expulso = true; stats[lado].vermelhos++; ev(min, 'vermelho', lado, j, { motivo });
+    s.campo = s.campo.filter((x) => x !== j); j.saiu = min;
+  }
+  function trocarForcado(s, j, min, rng, ev, lado) {
+    const ok = s.subs < s.maxSubs ? s.banco.filter((b) => b.lesao === 0 && b.stamina > 50) : [];
+    if (ok.length) {
+      // escolhe o reserva de maior encaixe no slot
+      const novoP = ok.sort((a, b) => P().ovrNoSlot(b, j.slot) - P().ovrNoSlot(a, j.slot))[0];
+      s.banco = s.banco.filter((b) => b !== novoP); s.subs++;
+      const nj = novo(novoP, j.slot); nj.entrou = min; s.todos.set(novoP.id, nj);
+      s.campo[s.campo.indexOf(j)] = nj; j.saiu = min;
+      ev(min, 'substituicao', lado, nj, { saiu: j.p.nome, motivo: 'lesão' });
+    } else { s.campo = s.campo.filter((x) => x !== j); j.saiu = min; } // joga com 10
+  }
+
+  // Nota 0-10 (1 casa). Base 6.0; eventos somam/subtraem. Tempo jogado reduz o peso (quem entra aos 80' tende a 6.0).
+  function calcNota(j, lado, placar) {
+    const meu = placar[lado], adv = placar[1 - lado];
+    const g = P().GRUPO[j.slot];
+    let n = 6.0;
+    n += 1.1 * j.g + 0.7 * j.ast;
+    n += 0.18 * j.desarmes * (g === 'A' ? 1.3 : 1) + 0.035 * j.passes + (j.slot === 'GOL' ? 0.35 * j.defesas : 0);
+    n -= 0.12 * j.faltas + 0.5 * (j.amarelos > 0 ? 1 : 0) + (j.expulso ? 2.0 : 0);
+    n += meu > adv ? 0.4 : meu < adv ? -0.4 : 0;
+    if (adv === 0 && (g === 'D' || g === 'G')) n += 0.5;
+    if (adv >= 3 && (g === 'D' || g === 'G')) n -= 0.5 + 0.2 * (adv - 3);
+    if (meu === 0 && g === 'A') n -= 0.3;
+    const peso = Math.min(1, j.minutos / 70);
+    n = 6.0 + (n - 6.0) * (0.35 + 0.65 * peso);
+    return Math.round(P().clamp(n, 0, 10) * 10) / 10;
+  }
+
+  // Substituição manual (intervalo ou pausa). Respeita o limite de trocas do time (3 em 1998; 5 no modo moderno).
+  function substituir(side, saiId, entraId, min) {
+    if (side.subs >= side.maxSubs) return { ok: false, motivo: 'Limite de ' + side.maxSubs + ' substituições atingido' };
+    const sai = side.campo.find((j) => j.p.id === saiId);
+    const entra = side.banco.find((p) => p.id === entraId);
+    if (!sai) return { ok: false, motivo: 'Jogador não está em campo' };
+    if (!entra) return { ok: false, motivo: 'Jogador não está no banco' };
+    if (entra.lesao > 0) return { ok: false, motivo: 'Jogador lesionado' };
+    const nj = novo(entra, sai.slot); nj.entrou = min;
+    side.banco = side.banco.filter((b) => b !== entra); side.subs++;
+    side.todos.set(entra.id, nj); side.campo[side.campo.indexOf(sai)] = nj; sai.saiu = min;
+    return { ok: true };
+  }
+
+  bf.Match = { FORMACOES, TATICA, CFG, simular, calcNota, substituir };
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+
+;
+// Economia: valor de mercado, salário, bilheteria, estádio e patrocínio. Valores em R$ de 1998.
+(function (root) {
+  const bf = (root.BF98 = root.BF98 || {});
+  const P = () => bf.Players;
+  const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+
+  // valor: ovr 40 -> ~15 mil | 55 -> ~120 mil | 65 -> ~500 mil | 75 -> ~2 mi | 85 -> ~8 mi | 95 -> ~33 mi
+  function fatorIdade(i) { return i <= 20 ? 1.35 : i <= 23 ? 1.2 : i <= 27 ? 1.0 : i <= 30 ? 0.8 : i <= 33 ? 0.5 : 0.3; }
+  function valorMercado(p) {
+    const ovr = P().overall(p);
+    const v = 15000 * Math.exp((ovr - 40) * 0.14) * fatorIdade(p.idade);
+    return Math.round(v / 1000) * 1000;
+  }
+  // salário mensal: 1,2% do valor, piso R$ 500 (13 pagamentos/ano)
+  function salario(p) { return Math.max(500, Math.round(valorMercado(p) * 0.012 / 100) * 100); }
+  // custos fixos anuais (staff, manutenção, viagens, arbitragem): R$/temporada
+  const CUSTO_FIXO = { A: 3_500_000, B: 600_000, C: 150_000, D: 30_000 };
+  const folhaMensal = (elenco) => elenco.reduce((s, p) => s + salario(p), 0);
+
+  // público: demanda do clube * forma recente * preço; limitado pela capacidade
+  // forma: -1..+1 (últimos 5 jogos). rival: 1.0 normal, 1.25 clássico.
+  function publico(clube, forma = 0, rival = 1, precoRelativo = 1) {
+    const d = clube.demanda * (1 + 0.35 * forma) * rival * Math.pow(precoRelativo, -0.8);
+    return Math.round(clamp(d, clube.estadio.capacidade * 0.03, clube.estadio.capacidade));
+  }
+  const rendaJogo = (clube, ...a) => publico(clube, ...a) * clube.precoIngresso * 0.85; // 15% de custos de jogo/imposto
+
+  // ampliar estádio: +N lugares custa R$ 400 por lugar (obra de 1998), nível máx. 5 (+60%)
+  const CUSTO_LUGAR = 400;
+  function ampliar(clube, lugares) {
+    const custo = lugares * CUSTO_LUGAR;
+    if (clube.caixa < custo) return { ok: false, custo };
+    clube.caixa -= custo; clube.estadio.capacidade += lugares; clube.estadio.nivel++;
+    return { ok: true, custo };
+  }
+
+  // patrocínio: valor = valorBase * fator(prestígio, divisão). Série D paga ~1-2% do que paga a A.
+  const FATOR_DIV = { A: 1, B: 0.25, C: 0.08, D: 0.025 };
+  function valorPatrocinio(spons, clube) {
+    if (clube.prestigio < spons.minPrestigio) return 0;
+    const f = FATOR_DIV[clube.div] * (0.3 + clube.prestigio / 100 * 0.9);
+    return Math.round(spons.valorBase * f / 1000) * 1000;
+  }
+  // valida contratação: máx. 2 e sem repetir categoria
+  function podePatrocinar(clube, spons) {
+    const atuais = clube.patrocinadores || [];
+    if (atuais.length >= 2) return { ok: false, motivo: 'Clube já tem 2 patrocinadores' };
+    if (atuais.some((s) => s.categoria === spons.categoria)) return { ok: false, motivo: 'Já existe patrocinador da categoria ' + spons.categoria };
+    if (clube.prestigio < spons.minPrestigio) return { ok: false, motivo: 'Clube pequeno demais para este patrocinador' };
+    return { ok: true };
+  }
+  // chance de aceitar a proposta: cresce com desempenho (posição na tabela 0..1, 1=líder)
+  const chanceAceite = (clube, spons, desempenho) => clamp(0.25 + 0.5 * desempenho + (clube.prestigio - spons.minPrestigio) / 200, 0.05, 0.95);
+
+  bf.Economy = { valorMercado, salario, folhaMensal, publico, rendaJogo, ampliar, valorPatrocinio, podePatrocinar, chanceAceite, CUSTO_FIXO, FATOR_DIV, CUSTO_LUGAR };
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+
+;
+// Evolução pós-jogo: nota + moral + idade => pontos de experiência por atributo; fadiga e recuperação.
+(function (root) {
+  const bf = (root.BF98 = root.BF98 || {});
+  const P = () => bf.Players;
+  const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+
+  // Quanto o atributo tende a evoluir, por idade (multiplicador de ganho / chance de queda)
+  const ganhoIdade = (i) => i <= 19 ? 1.6 : i <= 22 ? 1.3 : i <= 26 ? 1.0 : i <= 29 ? 0.5 : i <= 32 ? 0.2 : 0.05;
+  // atributos que a posição usa mais (recebem a maior parte do xp)
+  function focoDoJogo(j) {
+    const f = { RIT: 0.1, CHU: 0, PAS: 0, DRI: 0.1, DEF: 0, FIS: 0.1 };
+    f.CHU += 0.6 * j.g + (j.slot && 'CA SA PD PE MEI'.includes(j.slot) ? 0.15 : 0);
+    f.PAS += 0.15 * j.ast * 3 + 0.02 * j.passes;
+    f.DEF += 0.08 * j.desarmes + 0.1 * j.defesas;
+    f.DRI += 0.1 * j.g + 0.04 * j.passes;
+    return f;
+  }
+  // Após cada partida (jogador j = objeto de campo de match.js). Retorna lista de melhorias aplicadas.
+  function aplicarPosJogo(j) {
+    const p = j.p, mudancas = [];
+    if (j.minutos === 0) return mudancas;
+    const delta = j.nota - 6.3;                 // 6.3 = nota mediana: acima evolui, abaixo regride
+    const moralMult = 0.6 + p.moral / 100 * 0.9; // moral 100 => 1.5x ; moral 0 => 0.6x
+    const peso = Math.min(1, j.minutos / 60);
+    const base = (delta > 0 ? delta * ganhoIdade(p.idade) * moralMult : delta * 0.6) * peso * 0.10;
+    const foco = focoDoJogo(j);
+    for (const a of P().ATTRS) {
+      // retorno decrescente: é muito mais difícil subir de 80 para 85 do que de 50 para 55
+      const rd = base > 0 ? clamp((99 - p.attr[a]) / 50, 0.15, 1.2) : 1;
+      p.xp[a] += base * (0.5 + foco[a] * 2) * rd; // ≈ base nos 6 atributos, mais nos do foco
+      while (p.xp[a] >= 1 && p.attr[a] < 99) { p.xp[a] -= 1; p.attr[a]++; mudancas.push(a + '+1'); }
+      while (p.xp[a] <= -1 && p.attr[a] > 1) { p.xp[a] += 1; p.attr[a]--; mudancas.push(a + '-1'); }
+    }
+    // moral: nota boa sobe, nota ruim desce
+    p.moral = clamp(p.moral + delta * 5, 0, 100);
+    p.jogos++;
+    return mudancas;
+  }
+  // Moral dos reservas que não jogam desce devagar (e a de todo mundo tende a 50 com tempo)
+  function semJogar(p) { p.moral = clamp(p.moral + (50 - p.moral) * 0.04 - 1, 0, 100); }
+  // Recuperação entre jogos: dias de descanso. FIS alto recupera melhor. Lesionado só volta quando lesao = 0.
+  function descansar(p, dias) {
+    const taxa = (6 + p.attr.FIS * 0.08) * dias; // ex.: FIS 50 => ~10/dia ; FIS 90 => ~13/dia
+    p.stamina = clamp(p.stamina + taxa * (p.lesao ? 0.3 : 1), 0, 100);
+    if (p.lesao > 0 && dias >= 3) p.lesao--;
+  }
+  // Fim de temporada: envelhece e aplica declínio dos veteranos / tendência de queda se sem jogar
+  function virarAno(p, rng) {
+    p.idade++; p.contrato--;
+    const queda = p.idade >= 31 ? (p.idade - 30) * 0.7 : 0;
+    for (const a of P().ATTRS) {
+      let d = 0;
+      if (queda && rng.chance(Math.min(0.9, queda / 3))) d -= (a === 'RIT' || a === 'FIS') ? 2 : 1;
+      if (p.idade <= 21 && rng.chance(0.5)) d += 1;                 // crescimento natural dos garotos
+      if (p.jogos < 5 && p.idade > 22) d -= rng.chance(0.4) ? 1 : 0; // ficou parado
+      p.attr[a] = clamp(p.attr[a] + d, 1, 99);
+    }
+    p.jogos = 0; p.gols = 0;
+  }
+  // cor da barra (stamina / moral)
+  function cor(v) { return v >= 90 ? 'verde' : v >= 70 ? 'verde-claro' : v >= 50 ? 'amarelo' : v >= 20 ? 'laranja' : 'vermelho'; }
+
+  bf.Progression = { aplicarPosJogo, semJogar, descansar, virarAno, cor, ganhoIdade };
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+
+;
+// Estrutura da temporada: calendário do Brasileirão, acesso/descenso (4 sobem, 4 descem) e Copa do Brasil (64 clubes).
+(function (root) {
+  const bf = (root.BF98 = root.BF98 || {});
+  const ORDEM = ['A', 'B', 'C', 'D'];
+  const REGRAS = { sobemDesce: 4, copaClubes: 64, copaPreliminar: 32 };
+
+  // ---------- Brasileirão ----------
+  function calendarioLiga(ids) { // método do círculo, ida e volta
+    const n = ids.length, arr = ids.slice(), rodadas = [];
+    for (let r = 0; r < n - 1; r++) {
+      const jogos = [];
+      for (let i = 0; i < n / 2; i++) { const a = arr[i], b = arr[n - 1 - i]; jogos.push(r % 2 ? [b, a] : [a, b]); }
+      rodadas.push(jogos); arr.splice(1, 0, arr.pop());
+    }
+    return rodadas.concat(rodadas.map((r) => r.map(([a, b]) => [b, a])));
+  }
+  function novaTabela(clubes) { return new Map(clubes.map((c) => [c.id, { id: c.id, pts: 0, j: 0, v: 0, e: 0, d: 0, gp: 0, gc: 0 }])); }
+  function registrar(tab, h, a, gh, ga) {
+    const H = tab.get(h), A = tab.get(a);
+    H.j++; A.j++; H.gp += gh; H.gc += ga; A.gp += ga; A.gc += gh;
+    if (gh > ga) { H.pts += 3; H.v++; A.d++; } else if (gh < ga) { A.pts += 3; A.v++; H.d++; } else { H.pts++; A.pts++; H.e++; A.e++; }
+  }
+  // critérios: pontos, vitórias, saldo, gols pró
+  const ordenar = (tab) => [...tab.values()].sort((x, y) => y.pts - x.pts || y.v - x.v || (y.gp - y.gc) - (x.gp - x.gc) || y.gp - x.gp);
+
+  // ---------- Acesso e descenso ----------
+  function reclassificar(c, div) {
+    const D = bf.DIVISOES[div];
+    c.div = div; c.precoIngresso = D.ingresso;
+    c.demanda = Math.round(25 * Math.pow(c.prestigio, 1.55) * D.demandaK);
+  }
+  // classificacao = { A:[ids ordenados], B:[...], C:[...], D:[...] } ; clubes = Map id -> clube
+  function promoRebaixa(classificacao, clubes, n = REGRAS.sobemDesce) {
+    const res = { subiram: {}, desceram: {} };
+    for (let i = 0; i < 3; i++) {
+      const sup = ORDEM[i], inf = ORDEM[i + 1];
+      const caem = classificacao[sup].slice(-n), sobem = classificacao[inf].slice(0, n);
+      res.desceram[sup] = caem; res.subiram[inf] = sobem;
+    }
+    for (const sup of Object.keys(res.desceram)) res.desceram[sup].forEach((id) => (res.__d = res.__d || []).push([id, ORDEM[ORDEM.indexOf(sup) + 1]]));
+    for (const inf of Object.keys(res.subiram)) res.subiram[inf].forEach((id) => (res.__s = res.__s || []).push([id, ORDEM[ORDEM.indexOf(inf) - 1]]));
+    [...res.__d, ...res.__s].forEach(([id, div]) => reclassificar(clubes.get(id), div));
+    delete res.__d; delete res.__s;
+    return res;
+  }
+
+  // ---------- Copa do Brasil ----------
+  function embaralhar(rng, arr) { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = rng.int(0, i); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+  function pares(ids) { const p = []; for (let i = 0; i < ids.length; i += 2) p.push({ a: ids[i], b: ids[i + 1] }); return p; }
+  // força para escolher os 32 mais fracos: divisão (D<C<B<A) e depois prestígio. Pode ser trocada por 'rank' da última temporada.
+  function copaCriar(clubes, rng, rank) {
+    const f = rank || ((c) => ORDEM.indexOf(c.div) * -1000 + c.prestigio); // D (índice 3) => -3000
+    const ord = clubes.slice().sort((x, y) => f(x) - f(y));
+    const fracos = ord.slice(0, REGRAS.copaPreliminar).map((c) => c.id);
+    const diretos = ord.slice(REGRAS.copaPreliminar).map((c) => c.id);
+    return { fase: 0, diretos, campeao: null, fases: [{ nome: 'Fase preliminar', confrontos: pares(embaralhar(rng, fracos)) }] };
+  }
+  const NOMES_FASE = { 64: '1ª fase (64)', 32: 'Segunda fase (32)', 16: 'Oitavas de final', 8: 'Quartas de final', 4: 'Semifinais', 2: 'Final' };
+  // pênaltis: 5 cobranças cada + morte súbita
+  function penaltis(rng) {
+    let a = 0, b = 0;
+    for (let i = 0; i < 5; i++) { if (rng.chance(0.76)) a++; if (rng.chance(0.76)) b++; }
+    while (a === b) { if (rng.chance(0.76)) a++; if (rng.chance(0.76)) b++; }
+    return [a, b];
+  }
+  // joga a fase atual. simula(casaId, foraId) -> [golsCasa, golsFora]. Ida: A em casa. Volta: B em casa.
+  function copaJogarFase(copa, simula, rng) {
+    const fase = copa.fases[copa.fases.length - 1];
+    if (fase.jogada) throw new Error('fase já jogada');
+    fase.confrontos.forEach((c) => {
+      c.ida = simula(c.a, c.b); c.volta = simula(c.b, c.a);
+      const ga = c.ida[0] + c.volta[1], gb = c.ida[1] + c.volta[0]; // gol fora NÃO vale dobrado
+      c.agregado = [ga, gb];
+      if (ga === gb) { c.penaltis = penaltis(rng); c.vencedor = c.penaltis[0] > c.penaltis[1] ? c.a : c.b; }
+      else c.vencedor = ga > gb ? c.a : c.b;
+    });
+    fase.jogada = true;
+    const venc = fase.confrontos.map((c) => c.vencedor);
+    if (venc.length === 1 && fase.nome === 'Final') { copa.campeao = venc[0]; return copa; }
+    const proximos = fase.nome === 'Fase preliminar' ? venc.concat(copa.diretos) : venc;
+    const sorteados = embaralhar(rng, proximos);
+    copa.fases.push({ nome: NOMES_FASE[sorteados.length], confrontos: pares(sorteados) });
+    return copa;
+  }
+
+  // ---------- Escalação automática (IA / sugestão) ----------
+  function escalarAuto(clube, formacao = '4-4-2', tatica = 'equilibrado', maxSubs) {
+    const PL = bf.Players, M = bf.Match;
+    const slots = M.FORMACOES[formacao], usados = new Set(), tit = [];
+    for (const slot of slots) {
+      const disp = clube.elenco.filter((p) => !usados.has(p.id) && p.lesao === 0);
+      disp.sort((a, b) => PL.ovrNoSlot(b, slot) * (0.8 + b.stamina / 500) - PL.ovrNoSlot(a, slot) * (0.8 + a.stamina / 500));
+      usados.add(disp[0].id); tit.push(disp[0].id);
+    }
+    const banco = clube.elenco.filter((p) => !usados.has(p.id) && p.lesao === 0).sort((a, b) => PL.overall(b) - PL.overall(a)).slice(0, 7).map((p) => p.id);
+    return { nome: clube.nome, elenco: clube.elenco, formacao, tatica, titulares: tit, banco, maxSubs };
+  }
+
+  bf.Season = { ORDEM, REGRAS, calendarioLiga, novaTabela, registrar, ordenar, promoRebaixa, reclassificar, copaCriar, copaJogarFase, escalarAuto, embaralhar };
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+
+;
+// Kfoot 98 — interface. 5 telas: boas-vindas, clubes, nome+sorteio, clubes dos técnicos, plantel.
+// Multiplayer: G.humanos é uma lista (hoje com 1 técnico). A tela 3 já mostra os 6 lugares; falta só o servidor.
+(function () {
+  const BF = window.BF98, PL = BF.Players, E = BF.Economy, PR = BF.Progression, S = BF.Season;
+  const MAX_HUMANOS = 6;
+  const G = { tela: 1, ano: 1998, config: { maxSubs: 3 }, humanos: [], seed: 0, mundo: null, nome: '', erro: '', sorteando: false, sel: null, sort: { k: 'pos', dir: 1 } };
+
+  // ---------- util ----------
+  function h(tag, attrs, ...kids) {
+    const el = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs || {})) {
+      if (v === false || v == null) continue;
+      if (k === 'class') el.className = v;
+      else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+      else if (k === 'html') el.innerHTML = v;
+      else el.setAttribute(k, v === true ? '' : v);
+    }
+    kids.flat(Infinity).forEach((c) => { if (c == null || c === false) return; el.append(c.nodeType ? c : document.createTextNode(String(c))); });
+    return el;
+  }
+  const nf = new Intl.NumberFormat('pt-BR');
+  function reais(n) {
+    if (n >= 1e6) return 'R$ ' + (n / 1e6).toFixed(n >= 1e7 ? 1 : 2).replace('.', ',') + ' mi';
+    if (n >= 1e4) return 'R$ ' + Math.round(n / 1000) + ' mil';
+    if (n >= 1e3) return 'R$ ' + (n / 1e3).toFixed(1).replace('.', ',') + ' mil';
+    return 'R$ ' + nf.format(Math.round(n));
+  }
+  const DIV_NOME = { A: 'Série A', B: 'Série B', C: 'Série C', D: 'Série D' };
+  const ORDEM_POS = ['GOL', 'LD', 'ZAG', 'LIB', 'LE', 'VOL', 'MC', 'MEI', 'ALA', 'PD', 'PE', 'SA', 'CA'];
+  const SETOR = { GOL: 'Goleiros', ZAG: 'Defensores', LIB: 'Defensores', LD: 'Defensores', LE: 'Defensores', VOL: 'Meio-campistas', MC: 'Meio-campistas', MEI: 'Meio-campistas', ALA: 'Meio-campistas', PD: 'Atacantes', PE: 'Atacantes', CA: 'Atacantes', SA: 'Atacantes' };
+  const NOME_ATTR = { RIT: 'Ritmo', CHU: 'Chute', PAS: 'Passe', DRI: 'Drible', DEF: 'Defesa', FIS: 'Físico' };
+
+  function criarMundo(seed) {
+    const rng = BF.RNG.create(seed);
+    const clubes = BF.CLUBS.map((c) => {
+      const cl = { ...c, estadio: { ...c.estadio }, patrocinadores: [], elenco: PL.gerarElenco(rng, c) };
+      numerar(cl.elenco); return cl;
+    });
+    return { rng, clubes, porId: new Map(clubes.map((c) => [c.id, c])) };
+  }
+  // camisas: goleiro 1/12/22, zagueiros 3/4/13..., etc.
+  function numerar(elenco) {
+    const pref = { GOL: [1, 12, 22], ZAG: [3, 4, 14, 15], LD: [2, 13], LE: [6, 16], VOL: [5, 8, 15], MC: [8, 17], MEI: [10, 20], PD: [7], PE: [11], CA: [9, 19, 18], SA: [21, 18], LIB: [4], ALA: [17] };
+    const usados = new Set();
+    elenco.slice().sort((a, b) => PL.overall(b) - PL.overall(a)).forEach((p) => {
+      let n = (pref[p.pos] || []).find((x) => !usados.has(x));
+      if (!n) { n = 2; while (usados.has(n)) n++; }
+      usados.add(n); p.num = n;
+    });
+  }
+
+  // ---------- esqueleto ----------
+  const app = document.getElementById('app');
+  const PASSOS = ['Início', 'Campeonato', 'Técnico', 'Clubes', 'Plantel'];
+  function topo() {
+    return h('header', { class: 'top' }, h('div', { class: 'wrap' },
+      h('div', { class: 'brand' }, 'Kfoot', h('b', null, '98')),
+      h('ol', { class: 'steps', 'aria-label': 'Etapas' }, PASSOS.map((p, i) => h('li', { class: i + 1 === G.tela ? 'on' : i + 1 < G.tela ? 'ok' : '', 'aria-current': i + 1 === G.tela ? 'step' : false }, (i + 1) + ' · ' + p)))));
+  }
+  function ir(t) { G.tela = t; G.erro = ''; render(); window.scrollTo(0, 0); }
+  function render() {
+    app.replaceChildren(topo(), [tela1, tela2, tela3, tela4, tela5][G.tela - 1]());
+  }
+
+  // ---------- tela 1 ----------
+  function tela1() {
+    const pitch = h('div', { html: '<svg class="pitch" viewBox="0 0 1200 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><g fill="none" stroke="#eef6ea" stroke-width="4"><rect x="40" y="40" width="1120" height="520"/><line x1="600" y1="40" x2="600" y2="560"/><circle cx="600" cy="300" r="90"/><rect x="40" y="170" width="170" height="260"/><rect x="990" y="170" width="170" height="260"/><rect x="40" y="235" width="60" height="130"/><rect x="1100" y="235" width="60" height="130"/></g></svg>' });
+    return h('main', null,
+      h('section', { class: 'hero' }, pitch.firstChild, h('div', { class: 'wrap' },
+        h('div', { class: 'logo', 'aria-label': 'Kfoot 98' }, h('span', { class: 'k' }, 'Kfoot'), h('span', { class: 'y' }, '98')),
+        h('p', { class: 'lead' }, 'Brasil, 1998. Você assume um time na lanterna da Série D e tenta chegar à Libertadores.'),
+        h('div', { class: 'actions' }, h('button', { class: 'btn', id: 'novo', onclick: () => ir(2) }, 'Novo jogo')),
+        h('small', null, 'Gerenciamento de futebol · 4 divisões · 80 clubes'))),
+      h('div', { class: 'ticker' }, h('div', { class: 'wrap' },
+        h('span', null, h('b', null, '4'), 'divisões do Brasileirão'),
+        h('span', null, h('b', null, '64'), 'clubes na Copa do Brasil'),
+        h('span', null, h('b', null, '4'), 'sobem e 4 descem por ano'),
+        h('span', null, h('b', null, '3'), 'substituições, como em 1998'))));
+  }
+
+  // ---------- tela 2 ----------
+  function tela2() {
+    const col = (d) => {
+      const cs = BF.CLUBS.filter((c) => c.div === d);
+      return h('section', { class: 'div' },
+        h('header', null, h('h3', null, DIV_NOME[d]), h('span', { class: 'muted num' }, '20 clubes')),
+        h('ol', null, cs.map((c) => h('li', { class: c.selecionavel ? 'sorteavel' : d === 'D' ? 'bloq' : '' },
+          h('span', { class: 'n' }, c.nome), c.selecionavel ? h('span', { class: 'tag hot' }, 'sorteável') : h('span', { class: 'uf' }, c.uf)))));
+    };
+    const seg = (v) => h('button', { type: 'button', 'aria-pressed': G.config.maxSubs === v ? 'true' : 'false', onclick: () => { G.config.maxSubs = v; render(); } }, v + (v === 3 ? ' · 1998' : ' · moderno'));
+    return h('main', { class: 'wrap page' },
+      h('div', { class: 'head' }, h('span', { class: 'eyebrow' }, 'Temporada inicial · ' + G.ano), h('h2', null, 'Campeonato Brasileiro ' + G.ano),
+        h('p', null, 'São quatro divisões de 20 clubes, todos contra todos em ida e volta. Os 4 últimos de cada divisão caem e os 4 primeiros da inferior sobem. Seu clube sai da lista dos 10 piores da Série D.')),
+      h('div', { class: 'rules' },
+        h('div', { class: 'rule' }, h('b', null, 'Brasileirão A–D'), h('span', null, '38 rodadas por divisão, jogos ao mesmo tempo. 4 sobem e 4 descem.')),
+        h('div', { class: 'rule' }, h('b', null, 'Copa do Brasil'), h('span', null, '64 clubes, ida e volta. Os 32 mais fracos (20 da D e 12 da C) disputam antes uma fase preliminar.')),
+        h('div', { class: 'rule' }, h('b', null, 'Libertadores'), h('span', null, 'Vaga para o campeão brasileiro e o da Copa do Brasil.')),
+        h('div', { class: 'rule' }, h('b', null, 'Substituições por jogo'), h('div', { class: 'seg', role: 'group', 'aria-label': 'Limite de substituições' }, seg(3), seg(5)))),
+      h('div', { class: 'divs' }, ['A', 'B', 'C', 'D'].map(col)),
+      h('div', { class: 'legend' }, h('span', null, h('span', { class: 'tag hot' }, 'sorteável'), ' os 10 piores da Série D, um deles será seu'), h('span', null, 'Os 10 melhores da Série D ficam bloqueados para os técnicos.')),
+      h('div', { class: 'actions' }, h('button', { class: 'btn alt', onclick: () => ir(1) }, 'Voltar'), h('button', { class: 'btn', id: 'seguir2', onclick: () => ir(3) }, 'Continuar')));
+  }
+
+  // ---------- tela 3 ----------
+  function tela3() {
+    const eu = h('div', { class: 'slot me' }, h('label', { for: 'nome' }, 'Técnico 1'),
+      h('input', { id: 'nome', maxlength: 24, placeholder: 'Seu nome', autocomplete: 'off', value: G.nome, disabled: G.sorteando, oninput: (e) => { G.nome = e.target.value; } , onkeydown: (e) => { if (e.key === 'Enter') sortear(); } }));
+    const outros = [];
+    for (let i = 2; i <= MAX_HUMANOS; i++) outros.push(h('div', { class: 'slot', 'aria-disabled': 'true' }, h('label', null, 'Técnico ' + i), h('span', null, 'Multiplayer em breve')));
+    const sel = BF.CLUBS.filter((c) => c.selecionavel);
+    return h('main', { class: 'wrap page' },
+      h('div', { class: 'head' }, h('span', { class: 'eyebrow' }, 'Quem é você?'), h('h2', null, 'Seu nome, seu clube'),
+        h('p', null, 'Você começa treinando um dos 10 piores clubes da Série D. O clube é sorteado entre eles: ' + sel.map((c) => c.nome).join(', ') + '.')),
+      h('div', { class: 'card' }, h('div', { class: 'slots' }, eu, ...outros),
+        h('p', { class: 'err', id: 'erro', role: 'alert' }, G.erro)),
+      h('div', { class: 'draw', 'aria-live': 'polite' }, h('span', { class: 'eyebrow', style: 'color:#b9ccb9' }, 'Sorteio'), h('div', { class: 'big', id: 'sorteio' }, G.humanos.length ? BF.CLUBS.find((c) => c.id === G.humanos[0].clubId).nome : '— — —')),
+      h('div', { class: 'actions' }, h('button', { class: 'btn alt', disabled: G.sorteando, onclick: () => ir(2) }, 'Voltar'),
+        G.humanos.length && !G.sorteando
+          ? h('button', { class: 'btn hot', id: 'seguir3', onclick: () => ir(4) }, 'Continuar')
+          : h('button', { class: 'btn', id: 'sortear', disabled: G.sorteando, onclick: sortear }, G.sorteando ? 'Sorteando…' : 'Sortear meu clube')));
+  }
+  function sortear() {
+    const nome = G.nome.trim().replace(/\s+/g, ' ');
+    if (nome.length < 2) { G.erro = 'Digite seu nome (pelo menos 2 letras).'; document.getElementById('erro').textContent = G.erro; document.getElementById('nome').focus(); return; }
+    G.nome = nome; G.erro = ''; G.sorteando = true;
+    G.seed = (Math.random() * 2 ** 31) >>> 0;          // semente única do mundo: base do multiplayer determinístico
+    G.mundo = criarMundo(G.seed);
+    const rng = BF.RNG.create(G.seed ^ 0x5eed);
+    const pool = BF.CLUBS.filter((c) => c.selecionavel);
+    const escolhido = S.embaralhar(rng, pool).slice(0, 1)[0];   // com N humanos: slice(0, N) — sem repetir clube
+    const botao = document.getElementById('sortear'); if (botao) { botao.disabled = true; botao.textContent = 'Sorteando…'; }
+    document.getElementById('nome').disabled = true;
+    const el = document.getElementById('sorteio'); el.classList.add('rolling');
+    const reduz = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const passos = reduz ? 1 : 22; let i = 0;
+    (function tick() {
+      i++;
+      if (i >= passos) {
+        el.classList.remove('rolling'); el.textContent = escolhido.nome;
+        G.humanos = [{ id: 1, nome, clubId: escolhido.id }]; G.sorteando = false; render(); return;
+      }
+      el.textContent = pool[Math.floor(Math.random() * pool.length)].nome;
+      setTimeout(tick, 60 + i * 9);
+    })();
+  }
+
+  // ---------- tela 4 ----------
+  function tela4() {
+    return h('main', { class: 'wrap page' },
+      h('div', { class: 'head' }, h('span', { class: 'eyebrow' }, 'Temporada ' + G.ano), h('h2', null, G.humanos.length > 1 ? 'Os técnicos e seus clubes' : 'Seu clube'),
+        h('p', null, 'Estes são os técnicos humanos e os clubes que vão treinar. Todos os outros 79 clubes são comandados pelo computador.')),
+      h('div', { class: 'assign' }, G.humanos.map((hu) => {
+        const c = G.mundo.porId.get(hu.clubId), folha = E.folhaMensal(c.elenco);
+        return h('article', { class: 'club' },
+          h('span', { class: 'who' }, 'Técnico · ' + hu.nome), h('div', { class: 'nm' }, c.nome),
+          h('dl', { class: 'kv' },
+            h('dt', null, 'Cidade'), h('dd', null, c.cidade + ' / ' + c.uf),
+            h('dt', null, 'Divisão'), h('dd', null, DIV_NOME[c.div]),
+            h('dt', null, 'Estádio'), h('dd', null, c.estadio.nome + ' · ' + nf.format(c.estadio.capacidade)),
+            h('dt', null, 'Caixa'), h('dd', null, reais(c.caixa)),
+            h('dt', null, 'Folha mensal'), h('dd', null, reais(folha)),
+            h('dt', null, 'Elenco'), h('dd', null, c.elenco.length + ' jogadores')),
+          h('p', { class: 'muted' }, 'Meta: fugir da lanterna e subir para a Série C.'));
+      })),
+      h('div', { class: 'actions' }, h('button', { class: 'btn hot', id: 'verplantel', onclick: () => ir(5) }, 'Ver o plantel')));
+  }
+
+  // ---------- tela 5 ----------
+  const COLS = [
+    ['num', 'Nº', (p) => p.num], ['nome', 'Jogador', (p) => p.nome], ['pos', 'Pos', (p) => ORDEM_POS.indexOf(p.pos)], ['idade', 'Id', (p) => p.idade], ['ovr', 'Ovr', (p) => PL.overall(p)],
+    ['RIT', 'Rit', (p) => p.attr.RIT], ['CHU', 'Chu', (p) => p.attr.CHU], ['PAS', 'Pas', (p) => p.attr.PAS], ['DRI', 'Dri', (p) => p.attr.DRI], ['DEF', 'Def', (p) => p.attr.DEF], ['FIS', 'Fís', (p) => p.attr.FIS],
+    ['disc', 'Disciplina', (p) => p.disciplina], ['stamina', 'Stamina', (p) => p.stamina], ['moral', 'Moral', (p) => p.moral], ['contrato', 'Contrato', (p) => p.contrato], ['salario', 'Salário/mês', (p) => E.salario(p)], ['valor', 'Valor', (p) => E.valorMercado(p)],
+  ];
+  const barra = (v) => h('span', { class: 'bar', title: Math.round(v) + '%' }, h('i', { class: 'c-' + PR.cor(v), style: 'width:' + Math.round(v) + '%' }));
+  function tela5() {
+    const hu = G.humanos[0], c = G.mundo.porId.get(hu.clubId);
+    if (!c.__titulares) { const esc = S.escalarAuto(c, '4-4-2', 'equilibrado'); c.__titulares = new Set(esc.titulares); }
+    const tits = c.__titulares;
+    const sort = COLS.find((x) => x[0] === G.sort.k) || COLS[2], dir = G.sort.dir;
+    let lista = c.elenco.slice();
+    if (G.sort.k === 'pos') lista.sort((a, b) => ORDEM_POS.indexOf(a.pos) - ORDEM_POS.indexOf(b.pos) || PL.overall(b) - PL.overall(a));
+    else lista.sort((a, b) => { const x = sort[2](a), y = sort[2](b); return (typeof x === 'string' ? x.localeCompare(y, 'pt-BR') : x - y) * dir; });
+    if (!G.sel || !c.elenco.some((p) => p.id === G.sel)) G.sel = lista[0].id;
+    const media = [...tits].map((id) => PL.overall(c.elenco.find((p) => p.id === id))).reduce((a, b) => a + b, 0) / 11;
+    const ths = COLS.map(([k, t]) => h('th', { class: (k === 'nome' ? 'l ' : '') + (G.sort.k === k ? 'sorted' : ''), scope: 'col', tabindex: 0, 'aria-sort': G.sort.k === k ? (dir > 0 ? 'ascending' : 'descending') : 'none', onclick: () => ordenar(k), onkeydown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); ordenar(k); } } }, t));
+    const linhas = []; let setorAtual = null;
+    lista.forEach((p) => {
+      if (G.sort.k === 'pos' && SETOR[p.pos] !== setorAtual) { setorAtual = SETOR[p.pos]; linhas.push(h('tr', { class: 'sep' }, h('td', { colspan: COLS.length }, setorAtual))); }
+      const lim = (v) => v >= 70 ? 'hi' : v < 35 ? 'lo' : '';
+      linhas.push(h('tr', { 'data-id': p.id, class: p.id === G.sel ? 'sel' : '', tabindex: 0, onclick: () => selecionar(p.id), onkeydown: (e) => { if (e.key === 'Enter') selecionar(p.id); } },
+        h('td', null, p.num), h('td', { class: 'l nm' }, tits.has(p.id) ? h('span', { class: 'tit', title: 'Titular no 4-4-2 sugerido' }) : null, p.nome),
+        h('td', { class: 'pos' }, p.pos), h('td', null, p.idade), h('td', { class: 'ovr' }, Math.round(PL.overall(p))),
+        ...['RIT', 'CHU', 'PAS', 'DRI', 'DEF', 'FIS'].map((a) => h('td', { class: lim(p.attr[a]) }, p.attr[a])),
+        h('td', null, PL.DISCIPLINAS[p.disciplina]), h('td', null, barra(p.stamina)), h('td', null, barra(p.moral)),
+        h('td', null, 'Dez/' + (1997 + p.contrato)), h('td', null, reais(E.salario(p))), h('td', null, reais(E.valorMercado(p)))));
+    });
+    return h('main', { class: 'wrap page' },
+      h('div', { class: 'head' }, h('span', { class: 'eyebrow' }, 'Técnico ' + hu.nome + ' · ' + G.ano), h('h2', null, c.nome)),
+      h('div', { class: 'strip' },
+        info('Divisão', DIV_NOME[c.div]), info('Estádio', c.estadio.nome + ' · ' + nf.format(c.estadio.capacidade)), info('Caixa', reais(c.caixa)),
+        info('Folha mensal', reais(E.folhaMensal(c.elenco))), info('Time-base (4-4-2)', media.toFixed(1) + ' ovr'), info('Substituições', G.config.maxSubs + ' por jogo')),
+      h('div', { class: 'tabs', role: 'tablist' }, h('span', { class: 'on', role: 'tab', 'aria-selected': 'true' }, 'Plantel'), ['Escalação', 'Tabela', 'Mercado', 'Finanças'].map((t) => h('span', { class: 'soon', role: 'tab', 'aria-disabled': 'true' }, t))),
+      h('div', { class: 'plantel' },
+        h('div', { class: 'tablewrap' }, h('table', { 'aria-label': 'Plantel de ' + c.nome }, h('thead', null, h('tr', null, ths)), h('tbody', null, linhas))),
+        painel(c.elenco.find((p) => p.id === G.sel))),
+      h('p', { class: 'footnote' }, h('span', { class: 'tit' }), 'Titular no time-base sugerido. Clique em um jogador para ver os detalhes e no título de uma coluna para ordenar. Stamina e moral: verde cheio, amarelo médio, vermelho baixo.'),
+      h('div', { class: 'actions' }, h('button', { class: 'btn alt', onclick: () => ir(4) }, 'Voltar')));
+  }
+  const info = (t, v) => h('div', null, h('small', null, t), h('b', null, v));
+  function ordenar(k) { G.sort = G.sort.k === k ? { k, dir: -G.sort.dir } : { k, dir: ['nome', 'pos', 'num', 'contrato'].includes(k) ? 1 : -1 }; render(); }
+  function selecionar(id) { G.sel = id; const y = window.scrollY, x = document.querySelector('.tablewrap').scrollLeft; render(); document.querySelector('.tablewrap').scrollLeft = x; window.scrollTo(0, y); }
+  function painel(p) {
+    const encaixes = ORDEM_POS.map((pos) => [pos, Math.round(PL.ovrNoSlot(p, pos))]).sort((a, b) => b[1] - a[1]).slice(0, 4);
+    return h('aside', { class: 'panel', 'aria-label': 'Detalhes do jogador' },
+      h('div', null, h('span', { class: 'eyebrow' }, '#' + p.num + ' · ' + p.pos + ' · ' + p.idade + ' anos'), h('div', { class: 'pn' }, p.nome)),
+      h('div', { class: 'attr' }, h('span', { class: 'muted' }, 'Ovr'), barraW(PL.overall(p)), h('b', null, Math.round(PL.overall(p)))),
+      ['RIT', 'CHU', 'PAS', 'DRI', 'DEF', 'FIS'].map((a) => h('div', { class: 'attr' }, h('span', { class: 'muted' }, a), barraW(p.attr[a]), h('b', null, p.attr[a]))),
+      h('dl', { class: 'kv' },
+        h('dt', null, 'Disciplina'), h('dd', null, PL.DISCIPLINAS[p.disciplina]),
+        h('dt', null, 'Stamina'), h('dd', null, Math.round(p.stamina) + '% · ' + PR.cor(p.stamina).replace('-', ' ')),
+        h('dt', null, 'Moral'), h('dd', null, Math.round(p.moral) + '% · ' + PR.cor(p.moral).replace('-', ' ')),
+        h('dt', null, 'Contrato até'), h('dd', null, 'Dez/' + (1997 + p.contrato)),
+        h('dt', null, 'Salário'), h('dd', null, reais(E.salario(p)) + '/mês'),
+        h('dt', null, 'Valor'), h('dd', null, reais(E.valorMercado(p)))),
+      h('div', null, h('div', { class: 'eyebrow' }, 'Melhores posições'), h('div', { class: 'fit' }, encaixes.map(([pos, v]) => h('span', null, pos, h('b', null, v))))));
+  }
+  const barraW = (v) => h('span', { class: 'bar' }, h('i', { style: 'width:' + Math.round(v) + '%' }));
+
+  render();
+})();
+
+</script>
+</body>
+</html>
