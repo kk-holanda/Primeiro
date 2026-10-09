@@ -6,8 +6,9 @@
 const TRACK_SPACING = 8; // distância (px) entre os pontos da linha central
 
 class Track {
-  constructor({ name, points, width }) {
+  constructor({ name, points, width, theme }) {
     this.name = name;
+    this.theme = theme;
     this.width = width;
     this.points = Track.resample(Track.smooth(points, 16), TRACK_SPACING);
 
@@ -119,8 +120,13 @@ class Track {
     ctx.lineJoin = 'round';
     ctx.lineCap = 'round';
 
-    // Zebra (borda vermelha e branca)
+    // Contorno escuro por fora da zebra (dá relevo)
     this.tracePath(ctx);
+    ctx.lineWidth = this.width + 16;
+    ctx.strokeStyle = 'rgba(0,0,0,0.22)';
+    ctx.stroke();
+
+    // Zebra (borda vermelha e branca)
     ctx.lineWidth = this.width + 12;
     ctx.strokeStyle = '#d33';
     ctx.stroke();
@@ -134,6 +140,19 @@ class Track {
     ctx.lineCap = 'round';
     ctx.lineWidth = this.width;
     ctx.strokeStyle = '#55575c';
+    ctx.stroke();
+
+    // Linhas brancas de borda da pista
+    ctx.lineWidth = this.width - 6;
+    ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+    ctx.stroke();
+    ctx.lineWidth = this.width - 10;
+    ctx.strokeStyle = '#55575c';
+    ctx.stroke();
+
+    // Centro um pouco mais claro (asfalto mais gasto no traçado)
+    ctx.lineWidth = this.width * 0.45;
+    ctx.strokeStyle = 'rgba(255,255,255,0.025)';
     ctx.stroke();
 
     // Faixa central tracejada
@@ -179,6 +198,7 @@ function distanceToSegment(px, py, ax, ay, bx, by) {
 const TRACKS = [
   {
     name: 'KKlaude first',
+    theme: 'campo',
     width: 90,
     points: [
       [480, 112], [760, 112], [1040, 160], [1090, 360], [900, 420],
@@ -189,6 +209,7 @@ const TRACKS = [
   {
     // Desenhada a partir do esboço "TRAÇADO DA PISTA 2"
     name: 'KK first',
+    theme: 'floresta',
     width: 84,
     points: [
       [554, 134], [792, 136], [975, 126], [1052, 136], [1106, 225],
@@ -202,6 +223,7 @@ const TRACKS = [
   },
   {
     name: 'Anel Veloz',
+    theme: 'praia',
     width: 96,
     points: [
       [600, 150], [950, 150], [1090, 250], [1090, 550], [950, 660],
@@ -211,6 +233,7 @@ const TRACKS = [
   },
   {
     name: 'Serpentina',
+    theme: 'neve',
     width: 78,
     points: [
       [520, 135], [800, 135], [1000, 130], [1100, 220], [1060, 330],

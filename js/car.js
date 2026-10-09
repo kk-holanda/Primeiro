@@ -159,28 +159,50 @@ class Car {
 
 // ---------------------------------------------------------------------------
 // Desenho do carro de Fórmula 1 visto de cima, estilo cartoon.
-// O carro aponta para a direita (+x) e tem ~42 px de comprimento.
-function drawF1(ctx, model, steer = 0, shadow = true, spin = 0, blur = 0) {
+// O carro aponta para a direita (+x) e tem ~46 px de comprimento.
+// detail = true desenha também o número (usado nos menus, onde o carro é grande).
+function drawF1(ctx, model, steer = 0, shadow = true, spin = 0, blur = 0, detail = false) {
   const OUTLINE = '#141414';
+  const mirror = (fn) => [-1, 1].forEach(fn); // desenha os dois lados do carro
   ctx.lineJoin = 'round';
   ctx.lineCap = 'round';
 
-  // Sombra
+  // Sombra (duas camadas: uma larga e suave, outra mais forte embaixo)
   if (shadow) {
-    ctx.fillStyle = 'rgba(0,0,0,0.28)';
+    ctx.fillStyle = 'rgba(0,0,0,0.16)';
     ctx.beginPath();
-    ctx.ellipse(2, 3, 21, 11, 0, 0, Math.PI * 2);
+    ctx.ellipse(3, 4, 25, 14, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(0,0,0,0.22)';
+    ctx.beginPath();
+    ctx.ellipse(2, 3, 20, 9, 0, 0, Math.PI * 2);
     ctx.fill();
   }
 
-  // Braços da suspensão
-  ctx.strokeStyle = '#2a2a2a';
-  ctx.lineWidth = 1.6;
+  // Assoalho: base escura que aparece em volta das laterais
+  ctx.fillStyle = '#202226';
   ctx.beginPath();
-  ctx.moveTo(-13, -4); ctx.lineTo(-13, -9);
-  ctx.moveTo(-13, 4); ctx.lineTo(-13, 9);
-  ctx.moveTo(8, -3); ctx.lineTo(11, -8.5);
-  ctx.moveTo(8, 3); ctx.lineTo(11, 8.5);
+  ctx.moveTo(-18.5, -4);
+  ctx.lineTo(-14, -7.8);
+  ctx.lineTo(4, -8.8);
+  ctx.quadraticCurveTo(7.5, -8.4, 8, -5.5);
+  ctx.lineTo(8, 5.5);
+  ctx.quadraticCurveTo(7.5, 8.4, 4, 8.8);
+  ctx.lineTo(-14, 7.8);
+  ctx.lineTo(-18.5, 4);
+  ctx.closePath();
+  ctx.fill();
+
+  // Braços da suspensão (dois por roda)
+  ctx.strokeStyle = '#2a2a2a';
+  ctx.lineWidth = 1.1;
+  ctx.beginPath();
+  mirror((s) => {
+    ctx.moveTo(-11.5, 4 * s); ctx.lineTo(-13, 9 * s);
+    ctx.moveTo(-15.5, 3.5 * s); ctx.lineTo(-13, 9 * s);
+    ctx.moveTo(6, 2.5 * s); ctx.lineTo(11, 8.5 * s);
+    ctx.moveTo(10.5, 1.8 * s); ctx.lineTo(11, 8.5 * s);
+  });
   ctx.stroke();
 
   // Pneus (os da frente viram com o volante)
@@ -189,20 +211,29 @@ function drawF1(ctx, model, steer = 0, shadow = true, spin = 0, blur = 0) {
   drawTire(ctx, 11, -10, steer * 0.45, 9, 6.5, spin, blur);
   drawTire(ctx, 11, 10, steer * 0.45, 9, 6.5, spin, blur);
 
+  // Asa traseira: plano principal, flap e placas laterais
   ctx.strokeStyle = OUTLINE;
-  ctx.lineWidth = 1.3;
-
-  // Asa traseira
+  ctx.lineWidth = 1.2;
   ctx.fillStyle = model.color;
   ctx.beginPath();
-  ctx.roundRect(-22, -9.5, 5.5, 19, 1.5);
+  ctx.roundRect(-23.5, -10.5, 6.5, 21, 1.2);
   ctx.fill();
   ctx.stroke();
   ctx.fillStyle = model.dark;
-  ctx.fillRect(-20.5, -8, 1.4, 16);
+  ctx.fillRect(-21.6, -9, 1.5, 18);
+  ctx.fillStyle = model.accent;
+  ctx.fillRect(-23.5, -10.5, 6.5, 2);
+  ctx.fillRect(-23.5, 8.5, 6.5, 2);
+  // luz de chuva
+  ctx.fillStyle = '#ff3b3b';
+  ctx.fillRect(-24.6, -0.9, 1.2, 1.8);
 
-  // Carroceria (bico fino, laterais largas)
-  ctx.fillStyle = model.color;
+  // Carroceria (bico fino, laterais largas) com degradê para dar volume
+  const body = ctx.createLinearGradient(0, -8, 0, 8);
+  body.addColorStop(0, model.light);
+  body.addColorStop(0.32, model.color);
+  body.addColorStop(1, model.dark);
+  ctx.fillStyle = body;
   ctx.beginPath();
   ctx.moveTo(-18, -2.8);
   ctx.lineTo(-12, -5.5);
@@ -217,63 +248,133 @@ function drawF1(ctx, model, steer = 0, shadow = true, spin = 0, blur = 0) {
   ctx.lineTo(-18, 2.8);
   ctx.closePath();
   ctx.fill();
+  ctx.lineWidth = 1.2;
   ctx.stroke();
 
-  // Sombreado e brilho (dá o volume de desenho animado)
-  ctx.fillStyle = model.dark;
+  // Faixas de decoração na cor de destaque da equipe
+  ctx.strokeStyle = model.accent;
+  ctx.lineWidth = 1.1;
   ctx.beginPath();
-  ctx.ellipse(-4, 5.2, 6, 1.6, 0, 0, Math.PI * 2);
-  ctx.ellipse(-4, -5.2, 6, 1.6, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = model.light;
-  ctx.beginPath();
-  ctx.ellipse(-3, -4.4, 4.5, 1.1, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.moveTo(6, -0.6); ctx.lineTo(17, -0.4); ctx.lineTo(17, 0.4); ctx.lineTo(6, 0.6);
-  ctx.fill();
-
-  // Tampa do motor / entrada de ar
-  ctx.fillStyle = model.dark;
-  ctx.beginPath();
-  ctx.ellipse(-10, 0, 5, 2.2, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = '#1a1a1a';
-  ctx.beginPath();
-  ctx.ellipse(-5.5, 0, 1.8, 1.6, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Cockpit e capacete
-  ctx.fillStyle = '#1a1a1a';
-  ctx.beginPath();
-  ctx.ellipse(0.5, 0, 4.2, 2.9, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = '#fafafa';
-  ctx.beginPath();
-  ctx.arc(0, 0, 2.1, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = model.dark;
-  ctx.fillRect(0.6, -1.4, 1.2, 2.8);
-
-  // Halo (a barra de proteção sobre o piloto)
-  ctx.strokeStyle = '#2b2b2b';
+  mirror((s) => {
+    ctx.moveTo(-14, 4.3 * s);
+    ctx.quadraticCurveTo(-5, 7.2 * s, 1.5, 6 * s);
+  });
+  ctx.stroke();
   ctx.lineWidth = 1.3;
+  ctx.beginPath();
+  ctx.moveTo(7, 0);
+  ctx.lineTo(18.5, 0);
+  ctx.stroke();
+
+  // Entradas de ar das laterais
+  ctx.fillStyle = '#16171a';
+  mirror((s) => {
+    ctx.beginPath();
+    ctx.ellipse(3.2, 5.5 * s, 1.2, 1.6, 0, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  // Tampa do motor com "barbatana" no meio
+  ctx.fillStyle = model.dark;
+  ctx.beginPath();
+  ctx.ellipse(-10.5, 0, 6.2, 2.1, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+  ctx.lineWidth = 0.8;
+  ctx.beginPath();
+  ctx.moveTo(-17.5, 0);
+  ctx.lineTo(-5, 0);
+  ctx.stroke();
+
+  // Brilho de verniz
+  ctx.fillStyle = 'rgba(255,255,255,0.4)';
+  ctx.beginPath();
+  ctx.ellipse(-4, -5.3, 4.2, 0.8, -0.08, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(11, -1.1, 3.2, 0.45, -0.1, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Retrovisores
+  ctx.strokeStyle = '#222';
+  ctx.lineWidth = 0.7;
+  ctx.fillStyle = '#222';
+  mirror((s) => {
+    ctx.beginPath();
+    ctx.moveTo(3.3, 3 * s);
+    ctx.lineTo(4, 5.4 * s);
+    ctx.stroke();
+    ctx.fillRect(3.1, s > 0 ? 5.2 : -6.4, 2.1, 1.2);
+  });
+
+  // Entrada de ar sobre o piloto
+  ctx.fillStyle = '#16171a';
+  ctx.beginPath();
+  ctx.ellipse(-4.9, 0, 1.6, 1.5, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Cockpit e capacete (com viseira)
+  ctx.fillStyle = '#16171a';
+  ctx.beginPath();
+  ctx.ellipse(0.6, 0, 4.1, 2.8, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = model.helmet;
+  ctx.beginPath();
+  ctx.arc(0, 0, 2.15, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(0,0,0,0.6)';
+  ctx.lineWidth = 0.5;
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(25,35,55,0.92)';
+  ctx.beginPath();
+  ctx.ellipse(1.25, 0, 0.75, 1.55, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Halo (a barra de proteção sobre o piloto), com o pilar central
+  ctx.strokeStyle = '#2b2b2b';
+  ctx.lineWidth = 1.2;
   ctx.beginPath();
   ctx.moveTo(-3, -3);
   ctx.quadraticCurveTo(6, -2.6, 5.5, 0);
   ctx.quadraticCurveTo(6, 2.6, -3, 3);
+  ctx.moveTo(5.5, 0);
+  ctx.lineTo(3.4, 0);
   ctx.stroke();
 
-  // Asa dianteira
+  // Asa dianteira: dois elementos e placas laterais
   ctx.strokeStyle = OUTLINE;
+  ctx.lineWidth = 1.1;
   ctx.fillStyle = model.color;
   ctx.beginPath();
-  ctx.roundRect(16.5, -12, 4, 24, 1.2);
+  ctx.roundRect(16.3, -12.6, 3.3, 25.2, 1);
   ctx.fill();
   ctx.stroke();
   ctx.fillStyle = model.dark;
-  ctx.fillRect(17, -12, 3, 2.5);
-  ctx.fillRect(17, 9.5, 3, 2.5);
+  ctx.beginPath();
+  ctx.roundRect(19.5, -11.8, 1.8, 23.6, 0.8);
+  ctx.fill();
+  ctx.fillStyle = model.accent;
+  ctx.fillRect(16.1, -12.9, 5.3, 2.3);
+  ctx.fillRect(16.1, 10.6, 5.3, 2.3);
+
+  // Número do carro (só quando desenhado grande)
+  if (detail) {
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(-11.5, 0, 2.3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#111';
+    ctx.font = `bold 2.8px ${FONT}`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.save();
+    ctx.translate(-11.5, 0.1);
+    ctx.rotate(Math.PI / 2);
+    ctx.fillText(String(model.number), 0, 0);
+    ctx.restore();
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+  }
 }
 
 function drawTire(ctx, x, y, angle, length, width, spin = 0, blur = 0) {

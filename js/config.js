@@ -29,32 +29,32 @@ const PHYSICS = {
 const CAR_MODELS = [
   {
     id: 'red', name: 'Vermelho',
-    color: '#e8232a', dark: '#9e1016', light: '#ff7a6e',
+    color: '#e8232a', dark: '#9e1016', light: '#ff7a6e', accent: '#ffffff', helmet: '#ffd23f', number: 1,
     stats: { acceleration: 4, topSpeed: 5, handling: 3 },
   },
   {
     id: 'yellow', name: 'Amarelo',
-    color: '#f7d417', dark: '#b8920a', light: '#fff38a',
+    color: '#f7d417', dark: '#b8920a', light: '#fff38a', accent: '#16171b', helmet: '#1d4fd8', number: 7,
     stats: { acceleration: 5, topSpeed: 3, handling: 4 },
   },
   {
     id: 'blue', name: 'Azul',
-    color: '#1d4fd8', dark: '#0f2a80', light: '#6f9bff',
+    color: '#1d4fd8', dark: '#0f2a80', light: '#6f9bff', accent: '#ffd23f', helmet: '#ffffff', number: 22,
     stats: { acceleration: 4, topSpeed: 4, handling: 4 },
   },
   {
     id: 'green', name: 'Verde',
-    color: '#1fa54a', dark: '#0d6129', light: '#7be39b',
+    color: '#1fa54a', dark: '#0d6129', light: '#7be39b', accent: '#ffffff', helmet: '#ffd23f', number: 44,
     stats: { acceleration: 3, topSpeed: 4, handling: 5 },
   },
   {
     id: 'orange', name: 'Laranja',
-    color: '#ff8a1c', dark: '#b3540a', light: '#ffc27a',
+    color: '#ff8a1c', dark: '#b3540a', light: '#ffc27a', accent: '#1d4fd8', helmet: '#ffffff', number: 4,
     stats: { acceleration: 5, topSpeed: 4, handling: 3 },
   },
   {
     id: 'purple', name: 'Roxo',
-    color: '#8b3fd9', dark: '#521f8a', light: '#c79bff',
+    color: '#8b3fd9', dark: '#521f8a', light: '#c79bff', accent: '#ffd23f', helmet: '#ffffff', number: 16,
     stats: { acceleration: 3, topSpeed: 5, handling: 4 },
   },
 ];

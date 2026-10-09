@@ -56,7 +56,7 @@ js/input.js         → lê o teclado
 js/tracks.js        → pistas: desenho, detecção de grama, checkpoints
 js/car.js           → carro: física de drift, desenho do F1, colisão
 js/controllers.js   → quem pilota: jogador (teclado) ou computador (IA)
-js/scenery.js       → cenário: árvores, arquibancada, pneus, areia
+js/scenery.js       → cenário por tema (Campo, Floresta, Praia, Neve), arquibancada, placas
 js/pitlane.js       → faixa de box do modo Gabispeed (boxes, garagens, placas)
 js/audio.js         → sons (motor, pneus, bipes) e recordes de volta
 js/main.js          → menus, game loop, regras da corrida, HUD
@@ -100,6 +100,7 @@ olha a curva que vem pela frente: quanto mais fechada, mais ele freia.
 - [ ] **Passo 9** — Paredes/obstáculos sólidos na pista (carro bate e quica)
 - [x] **Passo 10** — Sons, partículas e recordes de volta
 - [x] **Passo 10b** — Pneus girando, semáforo de largada, faíscas nas batidas, velocímetro e placas
+- [x] **Passo 10c** — Ambientes por pista (Campo, Floresta, Praia, Neve), carros redesenhados com número e pintura de equipe
 - [ ] **Passo 11** — Editor de pistas (clicar para colocar pontos)
 - [ ] **Passo 12** — Multiplayer online (Node.js + WebSocket)
 

@@ -490,9 +490,70 @@ function drawRace() {
   drawParticles();
   game.cars.forEach((car) => car.draw(ctx));
   game.cars.forEach((car) => car.refueling && drawPitCrew(car));
+  drawAmbience();
   drawPlayerMarker();
   drawHud();
   drawTouchButtons();
+}
+
+// ---------------------------------------------------------------------------
+// Ambiente animado: sombras de nuvens, neve caindo e flashes na arquibancada
+const flashes = [];
+
+function drawAmbience() {
+  const t = performance.now() / 1000;
+  const theme = game.track.theme;
+
+  // Flashes de câmera na arquibancada
+  const info = sceneryInfo.get(game.track.name + (game.pit ? ':pit' : ''));
+  const stand = info && info.stand;
+  if (stand && Math.random() < 0.25) {
+    const u = (Math.random() - 0.5) * (stand.len - 10);
+    const v = (Math.random() - 0.5) * (stand.depth - 10);
+    flashes.push({
+      x: stand.x + Math.cos(stand.angle) * u - Math.sin(stand.angle) * v,
+      y: stand.y + Math.sin(stand.angle) * u + Math.cos(stand.angle) * v,
+      born: t,
+    });
+  }
+  while (flashes.length && t - flashes[0].born > 0.15) flashes.shift();
+  flashes.forEach((f) => {
+    const k = 1 - (t - f.born) / 0.15;
+    ctx.fillStyle = `rgba(255,255,255,${(0.35 * k).toFixed(3)})`;
+    ctx.beginPath();
+    ctx.arc(f.x, f.y, 6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = `rgba(255,255,255,${k.toFixed(3)})`;
+    ctx.beginPath();
+    ctx.arc(f.x, f.y, 2, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  // Sombras de nuvens passando devagar
+  ctx.fillStyle = theme === 'neve' ? 'rgba(60,80,120,0.07)' : 'rgba(0,0,0,0.07)';
+  for (let i = 0; i < 4; i++) {
+    const span = WORLD_WIDTH + 500;
+    const x = ((i * 397 + t * (10 + i * 3)) % span) - 250;
+    const y = 120 + ((i * 233) % (WORLD_HEIGHT - 200));
+    ctx.beginPath();
+    ctx.ellipse(x, y, 110, 55, 0.2, 0, Math.PI * 2);
+    ctx.ellipse(x + 70, y + 25, 80, 45, 0.1, 0, Math.PI * 2);
+    ctx.ellipse(x - 60, y + 20, 70, 38, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Neve caindo (pista de neve)
+  if (theme === 'neve') {
+    ctx.fillStyle = 'rgba(255,255,255,0.9)';
+    for (let i = 0; i < 140; i++) {
+      const speed = 25 + (i % 7) * 6;
+      const x = (((i * 137.5) % WORLD_WIDTH) + Math.sin(t * 0.8 + i) * 12 + t * 10) % WORLD_WIDTH;
+      const y = ((i * 89.3) % WORLD_HEIGHT + t * speed) % WORLD_HEIGHT;
+      ctx.beginPath();
+      ctx.arc(x, y, 1 + (i % 3) * 0.6, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
 }
 
 function drawPlayerMarker() {
@@ -828,7 +889,7 @@ function drawTrackSelect() {
     ctx.fillStyle = UI.muted;
     ctx.font = `13px ${FONT}`;
     const record = Records.get(track.name);
-    ctx.fillText(`Pista ${i + 1} · ${GAME_MODES[game.modeChoice].laps} voltas` + (record ? ` · Recorde ${formatTime(record)}` : ''), card.x + card.w / 2, card.y + card.h - 20);
+    ctx.fillText(`Pista ${i + 1} · ${themeOf(track).label} · ${GAME_MODES[game.modeChoice].laps} voltas` + (record ? ` · Recorde ${formatTime(record)}` : ''), card.x + card.w / 2, card.y + card.h - 20);
     ctx.textAlign = 'left';
   });
 }
@@ -851,7 +912,7 @@ function drawCarSelect() {
     ctx.translate(card.x + 85, card.y + card.h / 2);
     ctx.rotate(-Math.PI / 2);
     ctx.scale(4, 4);
-    drawF1(ctx, model, 0, false);
+    drawF1(ctx, model, 0, false, 0, 0, true);
     ctx.restore();
 
     const tx = card.x + 165;
