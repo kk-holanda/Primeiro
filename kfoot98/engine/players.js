@@ -47,22 +47,36 @@
   const DISC_FALTA = [0.55, 0.85, 1.0, 1.3, 1.7];
   const DISC_CARTAO = [0.4, 0.8, 1.0, 1.6, 2.4];
 
-  const NOMES = ['Adriano', 'Alex', 'André', 'Anderson', 'Antônio', 'Bruno', 'Carlos', 'Cláudio', 'Cleber', 'Daniel', 'Diego', 'Edu', 'Edson', 'Eduardo', 'Fábio', 'Fernando', 'Flávio', 'Gilmar', 'Gustavo', 'Helton', 'Ivan', 'Jair', 'João', 'Jorge', 'José', 'Júlio', 'Leandro', 'Leonardo', 'Lúcio', 'Luís', 'Marcelo', 'Márcio', 'Marcos', 'Mauro', 'Nélio', 'Neto', 'Paulo', 'Pedro', 'Rafael', 'Reinaldo', 'Renato', 'Ricardo', 'Roberto', 'Rodrigo', 'Ronaldo', 'Sérgio', 'Thiago', 'Valdir', 'Wagner', 'Wellington'];
-  const SOBRENOMES = ['Silva', 'Santos', 'Oliveira', 'Souza', 'Pereira', 'Costa', 'Rodrigues', 'Almeida', 'Nascimento', 'Lima', 'Araújo', 'Ribeiro', 'Carvalho', 'Gomes', 'Martins', 'Barbosa', 'Rocha', 'Dias', 'Moreira', 'Cardoso', 'Teixeira', 'Mendes', 'Freitas', 'Pinto', 'Batista', 'Moura', 'Campos', 'Cunha', 'Monteiro', 'Nunes'];
+  const NOMES = ['Adailton', 'Adílson', 'Adriano', 'Alberto', 'Alex', 'Alexandre', 'Aloísio', 'Altair', 'Amaral', 'André', 'Anderson', 'Antônio', 'Aílton', 'Beto', 'Bruno', 'Caio', 'Carlos', 'Cássio', 'Cláudio', 'Cleber', 'Cleiton', 'Dario', 'Davi', 'Denílson', 'Diego', 'Dida', 'Edmar', 'Edu', 'Edson', 'Eduardo', 'Elias', 'Emerson', 'Fabiano', 'Fábio', 'Felipe', 'Fernando', 'Flávio', 'Francisco', 'Gabriel', 'Geraldo', 'Gilmar', 'Gilson', 'Givanildo', 'Guilherme', 'Gustavo', 'Helton', 'Henrique', 'Hélio', 'Ivan', 'Jair', 'Jefferson', 'João', 'Jonas', 'Jorge', 'José', 'Júlio', 'Juninho', 'Kleber', 'Leandro', 'Leonardo', 'Lúcio', 'Luciano', 'Luís', 'Marcão', 'Marcelo', 'Márcio', 'Marcos', 'Mário', 'Maurício', 'Mauro', 'Nélio', 'Neto', 'Nilton', 'Odair', 'Osvaldo', 'Paulo', 'Pedro', 'Rafael', 'Raimundo', 'Reinaldo', 'Renato', 'Ricardo', 'Roberto', 'Rodrigo', 'Rogério', 'Ronaldo', 'Sandro', 'Sérgio', 'Silvio', 'Tadeu', 'Thiago', 'Valdir', 'Vágner', 'Vander', 'Vítor', 'Wagner', 'Wellington', 'Wilson', 'Zé'];
+  const SOBRENOMES = ['Silva', 'Santos', 'Oliveira', 'Souza', 'Pereira', 'Costa', 'Rodrigues', 'Almeida', 'Nascimento', 'Lima', 'Araújo', 'Ribeiro', 'Carvalho', 'Gomes', 'Martins', 'Barbosa', 'Rocha', 'Dias', 'Moreira', 'Cardoso', 'Teixeira', 'Mendes', 'Freitas', 'Pinto', 'Batista', 'Moura', 'Campos', 'Cunha', 'Monteiro', 'Nunes', 'Ramos', 'Vieira', 'Lopes', 'Fernandes', 'Machado', 'Correia', 'Azevedo', 'Duarte', 'Farias', 'Guimarães', 'Maciel', 'Miranda', 'Siqueira', 'Pacheco', 'Tavares', 'Xavier', 'Cavalcante', 'Brito', 'Peixoto', 'Medeiros', 'Andrade', 'Franco', 'Leite', 'Bezerra', 'Toledo', 'Furtado', 'Melo', 'Borges', 'Coelho', 'Viana'];
+  // registro de nomes já usados: garante que não existam dois jogadores com o mesmo nome no mundo
+  let usadosGlobal = new Set();
+  const resetNomes = () => { usadosGlobal = new Set(); };
+  function nomeUnico(rng, usados) {
+    for (let t = 0; t < 40; t++) {
+      const n = rng.pick(NOMES) + ' ' + rng.pick(SOBRENOMES);
+      if (!usados.has(n)) { usados.add(n); return n; }
+    }
+    for (;;) { // improvável: acrescenta inicial do meio
+      const n = rng.pick(NOMES) + ' ' + String.fromCharCode(65 + rng.int(0, 25)) + '. ' + rng.pick(SOBRENOMES);
+      if (!usados.has(n)) { usados.add(n); return n; }
+    }
+  }
 
   // composição de um elenco de 24
   const ELENCO = ['GOL', 'GOL', 'GOL', 'ZAG', 'ZAG', 'ZAG', 'ZAG', 'LD', 'LD', 'LE', 'LE', 'VOL', 'VOL', 'VOL', 'MC', 'MC', 'MEI', 'MEI', 'PD', 'PE', 'CA', 'CA', 'CA', 'SA'];
 
   const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
 
-  function gerarJogador(rng, pos, alvo, idade) {
+  function gerarJogador(rng, pos, alvo, idade, usados = usadosGlobal) {
     const attr = {};
     ATTRS.forEach((a, i) => { attr[a] = clamp(Math.round(alvo + PERFIL[pos][i] + rng.gauss() * 4.5), 5, 97); });
     const p = {
-      id: 'p' + Math.floor(rng.next() * 1e9).toString(36), nome: rng.pick(NOMES) + ' ' + rng.pick(SOBRENOMES),
+      id: 'p' + Math.floor(rng.next() * 1e9).toString(36), nome: nomeUnico(rng, usados),
       pos, idade, attr, xp: { RIT: 0, CHU: 0, PAS: 0, DRI: 0, DEF: 0, FIS: 0 },
       disciplina: rng.weighted([0, 1, 2, 3, 4], (d) => [10, 25, 35, 20, 10][d] * ((GRUPO[pos] === 'D' || pos === 'VOL') && d >= 3 ? 1.4 : 1)),
-      stamina: rng.int(88, 100), moral: rng.int(48, 72), lesao: 0, contrato: rng.int(1, 3), // temporadas restantes
+      stamina: rng.int(88, 100), moral: rng.int(48, 72), lesao: 0, contrato: rng.chance(0.65) ? 1 : 2, // temporadas restantes: até Dez do ano atual (65%) ou do próximo (35%)
+      suspenso: 0, amarelosAcum: 0,
       gols: 0, jogos: 0,
     };
     // ajusta o nível geral: corrige para que o overall caia perto do alvo
@@ -74,16 +88,16 @@
   // prestigio -> nível médio do elenco: 36 + 0.36 * prestígio  (97 -> 71 ; 8 -> 39)
   const nivelDoClube = (prestigio) => 36 + prestigio * 0.36;
 
-  function gerarElenco(rng, clube) {
+  function gerarElenco(rng, clube, usados) {
     const base = nivelDoClube(clube.prestigio);
     // elenco "pirâmide": titulares melhores que reservas
     return ELENCO.map((pos, i) => {
       const titular = i < 14 ? 3 + rng.next() * 5 : -(2 + rng.next() * 6);
       const idade = clamp(Math.round(26 + rng.gauss() * 4.2), 17, 37);
       const bonusIdade = idade <= 20 ? -3 : 0; // garotos ainda verdes
-      return gerarJogador(rng, pos, base + titular + bonusIdade, idade);
+      return gerarJogador(rng, pos, base + titular + bonusIdade, idade, usados);
     });
   }
 
-  bf.Players = { ATTRS, PESOS, GRUPO, DISCIPLINAS, DISC_FALTA, DISC_CARTAO, afinidade, overall, overallEm, ovrNoSlot, gerarElenco, gerarJogador, nivelDoClube, clamp };
+  bf.Players = { ATTRS, PESOS, GRUPO, DISCIPLINAS, DISC_FALTA, DISC_CARTAO, afinidade, overall, overallEm, ovrNoSlot, gerarElenco, gerarJogador, resetNomes, nivelDoClube, clamp };
 })(typeof globalThis !== 'undefined' ? globalThis : this);

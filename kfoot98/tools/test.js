@@ -83,3 +83,43 @@ t('Substituições: limite de 3 (1998) e opção de 5', () => {
 
 t('Padrão do jogo: 3 substituições', () => assert.equal(M.CFG.maxSubs, 3));
 console.log('\n' + ok + ' testes passaram');
+
+// ---------------- Jogo completo (calendário, rodadas, Copa por pernas, fim de ano) ----------------
+const G = BF.Game;
+t('Nomes únicos no mundo e contratos curtos (1 ou 2 temporadas)', () => {
+  const g = G.novo({ seed: 7, humanos: [{ id: 1, nome: 'Teste', clubId: 'bangu' }] });
+  const nomes = g.clubes.flatMap((c) => c.elenco.map((p) => p.nome));
+  assert.equal(nomes.length, 80 * 24); assert.equal(new Set(nomes).size, nomes.length);
+  assert(g.clubes.every((c) => c.elenco.every((p) => p.contrato === 1 || p.contrato === 2)));
+  assert.equal(G.fmtData('1998-02-04'), 'Qua, 04/02/1998');
+});
+t('Temporada inteira: 38 rodadas por divisão, Copa até o campeão, virada de ano', () => {
+  const g = G.novo({ seed: 1998, humanos: [{ id: 1, nome: 'Teste', clubId: 'bangu' }] });
+  assert.equal(g.dias.length, 52);
+  const primeiro = G.proximoJogo(g, 'bangu');
+  assert.equal(primeiro.comp, 'copa'); assert.equal(primeiro.data, '1998-02-04');
+  let paradas = 0;
+  for (let guard = 0; guard < 80 && !g.fim; guard++) {
+    const r = G.avancar(g); if (r.parou) { paradas++; G.simularDia(g); }
+  }
+  assert(g.fim); assert(g.copa.campeao);
+  for (const d of 'ABCD') for (const r of g.ligas[d].tabela.values()) assert.equal(r.j, 38);
+  const tot = [...g.hist.values()].reduce((s, a) => s + a.length, 0);
+  assert.equal(tot, 2 * (4 * 380 + 158));
+  assert.equal(G.ultimosJogos(g, 'bangu').length, 2);
+  const antes = G.classificacao(g);
+  const r = G.virarTemporada(g);
+  assert.equal(g.ano, 1999); assert.equal(g.data, '1999-01-31'); assert.equal(g.idx, 0);
+  for (const d of 'ABCD') assert.equal(g.clubes.filter((c) => c.div === d).length, 20);
+  antes.A.slice(-4).forEach((id) => assert.equal(g.porId.get(id).div, 'B'));
+  for (let i = 0; i < 6; i++) { const a = G.avancar(g); if (a.parou) G.simularDia(g); }
+  assert(g.clubes.every((c) => c.elenco.every((p) => p.contrato >= 1)));
+  console.log('   humano parou', paradas, 'vezes | campeão A:', g.porId.get(antes.A[0]).nome, '| Copa:', g.porId.get(r.registro.copa).nome);
+});
+t('Suspensão: vermelho tira o jogador do próximo jogo', () => {
+  const g = G.novo({ seed: 5, humanos: [{ id: 1, nome: 'T', clubId: 'bangu' }] });
+  const c = g.porId.get('bangu'); const p = c.elenco.find((x) => x.pos === 'ZAG'); p.suspenso = 1;
+  const esc = G.escalacaoDe(g, c, g.porId.get('tupi'));
+  assert(!esc.titulares.includes(p.id) && !esc.banco.includes(p.id));
+});
+console.log('\n' + ok + ' testes passaram');

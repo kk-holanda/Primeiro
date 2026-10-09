@@ -63,13 +63,16 @@
     while (a === b) { if (rng.chance(0.76)) a++; if (rng.chance(0.76)) b++; }
     return [a, b];
   }
-  // joga a fase atual. simula(casaId, foraId) -> [golsCasa, golsFora]. Ida: A em casa. Volta: B em casa.
-  function copaJogarFase(copa, simula, rng) {
-    const fase = copa.fases[copa.fases.length - 1];
-    if (fase.jogada) throw new Error('fase já jogada');
+  // Cada perna é jogada em um dia. Ida: A em casa. Volta: B em casa.
+  const faseAtual = (copa) => copa.fases[copa.fases.length - 1];
+  function copaPerna(copa, perna, simula) { // perna: 'ida' | 'volta'
+    faseAtual(copa).confrontos.forEach((c) => { c[perna] = perna === 'ida' ? simula(c.a, c.b) : simula(c.b, c.a); });
+  }
+  // fecha a fase depois da volta: agregado (gol fora NÃO vale dobrado), pênaltis, sorteio da próxima fase
+  function copaFechar(copa, rng) {
+    const fase = faseAtual(copa);
     fase.confrontos.forEach((c) => {
-      c.ida = simula(c.a, c.b); c.volta = simula(c.b, c.a);
-      const ga = c.ida[0] + c.volta[1], gb = c.ida[1] + c.volta[0]; // gol fora NÃO vale dobrado
+      const ga = c.ida[0] + c.volta[1], gb = c.ida[1] + c.volta[0];
       c.agregado = [ga, gb];
       if (ga === gb) { c.penaltis = penaltis(rng); c.vencedor = c.penaltis[0] > c.penaltis[1] ? c.a : c.b; }
       else c.vencedor = ga > gb ? c.a : c.b;
@@ -82,19 +85,38 @@
     copa.fases.push({ nome: NOMES_FASE[sorteados.length], confrontos: pares(sorteados) });
     return copa;
   }
-
-  // ---------- Escalação automática (IA / sugestão) ----------
-  function escalarAuto(clube, formacao = '4-4-2', tatica = 'equilibrado', maxSubs) {
-    const PL = bf.Players, M = bf.Match;
-    const slots = M.FORMACOES[formacao], usados = new Set(), tit = [];
-    for (const slot of slots) {
-      const disp = clube.elenco.filter((p) => !usados.has(p.id) && p.lesao === 0);
-      disp.sort((a, b) => PL.ovrNoSlot(b, slot) * (0.8 + b.stamina / 500) - PL.ovrNoSlot(a, slot) * (0.8 + a.stamina / 500));
-      usados.add(disp[0].id); tit.push(disp[0].id);
-    }
-    const banco = clube.elenco.filter((p) => !usados.has(p.id) && p.lesao === 0).sort((a, b) => PL.overall(b) - PL.overall(a)).slice(0, 7).map((p) => p.id);
-    return { nome: clube.nome, elenco: clube.elenco, formacao, tatica, titulares: tit, banco, maxSubs };
+  // joga a fase inteira de uma vez (usado em testes e simulações)
+  function copaJogarFase(copa, simula, rng) {
+    if (faseAtual(copa).jogada) throw new Error('fase já jogada');
+    copaPerna(copa, 'ida', simula); copaPerna(copa, 'volta', simula); return copaFechar(copa, rng);
   }
 
-  bf.Season = { ORDEM, REGRAS, calendarioLiga, novaTabela, registrar, ordenar, promoRebaixa, reclassificar, copaCriar, copaJogarFase, escalarAuto, embaralhar };
+  // ---------- Escalação automática (IA / sugestão) ----------
+  // Disponível = sem lesão e sem suspensão.
+  const disponivel = (p) => p.lesao === 0 && !(p.suspenso > 0);
+  // Monta os 11 + banco. 'pref' = ids que o técnico escolheu por slot (os inválidos/indisponíveis são trocados pelo melhor disponível).
+  function escalarAuto(clube, formacao = '4-4-2', tatica = 'equilibrado', maxSubs, pref = []) {
+    const PL = bf.Players, M = bf.Match;
+    const slots = M.FORMACOES[formacao], usados = new Set(), tit = [];
+    const porId = new Map(clube.elenco.map((p) => [p.id, p]));
+    const nota = (p, slot) => PL.ovrNoSlot(p, slot) * (0.8 + p.stamina / 500);
+    slots.forEach((slot, i) => {
+      const pp = porId.get(pref[i]);
+      if (pp && disponivel(pp) && !usados.has(pp.id)) { usados.add(pp.id); tit[i] = pp.id; }
+    });
+    slots.forEach((slot, i) => {
+      if (tit[i]) return;
+      let disp = clube.elenco.filter((p) => !usados.has(p.id) && disponivel(p));
+      if (!disp.length) disp = clube.elenco.filter((p) => !usados.has(p.id));
+      disp.sort((a, b) => nota(b, slot) - nota(a, slot));
+      usados.add(disp[0].id); tit[i] = disp[0].id;
+    });
+    const resto = clube.elenco.filter((p) => !usados.has(p.id) && disponivel(p)).sort((a, b) => PL.overall(b) - PL.overall(a));
+    const banco = [];
+    const gk = resto.find((p) => p.pos === 'GOL'); if (gk) banco.push(gk.id);
+    for (const p of resto) { if (banco.length >= 7) break; if (!banco.includes(p.id)) banco.push(p.id); }
+    return { clubId: clube.id, nome: clube.nome, elenco: clube.elenco, formacao, tatica, titulares: tit, banco, maxSubs };
+  }
+
+  bf.Season = { ORDEM, REGRAS, calendarioLiga, novaTabela, registrar, ordenar, promoRebaixa, reclassificar, copaCriar, copaPerna, copaFechar, copaJogarFase, faseAtual, escalarAuto, disponivel, embaralhar };
 })(typeof globalThis !== 'undefined' ? globalThis : this);

@@ -62,19 +62,23 @@
     return rng.weighted(c.length ? c : side.campo, peso);
   }
 
-  function simular(timeCasa, timeFora, rng, opts = {}) {
+  const novoStats = () => ({ chutes: 0, no_gol: 0, faltas: 0, amarelos: 0, vermelhos: 0, posse: 0 });
+  const recalcular = (m) => { m.F = [forcas(m.S[0]), forcas(m.S[1])]; };
+  const placarDe = (m) => [m.S[0].gols, m.S[1].gols];
+
+  // Cria uma partida "viva": avance minuto a minuto com passo(m). Permite pausar, trocar jogadores e mudar a tática.
+  function criar(timeCasa, timeFora, rng) {
     const S = [montar(timeCasa, rng), montar(timeFora, rng)];
     S[0].time.mando = true; S[1].time.mando = false;
-    const eventos = [];
-    let F = [forcas(S[0]), forcas(S[1])];
-    const ctrl = () => { const a = Math.pow(F[0].controle, CFG.expoControle), b = Math.pow(F[1].controle, CFG.expoControle); return a / (a + b); };
-    const stats = [{ chutes: 0, no_gol: 0, faltas: 0, amarelos: 0, vermelhos: 0, posse: 0 }, { chutes: 0, no_gol: 0, faltas: 0, amarelos: 0, vermelhos: 0, posse: 0 }];
-    const ev = (min, tipo, lado, jog, extra) => eventos.push({ min, tipo, lado, jogador: jog && jog.p.nome, ...extra });
+    return { S, rng, min: 0, eventos: [], stats: [novoStats(), novoStats()], F: [forcas(S[0]), forcas(S[1])], terminou: false };
+  }
 
-    for (let min = 1; min <= 90; min++) {
-      // IA/jogador pode intervir no intervalo (min 45) via opts.intervalo(S, eventos)
-      if (min === 46 && opts.intervalo) { opts.intervalo(S, stats, eventos); F = [forcas(S[0]), forcas(S[1])]; }
-      if (min % 5 === 0) F = [forcas(S[0]), forcas(S[1])];
+  function passo(m) {
+    const { S, rng, stats, eventos } = m;
+    const min = ++m.min;
+    const ctrl = () => { const a = Math.pow(m.F[0].controle, CFG.expoControle), b = Math.pow(m.F[1].controle, CFG.expoControle); return a / (a + b); };
+    const ev = (min, tipo, lado, jog, extra) => eventos.push({ min, tipo, lado, jogador: jog && jog.p.nome, ...extra });
+    if (min % 5 === 0) recalcular(m);
       // cansaço: perda por minuto depende do atributo FIS (FIS 99 ≈ -13 por jogo; FIS 30 ≈ -26)
       for (const s of S) for (const j of s.campo) {
         j.minutos++;
@@ -84,7 +88,7 @@
           j.lesionado = true; j.p.lesao = rng.int(1, 8); j.p.stamina = Math.min(j.p.stamina, 15);
           ev(min, 'lesao', S.indexOf(s), j);
           trocarForcado(s, j, min, rng, ev, S.indexOf(s));
-          F = [forcas(S[0]), forcas(S[1])];
+          recalcular(m);
         }
       }
       // quem tem a bola neste minuto?
@@ -92,10 +96,10 @@
       const nAtaques = rng.chance(CFG.ataquesPorMinuto) ? 1 : 0;
       stats[0].posse += pc; stats[1].posse += 1 - pc;
       if (nAtaques) {
-        const peso0 = pc * F[0].t.tempo, peso1 = (1 - pc) * F[1].t.tempo;
+        const peso0 = pc * m.F[0].t.tempo, peso1 = (1 - pc) * m.F[1].t.tempo;
         const a = rng.chance(peso0 / (peso0 + peso1)) ? 0 : 1, d = 1 - a;
         const A = S[a], D = S[d];
-        const pChute = P().clamp(0.48 + (F[a].ataque - F[d].defesa) * 0.0065, 0.22, 0.75);
+        const pChute = P().clamp(0.48 + (m.F[a].ataque - m.F[d].defesa) * 0.0065, 0.22, 0.75);
         // passe/assistência
         const passador = sorteia(A, rng, ['M', 'A', 'D'], (j) => j.p.attr.PAS * (P().GRUPO[j.slot] === 'M' ? 2 : 1));
         passador.passes++;
@@ -126,19 +130,43 @@
         const fj = rng.weighted(S1.campo, (j) => P().DISC_FALTA[j.p.disciplina] * (P().GRUPO[j.slot] === 'A' ? 0.6 : 1) * (1.2 - j.p.attr.DEF / 300));
         fj.faltas++; stats[lado].faltas++;
         const pc = CFG.amareloPorFalta * P().DISC_CARTAO[fj.p.disciplina] * (fj.amarelos ? 0.6 : 1); // quem já tem amarelo pega leve
-        if (rng.chance(CFG.vermelhoDireto * P().DISC_CARTAO[fj.p.disciplina])) { expulsar(S1, fj, min, ev, lado, stats, 'vermelho'); F = [forcas(S[0]), forcas(S[1])]; }
+        if (rng.chance(CFG.vermelhoDireto * P().DISC_CARTAO[fj.p.disciplina])) { expulsar(S1, fj, min, ev, lado, stats, 'vermelho'); recalcular(m); }
         else if (rng.chance(pc)) {
           fj.amarelos++; stats[lado].amarelos++;
           ev(min, 'amarelo', lado, fj);
-          if (fj.amarelos >= 2) { expulsar(S1, fj, min, ev, lado, stats, 'vermelho (2º amarelo)'); F = [forcas(S[0]), forcas(S[1])]; }
+          if (fj.amarelos >= 2) { expulsar(S1, fj, min, ev, lado, stats, 'vermelho (2º amarelo)'); recalcular(m); }
         }
       }
+  }
+
+  function finalizar(m) {
+    const placar = placarDe(m);
+    m.S.forEach((s, i) => { for (const j of s.todos.values()) j.nota = calcNota(j, i, placar); });
+    m.terminou = true;
+    return { placar, eventos: m.eventos, stats: m.stats.map((x) => ({ ...x, posse: Math.round(x.posse / Math.max(1, m.min) * 100) })), lados: m.S };
+  }
+
+  // Partida inteira de uma vez (simulação rápida). opts.intervalo(S, stats, eventos) é chamado aos 46'; opts.ia liga as trocas automáticas.
+  function simular(timeCasa, timeFora, rng, opts = {}) {
+    const m = criar(timeCasa, timeFora, rng);
+    for (let i = 1; i <= 90; i++) {
+      if (i === 46 && opts.intervalo) { opts.intervalo(m.S, m.stats, m.eventos); recalcular(m); }
+      if (opts.ia && (i === 60 || i === 70 || i === 80)) m.S.forEach((s) => iaSubstituicoes(m, s));
+      passo(m);
     }
-    // notas
-    const placar = [S[0].gols, S[1].gols];
-    const jogs = [];
-    S.forEach((s, i) => { for (const j of s.todos.values()) { j.nota = calcNota(j, i, placar); jogs.push(j); } });
-    return { placar, eventos, stats: stats.map((x) => ({ ...x, posse: Math.round(x.posse / 90 * 100) })), lados: S };
+    return finalizar(m);
+  }
+
+  // Troca automática do computador: tira quem está mais cansado (stamina < 45) e põe o melhor reserva para o slot.
+  function iaSubstituicoes(m, s) {
+    if (s.subs >= s.maxSubs) return;
+    const cand = s.campo.filter((j) => j.slot !== 'GOL').sort((a, b) => a.p.stamina - b.p.stamina)[0];
+    if (!cand || cand.p.stamina > 45) return;
+    const livres = s.banco.filter((p) => p.lesao === 0 && p.pos !== 'GOL');
+    if (!livres.length) return;
+    const nota = (p) => P().ovrNoSlot(p, cand.slot) * (0.8 + p.stamina / 500);
+    const melhor = livres.sort((a, b) => nota(b) - nota(a))[0];
+    substituirM(m, m.S.indexOf(s), cand.p.id, melhor.id, 'tática');
   }
 
   function expulsar(s, j, min, ev, lado, stats, motivo) {
@@ -188,5 +216,17 @@
     return { ok: true };
   }
 
-  bf.Match = { FORMACOES, TATICA, CFG, simular, calcNota, substituir };
+  // Substituição manual numa partida viva (registra o evento e recalcula as forças).
+  function substituirM(m, lado, saiId, entraId, motivo) {
+    const s = m.S[lado], sai = s.campo.find((j) => j.p.id === saiId);
+    const r = substituir(s, saiId, entraId, m.min);
+    if (r.ok) {
+      const nj = s.todos.get(entraId);
+      m.eventos.push({ min: m.min, tipo: 'substituicao', lado, jogador: nj.p.nome, saiu: sai.p.nome, motivo: motivo || 'técnico' });
+      recalcular(m);
+    }
+    return r;
+  }
+
+  bf.Match = { FORMACOES, TATICA, CFG, criar, passo, finalizar, recalcular, placarDe, simular, calcNota, substituir, substituirM, iaSubstituicoes };
 })(typeof globalThis !== 'undefined' ? globalThis : this);

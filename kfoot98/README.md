@@ -14,6 +14,14 @@ entre os 10 piores da Série D · 4) clubes dos técnicos · 5) plantel (estilo 
 - Copa do Brasil com 64 clubes: fase preliminar dos 32 mais fracos (20 da D + 12 da C), depois 64 → 32 → 16 → 8 → 4 → final, ida e volta, pênaltis.
 - Substituições: limite de 3 (1998) com opção de 5 (`maxSubs`, `Match.substituir`).
 
+## Jogo (implementado)
+- Plantel com data, próximo jogo e últimos 2 resultados; tooltips nos atributos; barras de stamina/moral por porcentagem.
+- Escalação (4 formações, 3 táticas, qualquer jogador em qualquer posição), Tabela das 4 divisões + Copa do Brasil.
+- Jogo ao vivo com todas as divisões ao mesmo tempo, pausa e substituições (3, ou 5 no modo moderno), resumo com notas e evolução.
+- Calendário: quartas = Copa do Brasil (14 pernas), domingos = Brasileirão (38 rodadas). Fim de temporada com acesso/descenso e nova temporada.
+- Lesões, cartões e suspensões (vermelho ou 3 amarelos). Contratos curtos: até Dez do ano atual ou do próximo.
+- Mercado e Finanças: ainda não (abas "em breve").
+
 ## Comandos
 ```
 node tools/test.js           # testa as regras acima

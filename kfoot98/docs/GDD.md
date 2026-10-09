@@ -64,7 +64,7 @@ GOL, ZAG, LIB, LD, LE, VOL, MC, MEI, ALA, PD, PE, CA, SA. Elenco inicial de 24 (
 ### 4.2 Os 6 atributos (0–99)
 `RIT` Ritmo · `CHU` Chute · `PAS` Passe · `DRI` Drible · `DEF` Defesa · `FIS` Físico.
 
-O **overall** do jogador depende da posição (pesos somam 1):
+O **média** do jogador depende da posição (pesos somam 1):
 
 | Pos | RIT | CHU | PAS | DRI | DEF | FIS |
 |---|---|---|---|---|---|---|
@@ -169,7 +169,7 @@ Nível médio do titular por divisão (11 melhores): **A ≈ 71 (64–77), B ≈
 ### 7.3 Salários e transferências
 - **Valor de mercado** = `15.000 × e^(0,14 × (ovr − 40)) × fator_idade` → ovr 40 ≈ 15 mil · 55 ≈ 120 mil · 65 ≈ 500 mil · 75 ≈ 2 mi · 85 ≈ 8 mi · 95 ≈ 33 mi.
 - Fator idade: ≤20 ×1,35 · ≤23 ×1,20 · ≤27 ×1,00 · ≤30 ×0,80 · ≤33 ×0,50 · 34+ ×0,30.
-- **Salário mensal** = 1,2% do valor (piso R$ 500), 13 pagamentos/ano. Contratos em temporadas.
+- **Salário mensal** = 1,2% do valor (piso R$ 500), 13 pagamentos/ano. Contratos curtos: 65% terminam em dezembro do ano atual e 35% em dezembro do ano seguinte (sem contratos de 3 anos). Sem mercado ainda, quem termina o contrato é renovado automaticamente na virada.
 - **Custos fixos anuais** (staff, manutenção, viagens): A 3,5 mi · B 600 mil · C 150 mil · D 30 mil.
 
 ### 7.4 Estádio
