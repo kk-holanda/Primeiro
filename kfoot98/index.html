@@ -638,6 +638,9 @@ td.nm { z-index: 1; }
 .escult .pos { display: inline-block; min-width: 34px; font-weight: 700; color: var(--muted); }
 .mkt { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; } .mkt-acao { display: flex; flex-direction: column; gap: 6px; }
 
+tr.sep td .sepl { position: sticky; left: 10px; display: inline-block; }
+.subpanel .sublista { max-height: none; overflow: visible; }
+
 </style>
 <div id="app"></div>
 <script>
@@ -1593,8 +1596,8 @@ window.ESCUDOS_REAIS = {};
       usados.add(disp[0].id); tit[i] = disp[0].id;
     });
     const resto = clube.elenco.filter((p) => !usados.has(p.id) && disponivel(p)).sort((a, b) => PL.overall(b) - PL.overall(a));
-    const banco = [];
-    const gk = resto.find((p) => p.pos === 'GOL'); if (gk) banco.push(gk.id);
+    const banco = [], G7 = { G: 1, D: 2, M: 2, A: 2 };
+    for (const gr of ['G', 'D', 'M', 'A']) resto.filter((p) => PL.GRUPO[p.pos] === gr).slice(0, G7[gr]).forEach((p) => banco.push(p.id));
     for (const p of resto) { if (banco.length >= 7) break; if (!banco.includes(p.id)) banco.push(p.id); }
     return { clubId: clube.id, nome: clube.nome, elenco: clube.elenco, formacao, tatica, titulares: tit, banco, maxSubs };
   }
@@ -1626,7 +1629,7 @@ window.ESCUDOS_REAIS = {};
   function gerarDias(ano) {
     const d = new Date(Date.UTC(ano, 1, 1, 12)); while (d.getUTCDay() !== 3) d.setUTCDate(d.getUTCDate() + 1);
     const q0 = toIso(d), dias = [];
-    for (let k = 0; k < 14; k++) dias.push({ data: addDias(q0, 7 * k), tipo: 'copa', perna: k });
+    for (let k = 0; k < 14; k++) dias.push({ data: addDias(q0, 7 * (2 + 5 * (k >> 1) + 2 * (k & 1))), tipo: 'copa', perna: k });
     for (let r = 0; r < 38; r++) dias.push({ data: addDias(q0, 4 + 7 * r), tipo: 'liga', rodada: r });
     return dias.sort((a, b) => (a.data < b.data ? -1 : a.data > b.data ? 1 : 0));
   }
@@ -2806,7 +2809,7 @@ window.ESCUDOS_REAIS = {};
   function pintarStats(P) {
     const st = P.m.stats, n = Math.max(1, P.m.min);
     if (REFS.escFn) REFS.escFn(P);
-    REFS.stats.forEach(([k, el]) => { el.textContent = k === 'posse' ? Math.round(st[0].posse / n * 100) + '% — ' + Math.round(st[1].posse / n * 100) + '%' : st[0][k] + ' — ' + st[1][k]; });
+    REFS.stats.forEach(([k, el]) => { el.textContent = k === 'posse' && P.m.min === 0 ? '— —' : k === 'posse' ? Math.round(st[0].posse / n * 100) + '% — ' + Math.round(st[1].posse / n * 100) + '%' : st[0][k] + ' — ' + st[1][k]; });
   }
   function atualizar() {
     const live = L(), P = partidaHumana();
@@ -3246,8 +3249,7 @@ window.ESCUDOS_REAIS = {};
     const emJogo = typeof G.tela === 'string';
     return h('header', { class: 'top' }, h('div', { class: 'wrap' },
       h('div', { class: 'brand' }, 'Kfoot', h('b', null, '98')),
-      emJogo ? h('span', { class: 'muted' }, GM.fmtData(G.g.data) + ' · ' + clubeHumano().nome)
-        : h('ol', { class: 'steps', 'aria-label': 'Etapas' }, PASSOS.map((p, i) => h('li', { class: i + 1 === G.tela ? 'on' : i + 1 < G.tela ? 'ok' : '', 'aria-current': i + 1 === G.tela ? 'step' : false }, (i + 1) + ' · ' + p)))));
+      emJogo ? h('span', { class: 'muted' }, GM.fmtData(G.g.data) + ' · ' + clubeHumano().nome) : null));
   }
   function ir(t) { G.tela = t; G.erro = ''; render(); window.scrollTo(0, 0); }
   function render() {
@@ -3533,7 +3535,7 @@ window.ESCUDOS_REAIS = {};
   function statusBox(c) {
     const g = G.g, pj = GM.proximoJogo(g, c.id), ult = GM.ultimosJogos(g, c.id, 2), multi = G.humanos.length > 1, pronto = G.prontos.has(c.id);
     const prox = g.fim ? h('span', null, 'Temporada encerrada')
-      : pj ? h('span', null, h('span', { class: 'confronto' }, h('b', null, GM.fmtDataCurta(pj.data)), pj.emCasa ? [K.comEscudo(c), '×', K.advLink(pj.adversario), posAdv(pj.adversario)] : [K.advLink(pj.adversario), posAdv(pj.adversario), '×', K.comEscudo(c)]), h('small', { class: 'muted' }, pj.rotulo + (pj.emCasa ? ' · em casa' : ' · fora')))
+      : pj ? h('span', null, h('span', { class: 'confronto' }, h('b', null, GM.fmtDataCurta(pj.data)), pj.emCasa ? [K.comEscudo(c), '×', K.advLink(pj.adversario), posAdv(pj.adversario)] : [K.advLink(pj.adversario), posAdv(pj.adversario), '×', K.comEscudo(c)]), h('small', { class: 'muted' }, pj.rotulo + (pj.emCasa ? ' · em casa' : ' · fora')), pj.comp === 'copa' && pj.perna === 'volta' && pj.confronto.ida ? h('small', { class: 'muted' }, 'Jogo de ida: ' + g.porId.get(pj.confronto.a).nome + ' ' + pj.confronto.ida[0] + ' × ' + pj.confronto.ida[1] + ' ' + g.porId.get(pj.confronto.b).nome) : null)
         : h('span', null, 'Sem jogo marcado');
     const botoes = g.fim ? h('button', { class: 'btn hot', id: 'jogar', onclick: () => ir('fim') }, 'Fim da temporada')
       : !multi ? h('button', { class: 'btn hot', id: 'jogar', onclick: jogarProximo }, 'Jogar próximo jogo')
@@ -3544,7 +3546,7 @@ window.ESCUDOS_REAIS = {};
       h('div', { class: 'srow' }, h('small', null, 'Hoje'), h('b', null, GM.fmtData(g.data))),
       h('div', { class: 'srow' }, h('small', null, 'Próximo jogo'), prox),
       h('div', { class: 'srow' }, h('small', null, 'Últimos jogos'),
-        ult.length ? h('div', { class: 'ult' }, ult.map((r) => h('span', { class: 'rl' }, h('i', { class: 'res r' + resultado(r) }, resultado(r)), placarEl(c.id, r), h('small', { class: 'muted' }, r.comp))))
+        ult.length ? h('div', { class: 'ult' }, ult.map((r) => h('span', { class: 'rl' }, h('i', { class: 'res r' + resultado(r) }, resultado(r)), h('b', { class: 'num' }, r.gp + ' × ' + r.gc), K.comEscudo(r.adv), h('small', { class: 'muted' }, r.comp))))
           : h('span', { class: 'muted' }, 'Nenhum jogo disputado ainda')),
       botoes);
   }
@@ -3596,7 +3598,7 @@ window.ESCUDOS_REAIS = {};
     const ths = COLS.map(([k, t, , tip]) => h('th', { class: (k === 'nome' ? 'l ' : '') + (G.sort.k === k ? 'sorted' : ''), scope: 'col', tabindex: 0, 'data-tip': tip ? K.TIPS[tip] : false, 'aria-sort': G.sort.k === k ? (dir > 0 ? 'ascending' : 'descending') : 'none', onclick: () => ordenar(k), onkeydown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); ordenar(k); } } }, t));
     const linhas = []; let setor = null;
     lista.forEach((p) => {
-      if (G.sort.k === 'pos' && K.SETOR[p.pos] !== setor) { setor = K.SETOR[p.pos]; linhas.push(h('tr', { class: 'sep' }, h('td', { colspan: COLS.length }, setor))); }
+      if (G.sort.k === 'pos' && K.SETOR[p.pos] !== setor) { setor = K.SETOR[p.pos]; linhas.push(h('tr', { class: 'sep' }, h('td', { colspan: COLS.length }, h('span', { class: 'sepl' }, setor)))); }
       const lim = (v) => (v >= 70 ? 'hi' : v < 35 ? 'lo' : ''), [st, stc] = situacao(p);
       linhas.push(h('tr', { 'data-id': p.id, class: p.id === G[selKey] ? 'sel' : '', tabindex: 0, onclick: () => selecionar(p.id, selKey), onkeydown: (e) => { if (e.key === 'Enter') selecionar(p.id, selKey); } },
         h('td', null, p.num), h('td', { class: 'l nm', 'data-tip': p.nome + ' nesta temporada: ' + (p.gols || 0) + (p.gols === 1 ? ' gol' : ' gols') + ' · ' + (p.faltas || 0) + ' faltas · ' + (p.cartAm || 0) + ' amarelos · ' + (p.cartVm || 0) + ' vermelhos' }, tits.has(p.id) ? h('span', { class: 'tit', title: 'Titular na escalação atual', html: JOGADORINHO }) : null, p.nome, p.estrela ? K.estrela() : null, K.treinoIcone(p)),
