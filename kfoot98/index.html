@@ -640,6 +640,20 @@ td.nm { z-index: 1; }
 
 tr.sep td .sepl { position: sticky; left: 10px; display: inline-block; }
 .subpanel .sublista { max-height: none; overflow: visible; }
+/* escalação: lista (com atributos) à esquerda, campo à direita */
+@media (min-width: 861px) {
+  .escgrid { grid-template-columns: minmax(0, 1fr) minmax(0, 420px); }
+  .escgrid .lista { order: 1; } .escgrid .campocol { order: 2; position: sticky; top: 76px; }
+}
+.escgrid .lista table { font-size: 14px; }
+.escgrid .lista td, .escgrid .lista th { padding: 5px 7px; }
+.escgrid .lista td.l { text-align: left; font-weight: 600; }
+.escgrid .lista td.at { color: var(--muted); }
+.escgrid .lista td.at.hi { color: var(--ink); font-weight: 800; }
+.escgrid .lista td.at.lo { opacity: .55; }
+.escgrid .lista tr.tit-row td { background: color-mix(in srgb, var(--accent) 10%, var(--panel)); }
+.escgrid .lista tr.tit-row td:first-child { box-shadow: inset 4px 0 var(--accent); }
+.escgrid .lista tbody tr:nth-child(even):not(.tit-row) td { background: color-mix(in srgb, var(--panel2) 55%, var(--panel)); }
 
 </style>
 <div id="app"></div>
@@ -2733,6 +2747,7 @@ window.ESCUDOS_REAIS = {};
       const sit = p.lesao ? 'LES ' + p.lesao : p.suspenso ? 'SUSP' : p.treino ? 'TREINO' : '';
       return h('tr', { 'data-id': p.id, tabindex: 0, class: (slotDe.has(p.id) ? 'tit-row ' : '') + (!S.disponivel(p) ? 'indisp' : ''), onclick: () => colocar(p), onkeydown: (e) => { if (e.key === 'Enter') colocar(p); } },
         h('td', null, p.num), h('td', { class: 'l nm' }, p.nome, p.estrela ? K.estrela() : null, K.treinoIcone(p)), h('td', { class: 'pos' }, p.pos), h('td', { class: 'ovr' }, Math.round(v)),
+        ...K.ATTRS.map((a) => h('td', { class: 'at ' + (p.attr[a] >= 70 ? 'hi' : p.attr[a] < 35 ? 'lo' : '') }, p.attr[a])),
         h('td', null, K.barra(p.stamina, '', 'Stamina')), h('td', null, K.barra(p.moral, '', 'Moral')), h('td', { class: p.lesao ? 'bad' : p.suspenso ? 'warn' : '' }, sit || st));
     });
     const media = cfg.titulares.map((id, i) => PL.ovrNoSlot(porId.get(id), slots[i])).reduce((a, b) => a + b, 0) / 11;
@@ -2755,7 +2770,7 @@ window.ESCUDOS_REAIS = {};
           h('p', { class: 'footnote' }, 'Média do time nesta escalação: ', h('b', null, media.toFixed(1)), fora ? ' · ' + fora + ' jogador(es) fora de posição' : ''),
           h('p', { class: 'footnote legenda' }, h('b', null, 'Como ler: '), 'a faixa de cima é a posição em que o jogador joga e o número da camisa. "Média da Posição" é a nota dele nessa posição (cai se jogar fora da natural). E = stamina e M = moral. ▲ ▼ mostram se a tática avança ou recua o jogador.')),
         h('div', { class: 'tablewrap lista' }, h('table', { 'aria-label': 'Elenco' },
-          h('thead', null, h('tr', null, [['Nº'], ['Jogador'], ['Pos'], [sel != null ? 'Méd ' + slotSel : 'Méd', K.TIPS.media], ['Stamina', K.TIPS.stamina], ['Moral', K.TIPS.moral], ['Sit.', K.TIPS.sit]].map(([t, tip], i) => h('th', { class: i === 1 ? 'l' : '', style: 'cursor:default', 'data-tip': tip || false }, t)))),
+          h('thead', null, h('tr', null, [['Nº'], ['Jogador'], ['Pos'], [sel != null ? 'Méd ' + slotSel : 'Méd', K.TIPS.media], ...K.ATTRS.map((a) => [K.ATTR_SIGLA[a], K.TIPS[a]]), ['Stamina', K.TIPS.stamina], ['Moral', K.TIPS.moral], ['Sit.', K.TIPS.sit]].map(([t, tip], i) => h('th', { class: i === 1 ? 'l' : '', style: 'cursor:default', 'data-tip': tip || false }, t)))),
           h('tbody', null, linhas)))));
   };
 })();
@@ -2821,7 +2836,7 @@ window.ESCUDOS_REAIS = {};
     if (P) {
       const pl = M.placarDe(P.m); REFS.pl0.textContent = pl[0]; REFS.pl1.textContent = pl[1];
       pintarStats(P); pintarAgg(P);
-      while (G.jg.evtN < P.m.eventos.length) { const ev = P.m.eventos[G.jg.evtN]; REFS.feed.prepend(eventoLinha(ev, P)); G.jg.evtN++; if (ev.tipo === 'gol' && G.g.humanoIds.has(ev.lado === 0 ? P.jogo.casa : P.jogo.fora)) K.somSorteio.gol(); }
+      while (G.jg.evtN < P.m.eventos.length) { const ev = P.m.eventos[G.jg.evtN]; REFS.feed.prepend(eventoLinha(ev, P)); G.jg.evtN++; if (ev.tipo === 'gol') { if (G.g.humanoIds.has(ev.lado === 0 ? P.jogo.casa : P.jogo.fora)) K.somSorteio.gol(); else if (G.g.humanoIds.has(ev.lado === 0 ? P.jogo.fora : P.jogo.casa)) K.somSorteio.sofreu(); } }
     }
     if (REFS.bar) REFS.bar.style.width = Math.min(100, live.min / 90 * 100) + '%';
   }
@@ -3362,6 +3377,13 @@ window.ESCUDOS_REAIS = {};
     }
     // 3 segundos de marchinha (8 tempos a 160 bpm) e, no instante 3,0 s, a fanfarra do "GIROOOOU"
     const MELODIA = [[0, 76, .5], [.5, 76, .5], [1, 79, .5], [1.5, 76, .5], [2, 72, 1], [3, 74, .5], [3.5, 76, .5], [4, 79, .5], [4.5, 81, .5], [5, 79, 1], [6, 76, .5], [6.5, 74, .5], [7, 72, .5], [7.5, 67, .5]];
+    let rev = null, revCtx = null;
+    function reverb(c) {   // reverberação de estádio: ruído que decai
+      if (rev && revCtx === c) return rev;
+      const n = Math.floor(c.sampleRate * 1.3), b = c.createBuffer(2, n, c.sampleRate);
+      for (let ch = 0; ch < 2; ch++) { const d = b.getChannelData(ch); for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 2.6); }
+      const cv = c.createConvolver(), g = c.createGain(); cv.buffer = b; g.gain.value = 0.45; cv.connect(g); g.connect(c.destination); rev = cv; revCtx = c; return cv;
+    }
     return {
       preparar() { try { if (!G.mudo) ac(); } catch (e) { /* sem áudio */ } },
       jingle() {
@@ -3379,28 +3401,49 @@ window.ESCUDOS_REAIS = {};
           ruido(c, f, 0.9, 0.09, 4500); fim = f + 1.2;
         } catch (e) { /* sem áudio */ }
       },
-      fala(txt) {
+      fala(txt, ritmo = 1.15, tom = 1.15) {
         if (G.mudo || G.pularBingo || !window.speechSynthesis) return; try {
           const u = new SpeechSynthesisUtterance(txt), vozes = speechSynthesis.getVoices(), v = vozes.find((x) => /pt[-_]BR/i.test(x.lang)) || vozes.find((x) => /^pt/i.test(x.lang));
-          u.lang = 'pt-BR'; if (v) u.voice = v; u.rate = 1.15; u.pitch = 1.15; u.volume = 1; speechSynthesis.speak(u);
+          u.lang = 'pt-BR'; if (v) u.voice = v; u.rate = ritmo; u.pitch = tom; u.volume = 1; speechSynthesis.speak(u);
         } catch (e) { /* sem voz */ }
       },
-      // som de gol (time de um técnico humano): a torcida gritando "GOOOL!" bem rápido, sintetizada com vozes de vogal "ó" (formantes) + ruído de arquibancada
+      // som de gol (time de um técnico humano): torcida gritando "GOOOL!" bem rápido. Sintetizada: 28 vozes com vogal "ó" (formantes), ataque de consoante "g",
+      // ruído de arquibancada e reverberação de estádio.
       gol() {
         if (G.mudo) return; try {
-          const c = ac(); if (!c) return; const t = c.currentTime + 0.01, dur = 0.95;
-          const mestre = c.createGain(); mestre.gain.setValueAtTime(0.0001, t); mestre.gain.exponentialRampToValueAtTime(0.9, t + 0.05); mestre.gain.setValueAtTime(0.9, t + 0.55); mestre.gain.exponentialRampToValueAtTime(0.0001, t + dur); mestre.connect(c.destination);
-          for (let v = 0; v < 16; v++) {                                  // 16 vozes levemente desafinadas e fora de sincronia = multidão
-            const o = c.createOscillator(), vg = c.createGain(), t0 = t + Math.random() * 0.07, f0 = (v % 2 ? 105 : 190) * (0.93 + Math.random() * 0.16);
-            o.type = 'sawtooth'; o.frequency.setValueAtTime(f0 * 0.85, t0); o.frequency.exponentialRampToValueAtTime(f0 * 1.12, t0 + 0.18); o.frequency.exponentialRampToValueAtTime(f0 * 0.95, t0 + dur);
-            const f1 = c.createBiquadFilter(), f2 = c.createBiquadFilter(); f1.type = f2.type = 'bandpass'; f1.Q.value = 5; f2.Q.value = 7;
-            f1.frequency.setValueAtTime(600, t0); f1.frequency.linearRampToValueAtTime(480, t0 + 0.3); f1.frequency.linearRampToValueAtTime(380, t0 + 0.8);       // "gó" → "l"
-            f2.frequency.setValueAtTime(900, t0); f2.frequency.linearRampToValueAtTime(850, t0 + 0.3); f2.frequency.linearRampToValueAtTime(1350, t0 + 0.8);
-            vg.gain.value = 0.11 / 2; o.connect(f1); o.connect(f2); f1.connect(vg); f2.connect(vg); vg.connect(mestre); o.start(t0); o.stop(t + dur + 0.05);
+          const c = ac(); if (!c) return; const t = c.currentTime + 0.01, dur = 1.15, rv = reverb(c);
+          const mestre = c.createGain(); mestre.gain.setValueAtTime(0.0001, t); mestre.gain.exponentialRampToValueAtTime(1, t + 0.04); mestre.gain.setValueAtTime(1, t + 0.6); mestre.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+          mestre.connect(c.destination); mestre.connect(rv);
+          for (let v = 0; v < 28; v++) {                                  // multidão: vozes graves e agudas, desafinadas e fora de sincronia
+            const o = c.createOscillator(), vg = c.createGain(), t0 = t + Math.random() * 0.06, f0 = (v % 3 === 0 ? 215 : v % 3 === 1 ? 135 : 105) * (0.92 + Math.random() * 0.18);
+            o.type = 'sawtooth'; o.frequency.setValueAtTime(f0 * 0.82, t0); o.frequency.exponentialRampToValueAtTime(f0 * 1.15, t0 + 0.12); o.frequency.exponentialRampToValueAtTime(f0 * 0.97, t0 + dur);
+            const lf = c.createOscillator(), lg = c.createGain(); lf.frequency.value = 5 + Math.random() * 2; lg.gain.value = f0 * 0.012; lf.connect(lg); lg.connect(o.frequency); lf.start(t0); lf.stop(t + dur + 0.05);   // vibrato natural
+            const f1 = c.createBiquadFilter(), f2 = c.createBiquadFilter(), f3 = c.createBiquadFilter(); f1.type = f2.type = f3.type = 'bandpass'; f1.Q.value = 6; f2.Q.value = 8; f3.Q.value = 9;
+            f1.frequency.setValueAtTime(380, t0); f1.frequency.linearRampToValueAtTime(620, t0 + 0.1); f1.frequency.linearRampToValueAtTime(560, t0 + 0.65); f1.frequency.linearRampToValueAtTime(400, t0 + 0.95);      // g-ó-l
+            f2.frequency.setValueAtTime(800, t0); f2.frequency.linearRampToValueAtTime(960, t0 + 0.1); f2.frequency.linearRampToValueAtTime(900, t0 + 0.65); f2.frequency.linearRampToValueAtTime(1400, t0 + 0.95);
+            f3.frequency.value = 2500; vg.gain.value = 0.05;
+            o.connect(f1); o.connect(f2); o.connect(f3); f1.connect(vg); f2.connect(vg); f3.connect(vg); vg.connect(mestre); o.start(t0); o.stop(t + dur + 0.05);
           }
-          const n = Math.floor(c.sampleRate * dur), b = c.createBuffer(1, n, c.sampleRate), d = b.getChannelData(0); for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;   // arquibancada
-          const r = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain(); r.buffer = b; f.type = 'bandpass'; f.frequency.value = 1100; f.Q.value = 0.5;
-          g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.22, t + 0.08); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); r.connect(f); f.connect(g); g.connect(c.destination); r.start(t);
+          const n = Math.floor(c.sampleRate * dur), b = c.createBuffer(1, n, c.sampleRate), d = b.getChannelData(0); for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;      // arquibancada
+          const r = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain(); r.buffer = b; f.type = 'bandpass'; f.frequency.value = 1300; f.Q.value = 0.6;
+          g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.28, t + 0.07); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); r.connect(f); f.connect(g); g.connect(c.destination); g.connect(rv); r.start(t);
+          ruido(c, t, 0.05, 0.12, 300);                                    // "g" inicial
+        } catch (e) { /* sem áudio */ }
+      },
+      // gol sofrido (time de um técnico humano): lamento da torcida e um palavrão sorteado, em voz sintetizada do navegador
+      sofreu() {
+        if (G.mudo) return; try {
+          const frases = ['Puta que pariu!', 'Caralho!', 'Que merda!'], frase = frases[Math.floor(Math.random() * frases.length)];
+          const c = ac(); if (c) {
+            const t = c.currentTime + 0.01, dur = 1.1, rv = reverb(c), mestre = c.createGain(); mestre.gain.setValueAtTime(0.0001, t); mestre.gain.exponentialRampToValueAtTime(0.7, t + 0.12); mestre.gain.exponentialRampToValueAtTime(0.0001, t + dur); mestre.connect(c.destination); mestre.connect(rv);
+            for (let v = 0; v < 16; v++) {                                 // "ôôôh" descendente
+              const o = c.createOscillator(), vg = c.createGain(), t0 = t + Math.random() * 0.1, f0 = (v % 2 ? 150 : 110) * (0.92 + Math.random() * 0.16);
+              o.type = 'sawtooth'; o.frequency.setValueAtTime(f0 * 1.1, t0); o.frequency.exponentialRampToValueAtTime(f0 * 0.7, t0 + dur);
+              const f1 = c.createBiquadFilter(), f2 = c.createBiquadFilter(); f1.type = f2.type = 'bandpass'; f1.Q.value = 5; f2.Q.value = 7; f1.frequency.value = 430; f2.frequency.value = 780; vg.gain.value = 0.05;
+              o.connect(f1); o.connect(f2); f1.connect(vg); f2.connect(vg); vg.connect(mestre); o.start(t0); o.stop(t + dur + 0.05);
+            }
+          }
+          this.fala(frase, 1.0, 0.65);
         } catch (e) { /* sem áudio */ }
       },
       parar() { try { if (window.speechSynthesis) speechSynthesis.cancel(); if (ctx && ctx.state === 'running') { ctx.close(); ctx = null; } } catch (e) { ctx = null; } },
