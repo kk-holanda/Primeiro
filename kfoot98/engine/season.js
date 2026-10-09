@@ -92,8 +92,8 @@
   }
 
   // ---------- Escalação automática (IA / sugestão) ----------
-  // Disponível = sem lesão e sem suspensão.
-  const disponivel = (p) => p.lesao === 0 && !(p.suspenso > 0);
+  // Disponível = sem lesão, sem suspensão e fora de treino.
+  const disponivel = (p) => p.lesao === 0 && !(p.suspenso > 0) && !(p.treino && p.treino.restante > 0);
   // Monta os 11 + banco. 'pref' = ids que o técnico escolheu por slot (os inválidos/indisponíveis são trocados pelo melhor disponível).
   function escalarAuto(clube, formacao = '4-4-2', tatica = 'equilibrado', maxSubs, pref = []) {
     const PL = bf.Players, M = bf.Match;

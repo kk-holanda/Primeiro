@@ -61,7 +61,7 @@
     const outros = [...grupos].map(([titulo, ps]) => h('section', { class: 'jdiv' }, h('h3', null, titulo),
       h('ul', null, ps.map((p) => {
         const pl = M.placarDe(p.m), sc = h('b', { class: 'num pl' }, pl[0] + ' × ' + pl[1]);
-        const li = h('li', { class: (p.humano[0] || p.humano[1]) ? 'meu' : '' }, h('span', { class: 'tc' }, nome(p.jogo.casa)), sc, h('span', { class: 'tf' }, nome(p.jogo.fora)));
+        const li = h('li', { class: (p.humano[0] || p.humano[1]) ? 'meu' : '' }, h('span', { class: 'tc' }, K.comEscudo(p.jogo.casa)), sc, h('span', { class: 'tf' }, K.comEscudo(p.jogo.fora)));
         REFS.rows.set(p, { el: sc, li }); return li;
       }))));
 
@@ -84,7 +84,7 @@
       !fim && jg.pausado && P ? h('button', { class: 'btn alt sm', id: 'subs', onclick: () => { jg.painel = !jg.painel; K.render(); } }, jg.painel ? 'Fechar substituições' : 'Substituições e tática') : null);
 
     const campo = P ? h('section', { class: 'jmain' },
-      h('div', { class: 'placar' }, h('span', { class: 'tn' + (lado === 0 ? ' eu' : '') }, nome(P.jogo.casa)), h('span', { class: 'sc' }, REFS.pl0, h('i', null, '×'), REFS.pl1), h('span', { class: 'tn r' + (lado === 1 ? ' eu' : '') }, nome(P.jogo.fora))),
+      h('div', { class: 'placar' }, h('span', { class: 'tn' + (lado === 0 ? ' eu' : '') }, nome(P.jogo.casa), K.escudo(P.jogo.casa, true)), h('span', { class: 'sc' }, REFS.pl0, h('i', null, '×'), REFS.pl1), h('span', { class: 'tn r' + (lado === 1 ? ' eu' : '') }, K.escudo(P.jogo.fora, true), nome(P.jogo.fora))),
       h('div', { class: 'javiso', role: 'status' }, jg.aviso || (jg.pausado ? '' : 'Bola rolando'), P.jogo.perna === 'volta' ? h('small', { class: 'muted' }, ' Jogo de volta · ida: ' + P.jogo.confronto.ida[0] + ' × ' + P.jogo.confronto.ida[1] + ' (' + nome(P.jogo.confronto.a) + ' em casa)') : null),
       h('div', { class: 'stats' }, stat('Posse de bola', 'posse'), stat('Chutes', 'chutes'), stat('No gol', 'no_gol'), stat('Faltas', 'faltas'), stat('Amarelos', 'amarelos'), stat('Vermelhos', 'vermelhos')),
       jg.painel ? painelSubs(P, lado) : null,
@@ -98,23 +98,24 @@
     return el;
   };
 
-  // ---------- painel de substituições ----------
+  // ---------- painel de substituições (stamina e moral à vista) ----------
   function painelSubs(P, lado) {
     const jg = G.jg, side = P.m.S[lado], max = side.maxSubs;
+    const cab = h('li', { class: 'sublinha cab' }, h('span', null, 'Pos'), h('span', null, 'Jogador'), h('span', { 'data-tip': K.TIPS.media }, 'Méd'), h('span', { 'data-tip': K.TIPS.stamina }, 'Stamina'), h('span', { 'data-tip': K.TIPS.moral }, 'Moral'));
     const linha = (p, tipo, j) => {
       const sel = tipo === 'out' ? jg.selOut === p.id : jg.selIn === p.id, ind = tipo === 'in' && p.lesao > 0;
-      const cart = j ? (j.amarelos ? h('i', { class: 'cartao am', title: 'Amarelo' }) : null) : null;
+      const cart = j && j.amarelos ? h('i', { class: 'cartao am', title: 'Amarelo' }) : null;
       return h('li', { class: 'sublinha' + (sel ? ' sel' : '') + (ind ? ' indisp' : ''), tabindex: ind ? -1 : 0, onclick: () => { if (ind) return; if (tipo === 'out') jg.selOut = p.id; else jg.selIn = p.id; K.render(); }, onkeydown: (e) => { if (e.key === 'Enter') e.currentTarget.click(); } },
-        h('span', { class: 'pos' }, j ? j.slot : p.pos), h('span', { class: 'sn' }, p.nome, cart), K.barra(p.stamina, 'mini'), h('b', { class: 'num' }, Math.round(PL.overall(p))));
+        h('span', { class: 'pos' }, j ? j.slot : p.pos), h('span', { class: 'sn' }, p.nome, p.estrela ? K.estrela() : null, cart), h('b', { class: 'num' }, Math.round(PL.overall(p))), K.barraPct(p.stamina), K.barraPct(p.moral));
     };
     const ok = jg.selOut && jg.selIn && side.subs < max;
     const msg = side.subs >= max ? 'Limite de substituições atingido.' : (jg.msgSub || '');
     return h('div', { class: 'subpanel' },
       h('div', { class: 'subtop' }, h('b', null, 'Substituições: ' + side.subs + ' de ' + max),
-        h('div', { class: 'seg', role: 'group', 'aria-label': 'Tática' }, [['ofensivo', 'Ofensivo'], ['equilibrado', 'Equilibrado'], ['defensivo', 'Defensivo']].map(([k, t]) => h('button', { type: 'button', 'aria-pressed': side.time.tatica === k ? 'true' : 'false', onclick: () => { side.time.tatica = k; M.recalcular(P.m); K.render(); } }, t)))),
+        h('div', { class: 'seg', role: 'group', 'aria-label': 'Tática' }, K.TATICAS.map(([k, t]) => h('button', { type: 'button', 'aria-pressed': side.time.tatica === k ? 'true' : 'false', 'data-tip': K.DESC_TATICA[k], onclick: () => { side.time.tatica = k; M.recalcular(P.m); K.render(); } }, t)))),
       h('div', { class: 'subcols' },
-        h('div', null, h('h4', null, 'Em campo (sai)'), h('ul', { class: 'sublista' }, side.campo.map((j) => linha(j.p, 'out', j)))),
-        h('div', null, h('h4', null, 'Banco (entra)'), h('ul', { class: 'sublista' }, side.banco.map((p) => linha(p, 'in'))))),
+        h('div', null, h('h4', null, 'Em campo (sai)'), h('ul', { class: 'sublista' }, cab.cloneNode(true), side.campo.map((j) => linha(j.p, 'out', j)))),
+        h('div', null, h('h4', null, 'Banco (entra)'), h('ul', { class: 'sublista' }, cab, side.banco.map((p) => linha(p, 'in'))))),
       h('div', { class: 'actions' }, h('button', { class: 'btn', id: 'confsub', disabled: !ok, onclick: () => { const r = M.substituirM(P.m, lado, jg.selOut, jg.selIn); jg.msgSub = r.ok ? '' : r.motivo; if (r.ok) { jg.selOut = jg.selIn = null; } K.render(); } }, 'Confirmar substituição'), h('span', { class: 'err' }, msg)));
   }
 
@@ -147,7 +148,7 @@
     rs.filter((r) => r !== R).forEach((r) => { const k = r.jogo.comp === 'liga' ? K.DIV_NOME[r.jogo.div] : r.jogo.rotulo; (grupos[k] = grupos[k] || []).push(r); });
     return h('main', { class: 'wrap page' },
       h('div', { class: 'head' }, h('span', { class: 'eyebrow' }, R.jogo.rotulo + ' · ' + GM.fmtData(g.data)), h('h2', null, res + ' · fim de jogo')),
-      h('div', { class: 'placar grande' }, h('span', { class: 'tn' + (lado === 0 ? ' eu' : '') }, R.casaNome), h('span', { class: 'sc' }, h('b', { class: 'num' }, gh), h('i', null, '×'), h('b', { class: 'num' }, ga)), h('span', { class: 'tn r' + (lado === 1 ? ' eu' : '') }, R.foraNome)),
+      h('div', { class: 'placar grande' }, h('span', { class: 'tn' + (lado === 0 ? ' eu' : '') }, R.casaNome, K.escudo(R.jogo.casa, true)), h('span', { class: 'sc' }, h('b', { class: 'num' }, gh), h('i', null, '×'), h('b', { class: 'num' }, ga)), h('span', { class: 'tn r' + (lado === 1 ? ' eu' : '') }, K.escudo(R.jogo.fora, true), R.foraNome)),
       R.copa ? h('p', { class: 'copainfo' }, 'Agregado ' + R.copa.agregado[0] + ' × ' + R.copa.agregado[1] + (R.copa.penaltis ? ' · pênaltis ' + R.copa.penaltis[0] + ' × ' + R.copa.penaltis[1] : '') + ' · Classificado: ', h('b', null, nome(R.copa.vencedor)))
         : R.jogo.comp === 'copa' ? h('p', { class: 'copainfo' }, 'Jogo de ida. A volta será na casa de ' + nome(R.jogo.confronto.b) + '.') : null,
       h('div', { class: 'resgrid' },
@@ -157,7 +158,7 @@
       tabelaNotas(R.detalhes[eu], 'Seu time · notas e evolução', true),
       h('details', { class: 'det' }, h('summary', null, 'Notas do adversário'), tabelaNotas(R.detalhes[adv], nome(adv === 0 ? R.jogo.casa : R.jogo.fora), false)),
       h('details', { class: 'det' }, h('summary', null, 'Outros resultados do dia'),
-        Object.entries(grupos).map(([t, arr]) => h('section', { class: 'jdiv' }, h('h3', null, t), h('ul', null, arr.map((r) => h('li', null, h('span', { class: 'tc' }, r.casaNome), h('b', { class: 'num pl' }, r.placar[0] + ' × ' + r.placar[1]), h('span', { class: 'tf' }, r.foraNome))))))),
+        Object.entries(grupos).map(([t, arr]) => h('section', { class: 'jdiv' }, h('h3', null, t), h('ul', null, arr.map((r) => h('li', null, h('span', { class: 'tc' }, K.comEscudo(r.jogo.casa)), h('b', { class: 'num pl' }, r.placar[0] + ' × ' + r.placar[1]), h('span', { class: 'tf' }, K.comEscudo(r.jogo.fora)))))))),
       h('div', { class: 'actions' }, h('button', { class: 'btn hot', id: 'continuar', onclick: () => { G.aba = 'plantel'; G.resumos = null; if (g.fim) K.ir('fim'); else K.ir(5); } }, g.fim ? 'Ver fim da temporada' : 'Continuar')));
   };
 

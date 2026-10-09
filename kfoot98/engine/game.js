@@ -11,6 +11,8 @@
   const toDate = (iso) => new Date(iso + 'T12:00:00Z');
   const toIso = (d) => d.toISOString().slice(0, 10);
   const addDias = (iso, n) => { const d = toDate(iso); d.setUTCDate(d.getUTCDate() + n); return toIso(d); };
+  const fimDoMes = (iso) => { const d = toDate(iso); return toIso(new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0, 12))); };
+  const addMeses = (iso, n) => { const d = toDate(iso); return fimDoMes(toIso(new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + n, 1, 12)))); }; // fim do mês, n meses depois
   const difDias = (a, b) => Math.round((toDate(b) - toDate(a)) / 864e5);
   const fmtData = (iso) => { const d = toDate(iso); return DIAS[d.getUTCDay()] + ', ' + String(d.getUTCDate()).padStart(2, '0') + '/' + String(d.getUTCMonth() + 1).padStart(2, '0') + '/' + d.getUTCFullYear(); };
   const fmtDataCurta = (iso) => { const d = toDate(iso); return DIAS[d.getUTCDay()] + ' ' + String(d.getUTCDate()).padStart(2, '0') + '/' + String(d.getUTCMonth() + 1).padStart(2, '0'); };
@@ -56,11 +58,15 @@
       const cl = { ...c, estadio: { ...c.estadio }, patrocinadores: [], elenco: PL().gerarElenco(rng, c) };
       numerar(cl.elenco); return cl;
     });
+    const E = bf.Economy, hoje = '1998-01-31';
+    clubes.forEach((c) => c.elenco.forEach((p) => { p.contratoAte = addMeses(hoje, rng.int(11, 17)); p.salario = E.salarioBase(p); p.avisos = 0; }));
     const g = {
+      noticias: [], livres: [], moralTreinador: {},
       seed: opts.seed, rng, ano: 1998, data: '1998-01-31', config: { maxSubs: 3, ...(opts.config || {}) },
       humanos: opts.humanos.slice(), humanoIds: new Set(opts.humanos.map((h) => h.clubId)),
       clubes, porId: new Map(clubes.map((c) => [c.id, c])), hist: new Map(), taticas: new Map(), historico: [],
     };
+    g.humanos.forEach((hu) => { g.moralTreinador[hu.clubId] = { v: 60, hist: [{ data: g.data, v: 60, res: null, adv: null }] }; });
     novaTemporada(g);
     return g;
   }
@@ -98,7 +104,7 @@
     let formacao = (cfg && cfg.formacao) || '4-4-2', tatica = (cfg && cfg.tatica) || 'equilibrado';
     if (!g.humanoIds.has(clube.id)) { // computador escolhe pelo confronto
       const d = clube.prestigio - adversario.prestigio;
-      tatica = d > 15 ? 'ofensivo' : d < -15 ? 'defensivo' : 'equilibrado';
+      tatica = d > 15 ? 'ofensivo' : d < -15 ? (g.rng.chance(0.5) ? 'contra' : 'defensivo') : 'equilibrado';
       formacao = d > 15 ? '4-3-3' : d < -15 ? '4-5-1' : '4-4-2';
     }
     return S().escalarAuto(clube, formacao, tatica, g.config.maxSubs, cfg && g.humanoIds.has(clube.id) ? cfg.titulares : []);
@@ -139,6 +145,7 @@
       [[jogo.casa, jogo.fora, gh, ga, true], [jogo.fora, jogo.casa, ga, gh, false]].forEach(([id, adv, gp, gc, casa]) => {
         const arr = g.hist.get(id) || []; arr.push({ data: dia.data, comp: rot, rotulo: jogo.rotulo, adv, casa, gp, gc }); g.hist.set(id, arr);
       });
+      [[jogo.casa, jogo.fora, gh, ga], [jogo.fora, jogo.casa, ga, gh]].forEach(([id, adv, gp, gc]) => { if (g.humanoIds.has(id)) moralTreinador(g, id, adv, gp, gc); });
       const detalhes = [[], []];
       m.S.forEach((side, i) => {
         const clube = g.porId.get(i === 0 ? jogo.casa : jogo.fora); jogaram.add(clube.id);
@@ -156,6 +163,13 @@
       });
       resumos.push({ jogo, placar: res.placar, stats: res.stats, eventos: res.eventos, detalhes, humano: part.humano, casaNome: g.porId.get(jogo.casa).nome, foraNome: g.porId.get(jogo.fora).nome });
     }
+    for (const id of jogaram) {   // treino e descanso de treino só andam quando o clube joga
+      const c = g.porId.get(id);
+      c.elenco.forEach((p) => {
+        if (p.treinoCd > 0) p.treinoCd--;
+        if (p.treino && --p.treino.restante <= 0) bf.Mercado.concluirTreino(g, c, p);
+      });
+    }
     // clubes sem jogo no dia só descansam; todos recuperam stamina até o próximo compromisso
     g.clubes.forEach((c) => c.elenco.forEach((p) => PR().descansar(p, gap)));
     if (dia.tipo === 'copa' && dia.perna % 2 === 1) {
@@ -163,8 +177,9 @@
       const fase = g.copa.fases[dia.perna >> 1];
       resumos.forEach((r) => { if (r.jogo.comp === 'copa') r.copa = { agregado: r.jogo.confronto.agregado, penaltis: r.jogo.confronto.penaltis, vencedor: r.jogo.confronto.vencedor, fase: fase.nome }; });
     }
+    bf.Mercado.processarVendas(g); bf.Mercado.processarContratos(g);
     g.idx++; g.live = null;
-    if (g.idx >= g.dias.length) g.fim = true;
+    if (g.idx >= g.dias.length) { g.fim = true; g.data = g.ano + '-12-15'; }   // pós-temporada: dá tempo de renovar contratos
     return resumos;
   }
   function simularDia(g) { iniciarDia(g); completarDia(g); return finalizarDia(g); }
@@ -175,7 +190,7 @@
       const dia = proximoDia(g), jogos = jogosDoDia(g, dia);
       if (envolveHumano(g, jogos)) return { parou: true, dia };
       if (jogos.length) simularDia(g); else { g.idx++; if (g.idx >= g.dias.length) g.fim = true; }
-      g.data = dia.data;
+      if (!g.fim) g.data = dia.data;
     }
     return { fim: true };
   }
@@ -189,13 +204,24 @@
     reg.subiram = mov.subiram; reg.desceram = mov.desceram; g.historico.push(reg);
     g.clubes.forEach((c) => c.elenco.forEach((p) => {
       PR().virarAno(p, g.rng);
-      if (p.contrato <= 0) p.contrato = g.rng.chance(0.65) ? 1 : 2;   // renovação automática (o mercado ainda não existe)
-      p.stamina = 100; p.moral = 60; p.suspenso = 0; p.amarelosAcum = 0; if (p.lesao > 0) p.lesao = 0;
+      p.stamina = 100; p.moral = 60; p.suspenso = 0; p.amarelosAcum = 0; p.treino = null; p.treinoCd = 0; if (p.lesao > 0) p.lesao = 0;
     }));
     g.ano++; g.data = g.ano + '-01-31'; novaTemporada(g);
+    bf.Mercado.processarContratos(g);   // quem estava com contrato vencido sai (computador renova)
     return { registro: reg, mov };
   }
-  const fimContrato = (g, p) => 'Dez/' + (g.ano + p.contrato - 1);
+  const fimContrato = (g, p) => { const d = toDate(p.contratoAte), m = MESES[d.getUTCMonth()]; return m[0].toUpperCase() + m.slice(1) + '/' + d.getUTCFullYear(); };
 
-  bf.Game = { novo, gerarDias, jogosDoDia, proximoDia, proximoJogo, ultimosJogos, escalacaoDe, iniciarDia, passoDia, completarDia, finalizarDia, simularDia, avancar, classificacao, virarTemporada, envolveHumano, fimContrato, fmtData, fmtDataCurta, addDias, DIV_NOME };
+  // moral do técnico (0-100): vitória sobe, derrota desce; ganhar de time maior vale mais, perder para time menor dói mais
+  function moralTreinador(g, clubId, advId, gp, gc) {
+    const mt = g.moralTreinador[clubId]; if (!mt) return;
+    const dif = g.porId.get(advId).prestigio - g.porId.get(clubId).prestigio, clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+    const res = gp > gc ? 'V' : gp < gc ? 'D' : 'E';
+    const delta = res === 'V' ? 8 + clamp(dif / 8, -4, 6) + Math.min(3, gp - gc - 1) : res === 'D' ? -8 + clamp(dif / 10, -3, 3) : clamp(dif / 10, -3, 3);
+    mt.v = clamp(Math.round(mt.v + delta), 0, 100);
+    mt.hist.push({ data: g.data, v: mt.v, res, adv: advId, gp, gc });
+    g.porId.get(clubId).elenco.forEach((p) => { p.moral = clamp(p.moral + (mt.v - 50) * 0.02, 0, 100); }); // clima do vestiário
+  }
+
+  bf.Game = { novo, gerarDias, jogosDoDia, proximoDia, proximoJogo, ultimosJogos, escalacaoDe, iniciarDia, passoDia, completarDia, finalizarDia, simularDia, avancar, classificacao, virarTemporada, envolveHumano, fimContrato, fmtData, fmtDataCurta, addDias, addMeses, fimDoMes, difDias, DIV_NOME };
 })(typeof globalThis !== 'undefined' ? globalThis : this);

@@ -12,10 +12,17 @@
     '4-5-1': ['GOL', 'LD', 'ZAG', 'ZAG', 'LE', 'VOL', 'VOL', 'MC', 'MEI', 'ALA', 'CA'],
   };
   // tática: ofensivo/equilibrado/defensivo
+  // Táticas (pedra-papel-tesoura, calibradas por tools/balance.js):
+  //  atk/def  = multiplicador da força de ataque/defesa     tempo    = ritmo: quem tem mais lances (e o total de lances do jogo)
+  //  abertura = quanto o time se expõe (+1 ofensivo ... -1 defensivo)
+  //  fecha    = reduz a chance de finalização do adversário (retranca)
+  //  comp     = compactação: contra quem joga fechado, a vantagem de qualidade do adversário rende menos (ajuda o time mais fraco)
+  //  contraK  = bônus nas finalizações do time de contra-ataque, proporcional à abertura do adversário
   const TATICA = {
-    ofensivo: { atk: 1.06, def: 0.94, tempo: 1.10, faltas: 1.10 },
-    equilibrado: { atk: 1.0, def: 1.0, tempo: 1.0, faltas: 1.0 },
-    defensivo: { atk: 0.94, def: 1.06, tempo: 0.90, faltas: 1.0 },
+    ofensivo: { atk: 1.05, def: 0.96, tempo: 1.06, faltas: 1.10, abertura: 1, fecha: 0, comp: 1, contraK: 0 },
+    equilibrado: { atk: 1.0, def: 1.0, tempo: 1.0, faltas: 1.0, abertura: 0, fecha: 0, comp: 1, contraK: 0 },
+    defensivo: { atk: 0.97, def: 1.03, tempo: 0.94, faltas: 1.0, abertura: -1, fecha: 0.02, comp: 0.8, contraK: 0 },
+    contra: { atk: 0.99, def: 1.02, tempo: 0.90, faltas: 1.0, abertura: -0.5, fecha: 0, comp: 0.88, contraK: 0.13 },
   };
   const CFG = {
     ataquesPorMinuto: 0.52, mandante: 1.07, expoControle: 2.2,
@@ -93,13 +100,15 @@
       }
       // quem tem a bola neste minuto?
       const pc = ctrl();
-      const nAtaques = rng.chance(CFG.ataquesPorMinuto) ? 1 : 0;
+      const nAtaques = rng.chance(CFG.ataquesPorMinuto * (m.F[0].t.tempo + m.F[1].t.tempo) / 2) ? 1 : 0;   // dois times fechados = jogo truncado
       stats[0].posse += pc; stats[1].posse += 1 - pc;
       if (nAtaques) {
         const peso0 = pc * m.F[0].t.tempo, peso1 = (1 - pc) * m.F[1].t.tempo;
         const a = rng.chance(peso0 / (peso0 + peso1)) ? 0 : 1, d = 1 - a;
         const A = S[a], D = S[d];
-        const pChute = P().clamp(0.48 + (m.F[a].ataque - m.F[d].defesa) * 0.0065, 0.22, 0.75);
+        const bonusContra = m.F[a].t.contraK * (m.F[d].t.abertura > 0 ? m.F[d].t.abertura : m.F[d].t.abertura * 0.4) - m.F[d].t.fecha; // espaço para o contra-ataque e retranca
+        const dif = m.F[a].ataque - m.F[d].defesa;
+        const pChute = P().clamp(0.48 + (dif > 0 ? dif * m.F[d].t.comp : dif) * 0.0065 + bonusContra, 0.22, 0.75);
         // passe/assistência
         const passador = sorteia(A, rng, ['M', 'A', 'D'], (j) => j.p.attr.PAS * (P().GRUPO[j.slot] === 'M' ? 2 : 1));
         passador.passes++;

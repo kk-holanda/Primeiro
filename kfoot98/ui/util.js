@@ -28,20 +28,24 @@
   K.ORDEM_POS = ['GOL', 'LD', 'ZAG', 'LIB', 'LE', 'VOL', 'MC', 'MEI', 'ALA', 'PD', 'PE', 'SA', 'CA'];
   K.SETOR = { GOL: 'Goleiros', ZAG: 'Defensores', LIB: 'Defensores', LD: 'Defensores', LE: 'Defensores', VOL: 'Meio-campistas', MC: 'Meio-campistas', MEI: 'Meio-campistas', ALA: 'Meio-campistas', PD: 'Atacantes', PE: 'Atacantes', CA: 'Atacantes', SA: 'Atacantes' };
   K.ATTRS = ['RIT', 'CHU', 'PAS', 'DRI', 'DEF', 'FIS'];
+  K.ATTR_NOME = { RIT: 'Ritmo', CHU: 'Finalização', PAS: 'Passe', DRI: 'Drible', DEF: 'Defesa', FIS: 'Físico' };
+  K.ATTR_SIGLA = { RIT: 'Rit', CHU: 'Fin', PAS: 'Pas', DRI: 'Dri', DEF: 'Def', FIS: 'Fís' };
   // descrições mostradas ao passar o mouse
   K.TIPS = {
     RIT: 'Ritmo: velocidade de deslocamento (aceleração e pique).',
-    CHU: 'Chute: precisão e força de finalização, posicionamento de ataque e pênaltis.',
+    CHU: 'Finalização: precisão e força do chute, posicionamento de ataque, pênaltis e jogo de cabeça (o cabeceio também depende da impulsão do Físico).',
     PAS: 'Passe: qualidade dos passes curtos e longos, visão de jogo e cruzamentos.',
     DRI: 'Drible: agilidade, equilíbrio, reações, controle de bola e condução.',
     DEF: 'Defesa: marcação, combatividade (carrinho) e precisão no desarme. Para o goleiro, reflexo e defesas.',
-    FIS: 'Físico: impulsão, fôlego, força e agressividade. Quanto maior, menos o jogador se cansa.',
+    FIS: 'Físico: impulsão (ajuda no cabeceio), fôlego, força e agressividade. Quanto maior, menos o jogador se cansa.',
     media: 'Média: nota geral do jogador na sua posição, calculada a partir dos 6 atributos.',
     disc: 'Disciplina: de Fair player (quase não faz falta) a Macetador (faz muitas faltas e leva muitos cartões).',
     stamina: 'Stamina: condição física. Cai durante o jogo (mais rápido com Físico baixo) e volta com o descanso. Baixa, derruba o rendimento.',
     moral: 'Moral: confiança do jogador. Sobe com boas atuações e, quanto mais alta, mais fácil evoluir os atributos.',
     sit: 'Situação: lesionado (jogos que faltam) ou suspenso.',
     contrato: 'Contrato: o jogador pertence ao clube até o fim deste mês.',
+    nac: 'Nacionalidade do jogador.',
+    estrela: 'Estrela: um dos melhores jogadores do campeonato.',
     salario: 'Salário mensal pago pelo clube.',
     valor: 'Valor de mercado do jogador.',
   };
@@ -66,4 +70,42 @@
   document.addEventListener('focusout', esconder);
   document.addEventListener('scroll', esconder, true);
   document.addEventListener('click', esconder);
+
+  // ---------- bandeiras (SVG simples) ----------
+  const F = (inner) => '<svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true">' + inner + '</svg>';
+  const H = (cs) => cs.map(([c, y, hgt]) => '<rect x="0" y="' + y + '" width="24" height="' + hgt + '" fill="' + c + '"/>').join('');
+  const V = (cs) => cs.map(([c, x, w]) => '<rect y="0" x="' + x + '" width="' + w + '" height="16" fill="' + c + '"/>').join('');
+  const FLAGS = {
+    BRA: F('<rect width="24" height="16" fill="#009c3b"/><path d="M12 2.2 21.4 8 12 13.8 2.6 8z" fill="#ffdf00"/><circle cx="12" cy="8" r="3.4" fill="#002776"/>'),
+    ARG: F(H([['#74acdf', 0, 5.4], ['#fff', 5.4, 5.3], ['#74acdf', 10.7, 5.3]]) + '<circle cx="12" cy="8" r="1.5" fill="#f6b40e"/>'),
+    URU: F(H([['#fff', 0, 16]]) + [1, 3, 5].map((i) => '<rect y="' + (i * 1.78 - 0.9) + '" width="24" height="1.8" fill="#0038a8"/>').join('') + [7, 9].map((i) => '<rect y="' + (i * 1.78 - 0.9) + '" width="24" height="1.8" fill="#0038a8"/>').join('') + '<rect width="9" height="8.9" fill="#fff"/><circle cx="4.5" cy="4.4" r="2" fill="#fcd116"/>'),
+    PAR: F(H([['#d52b1e', 0, 5.4], ['#fff', 5.4, 5.3], ['#0038a8', 10.7, 5.3]])),
+    CHI: F(H([['#fff', 0, 8], ['#d52b1e', 8, 8]]) + '<rect width="8" height="8" fill="#0039a6"/><circle cx="4" cy="4" r="1.4" fill="#fff"/>'),
+    COL: F(H([['#fcd116', 0, 8], ['#003893', 8, 4], ['#ce1126', 12, 4]])),
+    PER: F(V([['#d91023', 0, 8], ['#fff', 8, 8], ['#d91023', 16, 8]])),
+    EQU: F(H([['#ffdd00', 0, 8], ['#034ea2', 8, 4], ['#ed1c24', 12, 4]])),
+    BOL: F(H([['#d52b1e', 0, 5.4], ['#f9e300', 5.4, 5.3], ['#007934', 10.7, 5.3]])),
+    VEN: F(H([['#ffcc00', 0, 5.4], ['#00247d', 5.4, 5.3], ['#cf142b', 10.7, 5.3]])),
+  };
+  K.bandeira = (cod) => K.h('span', { class: 'flag', 'data-tip': PLN()[cod] || cod, tabindex: 0, html: FLAGS[cod] || '' });
+  const PLN = () => BF.Players.NAC_NOME;
+  K.estrela = () => K.h('span', { class: 'star', 'data-tip': K.TIPS.estrela, 'aria-label': 'Estrela', role: 'img' }, '★');
+  // escudo-faixa nas cores do clube (aceita o clube ou o id)
+  K.escudo = (c, grande) => {
+    const cl = typeof c === 'string' ? K.G.g.porId.get(c) : c, [a, b] = cl.cores;
+    return K.h('span', { class: 'escudo' + (grande ? ' grande' : ''), style: 'background:linear-gradient(135deg,' + a + ' 50%,' + b + ' 50%)', 'aria-hidden': 'true' });
+  };
+  K.comEscudo = (c, texto) => K.h('span', { class: 'cn' }, K.escudo(c), K.h('span', null, texto == null ? (typeof c === 'string' ? K.G.g.porId.get(c) : c).nome : texto));
+
+  // ---------- janela modal ----------
+  K.modal = function (titulo, corpo, opts = {}) {
+    const antes = document.activeElement;
+    const fechar = () => { ov.remove(); document.removeEventListener('keydown', tecla); if (antes && antes.focus) antes.focus(); if (opts.aoFechar) opts.aoFechar(); };
+    const tecla = (e) => { if (e.key === 'Escape') fechar(); };
+    const caixa = K.h('div', { class: 'modal', role: 'dialog', 'aria-modal': 'true', 'aria-label': titulo }, K.h('header', null, K.h('h3', null, titulo), K.h('button', { class: 'x', 'aria-label': 'Fechar', onclick: fechar }, '×')), K.h('div', { class: 'mbody' }, corpo));
+    const ov = K.h('div', { class: 'overlay', onclick: (e) => { if (e.target === ov) fechar(); } }, caixa);
+    document.body.append(ov); document.addEventListener('keydown', tecla);
+    const f = caixa.querySelector('input,button.btn'); if (f) f.focus();
+    return { fechar, corpo: caixa.querySelector('.mbody'), caixa };
+  };
 })();

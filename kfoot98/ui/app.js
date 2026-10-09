@@ -126,19 +126,20 @@
       h('div', { class: 'actions' }, h('button', { class: 'btn hot', id: 'verplantel', onclick: () => { G.aba = 'plantel'; ir(5); } }, 'Ver o plantel')));
   }
 
-  // ---------- "casa" do jogo: cabeçalho com data/próximo jogo/últimos jogos + abas ----------
+  // ---------- "casa" do jogo: cabeçalho com liga/rodada, data, próximo jogo, últimos jogos + abas ----------
   const resultado = (r) => (r.gp > r.gc ? 'V' : r.gp < r.gc ? 'D' : 'E');
-  const placarTxt = (id, r) => { const n = K.nomeClube(id), a = K.nomeClube(r.adv); return r.casa ? n + ' ' + r.gp + ' × ' + r.gc + ' ' + a : a + ' ' + r.gc + ' × ' + r.gp + ' ' + n; };
+  const placarEl = (id, r) => { const a = G.g.porId.get(r.adv), n = G.g.porId.get(id); const pl = (x, y) => h('b', { class: 'num' }, x + ' × ' + y); return r.casa ? [K.comEscudo(n), pl(r.gp, r.gc), K.comEscudo(a)] : [K.comEscudo(a), pl(r.gc, r.gp), K.comEscudo(n)]; };
+  const ligaRodada = (c) => { const L = G.g.ligas[c.div], n = L.res.length; return G.g.fim ? 'Brasileirão ' + K.DIV_NOME[c.div] + ' · temporada encerrada' : 'Brasileirão ' + K.DIV_NOME[c.div] + ' · ' + (n + 1) + 'ª rodada'; };
   function statusBox(c) {
     const g = G.g, pj = GM.proximoJogo(g, c.id), ult = GM.ultimosJogos(g, c.id, 2);
     const prox = g.fim ? h('span', null, 'Temporada encerrada')
-      : pj ? h('span', null, h('span', null, h('b', null, GM.fmtDataCurta(pj.data)), ' · ' + (pj.emCasa ? c.nome + ' × ' + K.nomeClube(pj.adversario) : K.nomeClube(pj.adversario) + ' × ' + c.nome)), h('small', { class: 'muted' }, pj.rotulo + (pj.emCasa ? ' · em casa' : ' · fora')))
+      : pj ? h('span', null, h('span', { class: 'confronto' }, h('b', null, GM.fmtDataCurta(pj.data)), pj.emCasa ? [K.comEscudo(c), '×', K.comEscudo(pj.adversario)] : [K.comEscudo(pj.adversario), '×', K.comEscudo(c)]), h('small', { class: 'muted' }, pj.rotulo + (pj.emCasa ? ' · em casa' : ' · fora')))
         : h('span', null, 'Sem jogo marcado');
     return h('aside', { class: 'status', 'aria-label': 'Calendário' },
       h('div', { class: 'srow' }, h('small', null, 'Hoje'), h('b', null, GM.fmtData(g.data))),
       h('div', { class: 'srow' }, h('small', null, 'Próximo jogo'), prox),
       h('div', { class: 'srow' }, h('small', null, 'Últimos jogos'),
-        ult.length ? h('div', { class: 'ult' }, ult.map((r) => h('span', { class: 'rl' }, h('i', { class: 'res r' + resultado(r) }, resultado(r)), placarTxt(c.id, r), h('small', { class: 'muted' }, r.comp))))
+        ult.length ? h('div', { class: 'ult' }, ult.map((r) => h('span', { class: 'rl' }, h('i', { class: 'res r' + resultado(r) }, resultado(r)), placarEl(c.id, r), h('small', { class: 'muted' }, r.comp))))
           : h('span', { class: 'muted' }, 'Nenhum jogo disputado ainda')),
       g.fim ? h('button', { class: 'btn hot', id: 'jogar', onclick: () => ir('fim') }, 'Fim da temporada')
         : h('button', { class: 'btn hot', id: 'jogar', onclick: jogarProximo }, 'Jogar próximo jogo'));
@@ -150,11 +151,15 @@
   }
   const ABAS = [['plantel', 'Plantel'], ['escalacao', 'Escalação'], ['tabela', 'Tabela'], ['mercado', 'Mercado'], ['financas', 'Finanças']];
   function casa() {
-    const c = clubeHumano(), hu = G.humanos[0];
+    const c = clubeHumano(), hu = G.humanos[0], [c1, c2] = c.cores;
     const conteudo = G.aba === 'escalacao' ? K.telas.escalacao() : G.aba === 'tabela' ? K.telas.tabela() : plantel(c);
     return h('main', { class: 'wrap page' },
       h('div', { class: 'gamehead' },
-        h('div', { class: 'head' }, h('span', { class: 'eyebrow' }, 'Técnico ' + hu.nome + ' · ' + K.DIV_NOME[c.div] + ' · ' + G.g.ano), h('h2', null, c.nome)),
+        h('div', { class: 'head clubhead' },
+          h('span', { class: 'ligarod' }, ligaRodada(c)),
+          h('div', { class: 'clubtitle' }, K.escudo(c, true), h('h2', null, c.nome)),
+          h('span', { class: 'faixa', style: 'background:linear-gradient(90deg,' + c1 + ' 50%,' + c2 + ' 50%)' }),
+          h('span', { class: 'eyebrow' }, 'Técnico ' + hu.nome + ' · ' + G.g.ano)),
         statusBox(c)),
       h('div', { class: 'tabs', role: 'tablist' }, ABAS.map(([k, t]) => k === 'mercado' || k === 'financas'
         ? h('span', { class: 'soon', role: 'tab', 'aria-disabled': 'true' }, t)
@@ -166,50 +171,62 @@
   // ---------- aba Plantel ----------
   const A = (a) => (p) => p.attr[a];
   const COLS = [
-    ['num', 'Nº', (p) => p.num, null], ['nome', 'Jogador', (p) => p.nome, null], ['pos', 'Pos', (p) => K.ORDEM_POS.indexOf(p.pos), null], ['idade', 'Id', (p) => p.idade, null], ['media', 'Méd', (p) => PL.overall(p), 'media'],
-    ['RIT', 'Rit', A('RIT'), 'RIT'], ['CHU', 'Chu', A('CHU'), 'CHU'], ['PAS', 'Pas', A('PAS'), 'PAS'], ['DRI', 'Dri', A('DRI'), 'DRI'], ['DEF', 'Def', A('DEF'), 'DEF'], ['FIS', 'Fís', A('FIS'), 'FIS'],
+    ['num', 'Nº', (p) => p.num, null], ['nome', 'Jogador', (p) => p.nome, null], ['nac', 'Nac', (p) => p.nac, 'nac'], ['pos', 'Pos', (p) => K.ORDEM_POS.indexOf(p.pos), null], ['idade', 'Id', (p) => p.idade, null], ['media', 'Méd', (p) => PL.overall(p), 'media'],
+    ...K.ATTRS.map((a) => [a, K.ATTR_SIGLA[a], A(a), a]),
     ['disc', 'Disciplina', (p) => p.disciplina, 'disc'], ['stamina', 'Stamina', (p) => p.stamina, 'stamina'], ['moral', 'Moral', (p) => p.moral, 'moral'], ['sit', 'Sit.', (p) => p.lesao * 10 + (p.suspenso ? 1 : 0), 'sit'],
-    ['contrato', 'Contrato', (p) => p.contrato, 'contrato'], ['salario', 'Salário/mês', (p) => E.salario(p), 'salario'], ['valor', 'Valor', (p) => E.valorMercado(p), 'valor'],
+    ['contrato', 'Contrato', (p) => p.contratoAte, 'contrato'], ['salario', 'Salário/mês', (p) => E.salario(p), 'salario'], ['valor', 'Valor', (p) => E.valorMercado(p), 'valor'],
   ];
+  function situacao(p) { return p.lesao > 0 ? ['LES ' + p.lesao, 'bad'] : p.suspenso > 0 ? ['SUSP', 'warn'] : p.treino ? ['TREINO ' + p.treino.restante, 'treino'] : p.aVenda ? ['À VENDA', 'venda'] : ['', '']; }
   function plantel(c) {
     const esc = GM.escalacaoDe(G.g, c, c), tits = new Set(esc.titulares);
-    const dir = G.sort.dir, col = COLS.find((x) => x[0] === G.sort.k) || COLS[2];
+    const dir = G.sort.dir, col = COLS.find((x) => x[0] === G.sort.k) || COLS[3];
     const lista = c.elenco.slice();
     if (G.sort.k === 'pos') lista.sort((a, b) => K.ORDEM_POS.indexOf(a.pos) - K.ORDEM_POS.indexOf(b.pos) || PL.overall(b) - PL.overall(a));
     else lista.sort((a, b) => { const x = col[2](a), y = col[2](b); return (typeof x === 'string' ? x.localeCompare(y, 'pt-BR') : x - y) * dir; });
     if (!G.sel || !c.elenco.some((p) => p.id === G.sel)) G.sel = lista[0].id;
     const media = esc.titulares.map((id) => PL.overall(c.elenco.find((p) => p.id === id))).reduce((a, b) => a + b, 0) / 11;
-    const ordenar = (k) => { G.sort = G.sort.k === k ? { k, dir: -G.sort.dir } : { k, dir: ['nome', 'pos', 'num', 'contrato', 'disc'].includes(k) ? 1 : -1 }; render(); };
+    const ordenar = (k) => { G.sort = G.sort.k === k ? { k, dir: -G.sort.dir } : { k, dir: ['nome', 'pos', 'num', 'contrato', 'disc', 'nac'].includes(k) ? 1 : -1 }; render(); };
     const ths = COLS.map(([k, t, , tip]) => h('th', { class: (k === 'nome' ? 'l ' : '') + (G.sort.k === k ? 'sorted' : ''), scope: 'col', tabindex: 0, 'data-tip': tip ? K.TIPS[tip] : false, 'aria-sort': G.sort.k === k ? (dir > 0 ? 'ascending' : 'descending') : 'none', onclick: () => ordenar(k), onkeydown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); ordenar(k); } } }, t));
     const linhas = []; let setor = null;
     lista.forEach((p) => {
       if (G.sort.k === 'pos' && K.SETOR[p.pos] !== setor) { setor = K.SETOR[p.pos]; linhas.push(h('tr', { class: 'sep' }, h('td', { colspan: COLS.length }, setor))); }
-      const lim = (v) => (v >= 70 ? 'hi' : v < 35 ? 'lo' : '');
+      const lim = (v) => (v >= 70 ? 'hi' : v < 35 ? 'lo' : ''), [st, stc] = situacao(p);
       linhas.push(h('tr', { 'data-id': p.id, class: p.id === G.sel ? 'sel' : '', tabindex: 0, onclick: () => selecionar(p.id), onkeydown: (e) => { if (e.key === 'Enter') selecionar(p.id); } },
-        h('td', null, p.num), h('td', { class: 'l nm' }, tits.has(p.id) ? h('span', { class: 'tit', title: 'Titular na escalação atual' }) : null, p.nome),
-        h('td', { class: 'pos' }, p.pos), h('td', null, p.idade), h('td', { class: 'ovr' }, Math.round(PL.overall(p))),
+        h('td', null, p.num), h('td', { class: 'l nm' }, tits.has(p.id) ? h('span', { class: 'tit', title: 'Titular na escalação atual' }) : null, p.nome, p.estrela ? K.estrela() : null),
+        h('td', null, K.bandeira(p.nac)), h('td', { class: 'pos' }, p.pos), h('td', null, p.idade), h('td', { class: 'ovr' }, Math.round(PL.overall(p))),
         ...K.ATTRS.map((a) => h('td', { class: lim(p.attr[a]) }, p.attr[a])),
         h('td', null, PL.DISCIPLINAS[p.disciplina]), h('td', null, K.barra(p.stamina)), h('td', null, K.barra(p.moral)),
-        h('td', { class: p.lesao ? 'bad' : p.suspenso ? 'warn' : '' }, K.situacao(p)),
-        h('td', null, GM.fimContrato(G.g, p)), h('td', null, reais(E.salario(p))), h('td', null, reais(E.valorMercado(p)))));
+        h('td', { class: stc }, st),
+        h('td', { class: MK.podeRenovar(G.g, p) ? 'warn' : '', 'data-tip': MK.podeRenovar(G.g, p) ? 'Últimos 3 meses de contrato: já é possível renovar.' : false }, GM.fimContrato(G.g, p)), h('td', null, reais(E.salario(p))), h('td', null, reais(E.valorMercado(p)))));
     });
     return h('div', { class: 'plantelwrap' },
+      noticias(),
       h('div', { class: 'strip' },
         info('Divisão', K.DIV_NOME[c.div]), info('Estádio', c.estadio.nome + ' · ' + nf.format(c.estadio.capacidade)), info('Caixa', reais(c.caixa)),
         info('Folha mensal', reais(E.folhaMensal(c.elenco))), info('Média do time titular', media.toFixed(1)), info('Substituições', G.config.maxSubs + ' por jogo')),
       h('div', { class: 'plantel' },
         h('div', { class: 'tablewrap' }, h('table', { 'aria-label': 'Plantel de ' + c.nome }, h('thead', null, h('tr', null, ths)), h('tbody', null, linhas))),
-        painel(c.elenco.find((p) => p.id === G.sel))),
-      h('p', { class: 'footnote' }, h('span', { class: 'tit' }), 'Titular na escalação atual. Clique em um jogador para ver os detalhes e no título de uma coluna para ordenar. Passe o mouse nos títulos para ver o que cada atributo significa.'));
+        painel(c, c.elenco.find((p) => p.id === G.sel))),
+      h('div', { class: 'rodape' },
+        h('p', { class: 'footnote' }, h('span', { class: 'tit' }), 'Titular na escalação atual. ', K.estrela(), ' Estrela. Clique em um jogador para ver os detalhes e no título de uma coluna para ordenar. Passe o mouse nos títulos para ver o que cada atributo significa.'),
+        K.moralTreinadorBox()));
+  }
+  const MK = BF.Mercado;
+  function noticias() {
+    const n = G.g.noticias.slice(0, 4); if (!n.length) return null;
+    return h('section', { class: 'noticias', 'aria-label': 'Notícias' }, h('h3', null, 'Notícias'), h('ul', null, n.map((x) => h('li', { class: 'nt-' + x.tipo }, h('small', { class: 'num' }, GM.fmtDataCurta(x.data)), h('span', null, x.texto)))));
   }
   const info = (t, v) => h('div', null, h('small', null, t), h('b', null, v));
   function selecionar(id) { G.sel = id; const x = document.querySelector('.tablewrap').scrollLeft, y = window.scrollY; render(); document.querySelector('.tablewrap').scrollLeft = x; window.scrollTo(0, y); }
-  function painel(p) {
+  function painel(c, p) {
     const encaixes = K.ORDEM_POS.map((pos) => [pos, Math.round(PL.ovrNoSlot(p, pos))]).sort((a, b) => b[1] - a[1]).slice(0, 4);
+    const renova = MK.podeRenovar(G.g, p), [st] = situacao(p);
+    const btn = (id, t, acao, dis, dica) => h('button', { class: 'btn alt sm', id, disabled: dis, 'data-tip': dica || false, onclick: acao }, t);
     return h('aside', { class: 'panel', 'aria-label': 'Detalhes do jogador' },
-      h('div', null, h('span', { class: 'eyebrow' }, '#' + p.num + ' · ' + p.pos + ' · ' + p.idade + ' anos'), h('div', { class: 'pn' }, p.nome)),
+      h('div', null, h('span', { class: 'eyebrow' }, '#' + p.num + ' · ' + p.pos + ' · ' + p.idade + ' anos'), h('div', { class: 'pn' }, p.nome, p.estrela ? K.estrela() : null),
+        h('div', { class: 'natl' }, K.bandeira(p.nac), h('span', null, BF.Players.NAC_NOME[p.nac]))),
       h('div', { class: 'media' }, h('span', { 'data-tip': K.TIPS.media, tabindex: 0 }, 'Média'), h('b', { class: 'num' }, Math.round(PL.overall(p)))),
-      h('div', { class: 'attrs' }, K.ATTRS.map((a) => h('div', { class: 'attrn' }, h('span', { 'data-tip': K.TIPS[a], tabindex: 0 }, a), h('b', { class: 'num' }, p.attr[a])))),
+      h('div', { class: 'attrs' }, K.ATTRS.map((a) => h('div', { class: 'attrn' }, h('span', { 'data-tip': K.TIPS[a], tabindex: 0 }, K.ATTR_NOME[a].toUpperCase()), h('b', { class: 'num' }, p.attr[a])))),
       h('div', { class: 'meters' },
         h('div', null, h('span', { 'data-tip': K.TIPS.stamina, tabindex: 0 }, 'Stamina'), K.barraPct(p.stamina)),
         h('div', null, h('span', { 'data-tip': K.TIPS.moral, tabindex: 0 }, 'Moral'), K.barraPct(p.moral))),
@@ -217,9 +234,16 @@
         h('dt', null, 'Disciplina'), h('dd', null, PL.DISCIPLINAS[p.disciplina]),
         p.lesao ? [h('dt', null, 'Lesão'), h('dd', { class: 'bad' }, p.lesao + ' jogo(s) fora')] : null,
         p.suspenso ? [h('dt', null, 'Suspensão'), h('dd', { class: 'warn' }, 'cumpre no próximo jogo')] : null,
+        p.treino ? [h('dt', null, 'Treino'), h('dd', { class: 'treino' }, MK.TREINOS[p.treino.tipo].nome.replace('Treino de ', '').replace('Treino ', '') + ' · ' + p.treino.restante + ' jogo(s)')] : null,
+        p.aVenda ? [h('dt', null, 'À venda por'), h('dd', { class: 'venda' }, reais(p.aVenda.preco))] : null,
         h('dt', null, 'Contrato até'), h('dd', null, GM.fimContrato(G.g, p)),
         h('dt', null, 'Salário'), h('dd', null, reais(E.salario(p)) + '/mês'), h('dt', null, 'Valor'), h('dd', null, reais(E.valorMercado(p)))),
-      h('div', null, h('div', { class: 'eyebrow' }, 'Melhores posições'), h('div', { class: 'fit' }, encaixes.map(([pos, v]) => h('span', null, pos, h('b', null, v))))));
+      h('div', null, h('div', { class: 'eyebrow' }, 'Melhores posições'), h('div', { class: 'fit' }, encaixes.map(([pos, v]) => h('span', null, pos, h('b', null, v))))),
+      h('div', { class: 'acoes', role: 'group', 'aria-label': 'Ações com o jogador' },
+        btn('b-vender', 'Vender', () => K.dialogos.vender(c, p), false, 'Coloca o jogador à venda pelo preço que você definir. Ele sai quando um clube cobrir o preço.'),
+        btn('b-leiloar', 'Leiloar', () => K.dialogos.leiloar(c, p), false, 'Abre um leilão agora: os clubes dão lances a partir do preço inicial que você escolher.'),
+        btn('b-renovar', 'Renovar', () => K.dialogos.renovar(c, p), !renova, renova ? 'Negociar um novo contrato.' : 'A renovação só fica disponível nos últimos 3 meses de contrato.'),
+        btn('b-treinar', 'Treinar', () => K.dialogos.treinar(c, p), false, 'Tira o jogador de 1 a 3 jogos para evoluir um atributo.')));
   }
 
   render();

@@ -16,7 +16,7 @@
       const c = g.porId.get(r.id), zona = sobe && i < 4 ? 'z-sobe' : desce && i >= 16 ? 'z-desce' : '';
       const sg = r.gp - r.gc;
       return h('tr', { class: [zona, r.id === meuId ? 'meu' : '', g.humanoIds.has(r.id) ? 'humano' : ''].join(' ') },
-        h('td', { class: 'z' }, i + 1), h('td', { class: 'l nm' }, c.nome), h('td', { class: 'ovr' }, r.pts), h('td', null, r.j), h('td', null, r.v), h('td', null, r.e), h('td', null, r.d),
+        h('td', { class: 'z' }, i + 1), h('td', { class: 'l nm' }, K.comEscudo(c)), h('td', { class: 'ovr' }, r.pts), h('td', null, r.j), h('td', null, r.v), h('td', null, r.e), h('td', null, r.d),
         h('td', null, r.gp), h('td', null, r.gc), h('td', null, (sg > 0 ? '+' : '') + sg), h('td', null, r.j ? Math.round(r.pts / (r.j * 3) * 100) + '%' : '–'));
     });
     return h('div', { class: 'tablewrap' }, h('table', { class: 'liga', 'aria-label': 'Classificação ' + K.DIV_NOME[div] },
@@ -29,7 +29,7 @@
     const mostra = (titulo, jogos, placar) => h('div', { class: 'rodada' }, h('h3', null, titulo),
       h('ul', null, jogos.map((x) => {
         const [c, f] = x, gh = placar ? x[2] : null, ga = placar ? x[3] : null, cid = placar ? x[0] : x[0], fid = x[1];
-        return h('li', { class: cid === meuId || fid === meuId ? 'meu' : '' }, h('span', { class: 'tc' }, g.porId.get(cid).nome), h('b', { class: 'num pl' }, placar ? gh + ' × ' + ga : '×'), h('span', { class: 'tf' }, g.porId.get(fid).nome));
+        return h('li', { class: cid === meuId || fid === meuId ? 'meu' : '' }, h('span', { class: 'tc' }, K.comEscudo(cid)), h('b', { class: 'num pl' }, placar ? gh + ' × ' + ga : '×'), h('span', { class: 'tf' }, K.comEscudo(fid)));
       })));
     const out = [];
     if (feitas) out.push(mostra('Rodada ' + feitas + ' · resultados', L.res[feitas - 1], true));
@@ -47,8 +47,8 @@
         h('tbody', null, f.confrontos.map((c) => {
           const v = c.vencedor, id = (x) => (x === meuId ? 'meu' : '');
           return h('tr', { class: id(c.a) || id(c.b) },
-            h('td', { class: 'l nm' + (v === c.a ? ' venc' : '') }, nm(c.a)), h('td', null, c.ida ? c.ida[0] + '×' + c.ida[1] : '–'), h('td', null, c.volta ? c.volta[1] + '×' + c.volta[0] : '–'),
-            h('td', { class: 'l' + (v === c.b ? ' venc' : '') }, nm(c.b)),
+            h('td', { class: 'l nm' + (v === c.a ? ' venc' : '') }, K.comEscudo(c.a)), h('td', null, c.ida ? c.ida[0] + '×' + c.ida[1] : '–'), h('td', null, c.volta ? c.volta[1] + '×' + c.volta[0] : '–'),
+            h('td', { class: 'l' + (v === c.b ? ' venc' : '') }, K.comEscudo(c.b)),
             h('td', null, c.agregado ? c.agregado[0] + '×' + c.agregado[1] + (c.penaltis ? ' (pên. ' + c.penaltis[0] + '×' + c.penaltis[1] + ')' : '') : '–'));
         }))))));
     return h('div', { class: 'copaview' },

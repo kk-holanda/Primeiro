@@ -20,13 +20,17 @@ entre os 10 piores da Série D · 4) clubes dos técnicos · 5) plantel (estilo 
 - Jogo ao vivo com todas as divisões ao mesmo tempo, pausa e substituições (3, ou 5 no modo moderno), resumo com notas e evolução.
 - Calendário: quartas = Copa do Brasil (14 pernas), domingos = Brasileirão (38 rodadas). Fim de temporada com acesso/descenso e nova temporada.
 - Lesões, cartões e suspensões (vermelho ou 3 amarelos). Contratos curtos: até Dez do ano atual ou do próximo.
-- Mercado e Finanças: ainda não (abas "em breve").
+- Plantel: bandeira de nacionalidade, estrela nos craques (poucos, quase nenhum nas séries baixas), atributos com nome completo, cores dos clubes.
+- Ações por jogador: **Vender** (preço fixo, sai quando alguém cobrir), **Leiloar** (leilão imediato, pode começar em R$ 0), **Renovar** (últimos 3 meses; opções de 3-6, 6-9 e 9-12 meses; o jogador pode pedir mais) e **Treinar** (1 a 3 jogos fora para evoluir um atributo). Contrato ativo = o comprador paga também a multa.
+- Moral do técnico (gráfico dos últimos 5 jogos). Tática Contra-ataque (ciclo ofensivo > defensivo > contra-ataque > ofensivo).
+- Mercado de compra e Finanças completas: ainda não (abas "em breve").
 
 ## Comandos
 ```
 node tools/test.js           # testa as regras acima
 node tools/simulate.js 6     # simula 6 temporadas e imprime as métricas de balanceamento
 node tools/build.js          # gera dist/kfoot98.html (arquivo único)
+node tools/balance.js 600    # balanceamento das táticas e do treino
 ```
 
 ## Multiplayer (futuro)

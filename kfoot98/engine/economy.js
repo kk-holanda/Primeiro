@@ -12,7 +12,8 @@
     return Math.round(v / 1000) * 1000;
   }
   // salário mensal: 1,2% do valor, piso R$ 500 (13 pagamentos/ano)
-  function salario(p) { return Math.max(500, Math.round(valorMercado(p) * 0.012 / 100) * 100); }
+  const salarioBase = (p) => Math.max(500, Math.round(valorMercado(p) * 0.012 / 100) * 100);
+  const salario = (p) => (p.salario != null ? p.salario : salarioBase(p)); // p.salario muda quando o contrato é renovado
   // custos fixos anuais (staff, manutenção, viagens, arbitragem): R$/temporada
   const CUSTO_FIXO = { A: 3_500_000, B: 600_000, C: 150_000, D: 30_000 };
   const folhaMensal = (elenco) => elenco.reduce((s, p) => s + salario(p), 0);
@@ -52,5 +53,5 @@
   // chance de aceitar a proposta: cresce com desempenho (posição na tabela 0..1, 1=líder)
   const chanceAceite = (clube, spons, desempenho) => clamp(0.25 + 0.5 * desempenho + (clube.prestigio - spons.minPrestigio) / 200, 0.05, 0.95);
 
-  bf.Economy = { valorMercado, salario, folhaMensal, publico, rendaJogo, ampliar, valorPatrocinio, podePatrocinar, chanceAceite, CUSTO_FIXO, FATOR_DIV, CUSTO_LUGAR };
+  bf.Economy = { valorMercado, salarioBase, salario, folhaMensal, publico, rendaJogo, ampliar, valorPatrocinio, podePatrocinar, chanceAceite, CUSTO_FIXO, FATOR_DIV, CUSTO_LUGAR };
 })(typeof globalThis !== 'undefined' ? globalThis : this);

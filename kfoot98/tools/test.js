@@ -82,15 +82,13 @@ t('Substituições: limite de 3 (1998) e opção de 5', () => {
 });
 
 t('Padrão do jogo: 3 substituições', () => assert.equal(M.CFG.maxSubs, 3));
-console.log('\n' + ok + ' testes passaram');
-
 // ---------------- Jogo completo (calendário, rodadas, Copa por pernas, fim de ano) ----------------
 const G = BF.Game;
-t('Nomes únicos no mundo e contratos curtos (1 ou 2 temporadas)', () => {
+t('Nomes únicos no mundo e contratos curtos (dez/1998 a jun/1999)', () => {
   const g = G.novo({ seed: 7, humanos: [{ id: 1, nome: 'Teste', clubId: 'bangu' }] });
   const nomes = g.clubes.flatMap((c) => c.elenco.map((p) => p.nome));
   assert.equal(nomes.length, 80 * 24); assert.equal(new Set(nomes).size, nomes.length);
-  assert(g.clubes.every((c) => c.elenco.every((p) => p.contrato === 1 || p.contrato === 2)));
+  assert(g.clubes.every((c) => c.elenco.every((p) => p.contratoAte >= '1998-12-31' && p.contratoAte <= '1999-06-30')));
   assert.equal(G.fmtData('1998-02-04'), 'Qua, 04/02/1998');
 });
 t('Temporada inteira: 38 rodadas por divisão, Copa até o campeão, virada de ano', () => {
@@ -113,7 +111,7 @@ t('Temporada inteira: 38 rodadas por divisão, Copa até o campeão, virada de a
   for (const d of 'ABCD') assert.equal(g.clubes.filter((c) => c.div === d).length, 20);
   antes.A.slice(-4).forEach((id) => assert.equal(g.porId.get(id).div, 'B'));
   for (let i = 0; i < 6; i++) { const a = G.avancar(g); if (a.parou) G.simularDia(g); }
-  assert(g.clubes.every((c) => c.elenco.every((p) => p.contrato >= 1)));
+  assert(g.clubes.every((c) => c.elenco.every((p) => p.contratoAte >= g.data)));
   console.log('   humano parou', paradas, 'vezes | campeão A:', g.porId.get(antes.A[0]).nome, '| Copa:', g.porId.get(r.registro.copa).nome);
 });
 t('Suspensão: vermelho tira o jogador do próximo jogo', () => {
@@ -122,4 +120,76 @@ t('Suspensão: vermelho tira o jogador do próximo jogo', () => {
   const esc = G.escalacaoDe(g, c, g.porId.get('tupi'));
   assert(!esc.titulares.includes(p.id) && !esc.banco.includes(p.id));
 });
+
+// ---------------- Mercado: vender, leiloar, renovar, treinar ----------------
+const MK = BF.Mercado;
+const novoMundo = (seed = 3) => G.novo({ seed, humanos: [{ id: 1, nome: 'T', clubId: 'bangu' }] });
+t('Estrelas: poucas, e quase nenhuma nas séries baixas; nacionalidade e salário', () => {
+  const g = novoMundo(11), est = (d) => g.clubes.filter((c) => c.div === d).reduce((s, c) => s + c.elenco.filter((p) => p.estrela).length, 0);
+  const n = { A: est('A'), B: est('B'), C: est('C'), D: est('D') };
+  console.log('   estrelas por divisão:', JSON.stringify(n));
+  assert(n.A >= 12 && n.A <= 40 && n.D <= 4 && n.C <= 6);
+  assert.equal(g.porId.get('bangu').elenco.filter((p) => p.estrela).length, 0);
+  const todos = g.clubes.flatMap((c) => c.elenco);
+  assert(todos.every((p) => p.nac && p.salario > 0));
+  const bra = todos.filter((p) => p.nac === 'BRA').length / todos.length; assert(bra > 0.85 && bra < 0.97);
+});
+t('Renovar: só nos últimos 3 meses, e o jogador pode pedir mais', () => {
+  const g = novoMundo(), c = g.porId.get('bangu'), p = c.elenco[0];
+  assert(!MK.podeRenovar(g, p));
+  g.data = G.addDias(p.contratoAte, -60); assert(MK.podeRenovar(g, p));
+  for (const o of MK.opcoesRenovacao(g)) assert(o.meses >= 3 && o.meses <= 12);
+  const esp = MK.salarioEsperado(p, 6);
+  assert.equal(MK.negociar(g, p, esp, 6).resultado, 'aceita');
+  const r = MK.negociar(g, p, Math.round(esp * 0.5), 6); assert(r.resultado === 'pede' && r.pedido > esp);
+  const antes = p.contratoAte; MK.aplicarRenovacao(g, p, r.pedido, 9);
+  assert(p.contratoAte > antes && p.salario === r.pedido);
+});
+t('Leilão: preço inicial R$ 0, multa paga pelo comprador, jogador troca de clube', () => {
+  const g = novoMundo(), c = g.porId.get('bangu'), p = c.elenco.find((x) => x.pos === 'CA'), caixa0 = c.caixa;
+  const res = MK.leiloar(g, c, p, 0);
+  assert(res.ok && res.rodadas.length >= 2);
+  if (res.vendido) {
+    const b = g.porId.get(res.comprador);
+    assert(b.elenco.includes(p) && !c.elenco.includes(p)); assert.equal(c.caixa, caixa0 + res.preco + res.multa); assert(res.multa > 0);
+  }
+  // preço astronômico: ninguém compra
+  const q = c.elenco.find((x) => x.pos === 'LD'); const r2 = MK.leiloar(g, c, q, 1e9); assert(r2.ok && !r2.vendido && c.elenco.includes(q));
+});
+t('Venda a preço fixo: sai depois de alguns jogos se o preço for razoável; preço absurdo não vende', () => {
+  const g = novoMundo(5), c = g.porId.get('bangu'), E = BF.Economy;
+  const p = c.elenco.slice().sort((a, b) => BF.Players.overall(b) - BF.Players.overall(a))[5], q = c.elenco.slice().sort((a, b) => BF.Players.overall(b) - BF.Players.overall(a))[6];
+  assert(MK.colocarAVenda(g, c, p, E.valorMercado(p) * 0.9).ok); assert(MK.colocarAVenda(g, c, q, E.valorMercado(q) * 5).ok);
+  for (let i = 0; i < 60; i++) MK.processarVendas(g);
+  assert(!c.elenco.includes(p), 'vendeu o jogador de preço justo'); assert(c.elenco.includes(q), 'não vendeu o de preço absurdo');
+  assert(g.noticias.some((n) => n.tipo === 'venda'));
+  c.elenco.length = 18; assert(!MK.colocarAVenda(g, c, c.elenco[0], 1000).ok);
+});
+t('Treino: fora de 1 a 3 jogos, evolui o atributo, cobra moral e devolve stamina', () => {
+  const g = novoMundo(), c = g.porId.get('bangu'), p = c.elenco.find((x) => x.idade <= 24 && x.pos === 'CA') || c.elenco.find((x) => x.idade <= 24);
+  p.stamina = 40; p.moral = 70; const fis0 = p.attr.FIS;
+  assert(MK.iniciarTreino(g, c, p, 'forca', 3).ok); assert(!BF.Season.disponivel(p));
+  assert(!MK.iniciarTreino(g, c, p, 'corrida', 1).ok);
+  assert(!S.escalarAuto(c, '4-4-2', 'equilibrado', 3).titulares.includes(p.id));
+  for (let i = 0; i < 3; i++) { p.treino.restante--; }
+  MK.concluirTreino(g, c, p);
+  assert(p.attr.FIS >= fis0 && p.attr.FIS <= fis0 + 4); assert.equal(p.moral, 70 - 12); assert.equal(p.stamina, 76); assert.equal(p.treinoCd, 4);
+  assert(!MK.iniciarTreino(g, c, p, 'forca', 1).ok, 'em descanso de treino');
+});
+t('Contratos vencidos: computador renova, humano perde o jogador e a base completa o elenco', () => {
+  const g = novoMundo(), c = g.porId.get('bangu'), v = g.porId.get('tupi');
+  c.elenco.slice(0, 5).forEach((p) => { p.contratoAte = '1998-01-15'; }); v.elenco.slice(0, 5).forEach((p) => { p.contratoAte = '1998-01-15'; });
+  MK.processarContratos(g);
+  assert.equal(v.elenco.length, 24); assert(v.elenco.every((p) => p.contratoAte >= g.data));
+  assert(c.elenco.length >= 20 && c.elenco.every((p) => p.contratoAte >= g.data));
+  assert(g.noticias.length > 0);
+});
+t('Moral do técnico: vitória sobe, derrota desce, guarda o histórico', () => {
+  const g = novoMundo(), mt = g.moralTreinador.bangu;
+  assert.equal(mt.v, 60);
+  const sim = G.simularDia(g); // 1º dia: Copa
+  assert.equal(mt.hist.length, 2); assert(['V', 'E', 'D'].includes(mt.hist[1].res));
+  assert(mt.v >= 0 && mt.v <= 100);
+});
+t('Tática contra-ataque existe', () => { assert(M.TATICA.contra && M.TATICA.contra.tempo < 1); });
 console.log('\n' + ok + ' testes passaram');

@@ -314,6 +314,122 @@ td.evol { font-size: 13px; color: var(--accent); font-weight: 700; }
 .det[open] summary { margin-bottom: 10px; }
 @media (prefers-reduced-motion: reduce) { li.flash { animation: none; } }
 
+/* ======== rodada 3: cores dos clubes, bandeiras, estrelas, ações, modais, moral do técnico ======== */
+.escudo { display: inline-block; width: 14px; height: 14px; border: 1px solid color-mix(in srgb, var(--ink) 40%, transparent); flex: none; vertical-align: -2px; border-radius: 3px 3px 7px 7px; }
+.escudo.grande { width: 28px; height: 28px; border-width: 2px; border-radius: 4px 4px 14px 14px; vertical-align: middle; }
+.cn { display: inline-flex; gap: 6px; align-items: center; min-width: 0; }
+.cn span:last-child { overflow-wrap: anywhere; }
+.tc .cn { justify-content: flex-end; }
+.placar .tn { display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+.placar .tn.r { justify-content: flex-start; }
+.confronto { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.rl { align-items: center; }
+.flag { display: inline-flex; vertical-align: middle; line-height: 0; border: 1px solid color-mix(in srgb, var(--ink) 25%, transparent); }
+.flag svg { display: block; }
+.star { color: #e0a100; font-size: 1.05em; margin-left: 4px; cursor: help; text-shadow: 0 0 1px rgb(0 0 0 / .35); }
+td.nm .star { margin-left: 5px; }
+.ligarod { align-self: flex-start; background: var(--accent); color: var(--accent-ink); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; font-size: 14px; padding: 3px 10px; }
+.clubhead { gap: 6px; }
+.clubtitle { display: flex; align-items: center; gap: 12px; }
+.faixa { display: block; height: 6px; width: min(320px, 100%); }
+.natl { display: flex; align-items: center; gap: 8px; margin-top: 4px; font-size: 14px; color: var(--muted); }
+.panel .pn { display: flex; align-items: center; flex-wrap: wrap; }
+.panel .pn .star { font-size: 22px; }
+.acoes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; border-top: 2px solid var(--line); padding-top: 12px; }
+.acoes .btn { font-size: 15px; padding: 8px 6px; width: 100%; }
+.acoes .btn[data-tip] { text-decoration: none; }
+.kv .venda, td.venda { color: #8a5a00; font-weight: 700; } :root[data-theme="dark"] .kv .venda, :root[data-theme="dark"] td.venda { color: var(--hot); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .kv .venda, :root:not([data-theme="light"]) td.venda { color: var(--hot); } }
+td.treino, .kv .treino { color: var(--accent); font-weight: 700; }
+.noticias { background: var(--panel); border: 1px solid var(--line); border-left: 6px solid var(--hot); padding: 8px 14px; }
+.noticias h3 { font-size: 15px; margin-bottom: 4px; }
+.noticias ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; font-size: 15px; }
+.noticias li { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 8px; }
+.noticias small { color: var(--muted); font-weight: 600; }
+.noticias .nt-alerta span { font-weight: 700; }
+.rodape { display: flex; flex-wrap: wrap; gap: 14px; justify-content: space-between; align-items: flex-end; }
+.rodape > .footnote { flex: 1 1 280px; align-self: flex-start; }
+.moraltec { flex: 0 1 380px; margin-left: auto; background: var(--panel); border: 1px solid var(--line); padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; min-width: min(100%, 300px); }
+.mt-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.mt-top h3 { font-size: 17px; }
+.mt-val { display: flex; align-items: baseline; gap: 8px; }
+.mt-val b { font-family: var(--display); font-weight: 400; font-size: 36px; line-height: 1; }
+.mt-chart svg { width: 100%; height: auto; display: block; overflow: visible; }
+.mt-chart .g { stroke: var(--line); stroke-width: 1; stroke-dasharray: 3 3; }
+.mt-chart .t { fill: var(--muted); font-size: 11px; font-family: var(--body); font-variant-numeric: tabular-nums; }
+.mt-chart .v { fill: var(--ink); font-size: 12px; font-weight: 700; font-family: var(--body); }
+.mt-chart .ln { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; opacity: .75; }
+.mt-chart .pt { stroke: var(--panel); stroke-width: 2; }
+.mt-chart .hit { fill: transparent; cursor: help; }
+.mt-chart .r { font-size: 12px; font-weight: 800; font-family: var(--body); } .mt-chart .rV { fill: var(--accent); } .mt-chart .rD { fill: #c0392b; } .mt-chart .rE { fill: var(--muted); }
+:root[data-theme="dark"] .mt-chart .rD { fill: #ff7a6e; } @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .mt-chart .rD { fill: #ff7a6e; } }
+.mt-nota { font-size: 13px; line-height: 1.3; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* janela modal */
+.overlay { position: fixed; inset: 0; z-index: 40; background: rgb(5 18 10 / .6); display: flex; align-items: flex-start; justify-content: center; padding: 6vh 12px 12px; overflow: auto; }
+.modal { background: var(--panel); border: 1px solid var(--line); border-top: 6px solid var(--hot); width: min(560px, 100%); display: flex; flex-direction: column; }
+.modal header { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+.modal header h3 { font-size: 22px; overflow-wrap: anywhere; }
+.modal .x { appearance: none; background: transparent; border: 0; font-size: 30px; line-height: 1; cursor: pointer; color: var(--muted); padding: 0 6px; }
+.mbody { padding: 16px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.mj { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.campo-mod, label.campo { display: flex; flex-direction: column; gap: 4px; font-weight: 600; }
+.moeda { display: flex; align-items: stretch; border: 2px solid var(--line); background: var(--panel); }
+.moeda:focus-within { border-color: var(--accent); }
+.moeda i { font-style: normal; padding: 8px 10px; background: var(--panel2); font-weight: 700; color: var(--muted); }
+.moeda input { border: 0; padding: 8px 10px; font-size: 20px; width: 100%; min-width: 0; background: transparent; font-variant-numeric: tabular-nums; }
+.moeda input:focus-visible { outline: none; }
+.estimativa { font-weight: 600; color: var(--accent); }
+.nota-multa { background: var(--panel2); padding: 8px 10px; border-left: 4px solid var(--hot); }
+.opcoes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+@media (max-width: 480px) { .opcoes { grid-template-columns: 1fr; } }
+.opcao, .treino-card { appearance: none; text-align: left; background: var(--panel); border: 2px solid var(--line); padding: 8px 10px; cursor: pointer; display: flex; flex-direction: column; gap: 2px; }
+.opcao small { text-transform: uppercase; letter-spacing: .08em; font-weight: 700; color: var(--muted); font-size: 12px; }
+.opcao b { font-family: var(--display); font-weight: 400; font-size: 24px; }
+.opcao.on, .treino-card.on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, var(--panel)); }
+.opcao[disabled] { cursor: default; }
+.resposta { background: var(--panel2); border-left: 4px solid var(--hot); padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; }
+.treinos { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+.treino-card b { font-size: 16px; } .treino-card .ganho { font-weight: 700; color: var(--accent); }
+.efeitos { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 2px; }
+.leilao { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; max-height: 50vh; overflow: auto; }
+.leilao li { display: flex; gap: 8px; align-items: center; padding: 5px 8px; background: var(--panel2); animation: entra .3s ease-out; }
+.leilao .l-fim { background: var(--hot); color: var(--hot-ink); font-weight: 700; }
+.leilao .l-abertura { font-weight: 700; }
+@keyframes entra { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .leilao li { animation: none; } }
+
+/* escalação: cartões do campo */
+.campo { aspect-ratio: 2 / 3; max-height: none; }
+.cartao-jog { position: absolute; transform: translate(-50%, -50%); width: 23%; min-width: 74px; max-width: 124px; transition: top .35s ease; z-index: 1; }
+.seta { position: absolute; left: 50%; top: -15px; transform: translateX(-50%); font-size: 14px; line-height: 1; color: var(--hot); text-shadow: 0 0 3px #000; z-index: 3; }
+.cartao-jog .chip { position: static; transform: none; width: 100%; min-width: 0; max-width: none; padding: 0 0 3px; gap: 1px; align-items: stretch; text-align: center; }
+.chip .cs { display: flex; justify-content: space-between; align-items: center; background: #0b6e3f; color: #fff; padding: 1px 5px; letter-spacing: .06em; }
+.chip .cs b { font-size: 12px; } .chip .cs i { font-style: normal; font-size: 11px; opacity: .9; }
+.chip.fora .cs { background: #b45309; }
+.chip .cnome { font-size: 11px; font-weight: 700; line-height: 1.12; padding: 2px 3px 0; overflow-wrap: anywhere; color: #13241a; }
+.chip .cnome .star { margin-left: 2px; }
+.chip .cmed { display: flex; justify-content: center; align-items: baseline; gap: 4px; color: #13241a; }
+.chip .cmed small { font-size: 10px; color: #3c4d41; } .chip .cmed b { font-size: 14px; }
+.chip .cnat { font-size: 10px; color: #b45309; font-weight: 700; }
+.chip .cbar { display: flex; align-items: center; gap: 3px; padding: 0 4px; } .chip .cbar small { font-size: 9px; font-weight: 800; color: #3c4d41; width: 8px; }
+.chip .cbar .bar { flex: 1; }
+.sentido { position: absolute; right: 8px; top: 6px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: rgb(255 255 255 / .7); }
+.tacdesc { background: var(--panel2); border-left: 4px solid var(--hot); padding: 6px 12px; margin: 0; max-width: 90ch; }
+.legenda { max-width: 52ch; }
+@media (max-width: 860px) { .escgrid { grid-template-columns: minmax(0, 1fr); } .cartao-jog { min-width: 64px; } .chip .cnome { font-size: 10px; } }
+
+/* substituições: tabela com stamina e moral */
+.sublinha { grid-template-columns: 34px minmax(0, 1fr) 28px 96px 96px; }
+.sublinha.cab { background: transparent; cursor: default; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 700; border-bottom: 2px solid var(--line); position: sticky; top: 0; }
+.sublinha.cab:hover { background: transparent; }
+.sublinha .barpct { gap: 4px; } .sublinha .barpct .bar { width: 44px; } .sublinha .barpct b { font-size: 12px; min-width: 3ch; }
+.sublista { max-height: 430px; }
+.subcols { grid-template-columns: 1fr; }
+.jmain .subpanel .seg { flex-wrap: wrap; }
+@media (max-width: 480px) { .sublinha { grid-template-columns: 30px minmax(0, 1fr) 24px 84px 84px; font-size: 13px; } .sublinha .barpct .bar { width: 34px; } }
+
 </style>
 </head>
 <body>
@@ -357,6 +473,9 @@ td.evol { font-size: 13px; color: var(--accent); font-weight: 700; }
 // Capacidades e "prestígio" são ESTIMATIVAS para jogo, não dados oficiais.
 // Colunas: id, nome, cidade, UF, divisão, prestígio(1-100), estádio, capacidade
 (function (root) {
+  // Cores principais (aproximadas) de cada clube, usadas nas tabelas e no plantel: id -> [principal, secundária]
+  const CORES = {"corinthians": ["#111111", "#ffffff"], "flamengo": ["#c8102e", "#111111"], "palmeiras": ["#006437", "#ffffff"], "saopaulo": ["#e4002b", "#111111"], "vasco": ["#111111", "#ffffff"], "cruzeiro": ["#0033a0", "#ffffff"], "gremio": ["#0d80bf", "#111111"], "internacional": ["#e5050f", "#ffffff"], "atleticomg": ["#111111", "#ffffff"], "santos": ["#ffffff", "#111111"], "botafogo": ["#111111", "#ffffff"], "bahia": ["#0057b8", "#e4002b"], "vitoria": ["#e4002b", "#111111"], "portuguesa": ["#e4002b", "#00843d"], "coritiba": ["#00843d", "#ffffff"], "atleticopr": ["#c8102e", "#111111"], "sport": ["#c8102e", "#111111"], "guarani": ["#00843d", "#ffffff"], "parana": ["#0057b8", "#c8102e"], "juventude": ["#00843d", "#ffffff"], "fluminense": ["#8b1538", "#00843d"], "ceara": ["#111111", "#ffffff"], "fortaleza": ["#0057b8", "#e4002b"], "nautico": ["#e4002b", "#ffffff"], "santacruz": ["#111111", "#e4002b"], "goias": ["#00843d", "#ffffff"], "pontepreta": ["#111111", "#ffffff"], "remo": ["#0033a0", "#ffffff"], "paysandu": ["#0099d8", "#ffffff"], "bragantino": ["#ffffff", "#e4002b"], "avai": ["#0057b8", "#ffffff"], "criciuma": ["#f2c200", "#111111"], "americamg": ["#00843d", "#111111"], "figueirense": ["#111111", "#ffffff"], "vilanova": ["#e4002b", "#ffffff"], "sampaio": ["#f2c200", "#e4002b"], "botafogosp": ["#e4002b", "#ffffff"], "atleticogo": ["#e4002b", "#111111"], "xv": ["#111111", "#ffffff"], "gama": ["#00843d", "#f2c200"], "joinville": ["#111111", "#ffffff"], "londrina": ["#0057b8", "#ffffff"], "csa": ["#0057b8", "#ffffff"], "americarn": ["#e4002b", "#ffffff"], "crb": ["#e4002b", "#ffffff"], "mogimirim": ["#f2c200", "#00843d"], "saocaetano": ["#0057b8", "#ffffff"], "caxias": ["#8b1538", "#0057b8"], "treze": ["#111111", "#ffffff"], "voltaredonda": ["#f2c200", "#0057b8"], "campinense": ["#e4002b", "#111111"], "brasilpel": ["#e4002b", "#111111"], "juventus": ["#8b1538", "#ffffff"], "confianca": ["#0057b8", "#ffffff"], "americano": ["#f2c200", "#111111"], "motoclub": ["#0057b8", "#ffffff"], "santoandre": ["#0057b8", "#ffffff"], "operariosms": ["#111111", "#ffffff"], "ituano": ["#e4002b", "#111111"], "central": ["#111111", "#ffffff"], "tupi": ["#111111", "#ffffff"], "ypiranga": ["#f2c200", "#0057b8"], "villanova": ["#e4002b", "#ffffff"], "ferroviario": ["#e4002b", "#111111"], "nacionalam": ["#ffffff", "#111111"], "anapolis": ["#0057b8", "#ffffff"], "comercialms": ["#111111", "#ffffff"], "riobrancoac": ["#111111", "#ffffff"], "operariovg": ["#111111", "#ffffff"], "itabaiana": ["#0057b8", "#ffffff"], "bangu": ["#e4002b", "#ffffff"], "madureira": ["#f2c200", "#0057b8"], "marilia": ["#e4002b", "#ffffff"], "olaria": ["#0057b8", "#ffffff"], "sertaozinho": ["#e4002b", "#ffffff"], "riobrancoes": ["#00843d", "#ffffff"], "tunaluso": ["#0057b8", "#ffffff"], "colatina": ["#0057b8", "#f2c200"], "ceilandia": ["#0057b8", "#ffffff"], "guaranybage": ["#e4002b", "#ffffff"]};
+
   const R = [
     // ---------------- SÉRIE A ----------------
     ['corinthians', 'Corinthians', 'São Paulo', 'SP', 'A', 97, 'Pacaembu', 37000],
@@ -457,7 +576,7 @@ td.evol { font-size: 13px; color: var(--accent); font-weight: 700; }
     const [id, nome, cidade, uf, div, prestigio, estadio, capacidade] = r;
     const d = DIV[div];
     return {
-      id, nome, cidade, uf, div, prestigio,
+      id, nome, cidade, uf, div, prestigio, cores: CORES[id] || ['#556b5c', '#ffffff'],
       estadio: { nome: estadio, capacidade, nivel: 0 },
       // demanda média de público (pessoas/jogo) — cresce com prestígio^1.55
       demanda: Math.round(25 * Math.pow(prestigio, 1.55) * d.demandaK),
@@ -582,16 +701,25 @@ td.evol { font-size: 13px; color: var(--accent); font-weight: 700; }
 
   const NOMES = ['Adailton', 'Adílson', 'Adriano', 'Alberto', 'Alex', 'Alexandre', 'Aloísio', 'Altair', 'Amaral', 'André', 'Anderson', 'Antônio', 'Aílton', 'Beto', 'Bruno', 'Caio', 'Carlos', 'Cássio', 'Cláudio', 'Cleber', 'Cleiton', 'Dario', 'Davi', 'Denílson', 'Diego', 'Dida', 'Edmar', 'Edu', 'Edson', 'Eduardo', 'Elias', 'Emerson', 'Fabiano', 'Fábio', 'Felipe', 'Fernando', 'Flávio', 'Francisco', 'Gabriel', 'Geraldo', 'Gilmar', 'Gilson', 'Givanildo', 'Guilherme', 'Gustavo', 'Helton', 'Henrique', 'Hélio', 'Ivan', 'Jair', 'Jefferson', 'João', 'Jonas', 'Jorge', 'José', 'Júlio', 'Juninho', 'Kleber', 'Leandro', 'Leonardo', 'Lúcio', 'Luciano', 'Luís', 'Marcão', 'Marcelo', 'Márcio', 'Marcos', 'Mário', 'Maurício', 'Mauro', 'Nélio', 'Neto', 'Nilton', 'Odair', 'Osvaldo', 'Paulo', 'Pedro', 'Rafael', 'Raimundo', 'Reinaldo', 'Renato', 'Ricardo', 'Roberto', 'Rodrigo', 'Rogério', 'Ronaldo', 'Sandro', 'Sérgio', 'Silvio', 'Tadeu', 'Thiago', 'Valdir', 'Vágner', 'Vander', 'Vítor', 'Wagner', 'Wellington', 'Wilson', 'Zé'];
   const SOBRENOMES = ['Silva', 'Santos', 'Oliveira', 'Souza', 'Pereira', 'Costa', 'Rodrigues', 'Almeida', 'Nascimento', 'Lima', 'Araújo', 'Ribeiro', 'Carvalho', 'Gomes', 'Martins', 'Barbosa', 'Rocha', 'Dias', 'Moreira', 'Cardoso', 'Teixeira', 'Mendes', 'Freitas', 'Pinto', 'Batista', 'Moura', 'Campos', 'Cunha', 'Monteiro', 'Nunes', 'Ramos', 'Vieira', 'Lopes', 'Fernandes', 'Machado', 'Correia', 'Azevedo', 'Duarte', 'Farias', 'Guimarães', 'Maciel', 'Miranda', 'Siqueira', 'Pacheco', 'Tavares', 'Xavier', 'Cavalcante', 'Brito', 'Peixoto', 'Medeiros', 'Andrade', 'Franco', 'Leite', 'Bezerra', 'Toledo', 'Furtado', 'Melo', 'Borges', 'Coelho', 'Viana'];
+  const NOMES_ES = ['Alejandro', 'Carlos', 'Diego', 'Eduardo', 'Emilio', 'Fabián', 'Federico', 'Gustavo', 'Hernán', 'Ignacio', 'Javier', 'Jorge', 'José', 'Juan', 'Leonardo', 'Luis', 'Marcelo', 'Martín', 'Matías', 'Nicolás', 'Pablo', 'Rodrigo', 'Santiago', 'Sebastián', 'Walter', 'Ariel', 'Cristian', 'Claudio', 'Mauricio', 'Néstor'];
+  const SOBRENOMES_ES = ['González', 'Rodríguez', 'Fernández', 'López', 'Martínez', 'Sánchez', 'Pérez', 'Gómez', 'Díaz', 'Torres', 'Ramírez', 'Flores', 'Acosta', 'Benítez', 'Medina', 'Herrera', 'Silva', 'Castro', 'Rojas', 'Vera', 'Ortiz', 'Núñez', 'Aguirre', 'Giménez', 'Cabrera', 'Ríos', 'Peralta', 'Villalba', 'Paz', 'Morales'];
+  // nacionalidades (chance de ser brasileiro depende da divisão; o resto é sul-americano)
+  const NACS = [['ARG', 30], ['URU', 22], ['PAR', 22], ['CHI', 8], ['COL', 8], ['PER', 4], ['EQU', 3], ['BOL', 2], ['VEN', 1]];
+  const PBRA = { A: 0.86, B: 0.91, C: 0.94, D: 0.97 };
+  const NAC_NOME = { BRA: 'Brasil', ARG: 'Argentina', URU: 'Uruguai', PAR: 'Paraguai', CHI: 'Chile', COL: 'Colômbia', PER: 'Peru', EQU: 'Equador', BOL: 'Bolívia', VEN: 'Venezuela' };
+  function sortearNac(rng, div) { return rng.chance(PBRA[div] || 0.95) ? 'BRA' : rng.weighted(NACS, (x) => x[1])[0]; }
+
   // registro de nomes já usados: garante que não existam dois jogadores com o mesmo nome no mundo
   let usadosGlobal = new Set();
   const resetNomes = () => { usadosGlobal = new Set(); };
-  function nomeUnico(rng, usados) {
+  function nomeUnico(rng, usados, hisp) {
+    const N = hisp ? NOMES_ES : NOMES, SN = hisp ? SOBRENOMES_ES : SOBRENOMES;
     for (let t = 0; t < 40; t++) {
-      const n = rng.pick(NOMES) + ' ' + rng.pick(SOBRENOMES);
+      const n = rng.pick(N) + ' ' + rng.pick(SN);
       if (!usados.has(n)) { usados.add(n); return n; }
     }
     for (;;) { // improvável: acrescenta inicial do meio
-      const n = rng.pick(NOMES) + ' ' + String.fromCharCode(65 + rng.int(0, 25)) + '. ' + rng.pick(SOBRENOMES);
+      const n = rng.pick(N) + ' ' + String.fromCharCode(65 + rng.int(0, 25)) + '. ' + rng.pick(SN);
       if (!usados.has(n)) { usados.add(n); return n; }
     }
   }
@@ -601,15 +729,14 @@ td.evol { font-size: 13px; color: var(--accent); font-weight: 700; }
 
   const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
 
-  function gerarJogador(rng, pos, alvo, idade, usados = usadosGlobal) {
+  function gerarJogador(rng, pos, alvo, idade, usados = usadosGlobal, nac = 'BRA') {
     const attr = {};
     ATTRS.forEach((a, i) => { attr[a] = clamp(Math.round(alvo + PERFIL[pos][i] + rng.gauss() * 4.5), 5, 97); });
     const p = {
-      id: 'p' + Math.floor(rng.next() * 1e9).toString(36), nome: nomeUnico(rng, usados),
+      id: 'p' + Math.floor(rng.next() * 1e9).toString(36), nome: nomeUnico(rng, usados, nac !== 'BRA'), nac, estrela: false,
       pos, idade, attr, xp: { RIT: 0, CHU: 0, PAS: 0, DRI: 0, DEF: 0, FIS: 0 },
       disciplina: rng.weighted([0, 1, 2, 3, 4], (d) => [10, 25, 35, 20, 10][d] * ((GRUPO[pos] === 'D' || pos === 'VOL') && d >= 3 ? 1.4 : 1)),
-      stamina: rng.int(88, 100), moral: rng.int(48, 72), lesao: 0, contrato: rng.chance(0.65) ? 1 : 2, // temporadas restantes: até Dez do ano atual (65%) ou do próximo (35%)
-      suspenso: 0, amarelosAcum: 0,
+      stamina: rng.int(88, 100), moral: rng.int(48, 72), lesao: 0,       suspenso: 0, amarelosAcum: 0, treino: null, treinoCd: 0, aVenda: null,
       gols: 0, jogos: 0,
     };
     // ajusta o nível geral: corrige para que o overall caia perto do alvo
@@ -621,18 +748,36 @@ td.evol { font-size: 13px; color: var(--accent); font-weight: 700; }
   // prestigio -> nível médio do elenco: 36 + 0.36 * prestígio  (97 -> 71 ; 8 -> 39)
   const nivelDoClube = (prestigio) => 36 + prestigio * 0.36;
 
-  function gerarElenco(rng, clube, usados) {
+  // quantas estrelas o clube tem: poucas, e quase nenhuma nas divisões baixas
+  function estrelasDoClube(rng, c) {
+    const pr = c.prestigio;
+    if (c.div === 'A') return pr >= 90 ? rng.int(2, 3) : pr >= 80 ? rng.int(1, 2) : rng.chance(0.55) ? 1 : 0;
+    if (c.div === 'B') return rng.chance(pr >= 62 ? 0.5 : 0.25) ? 1 : 0;
+    if (c.div === 'C') return rng.chance(0.1) ? 1 : 0;
+    return c.selecionavel ? 0 : rng.chance(0.08) ? 1 : 0;
+  }
+  function gerarElenco0(rng, clube, usados) {
     const base = nivelDoClube(clube.prestigio);
     // elenco "pirâmide": titulares melhores que reservas
     return ELENCO.map((pos, i) => {
       const titular = i < 14 ? 3 + rng.next() * 5 : -(2 + rng.next() * 6);
       const idade = clamp(Math.round(26 + rng.gauss() * 4.2), 17, 37);
       const bonusIdade = idade <= 20 ? -3 : 0; // garotos ainda verdes
-      return gerarJogador(rng, pos, base + titular + bonusIdade, idade, usados);
+      return gerarJogador(rng, pos, base + titular + bonusIdade, idade, usados, sortearNac(rng, clube.div));
     });
   }
+  function gerarElencoComEstrelas(rng, clube, usados) {
+    const el = gerarElenco0(rng, clube, usados), n = estrelasDoClube(rng, clube);
+    const melhores = el.slice().sort((a, b) => overall(b) - overall(a)).slice(0, 5);
+    for (let k = 0; k < n && melhores.length; k++) {
+      const p = melhores.splice(rng.int(0, Math.min(melhores.length - 1, 3)), 1)[0];
+      ATTRS.forEach((a) => { p.attr[a] = clamp(p.attr[a] + 8, 5, 97); });
+      p.idade = clamp(p.idade, 24, 31); p.estrela = true; p.moral = Math.min(100, p.moral + 6);
+    }
+    return el;
+  }
 
-  bf.Players = { ATTRS, PESOS, GRUPO, DISCIPLINAS, DISC_FALTA, DISC_CARTAO, afinidade, overall, overallEm, ovrNoSlot, gerarElenco, gerarJogador, resetNomes, nivelDoClube, clamp };
+  bf.Players = { ATTRS, PESOS, GRUPO, DISCIPLINAS, DISC_FALTA, DISC_CARTAO, afinidade, overall, overallEm, ovrNoSlot, gerarElenco: gerarElencoComEstrelas, gerarJogador, resetNomes, NAC_NOME, nivelDoClube, clamp };
 })(typeof globalThis !== 'undefined' ? globalThis : this);
 
 ;
@@ -650,10 +795,17 @@ td.evol { font-size: 13px; color: var(--accent); font-weight: 700; }
     '4-5-1': ['GOL', 'LD', 'ZAG', 'ZAG', 'LE', 'VOL', 'VOL', 'MC', 'MEI', 'ALA', 'CA'],
   };
   // tática: ofensivo/equilibrado/defensivo
+  // Táticas (pedra-papel-tesoura, calibradas por tools/balance.js):
+  //  atk/def  = multiplicador da força de ataque/defesa     tempo    = ritmo: quem tem mais lances (e o total de lances do jogo)
+  //  abertura = quanto o time se expõe (+1 ofensivo ... -1 defensivo)
+  //  fecha    = reduz a chance de finalização do adversário (retranca)
+  //  comp     = compactação: contra quem joga fechado, a vantagem de qualidade do adversário rende menos (ajuda o time mais fraco)
+  //  contraK  = bônus nas finalizações do time de contra-ataque, proporcional à abertura do adversário
   const TATICA = {
-    ofensivo: { atk: 1.06, def: 0.94, tempo: 1.10, faltas: 1.10 },
-    equilibrado: { atk: 1.0, def: 1.0, tempo: 1.0, faltas: 1.0 },
-    defensivo: { atk: 0.94, def: 1.06, tempo: 0.90, faltas: 1.0 },
+    ofensivo: { atk: 1.05, def: 0.96, tempo: 1.06, faltas: 1.10, abertura: 1, fecha: 0, comp: 1, contraK: 0 },
+    equilibrado: { atk: 1.0, def: 1.0, tempo: 1.0, faltas: 1.0, abertura: 0, fecha: 0, comp: 1, contraK: 0 },
+    defensivo: { atk: 0.97, def: 1.03, tempo: 0.94, faltas: 1.0, abertura: -1, fecha: 0.02, comp: 0.8, contraK: 0 },
+    contra: { atk: 0.99, def: 1.02, tempo: 0.90, faltas: 1.0, abertura: -0.5, fecha: 0, comp: 0.88, contraK: 0.13 },
   };
   const CFG = {
     ataquesPorMinuto: 0.52, mandante: 1.07, expoControle: 2.2,
@@ -731,13 +883,15 @@ td.evol { font-size: 13px; color: var(--accent); font-weight: 700; }
       }
       // quem tem a bola neste minuto?
       const pc = ctrl();
-      const nAtaques = rng.chance(CFG.ataquesPorMinuto) ? 1 : 0;
+      const nAtaques = rng.chance(CFG.ataquesPorMinuto * (m.F[0].t.tempo + m.F[1].t.tempo) / 2) ? 1 : 0;   // dois times fechados = jogo truncado
       stats[0].posse += pc; stats[1].posse += 1 - pc;
       if (nAtaques) {
         const peso0 = pc * m.F[0].t.tempo, peso1 = (1 - pc) * m.F[1].t.tempo;
         const a = rng.chance(peso0 / (peso0 + peso1)) ? 0 : 1, d = 1 - a;
         const A = S[a], D = S[d];
-        const pChute = P().clamp(0.48 + (m.F[a].ataque - m.F[d].defesa) * 0.0065, 0.22, 0.75);
+        const bonusContra = m.F[a].t.contraK * (m.F[d].t.abertura > 0 ? m.F[d].t.abertura : m.F[d].t.abertura * 0.4) - m.F[d].t.fecha; // espaço para o contra-ataque e retranca
+        const dif = m.F[a].ataque - m.F[d].defesa;
+        const pChute = P().clamp(0.48 + (dif > 0 ? dif * m.F[d].t.comp : dif) * 0.0065 + bonusContra, 0.22, 0.75);
         // passe/assistência
         const passador = sorteia(A, rng, ['M', 'A', 'D'], (j) => j.p.attr.PAS * (P().GRUPO[j.slot] === 'M' ? 2 : 1));
         passador.passes++;
@@ -884,7 +1038,8 @@ td.evol { font-size: 13px; color: var(--accent); font-weight: 700; }
     return Math.round(v / 1000) * 1000;
   }
   // salário mensal: 1,2% do valor, piso R$ 500 (13 pagamentos/ano)
-  function salario(p) { return Math.max(500, Math.round(valorMercado(p) * 0.012 / 100) * 100); }
+  const salarioBase = (p) => Math.max(500, Math.round(valorMercado(p) * 0.012 / 100) * 100);
+  const salario = (p) => (p.salario != null ? p.salario : salarioBase(p)); // p.salario muda quando o contrato é renovado
   // custos fixos anuais (staff, manutenção, viagens, arbitragem): R$/temporada
   const CUSTO_FIXO = { A: 3_500_000, B: 600_000, C: 150_000, D: 30_000 };
   const folhaMensal = (elenco) => elenco.reduce((s, p) => s + salario(p), 0);
@@ -924,7 +1079,7 @@ td.evol { font-size: 13px; color: var(--accent); font-weight: 700; }
   // chance de aceitar a proposta: cresce com desempenho (posição na tabela 0..1, 1=líder)
   const chanceAceite = (clube, spons, desempenho) => clamp(0.25 + 0.5 * desempenho + (clube.prestigio - spons.minPrestigio) / 200, 0.05, 0.95);
 
-  bf.Economy = { valorMercado, salario, folhaMensal, publico, rendaJogo, ampliar, valorPatrocinio, podePatrocinar, chanceAceite, CUSTO_FIXO, FATOR_DIV, CUSTO_LUGAR };
+  bf.Economy = { valorMercado, salarioBase, salario, folhaMensal, publico, rendaJogo, ampliar, valorPatrocinio, podePatrocinar, chanceAceite, CUSTO_FIXO, FATOR_DIV, CUSTO_LUGAR };
 })(typeof globalThis !== 'undefined' ? globalThis : this);
 
 ;
@@ -1088,8 +1243,8 @@ td.evol { font-size: 13px; color: var(--accent); font-weight: 700; }
   }
 
   // ---------- Escalação automática (IA / sugestão) ----------
-  // Disponível = sem lesão e sem suspensão.
-  const disponivel = (p) => p.lesao === 0 && !(p.suspenso > 0);
+  // Disponível = sem lesão, sem suspensão e fora de treino.
+  const disponivel = (p) => p.lesao === 0 && !(p.suspenso > 0) && !(p.treino && p.treino.restante > 0);
   // Monta os 11 + banco. 'pref' = ids que o técnico escolheu por slot (os inválidos/indisponíveis são trocados pelo melhor disponível).
   function escalarAuto(clube, formacao = '4-4-2', tatica = 'equilibrado', maxSubs, pref = []) {
     const PL = bf.Players, M = bf.Match;
@@ -1131,6 +1286,8 @@ td.evol { font-size: 13px; color: var(--accent); font-weight: 700; }
   const toDate = (iso) => new Date(iso + 'T12:00:00Z');
   const toIso = (d) => d.toISOString().slice(0, 10);
   const addDias = (iso, n) => { const d = toDate(iso); d.setUTCDate(d.getUTCDate() + n); return toIso(d); };
+  const fimDoMes = (iso) => { const d = toDate(iso); return toIso(new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0, 12))); };
+  const addMeses = (iso, n) => { const d = toDate(iso); return fimDoMes(toIso(new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + n, 1, 12)))); }; // fim do mês, n meses depois
   const difDias = (a, b) => Math.round((toDate(b) - toDate(a)) / 864e5);
   const fmtData = (iso) => { const d = toDate(iso); return DIAS[d.getUTCDay()] + ', ' + String(d.getUTCDate()).padStart(2, '0') + '/' + String(d.getUTCMonth() + 1).padStart(2, '0') + '/' + d.getUTCFullYear(); };
   const fmtDataCurta = (iso) => { const d = toDate(iso); return DIAS[d.getUTCDay()] + ' ' + String(d.getUTCDate()).padStart(2, '0') + '/' + String(d.getUTCMonth() + 1).padStart(2, '0'); };
@@ -1176,11 +1333,15 @@ td.evol { font-size: 13px; color: var(--accent); font-weight: 700; }
       const cl = { ...c, estadio: { ...c.estadio }, patrocinadores: [], elenco: PL().gerarElenco(rng, c) };
       numerar(cl.elenco); return cl;
     });
+    const E = bf.Economy, hoje = '1998-01-31';
+    clubes.forEach((c) => c.elenco.forEach((p) => { p.contratoAte = addMeses(hoje, rng.int(11, 17)); p.salario = E.salarioBase(p); p.avisos = 0; }));
     const g = {
+      noticias: [], livres: [], moralTreinador: {},
       seed: opts.seed, rng, ano: 1998, data: '1998-01-31', config: { maxSubs: 3, ...(opts.config || {}) },
       humanos: opts.humanos.slice(), humanoIds: new Set(opts.humanos.map((h) => h.clubId)),
       clubes, porId: new Map(clubes.map((c) => [c.id, c])), hist: new Map(), taticas: new Map(), historico: [],
     };
+    g.humanos.forEach((hu) => { g.moralTreinador[hu.clubId] = { v: 60, hist: [{ data: g.data, v: 60, res: null, adv: null }] }; });
     novaTemporada(g);
     return g;
   }
@@ -1218,7 +1379,7 @@ td.evol { font-size: 13px; color: var(--accent); font-weight: 700; }
     let formacao = (cfg && cfg.formacao) || '4-4-2', tatica = (cfg && cfg.tatica) || 'equilibrado';
     if (!g.humanoIds.has(clube.id)) { // computador escolhe pelo confronto
       const d = clube.prestigio - adversario.prestigio;
-      tatica = d > 15 ? 'ofensivo' : d < -15 ? 'defensivo' : 'equilibrado';
+      tatica = d > 15 ? 'ofensivo' : d < -15 ? (g.rng.chance(0.5) ? 'contra' : 'defensivo') : 'equilibrado';
       formacao = d > 15 ? '4-3-3' : d < -15 ? '4-5-1' : '4-4-2';
     }
     return S().escalarAuto(clube, formacao, tatica, g.config.maxSubs, cfg && g.humanoIds.has(clube.id) ? cfg.titulares : []);
@@ -1259,6 +1420,7 @@ td.evol { font-size: 13px; color: var(--accent); font-weight: 700; }
       [[jogo.casa, jogo.fora, gh, ga, true], [jogo.fora, jogo.casa, ga, gh, false]].forEach(([id, adv, gp, gc, casa]) => {
         const arr = g.hist.get(id) || []; arr.push({ data: dia.data, comp: rot, rotulo: jogo.rotulo, adv, casa, gp, gc }); g.hist.set(id, arr);
       });
+      [[jogo.casa, jogo.fora, gh, ga], [jogo.fora, jogo.casa, ga, gh]].forEach(([id, adv, gp, gc]) => { if (g.humanoIds.has(id)) moralTreinador(g, id, adv, gp, gc); });
       const detalhes = [[], []];
       m.S.forEach((side, i) => {
         const clube = g.porId.get(i === 0 ? jogo.casa : jogo.fora); jogaram.add(clube.id);
@@ -1276,6 +1438,13 @@ td.evol { font-size: 13px; color: var(--accent); font-weight: 700; }
       });
       resumos.push({ jogo, placar: res.placar, stats: res.stats, eventos: res.eventos, detalhes, humano: part.humano, casaNome: g.porId.get(jogo.casa).nome, foraNome: g.porId.get(jogo.fora).nome });
     }
+    for (const id of jogaram) {   // treino e descanso de treino só andam quando o clube joga
+      const c = g.porId.get(id);
+      c.elenco.forEach((p) => {
+        if (p.treinoCd > 0) p.treinoCd--;
+        if (p.treino && --p.treino.restante <= 0) bf.Mercado.concluirTreino(g, c, p);
+      });
+    }
     // clubes sem jogo no dia só descansam; todos recuperam stamina até o próximo compromisso
     g.clubes.forEach((c) => c.elenco.forEach((p) => PR().descansar(p, gap)));
     if (dia.tipo === 'copa' && dia.perna % 2 === 1) {
@@ -1283,8 +1452,9 @@ td.evol { font-size: 13px; color: var(--accent); font-weight: 700; }
       const fase = g.copa.fases[dia.perna >> 1];
       resumos.forEach((r) => { if (r.jogo.comp === 'copa') r.copa = { agregado: r.jogo.confronto.agregado, penaltis: r.jogo.confronto.penaltis, vencedor: r.jogo.confronto.vencedor, fase: fase.nome }; });
     }
+    bf.Mercado.processarVendas(g); bf.Mercado.processarContratos(g);
     g.idx++; g.live = null;
-    if (g.idx >= g.dias.length) g.fim = true;
+    if (g.idx >= g.dias.length) { g.fim = true; g.data = g.ano + '-12-15'; }   // pós-temporada: dá tempo de renovar contratos
     return resumos;
   }
   function simularDia(g) { iniciarDia(g); completarDia(g); return finalizarDia(g); }
@@ -1295,7 +1465,7 @@ td.evol { font-size: 13px; color: var(--accent); font-weight: 700; }
       const dia = proximoDia(g), jogos = jogosDoDia(g, dia);
       if (envolveHumano(g, jogos)) return { parou: true, dia };
       if (jogos.length) simularDia(g); else { g.idx++; if (g.idx >= g.dias.length) g.fim = true; }
-      g.data = dia.data;
+      if (!g.fim) g.data = dia.data;
     }
     return { fim: true };
   }
@@ -1309,15 +1479,208 @@ td.evol { font-size: 13px; color: var(--accent); font-weight: 700; }
     reg.subiram = mov.subiram; reg.desceram = mov.desceram; g.historico.push(reg);
     g.clubes.forEach((c) => c.elenco.forEach((p) => {
       PR().virarAno(p, g.rng);
-      if (p.contrato <= 0) p.contrato = g.rng.chance(0.65) ? 1 : 2;   // renovação automática (o mercado ainda não existe)
-      p.stamina = 100; p.moral = 60; p.suspenso = 0; p.amarelosAcum = 0; if (p.lesao > 0) p.lesao = 0;
+      p.stamina = 100; p.moral = 60; p.suspenso = 0; p.amarelosAcum = 0; p.treino = null; p.treinoCd = 0; if (p.lesao > 0) p.lesao = 0;
     }));
     g.ano++; g.data = g.ano + '-01-31'; novaTemporada(g);
+    bf.Mercado.processarContratos(g);   // quem estava com contrato vencido sai (computador renova)
     return { registro: reg, mov };
   }
-  const fimContrato = (g, p) => 'Dez/' + (g.ano + p.contrato - 1);
+  const fimContrato = (g, p) => { const d = toDate(p.contratoAte), m = MESES[d.getUTCMonth()]; return m[0].toUpperCase() + m.slice(1) + '/' + d.getUTCFullYear(); };
 
-  bf.Game = { novo, gerarDias, jogosDoDia, proximoDia, proximoJogo, ultimosJogos, escalacaoDe, iniciarDia, passoDia, completarDia, finalizarDia, simularDia, avancar, classificacao, virarTemporada, envolveHumano, fimContrato, fmtData, fmtDataCurta, addDias, DIV_NOME };
+  // moral do técnico (0-100): vitória sobe, derrota desce; ganhar de time maior vale mais, perder para time menor dói mais
+  function moralTreinador(g, clubId, advId, gp, gc) {
+    const mt = g.moralTreinador[clubId]; if (!mt) return;
+    const dif = g.porId.get(advId).prestigio - g.porId.get(clubId).prestigio, clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+    const res = gp > gc ? 'V' : gp < gc ? 'D' : 'E';
+    const delta = res === 'V' ? 8 + clamp(dif / 8, -4, 6) + Math.min(3, gp - gc - 1) : res === 'D' ? -8 + clamp(dif / 10, -3, 3) : clamp(dif / 10, -3, 3);
+    mt.v = clamp(Math.round(mt.v + delta), 0, 100);
+    mt.hist.push({ data: g.data, v: mt.v, res, adv: advId, gp, gc });
+    g.porId.get(clubId).elenco.forEach((p) => { p.moral = clamp(p.moral + (mt.v - 50) * 0.02, 0, 100); }); // clima do vestiário
+  }
+
+  bf.Game = { novo, gerarDias, jogosDoDia, proximoDia, proximoJogo, ultimosJogos, escalacaoDe, iniciarDia, passoDia, completarDia, finalizarDia, simularDia, avancar, classificacao, virarTemporada, envolveHumano, fimContrato, fmtData, fmtDataCurta, addDias, addMeses, fimDoMes, difDias, DIV_NOME };
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+
+;
+// Mercado do técnico: vender, leiloar, renovar contrato e treinar jogadores. Valores em R$ de 1998.
+(function (root) {
+  const bf = (root.BF98 = root.BF98 || {});
+  const E = () => bf.Economy, PL = () => bf.Players, GM = () => bf.Game;
+  const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+  const fmt = (n) => (n >= 1e6 ? (n / 1e6).toFixed(2).replace('.', ',') + ' mi' : n >= 1e3 ? Math.round(n / 1e3) + ' mil' : String(Math.round(n)));
+  const reais = (n) => 'R$ ' + fmt(n);
+  const MIN_ELENCO = 18;
+
+  function noticia(g, texto, tipo) { g.noticias.unshift({ data: g.data, texto, tipo: tipo || 'info' }); if (g.noticias.length > 40) g.noticias.pop(); }
+
+  // ---------- contrato ----------
+  const diasRestantes = (g, p) => GM().difDias(g.data, p.contratoAte);
+  const mesesRestantes = (g, p) => Math.max(0, diasRestantes(g, p) / 30.4);
+  const podeRenovar = (g, p) => diasRestantes(g, p) <= 92;      // últimos 3 meses
+  // multa rescisória paga por quem compra o jogador com contrato ativo (vai para o clube vendedor)
+  const multa = (g, p) => Math.round(0.4 * E().valorMercado(p) * Math.min(1, Math.max(0, diasRestantes(g, p)) / 365) / 1000) * 1000;
+
+  // ---------- transferência ----------
+  function dispensar(g, c) { // clube comprador com elenco cheio libera o pior jogador
+    const top = new Set(c.elenco.slice().sort((a, b) => PL().overall(b) - PL().overall(a)).slice(0, 18).map((p) => p.id));
+    const gks = c.elenco.filter((p) => p.pos === 'GOL').length;
+    const pool = c.elenco.filter((p) => !top.has(p.id) && !(p.pos === 'GOL' && gks <= 2));
+    if (!pool.length) return;
+    const p = pool.sort((a, b) => E().valorMercado(a) - E().valorMercado(b))[0];
+    c.elenco = c.elenco.filter((x) => x !== p); g.livres.push(p);
+  }
+  function numeroLivre(c) { const u = new Set(c.elenco.map((p) => p.num)); let n = 2; while (u.has(n)) n++; return n; }
+  function transferir(g, p, de, para, preco, taxaMulta) {
+    de.elenco = de.elenco.filter((x) => x !== p);
+    p.aVenda = null; p.treino = null; p.num = numeroLivre(para); para.elenco.push(p);
+    de.caixa += preco + taxaMulta; para.caixa -= preco + taxaMulta;
+    if (para.elenco.length > 26 && !g.humanoIds.has(para.id)) dispensar(g, para);
+  }
+  const podeVender = (g, c, p) => (c.elenco.length <= MIN_ELENCO ? 'O elenco precisa ter pelo menos ' + MIN_ELENCO + ' jogadores.' : p.pos === 'GOL' && c.elenco.filter((x) => x.pos === 'GOL').length <= 2 ? 'Você precisa manter pelo menos 2 goleiros.' : null);
+
+  // interesse de um clube em um jogador: quanto ele supera o 12º melhor do elenco do clube
+  function interesse(c, p) { const o = c.elenco.map((x) => PL().overall(x)).sort((a, b) => b - a)[11] || 0; return PL().overall(p) - o; }
+
+  // ---------- VENDER: preço fixo; o clube que cobrir o preço (+ multa) leva o jogador em algum jogo futuro ----------
+  function colocarAVenda(g, c, p, preco) {
+    const erro = podeVender(g, c, p); if (erro) return { ok: false, motivo: erro };
+    if (!(preco > 0)) return { ok: false, motivo: 'Informe um preço maior que zero.' };
+    p.aVenda = { preco: Math.round(preco), desde: g.data };
+    return { ok: true };
+  }
+  const retirarVenda = (p) => { p.aVenda = null; };
+  function chanceDeProposta(preco, valor) { const r = preco / valor; return r <= 0.7 ? 1 : r >= 1.6 ? 0 : r <= 1 ? 1 - (r - 0.7) * 1.5 : 0.55 - (r - 1) * 0.9; }
+  function processarVendas(g) {
+    for (const hid of g.humanoIds) {
+      const c = g.porId.get(hid);
+      for (const p of c.elenco.slice()) {
+        if (!p.aVenda || podeVender(g, c, p)) continue;
+        const f = chanceDeProposta(p.aVenda.preco, E().valorMercado(p));
+        if (f <= 0 || !g.rng.chance(0.35 * f)) continue;
+        const preco = p.aVenda.preco, tx = multa(g, p), tot = preco + tx;
+        const cs = bf.Season.embaralhar(g.rng, g.clubes.filter((x) => !g.humanoIds.has(x.id) && x.caixa >= tot && interesse(x, p) >= -2 && x.prestigio >= c.prestigio - 30));
+        if (!cs.length) continue;
+        const b = cs[0]; transferir(g, p, c, b, preco, tx);
+        noticia(g, p.nome + ' foi vendido ao ' + b.nome + ' por ' + reais(preco) + (tx ? ' + multa de ' + reais(tx) : '') + '.', 'venda');
+      }
+    }
+  }
+
+  // ---------- LEILOAR: leilão imediato; computador (e humanos, no multiplayer) dão lances ----------
+  function leiloar(g, c, p, precoInicial) {
+    const erro = podeVender(g, c, p); if (erro) return { ok: false, motivo: erro };
+    if (!(precoInicial >= 0)) return { ok: false, motivo: 'Preço inicial inválido.' };
+    const rng = g.rng, v = E().valorMercado(p), tx = multa(g, p), passo = Math.max(1000, Math.round(v * 0.04 / 1000) * 1000);
+    const cands = [];
+    for (const x of g.clubes) {
+      if (x === c || g.humanoIds.has(x.id)) continue;
+      const imp = interesse(x, p); if (imp < -3) continue;
+      const teto = Math.min(v * (0.7 + rng.next() * 0.7) * (imp >= 3 ? 1.15 : imp >= 0 ? 1 : 0.8), x.caixa - tx);
+      if (teto >= precoInicial + passo) cands.push({ c: x, teto });
+    }
+    const rodadas = [{ tipo: 'abertura', texto: 'Leilão aberto por ' + reais(precoInicial) + (tx ? ' (o comprador também paga a multa de ' + reais(tx) + ')' : '') + '.' }];
+    let atual = precoInicial, lider = null, sem = 0;
+    for (let r = 0; r < 16; r++) {
+      const pool = bf.Season.embaralhar(rng, cands.filter((x) => x.c !== lider && x.teto >= atual + passo));
+      let lances = 0;
+      for (const x of pool) {
+        if (!rng.chance(0.5)) continue;
+        const val = Math.min(x.teto, atual + passo * rng.int(1, 2)); if (val <= atual) continue;
+        atual = Math.round(val / 100) * 100; lider = x.c; lances++;
+        rodadas.push({ tipo: 'lance', clube: x.c.id, valor: atual, texto: x.c.nome + ' oferece ' + reais(atual) + '.' });
+        if (lances >= 2) break;
+      }
+      if (!lances) { sem++; if (sem >= 2) break; rodadas.push({ tipo: 'espera', texto: 'Ninguém cobre. Dou-lhe uma…' }); } else sem = 0;
+    }
+    if (!lider) { rodadas.push({ tipo: 'fim', texto: 'Sem ofertas. ' + p.nome + ' continua no clube.' }); return { ok: true, vendido: false, rodadas }; }
+    rodadas.push({ tipo: 'fim', texto: 'Dou-lhe três! ' + p.nome + ' vendido ao ' + lider.nome + ' por ' + reais(atual) + (tx ? ' + multa ' + reais(tx) : '') + '.' });
+    transferir(g, p, c, lider, atual, tx);
+    noticia(g, p.nome + ' foi vendido em leilão ao ' + lider.nome + ' por ' + reais(atual) + (tx ? ' + multa de ' + reais(tx) : '') + '.', 'venda');
+    return { ok: true, vendido: true, comprador: lider.id, preco: atual, multa: tx, rodadas };
+  }
+
+  // ---------- RENOVAR ----------
+  function opcoesRenovacao(g) { const r = g.rng; return [['Curto', r.int(3, 6)], ['Médio', r.int(6, 9)], ['Máximo', r.int(9, 12)]].map(([rotulo, meses]) => ({ rotulo, meses })); }
+  function salarioEsperado(p, meses) {
+    let s = E().salarioBase(p) * (p.estrela ? 1.15 : 1) * (1.12 - 0.12 * p.moral / 50);
+    if (meses >= 9 && p.idade <= 23) s *= 0.97;      // jovem gosta de contrato longo
+    if (meses >= 9 && p.idade >= 31) s *= 1.04;      // veterano prefere curto
+    return Math.max(500, Math.round(s / 100) * 100);
+  }
+  // resposta do jogador: 'aceita' | 'pede' (pede mais; o técnico aceita o pedido ou deixa ir a leilão por R$ 0)
+  function negociar(g, p, salario, meses) {
+    const esp = salarioEsperado(p, meses), r = salario / esp;
+    if (r >= 1) return { resultado: 'aceita', esperado: esp };
+    const pedido = Math.round(esp * (r >= 0.85 ? 1 + g.rng.next() * 0.04 : 1.05 + g.rng.next() * 0.1) / 100) * 100;
+    return { resultado: 'pede', pedido, esperado: esp, firme: r < 0.85 };
+  }
+  function aplicarRenovacao(g, p, salario, meses) {
+    p.contratoAte = GM().addMeses(p.contratoAte, meses); p.salario = Math.round(salario / 100) * 100; p.moral = Math.min(100, p.moral + 3);
+    p.avisos = 0; noticia(g, p.nome + ' renovou até ' + GM().fimContrato(g, p) + ' (salário ' + reais(p.salario) + ').', 'contrato');
+  }
+
+  // processa contratos vencidos e avisa os do técnico. Computador renova sozinho; humano perde o jogador.
+  function processarContratos(g) {
+    for (const c of g.clubes) {
+      const humano = g.humanoIds.has(c.id);
+      for (const p of c.elenco.slice()) {
+        const d = diasRestantes(g, p);
+        if (d < 0) {
+          if (!humano) { p.contratoAte = GM().addMeses(g.data, g.rng.int(9, 15)); p.salario = E().salarioBase(p); }
+          else { c.elenco = c.elenco.filter((x) => x !== p); g.livres.push(p); p.aVenda = null; p.treino = null; noticia(g, 'O contrato de ' + p.nome + ' terminou e ele deixou o clube.', 'contrato'); }
+        } else if (humano) {
+          if (d <= 92 && !(p.avisos >= 1)) { p.avisos = 1; noticia(g, 'O contrato de ' + p.nome + ' vence em ' + GM().fimContrato(g, p) + '. Já é possível renovar.', 'contrato'); }
+          else if (d <= 30 && p.avisos < 2) { p.avisos = 2; noticia(g, 'Atenção: o contrato de ' + p.nome + ' vence em menos de 30 dias.', 'alerta'); }
+        }
+      }
+      if (humano && c.elenco.length < 20) gerarJuniores(g, c, 20 - c.elenco.length);
+    }
+  }
+  function gerarJuniores(g, c, n) {
+    const have = (pos) => c.elenco.filter((p) => p.pos === pos).length;
+    const need = ['GOL', 'ZAG', 'LD', 'LE', 'VOL', 'MC', 'MEI', 'PD', 'PE', 'CA', 'SA'];
+    for (let i = 0; i < n; i++) {
+      const pos = need.slice().sort((a, b) => have(a) - have(b))[0];
+      const p = PL().gerarJogador(g.rng, pos, PL().nivelDoClube(c.prestigio) - 5, g.rng.int(17, 19), undefined, 'BRA');
+      p.contratoAte = GM().addMeses(g.data, g.rng.int(12, 18)); p.salario = E().salarioBase(p); p.num = numeroLivre(c); p.stamina = 100;
+      c.elenco.push(p);
+    }
+    noticia(g, n + ' jogador(es) da base subiram para completar o elenco.', 'info');
+  }
+
+  // ---------- TREINAR ----------
+  const TREINOS = {
+    corrida: { attr: 'RIT', nome: 'Treino de corrida' }, finalizacao: { attr: 'CHU', nome: 'Treino de finalização' }, passes: { attr: 'PAS', nome: 'Treino de passes' },
+    tecnico: { attr: 'DRI', nome: 'Treino técnico' }, defesa: { attr: 'DEF', nome: 'Treino de defesa' }, forca: { attr: 'FIS', nome: 'Treino de força' },
+  };
+  const TREINO_CFG = { moralPorJogo: 4, staminaPorJogo: 12, cooldown: 4, maxSimultaneo: 3,
+    fatorAttr: { RIT: 0.7, CHU: 0.9, PAS: 0.9, DRI: 0.9, DEF: 0.9, FIS: 0.8 } };
+  const baseIdade = (i) => (i <= 20 ? 0.9 : i <= 24 ? 0.75 : i <= 28 ? 0.55 : i <= 31 ? 0.3 : 0.12);
+  // pontos esperados: jogos × idade × atributo × retorno decrescente × moral
+  function ganhoEsperado(p, attr, n) {
+    const rd = clamp((92 - p.attr[attr]) / 50, 0.15, 1.1), m = 0.75 + 0.5 * (p.moral / 100);
+    return n * baseIdade(p.idade) * TREINO_CFG.fatorAttr[attr] * rd * m;
+  }
+  function iniciarTreino(g, c, p, tipo, n) {
+    if (!TREINOS[tipo] || !(n >= 1 && n <= 3)) return { ok: false, motivo: 'Escolha o treino e de 1 a 3 jogos.' };
+    if (p.treino) return { ok: false, motivo: 'Já está em treino.' };
+    if (p.lesao > 0) return { ok: false, motivo: 'Lesionado não pode treinar.' };
+    if (p.treinoCd > 0) return { ok: false, motivo: 'Descansando do último treino (mais ' + p.treinoCd + ' jogo(s)).' };
+    if (c.elenco.filter((x) => x.treino).length >= TREINO_CFG.maxSimultaneo) return { ok: false, motivo: 'No máximo ' + TREINO_CFG.maxSimultaneo + ' jogadores treinando ao mesmo tempo.' };
+    p.treino = { tipo, attr: TREINOS[tipo].attr, restante: n, total: n };
+    return { ok: true };
+  }
+  function concluirTreino(g, c, p) {
+    const t = p.treino, e = ganhoEsperado(p, t.attr, t.total), ganho = Math.floor(e) + (g.rng.next() < e - Math.floor(e) ? 1 : 0);
+    p.attr[t.attr] = Math.min(99, p.attr[t.attr] + ganho);
+    p.moral = Math.max(0, p.moral - TREINO_CFG.moralPorJogo * t.total);
+    p.stamina = Math.min(100, p.stamina + TREINO_CFG.staminaPorJogo * t.total);
+    p.treinoCd = TREINO_CFG.cooldown; p.treino = null;
+    noticia(g, p.nome + ' voltou do ' + TREINOS[t.tipo].nome.toLowerCase() + ': ' + (ganho ? t.attr + ' +' + ganho : 'sem evolução desta vez') + '.', 'treino');
+    return ganho;
+  }
+
+  bf.Mercado = { reais, noticia, diasRestantes, mesesRestantes, podeRenovar, multa, transferir, podeVender, colocarAVenda, retirarVenda, chanceDeProposta, processarVendas, leiloar, opcoesRenovacao, salarioEsperado, negociar, aplicarRenovacao, processarContratos, gerarJuniores, TREINOS, TREINO_CFG, ganhoEsperado, iniciarTreino, concluirTreino, MIN_ELENCO };
 })(typeof globalThis !== 'undefined' ? globalThis : this);
 
 ;
@@ -1351,20 +1714,24 @@ td.evol { font-size: 13px; color: var(--accent); font-weight: 700; }
   K.ORDEM_POS = ['GOL', 'LD', 'ZAG', 'LIB', 'LE', 'VOL', 'MC', 'MEI', 'ALA', 'PD', 'PE', 'SA', 'CA'];
   K.SETOR = { GOL: 'Goleiros', ZAG: 'Defensores', LIB: 'Defensores', LD: 'Defensores', LE: 'Defensores', VOL: 'Meio-campistas', MC: 'Meio-campistas', MEI: 'Meio-campistas', ALA: 'Meio-campistas', PD: 'Atacantes', PE: 'Atacantes', CA: 'Atacantes', SA: 'Atacantes' };
   K.ATTRS = ['RIT', 'CHU', 'PAS', 'DRI', 'DEF', 'FIS'];
+  K.ATTR_NOME = { RIT: 'Ritmo', CHU: 'Finalização', PAS: 'Passe', DRI: 'Drible', DEF: 'Defesa', FIS: 'Físico' };
+  K.ATTR_SIGLA = { RIT: 'Rit', CHU: 'Fin', PAS: 'Pas', DRI: 'Dri', DEF: 'Def', FIS: 'Fís' };
   // descrições mostradas ao passar o mouse
   K.TIPS = {
     RIT: 'Ritmo: velocidade de deslocamento (aceleração e pique).',
-    CHU: 'Chute: precisão e força de finalização, posicionamento de ataque e pênaltis.',
+    CHU: 'Finalização: precisão e força do chute, posicionamento de ataque, pênaltis e jogo de cabeça (o cabeceio também depende da impulsão do Físico).',
     PAS: 'Passe: qualidade dos passes curtos e longos, visão de jogo e cruzamentos.',
     DRI: 'Drible: agilidade, equilíbrio, reações, controle de bola e condução.',
     DEF: 'Defesa: marcação, combatividade (carrinho) e precisão no desarme. Para o goleiro, reflexo e defesas.',
-    FIS: 'Físico: impulsão, fôlego, força e agressividade. Quanto maior, menos o jogador se cansa.',
+    FIS: 'Físico: impulsão (ajuda no cabeceio), fôlego, força e agressividade. Quanto maior, menos o jogador se cansa.',
     media: 'Média: nota geral do jogador na sua posição, calculada a partir dos 6 atributos.',
     disc: 'Disciplina: de Fair player (quase não faz falta) a Macetador (faz muitas faltas e leva muitos cartões).',
     stamina: 'Stamina: condição física. Cai durante o jogo (mais rápido com Físico baixo) e volta com o descanso. Baixa, derruba o rendimento.',
     moral: 'Moral: confiança do jogador. Sobe com boas atuações e, quanto mais alta, mais fácil evoluir os atributos.',
     sit: 'Situação: lesionado (jogos que faltam) ou suspenso.',
     contrato: 'Contrato: o jogador pertence ao clube até o fim deste mês.',
+    nac: 'Nacionalidade do jogador.',
+    estrela: 'Estrela: um dos melhores jogadores do campeonato.',
     salario: 'Salário mensal pago pelo clube.',
     valor: 'Valor de mercado do jogador.',
   };
@@ -1389,6 +1756,188 @@ td.evol { font-size: 13px; color: var(--accent); font-weight: 700; }
   document.addEventListener('focusout', esconder);
   document.addEventListener('scroll', esconder, true);
   document.addEventListener('click', esconder);
+
+  // ---------- bandeiras (SVG simples) ----------
+  const F = (inner) => '<svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true">' + inner + '</svg>';
+  const H = (cs) => cs.map(([c, y, hgt]) => '<rect x="0" y="' + y + '" width="24" height="' + hgt + '" fill="' + c + '"/>').join('');
+  const V = (cs) => cs.map(([c, x, w]) => '<rect y="0" x="' + x + '" width="' + w + '" height="16" fill="' + c + '"/>').join('');
+  const FLAGS = {
+    BRA: F('<rect width="24" height="16" fill="#009c3b"/><path d="M12 2.2 21.4 8 12 13.8 2.6 8z" fill="#ffdf00"/><circle cx="12" cy="8" r="3.4" fill="#002776"/>'),
+    ARG: F(H([['#74acdf', 0, 5.4], ['#fff', 5.4, 5.3], ['#74acdf', 10.7, 5.3]]) + '<circle cx="12" cy="8" r="1.5" fill="#f6b40e"/>'),
+    URU: F(H([['#fff', 0, 16]]) + [1, 3, 5].map((i) => '<rect y="' + (i * 1.78 - 0.9) + '" width="24" height="1.8" fill="#0038a8"/>').join('') + [7, 9].map((i) => '<rect y="' + (i * 1.78 - 0.9) + '" width="24" height="1.8" fill="#0038a8"/>').join('') + '<rect width="9" height="8.9" fill="#fff"/><circle cx="4.5" cy="4.4" r="2" fill="#fcd116"/>'),
+    PAR: F(H([['#d52b1e', 0, 5.4], ['#fff', 5.4, 5.3], ['#0038a8', 10.7, 5.3]])),
+    CHI: F(H([['#fff', 0, 8], ['#d52b1e', 8, 8]]) + '<rect width="8" height="8" fill="#0039a6"/><circle cx="4" cy="4" r="1.4" fill="#fff"/>'),
+    COL: F(H([['#fcd116', 0, 8], ['#003893', 8, 4], ['#ce1126', 12, 4]])),
+    PER: F(V([['#d91023', 0, 8], ['#fff', 8, 8], ['#d91023', 16, 8]])),
+    EQU: F(H([['#ffdd00', 0, 8], ['#034ea2', 8, 4], ['#ed1c24', 12, 4]])),
+    BOL: F(H([['#d52b1e', 0, 5.4], ['#f9e300', 5.4, 5.3], ['#007934', 10.7, 5.3]])),
+    VEN: F(H([['#ffcc00', 0, 5.4], ['#00247d', 5.4, 5.3], ['#cf142b', 10.7, 5.3]])),
+  };
+  K.bandeira = (cod) => K.h('span', { class: 'flag', 'data-tip': PLN()[cod] || cod, tabindex: 0, html: FLAGS[cod] || '' });
+  const PLN = () => BF.Players.NAC_NOME;
+  K.estrela = () => K.h('span', { class: 'star', 'data-tip': K.TIPS.estrela, 'aria-label': 'Estrela', role: 'img' }, '★');
+  // escudo-faixa nas cores do clube (aceita o clube ou o id)
+  K.escudo = (c, grande) => {
+    const cl = typeof c === 'string' ? K.G.g.porId.get(c) : c, [a, b] = cl.cores;
+    return K.h('span', { class: 'escudo' + (grande ? ' grande' : ''), style: 'background:linear-gradient(135deg,' + a + ' 50%,' + b + ' 50%)', 'aria-hidden': 'true' });
+  };
+  K.comEscudo = (c, texto) => K.h('span', { class: 'cn' }, K.escudo(c), K.h('span', null, texto == null ? (typeof c === 'string' ? K.G.g.porId.get(c) : c).nome : texto));
+
+  // ---------- janela modal ----------
+  K.modal = function (titulo, corpo, opts = {}) {
+    const antes = document.activeElement;
+    const fechar = () => { ov.remove(); document.removeEventListener('keydown', tecla); if (antes && antes.focus) antes.focus(); if (opts.aoFechar) opts.aoFechar(); };
+    const tecla = (e) => { if (e.key === 'Escape') fechar(); };
+    const caixa = K.h('div', { class: 'modal', role: 'dialog', 'aria-modal': 'true', 'aria-label': titulo }, K.h('header', null, K.h('h3', null, titulo), K.h('button', { class: 'x', 'aria-label': 'Fechar', onclick: fechar }, '×')), K.h('div', { class: 'mbody' }, corpo));
+    const ov = K.h('div', { class: 'overlay', onclick: (e) => { if (e.target === ov) fechar(); } }, caixa);
+    document.body.append(ov); document.addEventListener('keydown', tecla);
+    const f = caixa.querySelector('input,button.btn'); if (f) f.focus();
+    return { fechar, corpo: caixa.querySelector('.mbody'), caixa };
+  };
+})();
+
+;
+// Gráfico da moral do técnico nos últimos 5 jogos (linha fina, marcadores com anel, grade discreta, dica ao passar o mouse).
+(function () {
+  const K = window.K, h = K.h, G = K.G, PR = window.BF98.Progression;
+  const cor = (v) => 'var(--st-' + { verde: 'verde', 'verde-claro': 'vclaro', amarelo: 'amarelo', laranja: 'laranja', vermelho: 'vermelho' }[PR.cor(v)] + ')';
+  const W = 330, H = 150, L = 30, R = 16, T = 14, B = 40;
+
+  K.moralTreinadorBox = function () {
+    const g = G.g, c = K.clubeHumano(), mt = g.moralTreinador[c.id];
+    const jogos = mt.hist.slice(1).slice(-5), pts = jogos.length ? jogos : mt.hist.slice(0, 1);
+    const n = pts.length, x = (i) => (n === 1 ? (L + W - R) / 2 : L + (i * (W - L - R)) / (n - 1)), y = (v) => T + (1 - v / 100) * (H - T - B);
+    const grade = [0, 50, 100].map((v) => '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y(v) + '" y2="' + y(v) + '" class="g"/><text x="' + (L - 6) + '" y="' + (y(v) + 4) + '" text-anchor="end" class="t">' + v + '</text>').join('');
+    const linha = n > 1 ? '<polyline points="' + pts.map((p, i) => x(i) + ',' + y(p.v)).join(' ') + '" class="ln"/>' : '';
+    const marcas = pts.map((p, i) => {
+      const adv = p.adv ? g.porId.get(p.adv).nome : null, dica = p.res ? (p.res === 'V' ? 'Vitória' : p.res === 'D' ? 'Derrota' : 'Empate') + ' contra ' + adv + ' (' + p.gp + ' × ' + p.gc + ') · moral ' + p.v : 'Moral inicial: ' + p.v;
+      const rot = p.res ? '<text x="' + x(i) + '" y="' + (H - 20) + '" text-anchor="middle" class="r r' + p.res + '">' + p.res + '</text><text x="' + x(i) + '" y="' + (H - 6) + '" text-anchor="middle" class="t">' + p.gp + '×' + p.gc + '</text>' : '';
+      return '<circle cx="' + x(i) + '" cy="' + y(p.v) + '" r="5" style="fill:' + cor(p.v) + '" class="pt"/>' + rot + '<circle cx="' + x(i) + '" cy="' + y(p.v) + '" r="15" class="hit" data-tip="' + dica.replace(/"/g, '&quot;') + '" tabindex="0"/>' + '<text x="' + x(i) + '" y="' + (y(p.v) - 10) + '" text-anchor="middle" class="v">' + p.v + '</text>';
+    }).join('');
+    const ult = mt.hist[mt.hist.length - 1], pen = mt.hist.length > 1 ? mt.hist[mt.hist.length - 2] : null;
+    const delta = pen ? ult.v - pen.v : 0;
+    const tabela = h('table', { class: 'sr' }, h('caption', null, 'Moral do técnico nos últimos jogos'), h('tbody', null, pts.map((p) => h('tr', null, h('td', null, p.res ? p.res + ' ' + p.gp + ' × ' + p.gc : 'Início'), h('td', null, p.v)))));
+    return h('section', { class: 'moraltec', 'aria-label': 'Moral do técnico' },
+      h('div', { class: 'mt-top' }, h('h3', null, 'Moral do técnico'), h('div', { class: 'mt-val' }, h('b', { class: 'num' }, mt.v), delta ? h('small', { class: delta > 0 ? 'hi' : 'bad' }, (delta > 0 ? '▲ +' : '▼ −') + Math.abs(delta) + ' no último jogo') : h('small', { class: 'muted' }, jogos.length ? 'estável' : 'sem jogos ainda'))),
+      h('div', { class: 'mt-chart', html: '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Gráfico da moral do técnico nos últimos 5 jogos">' + grade + linha + marcas + '</svg>' }),
+      tabela,
+      h('p', { class: 'muted mt-nota' }, 'Vitórias (principalmente contra times maiores) sobem a moral; derrotas descem. A moral do técnico influencia o clima do vestiário.'));
+  };
+})();
+
+;
+// Janelas de ação sobre um jogador: Vender, Leiloar, Renovar e Treinar.
+(function () {
+  const K = window.K, BF = window.BF98, h = K.h, MK = BF.Mercado, E = BF.Economy, PL = BF.Players, GM = BF.Game, G = K.G, reais = K.reais;
+  const D = (K.dialogos = {});
+  const valor = (el) => Math.max(0, parseInt(String(el.value).replace(/\D/g, ''), 10) || 0);
+  const refresh = () => K.render();
+  const resumo = (p) => h('div', { class: 'mj' }, K.bandeira(p.nac), h('b', null, p.nome), p.estrela ? K.estrela() : null, h('span', { class: 'muted' }, ' · ' + p.pos + ' · ' + p.idade + ' anos · Média ' + Math.round(PL.overall(p))));
+  const campoMoeda = (id, rot, v, dica) => h('label', { class: 'campo', for: id }, h('span', null, rot), h('div', { class: 'moeda' }, h('i', null, 'R$'), h('input', { id, type: 'text', inputmode: 'numeric', value: String(v), autocomplete: 'off' })), dica ? h('small', { class: 'muted' }, dica) : null);
+
+  // leilão animado: o resultado já foi calculado e aplicado; aqui só se mostra a disputa lance a lance
+  function animar(m, res, p, aoFim) {
+    const lista = h('ol', { class: 'leilao' }), fim = h('div', { class: 'actions' });
+    m.corpo.replaceChildren(resumo(p), lista, fim);
+    let i = 0;
+    const t = setInterval(() => {
+      if (!document.body.contains(m.caixa)) { clearInterval(t); return; }
+      const r = res.rodadas[i++]; lista.append(h('li', { class: 'l-' + r.tipo }, r.clube ? K.escudo(r.clube) : null, h('span', null, r.texto))); lista.lastChild.scrollIntoView({ block: 'nearest' });
+      if (i >= res.rodadas.length) { clearInterval(t); fim.append(h('button', { class: 'btn hot', id: 'fechar-leilao', onclick: m.fechar }, 'Fechar')); }
+    }, 650);
+  }
+
+  // ---------- VENDER ----------
+  D.vender = (c, p) => {
+    const v = E.valorMercado(p), tx = MK.multa(G.g, p);
+    const err = h('p', { class: 'err', role: 'alert' }), est = h('p', { class: 'estimativa' });
+    const campo = campoMoeda('preco', 'Preço pedido', Math.round(v / 1000) * 1000 || v, 'Valor de mercado: ' + reais(v));
+    const input = campo.querySelector('input');
+    const atualiza = () => { const f = MK.chanceDeProposta(valor(input), v); est.textContent = 'Chance de aparecerem propostas: ' + (f >= 0.8 ? 'alta' : f >= 0.45 ? 'média' : f >= 0.15 ? 'baixa' : f > 0 ? 'muito baixa' : 'nenhuma'); };
+    input.addEventListener('input', atualiza); atualiza();
+    const m = K.modal('Vender ' + p.nome, [resumo(p),
+      h('p', null, 'O jogador fica à venda pelo preço que você definir e sai quando algum clube cobrir o valor. A venda não acontece na hora.'),
+      tx ? h('p', { class: 'nota-multa' }, 'Contrato ativo até ' + GM.fimContrato(G.g, p) + ': quem comprar também paga a multa de ', h('b', null, reais(tx)), ', que vai para o seu clube.') : null,
+      p.aVenda ? h('p', { class: 'venda' }, 'Já está à venda por ' + reais(p.aVenda.preco) + '.') : null,
+      campo, est, err,
+      h('div', { class: 'actions' },
+        h('button', { class: 'btn', id: 'confvender', onclick: () => { const r = MK.colocarAVenda(G.g, c, p, valor(input)); if (!r.ok) { err.textContent = r.motivo; return; } m.fechar(); refresh(); } }, p.aVenda ? 'Atualizar preço' : 'Colocar à venda'),
+        p.aVenda ? h('button', { class: 'btn alt', onclick: () => { MK.retirarVenda(p); m.fechar(); refresh(); } }, 'Retirar da lista') : null,
+        h('button', { class: 'btn alt', onclick: () => m.fechar() }, 'Cancelar'))]);
+  };
+
+  // ---------- LEILOAR ----------
+  D.leiloar = (c, p) => {
+    const v = E.valorMercado(p), tx = MK.multa(G.g, p), err = h('p', { class: 'err', role: 'alert' });
+    const campo = campoMoeda('inicial', 'Preço inicial do leilão', Math.round(v * 0.5 / 1000) * 1000, 'Valor de mercado: ' + reais(v) + '. Pode ser R$ 0.');
+    const m = K.modal('Leiloar ' + p.nome, [resumo(p),
+      h('p', null, 'O jogador é colocado em leilão agora. Os clubes dão lances a partir do preço inicial e o maior lance leva o jogador.'),
+      tx ? h('p', { class: 'nota-multa' }, 'Contrato ativo até ' + GM.fimContrato(G.g, p) + ': o clube vencedor também paga a multa de ', h('b', null, reais(tx)), ', que vai para o seu clube.') : null,
+      campo, err,
+      h('div', { class: 'actions' },
+        h('button', { class: 'btn', id: 'abrirleilao', onclick: () => { const r = MK.leiloar(G.g, c, p, valor(campo.querySelector('input'))); if (!r.ok) { err.textContent = r.motivo; return; } animar(m, r, p); } }, 'Abrir leilão'),
+        h('button', { class: 'btn alt', onclick: () => m.fechar() }, 'Cancelar'))], { aoFechar: refresh });
+  };
+
+  // ---------- RENOVAR ----------
+  D.renovar = (c, p) => {
+    const opcoes = MK.opcoesRenovacao(G.g); let sel = 1, resposta = null; const err = h('p', { class: 'err', role: 'alert' });
+    const m = K.modal('Renovar contrato de ' + p.nome, h('div'), { aoFechar: refresh });
+    const desenha = () => {
+      const salInput = h('input', { id: 'salario', type: 'text', inputmode: 'numeric', value: String(m.salario || E.salario(p)), autocomplete: 'off' });
+      salInput.addEventListener('input', () => { m.salario = valor(salInput); });
+      const cartoes = h('div', { class: 'opcoes', role: 'radiogroup', 'aria-label': 'Duração' }, opcoes.map((o, i) => h('button', { type: 'button', role: 'radio', 'aria-checked': sel === i ? 'true' : 'false', class: 'opcao' + (sel === i ? ' on' : ''), disabled: !!resposta, onclick: () => { sel = i; desenha(); } },
+        h('small', null, o.rotulo), h('b', null, o.meses + ' meses'), h('span', { class: 'muted' }, 'até ' + GM.fimContrato({ data: GM.addMeses(p.contratoAte, o.meses) }, { contratoAte: GM.addMeses(p.contratoAte, o.meses) })))));
+      const corpo = [resumo(p),
+        h('dl', { class: 'kv' }, h('dt', null, 'Contrato atual até'), h('dd', null, GM.fimContrato(G.g, p)), h('dt', null, 'Salário atual'), h('dd', null, reais(E.salario(p)) + '/mês'), h('dt', null, 'Referência de mercado'), h('dd', null, reais(E.salarioBase(p)) + '/mês'), h('dt', null, 'Moral do jogador'), h('dd', null, Math.round(p.moral) + '%')),
+        h('div', { class: 'eyebrow' }, 'Duração da renovação (somada ao fim do contrato atual)'), cartoes];
+      if (!resposta) {
+        corpo.push(h('label', { class: 'campo', for: 'salario' }, h('span', null, 'Salário oferecido por mês'), h('div', { class: 'moeda' }, h('i', null, 'R$'), salInput)), err,
+          h('div', { class: 'actions' },
+            h('button', { class: 'btn', id: 'oferecer', onclick: () => {
+              const sal = valor(salInput), o = opcoes[sel]; if (sal < 500) { err.textContent = 'Informe um salário de pelo menos R$ 500.'; return; }
+              const r = MK.negociar(G.g, p, sal, o.meses);
+              if (r.resultado === 'aceita') { MK.aplicarRenovacao(G.g, p, sal, o.meses); m.fechar(); return; }
+              resposta = { ...r, meses: o.meses }; desenha();
+            } }, 'Oferecer contrato'),
+            h('button', { class: 'btn alt', onclick: () => m.fechar() }, 'Cancelar')));
+      } else {
+        corpo.push(h('div', { class: 'resposta' }, h('p', null, h('b', null, p.nome), resposta.firme ? ' recusou a proposta. Só aceita ' : ' pediu mais: ', h('b', null, reais(resposta.pedido) + ' por mês'), ' por ' + resposta.meses + ' meses.'),
+          h('p', { class: 'muted' }, 'Se você não aceitar o salário pedido, ele vai para leilão imediatamente, com preço inicial de R$ 0.')),
+          h('div', { class: 'actions' },
+            h('button', { class: 'btn', id: 'aceitarpedido', onclick: () => { MK.aplicarRenovacao(G.g, p, resposta.pedido, resposta.meses); m.fechar(); } }, 'Aceitar ' + reais(resposta.pedido)),
+            h('button', { class: 'btn alt', id: 'recusarpedido', onclick: () => { const r = MK.leiloar(G.g, c, p, 0); if (!r.ok) { resposta = null; err.textContent = r.motivo; desenha(); return; } animar(m, r, p); } }, 'Recusar e leiloar por R$ 0')));
+      }
+      m.corpo.replaceChildren(...corpo);
+    };
+    desenha();
+  };
+
+  // ---------- TREINAR ----------
+  D.treinar = (c, p) => {
+    let tipo = 'corrida', n = 2; const err = h('p', { class: 'err', role: 'alert' }), C = MK.TREINO_CFG;
+    const m = K.modal('Treinar ' + p.nome, h('div'));
+    const desenha = () => {
+      const seg = h('div', { class: 'seg', role: 'group', 'aria-label': 'Jogos de ausência' }, [1, 2, 3].map((k) => h('button', { type: 'button', 'aria-pressed': n === k ? 'true' : 'false', onclick: () => { n = k; desenha(); } }, k + (k === 1 ? ' jogo' : ' jogos'))));
+      const cards = h('div', { class: 'treinos' }, Object.entries(MK.TREINOS).map(([k, t]) => {
+        const e = MK.ganhoEsperado(p, t.attr, n);
+        return h('button', { type: 'button', class: 'treino-card' + (tipo === k ? ' on' : ''), 'aria-pressed': tipo === k ? 'true' : 'false', onclick: () => { tipo = k; desenha(); } },
+          h('b', null, t.nome), h('span', { class: 'muted' }, K.ATTR_NOME[t.attr] + ' ' + p.attr[t.attr]), h('span', { class: 'ganho' }, '+' + e.toFixed(1) + ' esperado'));
+      }));
+      m.corpo.replaceChildren(resumo(p),
+        h('p', null, 'O jogador fica fora das próximas partidas para treinar um atributo. Quanto mais jogos fora, maior o ganho, mas maior o custo de moral.'),
+        h('div', { class: 'eyebrow' }, 'Quantos jogos fora'), seg, h('div', { class: 'eyebrow' }, 'Tipo de treino'), cards,
+        h('ul', { class: 'efeitos' },
+          h('li', null, 'Fora dos próximos ', h('b', null, n + (n === 1 ? ' jogo' : ' jogos'))),
+          h('li', null, 'Moral: ', h('b', { class: 'bad' }, '−' + C.moralPorJogo * n)), h('li', null, 'Stamina: ', h('b', { class: 'hi' }, '+' + C.staminaPorJogo * n)),
+          h('li', { class: 'muted' }, 'O ganho depende da idade, do valor atual do atributo (quanto mais alto, mais difícil) e da moral. Depois de treinar, o jogador descansa ' + C.cooldown + ' jogos antes de poder treinar de novo. Máximo de ' + C.maxSimultaneo + ' jogadores treinando juntos.')),
+        err,
+        h('div', { class: 'actions' },
+          h('button', { class: 'btn', id: 'conftreino', onclick: () => { const r = MK.iniciarTreino(G.g, c, p, tipo, n); if (!r.ok) { err.textContent = r.motivo; return; } m.fechar(); refresh(); } }, 'Começar treino'),
+          h('button', { class: 'btn alt', onclick: () => m.fechar() }, 'Cancelar')));
+    };
+    desenha();
+  };
 })();
 
 ;
@@ -1410,7 +1959,7 @@ td.evol { font-size: 13px; color: var(--accent); font-weight: 700; }
       const c = g.porId.get(r.id), zona = sobe && i < 4 ? 'z-sobe' : desce && i >= 16 ? 'z-desce' : '';
       const sg = r.gp - r.gc;
       return h('tr', { class: [zona, r.id === meuId ? 'meu' : '', g.humanoIds.has(r.id) ? 'humano' : ''].join(' ') },
-        h('td', { class: 'z' }, i + 1), h('td', { class: 'l nm' }, c.nome), h('td', { class: 'ovr' }, r.pts), h('td', null, r.j), h('td', null, r.v), h('td', null, r.e), h('td', null, r.d),
+        h('td', { class: 'z' }, i + 1), h('td', { class: 'l nm' }, K.comEscudo(c)), h('td', { class: 'ovr' }, r.pts), h('td', null, r.j), h('td', null, r.v), h('td', null, r.e), h('td', null, r.d),
         h('td', null, r.gp), h('td', null, r.gc), h('td', null, (sg > 0 ? '+' : '') + sg), h('td', null, r.j ? Math.round(r.pts / (r.j * 3) * 100) + '%' : '–'));
     });
     return h('div', { class: 'tablewrap' }, h('table', { class: 'liga', 'aria-label': 'Classificação ' + K.DIV_NOME[div] },
@@ -1423,7 +1972,7 @@ td.evol { font-size: 13px; color: var(--accent); font-weight: 700; }
     const mostra = (titulo, jogos, placar) => h('div', { class: 'rodada' }, h('h3', null, titulo),
       h('ul', null, jogos.map((x) => {
         const [c, f] = x, gh = placar ? x[2] : null, ga = placar ? x[3] : null, cid = placar ? x[0] : x[0], fid = x[1];
-        return h('li', { class: cid === meuId || fid === meuId ? 'meu' : '' }, h('span', { class: 'tc' }, g.porId.get(cid).nome), h('b', { class: 'num pl' }, placar ? gh + ' × ' + ga : '×'), h('span', { class: 'tf' }, g.porId.get(fid).nome));
+        return h('li', { class: cid === meuId || fid === meuId ? 'meu' : '' }, h('span', { class: 'tc' }, K.comEscudo(cid)), h('b', { class: 'num pl' }, placar ? gh + ' × ' + ga : '×'), h('span', { class: 'tf' }, K.comEscudo(fid)));
       })));
     const out = [];
     if (feitas) out.push(mostra('Rodada ' + feitas + ' · resultados', L.res[feitas - 1], true));
@@ -1441,8 +1990,8 @@ td.evol { font-size: 13px; color: var(--accent); font-weight: 700; }
         h('tbody', null, f.confrontos.map((c) => {
           const v = c.vencedor, id = (x) => (x === meuId ? 'meu' : '');
           return h('tr', { class: id(c.a) || id(c.b) },
-            h('td', { class: 'l nm' + (v === c.a ? ' venc' : '') }, nm(c.a)), h('td', null, c.ida ? c.ida[0] + '×' + c.ida[1] : '–'), h('td', null, c.volta ? c.volta[1] + '×' + c.volta[0] : '–'),
-            h('td', { class: 'l' + (v === c.b ? ' venc' : '') }, nm(c.b)),
+            h('td', { class: 'l nm' + (v === c.a ? ' venc' : '') }, K.comEscudo(c.a)), h('td', null, c.ida ? c.ida[0] + '×' + c.ida[1] : '–'), h('td', null, c.volta ? c.volta[1] + '×' + c.volta[0] : '–'),
+            h('td', { class: 'l' + (v === c.b ? ' venc' : '') }, K.comEscudo(c.b)),
             h('td', null, c.agregado ? c.agregado[0] + '×' + c.agregado[1] + (c.penaltis ? ' (pên. ' + c.penaltis[0] + '×' + c.penaltis[1] + ')' : '') : '–'));
         }))))));
     return h('div', { class: 'copaview' },
@@ -1464,19 +2013,28 @@ td.evol { font-size: 13px; color: var(--accent); font-weight: 700; }
 })();
 
 ;
-// Aba Escalação: formação, tática, 11 titulares no campo e banco. Qualquer jogador pode ser posto em qualquer posição.
+// Aba Escalação: formação, tática (com setas e deslocamento no campo), 11 titulares e banco. Qualquer jogador pode ser posto em qualquer posição.
 (function () {
-  const K = window.K, BF = window.BF98, h = K.h, S = BF.Season, PL = BF.Players, M = BF.Match, GM = BF.Game;
+  const K = window.K, BF = window.BF98, h = K.h, S = BF.Season, PL = BF.Players, M = BF.Match;
   const G = K.G;
   // coordenadas (x, y em %) de cada slot, goleiro embaixo, ataque em cima
   const POS = {
-    '4-4-2': [[50, 90], [85, 70], [62, 73], [38, 73], [15, 70], [38, 52], [62, 52], [88, 46], [12, 46], [36, 20], [64, 20]],
-    '4-3-3': [[50, 90], [85, 70], [62, 73], [38, 73], [15, 70], [50, 58], [30, 44], [70, 44], [82, 22], [50, 16], [18, 22]],
-    '3-5-2': [[50, 90], [28, 72], [72, 72], [50, 78], [10, 50], [36, 56], [64, 56], [50, 38], [90, 50], [36, 18], [64, 18]],
-    '4-5-1': [[50, 90], [85, 70], [62, 73], [38, 73], [15, 70], [38, 56], [62, 56], [28, 42], [50, 36], [80, 42], [50, 16]],
+    '4-4-2': [[50, 88], [85, 68], [62, 71], [38, 71], [15, 68], [38, 52], [62, 52], [88, 46], [12, 46], [36, 20], [64, 20]],
+    '4-3-3': [[50, 88], [85, 68], [62, 71], [38, 71], [15, 68], [50, 56], [30, 43], [70, 44], [82, 22], [50, 16], [18, 22]],
+    '3-5-2': [[50, 88], [28, 72], [72, 72], [50, 78], [10, 50], [36, 56], [64, 56], [50, 38], [90, 50], [36, 18], [64, 18]],
+    '4-5-1': [[50, 88], [85, 68], [62, 71], [38, 71], [15, 68], [38, 56], [62, 56], [28, 42], [50, 36], [80, 42], [50, 16]],
   };
-  const TATICAS = [['ofensivo', 'Ofensivo'], ['equilibrado', 'Equilibrado'], ['defensivo', 'Defensivo']];
-  const DESC_TATICA = { ofensivo: 'Mais ataque e mais lances, defesa mais exposta e mais cansaço.', equilibrado: 'Equilíbrio entre defesa e ataque.', defensivo: 'Defesa mais forte, menos lances de ataque e menos cansaço.' };
+  const TATICAS = [['ofensivo', 'Ofensivo'], ['equilibrado', 'Equilibrado'], ['defensivo', 'Defensivo'], ['contra', 'Contra-ataque']];
+  K.TATICAS = TATICAS;
+  const DESC_TATICA = K.DESC_TATICA = {
+    ofensivo: 'Linhas adiantadas: mais lances de ataque, mais cansaço e mais faltas, defesa exposta. Forte contra Defensivo, fraco contra Contra-ataque.',
+    equilibrado: 'Equilíbrio entre defesa e ataque. Sem pontos fortes nem fracos contra nenhuma tática.',
+    defensivo: 'Linhas recuadas: poucos lances dos dois lados e o adversário finaliza menos. Forte contra Contra-ataque, fraco contra Ofensivo.',
+    contra: 'Defesa recuada e atacantes avançados esperando o espaço: poucos lances, mas perigosos contra quem se expõe. Forte contra Ofensivo, fraco contra Defensivo.',
+  };
+  // deslocamento vertical (em % do campo) de cada setor por tática: negativo = avança, positivo = recua
+  const DESL = { ofensivo: { D: -4, M: -7, A: -5 }, equilibrado: { D: 0, M: 0, A: 0 }, defensivo: { D: 4, M: 7, A: 9 }, contra: { D: 5, M: 4, A: -3 } };
+  const NOME_POS = { GOL: 'Goleiro', ZAG: 'Zagueiro', LIB: 'Líbero', LD: 'Lateral direito', LE: 'Lateral esquerdo', VOL: 'Volante', MC: 'Meia central', MEI: 'Meia ofensivo', ALA: 'Ala', PD: 'Ponta direita', PE: 'Ponta esquerda', CA: 'Centroavante', SA: 'Segundo atacante' };
 
   function cfgDe(c) {
     let cfg = G.g.taticas.get(c.id);
@@ -1484,12 +2042,11 @@ td.evol { font-size: 13px; color: var(--accent); font-weight: 700; }
     return cfg;
   }
   K.cfgEscalacao = cfgDe;
-  const sobrenome = (n) => n.split(' ').slice(-1)[0];
 
   K.telas.escalacao = function () {
     const c = K.clubeHumano(), cfg = cfgDe(c), msg = G.escMsg || ''; G.escMsg = '';
     const esc = S.escalarAuto(c, cfg.formacao, cfg.tatica, G.config.maxSubs, cfg.titulares);
-    cfg.titulares = esc.titulares;                       // preenche vagas inválidas (lesão/suspensão)
+    cfg.titulares = esc.titulares;                       // preenche vagas inválidas (lesão, suspensão, treino)
     const slots = M.FORMACOES[cfg.formacao], coords = POS[cfg.formacao];
     const porId = new Map(c.elenco.map((p) => [p.id, p]));
     const sel = G.escSlot != null ? G.escSlot : null;
@@ -1497,35 +2054,45 @@ td.evol { font-size: 13px; color: var(--accent); font-weight: 700; }
     const salvar = () => { G.g.taticas.set(c.id, cfg); K.render(); };
 
     const colocar = (p) => {
-      if (!S.disponivel(p)) { G.escMsg = p.nome + (p.lesao ? ' está lesionado.' : ' está suspenso.'); K.render(); return; }
+      if (!S.disponivel(p)) { G.escMsg = p.nome + (p.lesao ? ' está lesionado.' : p.treino ? ' está em treino.' : ' está suspenso.'); K.render(); return; }
       if (sel == null) {
         if (slotDe.has(p.id)) { G.escSlot = slotDe.get(p.id); K.render(); } else { G.escMsg = 'Escolha antes uma posição no campo para colocar ' + p.nome + '.'; K.render(); }
         return;
       }
-      const j = slotDe.get(p.id);
-      if (j != null) { const t = cfg.titulares.slice(); [t[sel], t[j]] = [t[j], t[sel]]; cfg.titulares = t; } else { const t = cfg.titulares.slice(); t[sel] = p.id; cfg.titulares = t; }
-      G.escSlot = null; salvar();
+      const j = slotDe.get(p.id), t = cfg.titulares.slice();
+      if (j != null) [t[sel], t[j]] = [t[j], t[sel]]; else t[sel] = p.id;
+      cfg.titulares = t; G.escSlot = null; salvar();
     };
 
-    // campo
+    // campo: cada jogador num cartão com posição em que joga, nome completo, média NESSA posição e barras de stamina (E) e moral (M)
+    const dl = DESL[cfg.tatica] || DESL.equilibrado;
     const campo = h('div', { class: 'campo', role: 'group', 'aria-label': 'Campo' },
       h('div', { class: 'linhas', 'aria-hidden': 'true', html: '<svg viewBox="0 0 100 100" preserveAspectRatio="none" width="100%" height="100%"><g fill="none" stroke="currentColor" stroke-width=".5" vector-effect="non-scaling-stroke"><rect x="2" y="2" width="96" height="96"/><line x1="2" y1="50" x2="98" y2="50"/><ellipse cx="50" cy="50" rx="9" ry="7"/><rect x="26" y="2" width="48" height="16"/><rect x="26" y="82" width="48" height="16"/><rect x="38" y="2" width="24" height="6"/><rect x="38" y="92" width="24" height="6"/></g></svg>' }),
+      h('span', { class: 'sentido', 'aria-hidden': 'true' }, 'sentido do ataque ▲'),
       slots.map((slot, i) => {
         const p = porId.get(cfg.titulares[i]), v = PL.ovrNoSlot(p, slot), fora = PL.afinidade(p.pos, slot) < 0.9;
-        return h('button', { class: 'chip' + (sel === i ? ' sel' : '') + (fora ? ' fora' : ''), style: 'left:' + coords[i][0] + '%;top:' + coords[i][1] + '%', onclick: () => { G.escSlot = sel === i ? null : i; K.render(); }, 'aria-pressed': sel === i ? 'true' : 'false', 'aria-label': slot + ': ' + p.nome },
-          h('span', { class: 'cs' }, slot, fora ? h('em', { title: 'Fora de posição (' + p.pos + ')' }, ' ' + p.pos) : null), h('b', null, sobrenome(p.nome)), h('span', { class: 'cv' }, p.num + ' · ' + Math.round(v)), K.barra(p.stamina, 'mini'));
+        const off = slot === 'GOL' ? 0 : dl[PL.GRUPO[slot]], top = Math.max(8, Math.min(92, coords[i][1] + off));
+        return h('div', { class: 'cartao-jog', style: 'left:' + coords[i][0] + '%;top:' + top + '%' },
+          off ? h('span', { class: 'seta ' + (off < 0 ? 'up' : 'down'), 'aria-hidden': 'true', title: off < 0 ? 'Avança nesta tática' : 'Recua nesta tática' }, off < 0 ? '▲' : '▼') : null,
+          h('button', { class: 'chip' + (sel === i ? ' sel' : '') + (fora ? ' fora' : ''), onclick: () => { G.escSlot = sel === i ? null : i; K.render(); }, 'aria-pressed': sel === i ? 'true' : 'false', 'aria-label': NOME_POS[slot] + ': ' + p.nome + ', média ' + Math.round(v) + ' nesta posição' },
+            h('span', { class: 'cs' }, h('b', null, slot), h('i', null, '#' + p.num)),
+            h('span', { class: 'cnome' }, p.nome, p.estrela ? K.estrela() : null),
+            h('span', { class: 'cmed', 'data-tip': 'Média do jogador na posição em que está jogando' + (fora ? ' (a posição natural dele é ' + p.pos + ', por isso rende menos aqui)' : '') + '.' }, h('small', null, 'Média aqui'), h('b', { class: 'num' }, Math.round(v))),
+            fora ? h('span', { class: 'cnat' }, 'natural: ' + p.pos) : null,
+            h('span', { class: 'cbar' }, h('small', null, 'E'), K.barra(p.stamina, 'mini')),
+            h('span', { class: 'cbar' }, h('small', null, 'M'), K.barra(p.moral, 'mini'))));
       }));
 
-    // lista
+    // lista do elenco
     const lista = c.elenco.slice().sort((a, b) => K.ORDEM_POS.indexOf(a.pos) - K.ORDEM_POS.indexOf(b.pos) || PL.overall(b) - PL.overall(a));
     const slotSel = sel != null ? slots[sel] : null;
     const linhas = lista.map((p) => {
       const st = slotDe.has(p.id) ? 'Titular' : noBanco.has(p.id) ? 'Banco' : '';
       const v = slotSel ? PL.ovrNoSlot(p, slotSel) : PL.overall(p);
+      const sit = p.lesao ? 'LES ' + p.lesao : p.suspenso ? 'SUSP' : p.treino ? 'TREINO' : '';
       return h('tr', { 'data-id': p.id, tabindex: 0, class: (slotDe.has(p.id) ? 'tit-row ' : '') + (!S.disponivel(p) ? 'indisp' : ''), onclick: () => colocar(p), onkeydown: (e) => { if (e.key === 'Enter') colocar(p); } },
-        h('td', null, p.num), h('td', { class: 'l nm' }, p.nome), h('td', { class: 'pos' }, p.pos), h('td', { class: 'ovr' }, Math.round(v)),
-        h('td', null, K.barra(p.stamina)), h('td', null, K.barra(p.moral)),
-        h('td', { class: p.lesao ? 'bad' : p.suspenso ? 'warn' : '' }, K.situacao(p) || st));
+        h('td', null, p.num), h('td', { class: 'l nm' }, p.nome, p.estrela ? K.estrela() : null), h('td', { class: 'pos' }, p.pos), h('td', { class: 'ovr' }, Math.round(v)),
+        h('td', null, K.barra(p.stamina)), h('td', null, K.barra(p.moral)), h('td', { class: p.lesao ? 'bad' : p.suspenso ? 'warn' : '' }, sit || st));
     });
     const media = cfg.titulares.map((id, i) => PL.ovrNoSlot(porId.get(id), slots[i])).reduce((a, b) => a + b, 0) / 11;
     const fora = cfg.titulares.filter((id, i) => PL.afinidade(porId.get(id).pos, slots[i]) < 0.9).length;
@@ -1537,9 +2104,12 @@ td.evol { font-size: 13px; color: var(--accent); font-weight: 700; }
         h('div', null, h('small', { class: 'eyebrow' }, 'Formação'), segF), h('div', null, h('small', { class: 'eyebrow' }, 'Tática'), segT),
         h('div', null, h('small', { class: 'eyebrow' }, 'Substituições'), h('b', null, 'até ' + G.config.maxSubs + ' por jogo')),
         h('button', { class: 'btn alt sm', onclick: () => { cfg.titulares = []; G.escSlot = null; salvar(); } }, 'Escalação automática')),
+      h('p', { class: 'tacdesc' }, h('b', null, TATICAS.find((x) => x[0] === cfg.tatica)[1] + ': '), DESC_TATICA[cfg.tatica]),
       h('p', { class: 'escmsg', role: 'status' }, msg || (sel != null ? 'Posição ' + slotSel + ' escolhida. Clique em um jogador da lista para colocá-lo.' : 'Clique em uma posição no campo e depois em um jogador da lista. Qualquer jogador pode jogar em qualquer posição, mas rende menos fora da sua.')),
       h('div', { class: 'escgrid' },
-        h('div', { class: 'campocol' }, campo, h('p', { class: 'footnote' }, 'Média do time nesta escalação: ', h('b', null, media.toFixed(1)), fora ? ' · ' + fora + ' jogador(es) fora de posição' : '')),
+        h('div', { class: 'campocol' }, campo,
+          h('p', { class: 'footnote' }, 'Média do time nesta escalação: ', h('b', null, media.toFixed(1)), fora ? ' · ' + fora + ' jogador(es) fora de posição' : ''),
+          h('p', { class: 'footnote legenda' }, h('b', null, 'Como ler: '), 'a faixa de cima é a posição em que o jogador joga e o número da camisa. "Média aqui" é a nota dele nessa posição (cai se jogar fora da natural). E = stamina e M = moral. ▲ ▼ mostram se a tática avança ou recua o jogador.')),
         h('div', { class: 'tablewrap lista' }, h('table', { 'aria-label': 'Elenco' },
           h('thead', null, h('tr', null, [['Nº'], ['Jogador'], ['Pos'], [sel != null ? 'Méd ' + slotSel : 'Méd', K.TIPS.media], ['Stamina', K.TIPS.stamina], ['Moral', K.TIPS.moral], ['Sit.', K.TIPS.sit]].map(([t, tip], i) => h('th', { class: i === 1 ? 'l' : '', style: 'cursor:default', 'data-tip': tip || false }, t)))),
           h('tbody', null, linhas)))));
@@ -1610,7 +2180,7 @@ td.evol { font-size: 13px; color: var(--accent); font-weight: 700; }
     const outros = [...grupos].map(([titulo, ps]) => h('section', { class: 'jdiv' }, h('h3', null, titulo),
       h('ul', null, ps.map((p) => {
         const pl = M.placarDe(p.m), sc = h('b', { class: 'num pl' }, pl[0] + ' × ' + pl[1]);
-        const li = h('li', { class: (p.humano[0] || p.humano[1]) ? 'meu' : '' }, h('span', { class: 'tc' }, nome(p.jogo.casa)), sc, h('span', { class: 'tf' }, nome(p.jogo.fora)));
+        const li = h('li', { class: (p.humano[0] || p.humano[1]) ? 'meu' : '' }, h('span', { class: 'tc' }, K.comEscudo(p.jogo.casa)), sc, h('span', { class: 'tf' }, K.comEscudo(p.jogo.fora)));
         REFS.rows.set(p, { el: sc, li }); return li;
       }))));
 
@@ -1633,7 +2203,7 @@ td.evol { font-size: 13px; color: var(--accent); font-weight: 700; }
       !fim && jg.pausado && P ? h('button', { class: 'btn alt sm', id: 'subs', onclick: () => { jg.painel = !jg.painel; K.render(); } }, jg.painel ? 'Fechar substituições' : 'Substituições e tática') : null);
 
     const campo = P ? h('section', { class: 'jmain' },
-      h('div', { class: 'placar' }, h('span', { class: 'tn' + (lado === 0 ? ' eu' : '') }, nome(P.jogo.casa)), h('span', { class: 'sc' }, REFS.pl0, h('i', null, '×'), REFS.pl1), h('span', { class: 'tn r' + (lado === 1 ? ' eu' : '') }, nome(P.jogo.fora))),
+      h('div', { class: 'placar' }, h('span', { class: 'tn' + (lado === 0 ? ' eu' : '') }, nome(P.jogo.casa), K.escudo(P.jogo.casa, true)), h('span', { class: 'sc' }, REFS.pl0, h('i', null, '×'), REFS.pl1), h('span', { class: 'tn r' + (lado === 1 ? ' eu' : '') }, K.escudo(P.jogo.fora, true), nome(P.jogo.fora))),
       h('div', { class: 'javiso', role: 'status' }, jg.aviso || (jg.pausado ? '' : 'Bola rolando'), P.jogo.perna === 'volta' ? h('small', { class: 'muted' }, ' Jogo de volta · ida: ' + P.jogo.confronto.ida[0] + ' × ' + P.jogo.confronto.ida[1] + ' (' + nome(P.jogo.confronto.a) + ' em casa)') : null),
       h('div', { class: 'stats' }, stat('Posse de bola', 'posse'), stat('Chutes', 'chutes'), stat('No gol', 'no_gol'), stat('Faltas', 'faltas'), stat('Amarelos', 'amarelos'), stat('Vermelhos', 'vermelhos')),
       jg.painel ? painelSubs(P, lado) : null,
@@ -1647,23 +2217,24 @@ td.evol { font-size: 13px; color: var(--accent); font-weight: 700; }
     return el;
   };
 
-  // ---------- painel de substituições ----------
+  // ---------- painel de substituições (stamina e moral à vista) ----------
   function painelSubs(P, lado) {
     const jg = G.jg, side = P.m.S[lado], max = side.maxSubs;
+    const cab = h('li', { class: 'sublinha cab' }, h('span', null, 'Pos'), h('span', null, 'Jogador'), h('span', { 'data-tip': K.TIPS.media }, 'Méd'), h('span', { 'data-tip': K.TIPS.stamina }, 'Stamina'), h('span', { 'data-tip': K.TIPS.moral }, 'Moral'));
     const linha = (p, tipo, j) => {
       const sel = tipo === 'out' ? jg.selOut === p.id : jg.selIn === p.id, ind = tipo === 'in' && p.lesao > 0;
-      const cart = j ? (j.amarelos ? h('i', { class: 'cartao am', title: 'Amarelo' }) : null) : null;
+      const cart = j && j.amarelos ? h('i', { class: 'cartao am', title: 'Amarelo' }) : null;
       return h('li', { class: 'sublinha' + (sel ? ' sel' : '') + (ind ? ' indisp' : ''), tabindex: ind ? -1 : 0, onclick: () => { if (ind) return; if (tipo === 'out') jg.selOut = p.id; else jg.selIn = p.id; K.render(); }, onkeydown: (e) => { if (e.key === 'Enter') e.currentTarget.click(); } },
-        h('span', { class: 'pos' }, j ? j.slot : p.pos), h('span', { class: 'sn' }, p.nome, cart), K.barra(p.stamina, 'mini'), h('b', { class: 'num' }, Math.round(PL.overall(p))));
+        h('span', { class: 'pos' }, j ? j.slot : p.pos), h('span', { class: 'sn' }, p.nome, p.estrela ? K.estrela() : null, cart), h('b', { class: 'num' }, Math.round(PL.overall(p))), K.barraPct(p.stamina), K.barraPct(p.moral));
     };
     const ok = jg.selOut && jg.selIn && side.subs < max;
     const msg = side.subs >= max ? 'Limite de substituições atingido.' : (jg.msgSub || '');
     return h('div', { class: 'subpanel' },
       h('div', { class: 'subtop' }, h('b', null, 'Substituições: ' + side.subs + ' de ' + max),
-        h('div', { class: 'seg', role: 'group', 'aria-label': 'Tática' }, [['ofensivo', 'Ofensivo'], ['equilibrado', 'Equilibrado'], ['defensivo', 'Defensivo']].map(([k, t]) => h('button', { type: 'button', 'aria-pressed': side.time.tatica === k ? 'true' : 'false', onclick: () => { side.time.tatica = k; M.recalcular(P.m); K.render(); } }, t)))),
+        h('div', { class: 'seg', role: 'group', 'aria-label': 'Tática' }, K.TATICAS.map(([k, t]) => h('button', { type: 'button', 'aria-pressed': side.time.tatica === k ? 'true' : 'false', 'data-tip': K.DESC_TATICA[k], onclick: () => { side.time.tatica = k; M.recalcular(P.m); K.render(); } }, t)))),
       h('div', { class: 'subcols' },
-        h('div', null, h('h4', null, 'Em campo (sai)'), h('ul', { class: 'sublista' }, side.campo.map((j) => linha(j.p, 'out', j)))),
-        h('div', null, h('h4', null, 'Banco (entra)'), h('ul', { class: 'sublista' }, side.banco.map((p) => linha(p, 'in'))))),
+        h('div', null, h('h4', null, 'Em campo (sai)'), h('ul', { class: 'sublista' }, cab.cloneNode(true), side.campo.map((j) => linha(j.p, 'out', j)))),
+        h('div', null, h('h4', null, 'Banco (entra)'), h('ul', { class: 'sublista' }, cab, side.banco.map((p) => linha(p, 'in'))))),
       h('div', { class: 'actions' }, h('button', { class: 'btn', id: 'confsub', disabled: !ok, onclick: () => { const r = M.substituirM(P.m, lado, jg.selOut, jg.selIn); jg.msgSub = r.ok ? '' : r.motivo; if (r.ok) { jg.selOut = jg.selIn = null; } K.render(); } }, 'Confirmar substituição'), h('span', { class: 'err' }, msg)));
   }
 
@@ -1696,7 +2267,7 @@ td.evol { font-size: 13px; color: var(--accent); font-weight: 700; }
     rs.filter((r) => r !== R).forEach((r) => { const k = r.jogo.comp === 'liga' ? K.DIV_NOME[r.jogo.div] : r.jogo.rotulo; (grupos[k] = grupos[k] || []).push(r); });
     return h('main', { class: 'wrap page' },
       h('div', { class: 'head' }, h('span', { class: 'eyebrow' }, R.jogo.rotulo + ' · ' + GM.fmtData(g.data)), h('h2', null, res + ' · fim de jogo')),
-      h('div', { class: 'placar grande' }, h('span', { class: 'tn' + (lado === 0 ? ' eu' : '') }, R.casaNome), h('span', { class: 'sc' }, h('b', { class: 'num' }, gh), h('i', null, '×'), h('b', { class: 'num' }, ga)), h('span', { class: 'tn r' + (lado === 1 ? ' eu' : '') }, R.foraNome)),
+      h('div', { class: 'placar grande' }, h('span', { class: 'tn' + (lado === 0 ? ' eu' : '') }, R.casaNome, K.escudo(R.jogo.casa, true)), h('span', { class: 'sc' }, h('b', { class: 'num' }, gh), h('i', null, '×'), h('b', { class: 'num' }, ga)), h('span', { class: 'tn r' + (lado === 1 ? ' eu' : '') }, K.escudo(R.jogo.fora, true), R.foraNome)),
       R.copa ? h('p', { class: 'copainfo' }, 'Agregado ' + R.copa.agregado[0] + ' × ' + R.copa.agregado[1] + (R.copa.penaltis ? ' · pênaltis ' + R.copa.penaltis[0] + ' × ' + R.copa.penaltis[1] : '') + ' · Classificado: ', h('b', null, nome(R.copa.vencedor)))
         : R.jogo.comp === 'copa' ? h('p', { class: 'copainfo' }, 'Jogo de ida. A volta será na casa de ' + nome(R.jogo.confronto.b) + '.') : null,
       h('div', { class: 'resgrid' },
@@ -1706,7 +2277,7 @@ td.evol { font-size: 13px; color: var(--accent); font-weight: 700; }
       tabelaNotas(R.detalhes[eu], 'Seu time · notas e evolução', true),
       h('details', { class: 'det' }, h('summary', null, 'Notas do adversário'), tabelaNotas(R.detalhes[adv], nome(adv === 0 ? R.jogo.casa : R.jogo.fora), false)),
       h('details', { class: 'det' }, h('summary', null, 'Outros resultados do dia'),
-        Object.entries(grupos).map(([t, arr]) => h('section', { class: 'jdiv' }, h('h3', null, t), h('ul', null, arr.map((r) => h('li', null, h('span', { class: 'tc' }, r.casaNome), h('b', { class: 'num pl' }, r.placar[0] + ' × ' + r.placar[1]), h('span', { class: 'tf' }, r.foraNome))))))),
+        Object.entries(grupos).map(([t, arr]) => h('section', { class: 'jdiv' }, h('h3', null, t), h('ul', null, arr.map((r) => h('li', null, h('span', { class: 'tc' }, K.comEscudo(r.jogo.casa)), h('b', { class: 'num pl' }, r.placar[0] + ' × ' + r.placar[1]), h('span', { class: 'tf' }, K.comEscudo(r.jogo.fora)))))))),
       h('div', { class: 'actions' }, h('button', { class: 'btn hot', id: 'continuar', onclick: () => { G.aba = 'plantel'; G.resumos = null; if (g.fim) K.ir('fim'); else K.ir(5); } }, g.fim ? 'Ver fim da temporada' : 'Continuar')));
   };
 
@@ -1854,19 +2425,20 @@ td.evol { font-size: 13px; color: var(--accent); font-weight: 700; }
       h('div', { class: 'actions' }, h('button', { class: 'btn hot', id: 'verplantel', onclick: () => { G.aba = 'plantel'; ir(5); } }, 'Ver o plantel')));
   }
 
-  // ---------- "casa" do jogo: cabeçalho com data/próximo jogo/últimos jogos + abas ----------
+  // ---------- "casa" do jogo: cabeçalho com liga/rodada, data, próximo jogo, últimos jogos + abas ----------
   const resultado = (r) => (r.gp > r.gc ? 'V' : r.gp < r.gc ? 'D' : 'E');
-  const placarTxt = (id, r) => { const n = K.nomeClube(id), a = K.nomeClube(r.adv); return r.casa ? n + ' ' + r.gp + ' × ' + r.gc + ' ' + a : a + ' ' + r.gc + ' × ' + r.gp + ' ' + n; };
+  const placarEl = (id, r) => { const a = G.g.porId.get(r.adv), n = G.g.porId.get(id); const pl = (x, y) => h('b', { class: 'num' }, x + ' × ' + y); return r.casa ? [K.comEscudo(n), pl(r.gp, r.gc), K.comEscudo(a)] : [K.comEscudo(a), pl(r.gc, r.gp), K.comEscudo(n)]; };
+  const ligaRodada = (c) => { const L = G.g.ligas[c.div], n = L.res.length; return G.g.fim ? 'Brasileirão ' + K.DIV_NOME[c.div] + ' · temporada encerrada' : 'Brasileirão ' + K.DIV_NOME[c.div] + ' · ' + (n + 1) + 'ª rodada'; };
   function statusBox(c) {
     const g = G.g, pj = GM.proximoJogo(g, c.id), ult = GM.ultimosJogos(g, c.id, 2);
     const prox = g.fim ? h('span', null, 'Temporada encerrada')
-      : pj ? h('span', null, h('span', null, h('b', null, GM.fmtDataCurta(pj.data)), ' · ' + (pj.emCasa ? c.nome + ' × ' + K.nomeClube(pj.adversario) : K.nomeClube(pj.adversario) + ' × ' + c.nome)), h('small', { class: 'muted' }, pj.rotulo + (pj.emCasa ? ' · em casa' : ' · fora')))
+      : pj ? h('span', null, h('span', { class: 'confronto' }, h('b', null, GM.fmtDataCurta(pj.data)), pj.emCasa ? [K.comEscudo(c), '×', K.comEscudo(pj.adversario)] : [K.comEscudo(pj.adversario), '×', K.comEscudo(c)]), h('small', { class: 'muted' }, pj.rotulo + (pj.emCasa ? ' · em casa' : ' · fora')))
         : h('span', null, 'Sem jogo marcado');
     return h('aside', { class: 'status', 'aria-label': 'Calendário' },
       h('div', { class: 'srow' }, h('small', null, 'Hoje'), h('b', null, GM.fmtData(g.data))),
       h('div', { class: 'srow' }, h('small', null, 'Próximo jogo'), prox),
       h('div', { class: 'srow' }, h('small', null, 'Últimos jogos'),
-        ult.length ? h('div', { class: 'ult' }, ult.map((r) => h('span', { class: 'rl' }, h('i', { class: 'res r' + resultado(r) }, resultado(r)), placarTxt(c.id, r), h('small', { class: 'muted' }, r.comp))))
+        ult.length ? h('div', { class: 'ult' }, ult.map((r) => h('span', { class: 'rl' }, h('i', { class: 'res r' + resultado(r) }, resultado(r)), placarEl(c.id, r), h('small', { class: 'muted' }, r.comp))))
           : h('span', { class: 'muted' }, 'Nenhum jogo disputado ainda')),
       g.fim ? h('button', { class: 'btn hot', id: 'jogar', onclick: () => ir('fim') }, 'Fim da temporada')
         : h('button', { class: 'btn hot', id: 'jogar', onclick: jogarProximo }, 'Jogar próximo jogo'));
@@ -1878,11 +2450,15 @@ td.evol { font-size: 13px; color: var(--accent); font-weight: 700; }
   }
   const ABAS = [['plantel', 'Plantel'], ['escalacao', 'Escalação'], ['tabela', 'Tabela'], ['mercado', 'Mercado'], ['financas', 'Finanças']];
   function casa() {
-    const c = clubeHumano(), hu = G.humanos[0];
+    const c = clubeHumano(), hu = G.humanos[0], [c1, c2] = c.cores;
     const conteudo = G.aba === 'escalacao' ? K.telas.escalacao() : G.aba === 'tabela' ? K.telas.tabela() : plantel(c);
     return h('main', { class: 'wrap page' },
       h('div', { class: 'gamehead' },
-        h('div', { class: 'head' }, h('span', { class: 'eyebrow' }, 'Técnico ' + hu.nome + ' · ' + K.DIV_NOME[c.div] + ' · ' + G.g.ano), h('h2', null, c.nome)),
+        h('div', { class: 'head clubhead' },
+          h('span', { class: 'ligarod' }, ligaRodada(c)),
+          h('div', { class: 'clubtitle' }, K.escudo(c, true), h('h2', null, c.nome)),
+          h('span', { class: 'faixa', style: 'background:linear-gradient(90deg,' + c1 + ' 50%,' + c2 + ' 50%)' }),
+          h('span', { class: 'eyebrow' }, 'Técnico ' + hu.nome + ' · ' + G.g.ano)),
         statusBox(c)),
       h('div', { class: 'tabs', role: 'tablist' }, ABAS.map(([k, t]) => k === 'mercado' || k === 'financas'
         ? h('span', { class: 'soon', role: 'tab', 'aria-disabled': 'true' }, t)
@@ -1894,50 +2470,62 @@ td.evol { font-size: 13px; color: var(--accent); font-weight: 700; }
   // ---------- aba Plantel ----------
   const A = (a) => (p) => p.attr[a];
   const COLS = [
-    ['num', 'Nº', (p) => p.num, null], ['nome', 'Jogador', (p) => p.nome, null], ['pos', 'Pos', (p) => K.ORDEM_POS.indexOf(p.pos), null], ['idade', 'Id', (p) => p.idade, null], ['media', 'Méd', (p) => PL.overall(p), 'media'],
-    ['RIT', 'Rit', A('RIT'), 'RIT'], ['CHU', 'Chu', A('CHU'), 'CHU'], ['PAS', 'Pas', A('PAS'), 'PAS'], ['DRI', 'Dri', A('DRI'), 'DRI'], ['DEF', 'Def', A('DEF'), 'DEF'], ['FIS', 'Fís', A('FIS'), 'FIS'],
+    ['num', 'Nº', (p) => p.num, null], ['nome', 'Jogador', (p) => p.nome, null], ['nac', 'Nac', (p) => p.nac, 'nac'], ['pos', 'Pos', (p) => K.ORDEM_POS.indexOf(p.pos), null], ['idade', 'Id', (p) => p.idade, null], ['media', 'Méd', (p) => PL.overall(p), 'media'],
+    ...K.ATTRS.map((a) => [a, K.ATTR_SIGLA[a], A(a), a]),
     ['disc', 'Disciplina', (p) => p.disciplina, 'disc'], ['stamina', 'Stamina', (p) => p.stamina, 'stamina'], ['moral', 'Moral', (p) => p.moral, 'moral'], ['sit', 'Sit.', (p) => p.lesao * 10 + (p.suspenso ? 1 : 0), 'sit'],
-    ['contrato', 'Contrato', (p) => p.contrato, 'contrato'], ['salario', 'Salário/mês', (p) => E.salario(p), 'salario'], ['valor', 'Valor', (p) => E.valorMercado(p), 'valor'],
+    ['contrato', 'Contrato', (p) => p.contratoAte, 'contrato'], ['salario', 'Salário/mês', (p) => E.salario(p), 'salario'], ['valor', 'Valor', (p) => E.valorMercado(p), 'valor'],
   ];
+  function situacao(p) { return p.lesao > 0 ? ['LES ' + p.lesao, 'bad'] : p.suspenso > 0 ? ['SUSP', 'warn'] : p.treino ? ['TREINO ' + p.treino.restante, 'treino'] : p.aVenda ? ['À VENDA', 'venda'] : ['', '']; }
   function plantel(c) {
     const esc = GM.escalacaoDe(G.g, c, c), tits = new Set(esc.titulares);
-    const dir = G.sort.dir, col = COLS.find((x) => x[0] === G.sort.k) || COLS[2];
+    const dir = G.sort.dir, col = COLS.find((x) => x[0] === G.sort.k) || COLS[3];
     const lista = c.elenco.slice();
     if (G.sort.k === 'pos') lista.sort((a, b) => K.ORDEM_POS.indexOf(a.pos) - K.ORDEM_POS.indexOf(b.pos) || PL.overall(b) - PL.overall(a));
     else lista.sort((a, b) => { const x = col[2](a), y = col[2](b); return (typeof x === 'string' ? x.localeCompare(y, 'pt-BR') : x - y) * dir; });
     if (!G.sel || !c.elenco.some((p) => p.id === G.sel)) G.sel = lista[0].id;
     const media = esc.titulares.map((id) => PL.overall(c.elenco.find((p) => p.id === id))).reduce((a, b) => a + b, 0) / 11;
-    const ordenar = (k) => { G.sort = G.sort.k === k ? { k, dir: -G.sort.dir } : { k, dir: ['nome', 'pos', 'num', 'contrato', 'disc'].includes(k) ? 1 : -1 }; render(); };
+    const ordenar = (k) => { G.sort = G.sort.k === k ? { k, dir: -G.sort.dir } : { k, dir: ['nome', 'pos', 'num', 'contrato', 'disc', 'nac'].includes(k) ? 1 : -1 }; render(); };
     const ths = COLS.map(([k, t, , tip]) => h('th', { class: (k === 'nome' ? 'l ' : '') + (G.sort.k === k ? 'sorted' : ''), scope: 'col', tabindex: 0, 'data-tip': tip ? K.TIPS[tip] : false, 'aria-sort': G.sort.k === k ? (dir > 0 ? 'ascending' : 'descending') : 'none', onclick: () => ordenar(k), onkeydown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); ordenar(k); } } }, t));
     const linhas = []; let setor = null;
     lista.forEach((p) => {
       if (G.sort.k === 'pos' && K.SETOR[p.pos] !== setor) { setor = K.SETOR[p.pos]; linhas.push(h('tr', { class: 'sep' }, h('td', { colspan: COLS.length }, setor))); }
-      const lim = (v) => (v >= 70 ? 'hi' : v < 35 ? 'lo' : '');
+      const lim = (v) => (v >= 70 ? 'hi' : v < 35 ? 'lo' : ''), [st, stc] = situacao(p);
       linhas.push(h('tr', { 'data-id': p.id, class: p.id === G.sel ? 'sel' : '', tabindex: 0, onclick: () => selecionar(p.id), onkeydown: (e) => { if (e.key === 'Enter') selecionar(p.id); } },
-        h('td', null, p.num), h('td', { class: 'l nm' }, tits.has(p.id) ? h('span', { class: 'tit', title: 'Titular na escalação atual' }) : null, p.nome),
-        h('td', { class: 'pos' }, p.pos), h('td', null, p.idade), h('td', { class: 'ovr' }, Math.round(PL.overall(p))),
+        h('td', null, p.num), h('td', { class: 'l nm' }, tits.has(p.id) ? h('span', { class: 'tit', title: 'Titular na escalação atual' }) : null, p.nome, p.estrela ? K.estrela() : null),
+        h('td', null, K.bandeira(p.nac)), h('td', { class: 'pos' }, p.pos), h('td', null, p.idade), h('td', { class: 'ovr' }, Math.round(PL.overall(p))),
         ...K.ATTRS.map((a) => h('td', { class: lim(p.attr[a]) }, p.attr[a])),
         h('td', null, PL.DISCIPLINAS[p.disciplina]), h('td', null, K.barra(p.stamina)), h('td', null, K.barra(p.moral)),
-        h('td', { class: p.lesao ? 'bad' : p.suspenso ? 'warn' : '' }, K.situacao(p)),
-        h('td', null, GM.fimContrato(G.g, p)), h('td', null, reais(E.salario(p))), h('td', null, reais(E.valorMercado(p)))));
+        h('td', { class: stc }, st),
+        h('td', { class: MK.podeRenovar(G.g, p) ? 'warn' : '', 'data-tip': MK.podeRenovar(G.g, p) ? 'Últimos 3 meses de contrato: já é possível renovar.' : false }, GM.fimContrato(G.g, p)), h('td', null, reais(E.salario(p))), h('td', null, reais(E.valorMercado(p)))));
     });
     return h('div', { class: 'plantelwrap' },
+      noticias(),
       h('div', { class: 'strip' },
         info('Divisão', K.DIV_NOME[c.div]), info('Estádio', c.estadio.nome + ' · ' + nf.format(c.estadio.capacidade)), info('Caixa', reais(c.caixa)),
         info('Folha mensal', reais(E.folhaMensal(c.elenco))), info('Média do time titular', media.toFixed(1)), info('Substituições', G.config.maxSubs + ' por jogo')),
       h('div', { class: 'plantel' },
         h('div', { class: 'tablewrap' }, h('table', { 'aria-label': 'Plantel de ' + c.nome }, h('thead', null, h('tr', null, ths)), h('tbody', null, linhas))),
-        painel(c.elenco.find((p) => p.id === G.sel))),
-      h('p', { class: 'footnote' }, h('span', { class: 'tit' }), 'Titular na escalação atual. Clique em um jogador para ver os detalhes e no título de uma coluna para ordenar. Passe o mouse nos títulos para ver o que cada atributo significa.'));
+        painel(c, c.elenco.find((p) => p.id === G.sel))),
+      h('div', { class: 'rodape' },
+        h('p', { class: 'footnote' }, h('span', { class: 'tit' }), 'Titular na escalação atual. ', K.estrela(), ' Estrela. Clique em um jogador para ver os detalhes e no título de uma coluna para ordenar. Passe o mouse nos títulos para ver o que cada atributo significa.'),
+        K.moralTreinadorBox()));
+  }
+  const MK = BF.Mercado;
+  function noticias() {
+    const n = G.g.noticias.slice(0, 4); if (!n.length) return null;
+    return h('section', { class: 'noticias', 'aria-label': 'Notícias' }, h('h3', null, 'Notícias'), h('ul', null, n.map((x) => h('li', { class: 'nt-' + x.tipo }, h('small', { class: 'num' }, GM.fmtDataCurta(x.data)), h('span', null, x.texto)))));
   }
   const info = (t, v) => h('div', null, h('small', null, t), h('b', null, v));
   function selecionar(id) { G.sel = id; const x = document.querySelector('.tablewrap').scrollLeft, y = window.scrollY; render(); document.querySelector('.tablewrap').scrollLeft = x; window.scrollTo(0, y); }
-  function painel(p) {
+  function painel(c, p) {
     const encaixes = K.ORDEM_POS.map((pos) => [pos, Math.round(PL.ovrNoSlot(p, pos))]).sort((a, b) => b[1] - a[1]).slice(0, 4);
+    const renova = MK.podeRenovar(G.g, p), [st] = situacao(p);
+    const btn = (id, t, acao, dis, dica) => h('button', { class: 'btn alt sm', id, disabled: dis, 'data-tip': dica || false, onclick: acao }, t);
     return h('aside', { class: 'panel', 'aria-label': 'Detalhes do jogador' },
-      h('div', null, h('span', { class: 'eyebrow' }, '#' + p.num + ' · ' + p.pos + ' · ' + p.idade + ' anos'), h('div', { class: 'pn' }, p.nome)),
+      h('div', null, h('span', { class: 'eyebrow' }, '#' + p.num + ' · ' + p.pos + ' · ' + p.idade + ' anos'), h('div', { class: 'pn' }, p.nome, p.estrela ? K.estrela() : null),
+        h('div', { class: 'natl' }, K.bandeira(p.nac), h('span', null, BF.Players.NAC_NOME[p.nac]))),
       h('div', { class: 'media' }, h('span', { 'data-tip': K.TIPS.media, tabindex: 0 }, 'Média'), h('b', { class: 'num' }, Math.round(PL.overall(p)))),
-      h('div', { class: 'attrs' }, K.ATTRS.map((a) => h('div', { class: 'attrn' }, h('span', { 'data-tip': K.TIPS[a], tabindex: 0 }, a), h('b', { class: 'num' }, p.attr[a])))),
+      h('div', { class: 'attrs' }, K.ATTRS.map((a) => h('div', { class: 'attrn' }, h('span', { 'data-tip': K.TIPS[a], tabindex: 0 }, K.ATTR_NOME[a].toUpperCase()), h('b', { class: 'num' }, p.attr[a])))),
       h('div', { class: 'meters' },
         h('div', null, h('span', { 'data-tip': K.TIPS.stamina, tabindex: 0 }, 'Stamina'), K.barraPct(p.stamina)),
         h('div', null, h('span', { 'data-tip': K.TIPS.moral, tabindex: 0 }, 'Moral'), K.barraPct(p.moral))),
@@ -1945,9 +2533,16 @@ td.evol { font-size: 13px; color: var(--accent); font-weight: 700; }
         h('dt', null, 'Disciplina'), h('dd', null, PL.DISCIPLINAS[p.disciplina]),
         p.lesao ? [h('dt', null, 'Lesão'), h('dd', { class: 'bad' }, p.lesao + ' jogo(s) fora')] : null,
         p.suspenso ? [h('dt', null, 'Suspensão'), h('dd', { class: 'warn' }, 'cumpre no próximo jogo')] : null,
+        p.treino ? [h('dt', null, 'Treino'), h('dd', { class: 'treino' }, MK.TREINOS[p.treino.tipo].nome.replace('Treino de ', '').replace('Treino ', '') + ' · ' + p.treino.restante + ' jogo(s)')] : null,
+        p.aVenda ? [h('dt', null, 'À venda por'), h('dd', { class: 'venda' }, reais(p.aVenda.preco))] : null,
         h('dt', null, 'Contrato até'), h('dd', null, GM.fimContrato(G.g, p)),
         h('dt', null, 'Salário'), h('dd', null, reais(E.salario(p)) + '/mês'), h('dt', null, 'Valor'), h('dd', null, reais(E.valorMercado(p)))),
-      h('div', null, h('div', { class: 'eyebrow' }, 'Melhores posições'), h('div', { class: 'fit' }, encaixes.map(([pos, v]) => h('span', null, pos, h('b', null, v))))));
+      h('div', null, h('div', { class: 'eyebrow' }, 'Melhores posições'), h('div', { class: 'fit' }, encaixes.map(([pos, v]) => h('span', null, pos, h('b', null, v))))),
+      h('div', { class: 'acoes', role: 'group', 'aria-label': 'Ações com o jogador' },
+        btn('b-vender', 'Vender', () => K.dialogos.vender(c, p), false, 'Coloca o jogador à venda pelo preço que você definir. Ele sai quando um clube cobrir o preço.'),
+        btn('b-leiloar', 'Leiloar', () => K.dialogos.leiloar(c, p), false, 'Abre um leilão agora: os clubes dão lances a partir do preço inicial que você escolher.'),
+        btn('b-renovar', 'Renovar', () => K.dialogos.renovar(c, p), !renova, renova ? 'Negociar um novo contrato.' : 'A renovação só fica disponível nos últimos 3 meses de contrato.'),
+        btn('b-treinar', 'Treinar', () => K.dialogos.treinar(c, p), false, 'Tira o jogador de 1 a 3 jogos para evoluir um atributo.')));
   }
 
   render();
