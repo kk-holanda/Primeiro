@@ -593,8 +593,17 @@ table.liga tr.humano td { background: color-mix(in srgb, var(--accent) 14%, var(
 table.liga tr.humano td.nm { background: color-mix(in srgb, var(--accent) 14%, var(--panel)); font-weight: 600; }
 table.liga tr.meu td, table.liga tr.meu td.nm { background: color-mix(in srgb, var(--hot) 30%, var(--panel)); font-weight: 800; }
 table.liga tr.meu td.nm .cn > span:last-child { font-weight: 800; }
-.tec-tag { display: block; font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: .02em; line-height: 1.1; }
+.tec-tag { display: inline; margin-left: 8px; font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: .02em; white-space: nowrap; }
 table.liga tr.meu .tec-tag { color: var(--ink); }
+
+/* plantel: moral do técnico compacta e legenda no alto */
+.mt-mini b { display: flex; align-items: center; gap: 8px; }
+.mt-mini .delta { font-size: 12px; font-weight: 700; }
+.mt-mini .delta.hi { color: var(--st-verde); } .mt-mini .delta.bad { color: var(--st-vermelho); }
+.mt-mini .spark svg { width: 84px; height: 26px; display: block; }
+.mt-mini .spark polyline { fill: none; stroke: var(--muted); stroke-width: 1.5; }
+.legenda-topo { margin: -6px 0 0; font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.legenda-topo .tit { margin: 0; }
 
 </style>
 <div id="app"></div>
@@ -1264,8 +1273,8 @@ window.ESCUDOS_REAIS = {};
 
   // ampliar estádio: +N lugares custa R$ 400 por lugar (obra de 1998), nível máx. 5 (+60%)
   const CUSTO_LUGAR = 400;
-  function ampliar(clube, lugares) {
-    const custo = lugares * CUSTO_LUGAR;
+  function ampliar(clube, lugares, cpl = CUSTO_LUGAR) {
+    const custo = lugares * cpl;
     if (clube.caixa < custo) return { ok: false, custo };
     clube.caixa -= custo; clube.estadio.capacidade += lugares; clube.estadio.nivel++;
     return { ok: true, custo };
@@ -1350,7 +1359,7 @@ window.ESCUDOS_REAIS = {};
       if (p.jogos < 5 && p.idade > 22) d -= rng.chance(0.4) ? 1 : 0; // ficou parado
       p.attr[a] = clamp(p.attr[a] + d, 1, 99);
     }
-    p.jogos = 0; p.gols = 0;
+    p.jogos = 0; p.gols = 0; p.faltas = 0; p.cartAm = 0; p.cartVm = 0;
   }
   // cor da barra (stamina / moral)
   function cor(v) { return v >= 90 ? 'verde' : v >= 70 ? 'verde-claro' : v >= 50 ? 'amarelo' : v >= 20 ? 'laranja' : 'vermelho'; }
@@ -1676,6 +1685,7 @@ window.ESCUDOS_REAIS = {};
         for (const j of side.todos.values()) {
           const p = j.p, moralAntes = p.moral, mud = PR().aplicarPosJogo(j);
           if (p.suspenso > 0) p.suspenso--;
+          p.faltas = (p.faltas || 0) + j.faltas; p.cartAm = (p.cartAm || 0) + j.amarelos; p.cartVm = (p.cartVm || 0) + (j.expulso ? 1 : 0);
           if (j.expulso) p.suspenso = 1;
           else if (j.amarelos > 0) { p.amarelosAcum++; if (p.amarelosAcum >= 3) { p.suspenso = 1; p.amarelosAcum = 0; } }
           detalhes[i].push({ id: p.id, nome: p.nome, num: p.num, slot: j.slot, pos: p.pos, nota: j.nota, g: j.g, ast: j.ast, defesas: j.defesas, desarmes: j.desarmes, faltas: j.faltas, amarelos: j.amarelos, expulso: j.expulso, minutos: j.minutos, entrou: j.entrou, saiu: j.saiu, lesao: j.lesionado, mudancas: mud, moralAntes, moralDepois: p.moral, stamina: p.stamina });
@@ -2155,6 +2165,15 @@ window.ESCUDOS_REAIS = {};
   const cor = (v) => 'var(--st-' + { verde: 'verde', 'verde-claro': 'vclaro', amarelo: 'amarelo', laranja: 'laranja', vermelho: 'vermelho' }[PR.cor(v)] + ')';
   const W = 330, H = 150, L = 30, R = 16, T = 14, B = 40;
 
+  K.moralTreinadorMini = function () {
+    const g = G.g, c = K.clubeHumano(), mt = g.moralTreinador[c.id], jogos = mt.hist.slice(1).slice(-5), pts = jogos.length ? jogos : mt.hist.slice(0, 1);
+    const ult = mt.hist[mt.hist.length - 1], pen = mt.hist.length > 1 ? mt.hist[mt.hist.length - 2] : null, delta = pen ? ult.v - pen.v : 0;
+    const Wm = 84, Hm = 26, x = (i) => (pts.length === 1 ? Wm / 2 : 4 + (i * (Wm - 8)) / (pts.length - 1)), y = (v) => 4 + (1 - v / 100) * (Hm - 8);
+    const svg = '<svg viewBox="0 0 ' + Wm + ' ' + Hm + '" aria-hidden="true">' + (pts.length > 1 ? '<polyline points="' + pts.map((p, i) => x(i) + ',' + y(p.v)).join(' ') + '"/>' : '') + pts.map((p, i) => '<circle cx="' + x(i) + '" cy="' + y(p.v) + '" r="3.2" style="fill:' + cor(p.v) + '"/>').join('') + '</svg>';
+    const dica = (jogos.length ? 'Últimos jogos: ' + jogos.map((p) => p.res + ' ' + p.gp + '×' + p.gc + ' ' + g.porId.get(p.adv).nome + ' (' + p.v + ')').join(' · ') + '. ' : 'Ainda sem jogos. ') + 'Vitórias (principalmente contra times maiores) sobem a moral do técnico; derrotas descem. Ela influencia o clima do vestiário.';
+    return h('div', { class: 'mt-mini dica', tabindex: 0, 'data-tip': dica }, h('small', null, 'Moral do técnico'),
+      h('b', null, h('span', { class: 'num' }, mt.v), delta ? h('span', { class: 'delta ' + (delta > 0 ? 'hi' : 'bad') }, (delta > 0 ? '▲ +' : '▼ −') + Math.abs(delta)) : null, h('span', { class: 'spark', html: svg })));
+  };
   K.moralTreinadorBox = function (clubId) {
     const g = G.g, c = clubId ? g.porId.get(clubId) : K.clubeHumano(), mt = g.moralTreinador[c.id];
     const jogos = mt.hist.slice(1).slice(-5), pts = jogos.length ? jogos : mt.hist.slice(0, 1);
@@ -2753,7 +2772,7 @@ window.ESCUDOS_REAIS = {};
   const E = () => bf.Economy;
   const REC = { bilheteria: 'Bilheteria', tv: 'Cota de TV', patrocinio: 'Patrocínio', vendas: 'Venda de jogadores', multas: 'Multas rescisórias' };
   const DES = { salarios: 'Salários', fixas: 'Despesas fixas', custosJogo: 'Custos do jogo', compras: 'Compra de jogadores', obras: 'Obras no estádio' };
-  const MAX_NIVEL = 5, RODADAS = 38, ESPERA = 4, OBRA_PCT = [0.02, 0.05, 0.1];
+  const MAX_NIVEL = 5, RODADAS = 38, ESPERA = 4, OBRA_PCT = [0.1, 0.25, 0.5];
   const PRECO_MIN = 0.5, PRECO_MAX = 3;
 
   // razão: o que entrou e saiu do caixa na temporada (por categoria) + últimos jogos
@@ -2788,12 +2807,13 @@ window.ESCUDOS_REAIS = {};
   }
 
   // ---------- estádio ----------
+  const custoLugar = (c) => Math.round(precoPadrao(c) * 25);   // R$ por lugar novo: 25 × ingresso da divisão (D: 100, C: 150, B: 225, A: 375)
   const opcoesObra = (c) => OBRA_PCT.map((p) => Math.max(50, Math.round(c.estadio.capacidade * p / 50) * 50));
   function ampliar(g, c, lugares) {
     if (c.estadio.nivel >= MAX_NIVEL) return { ok: false, motivo: 'O estádio já está no nível máximo de obras (' + MAX_NIVEL + ').' };
-    const custo = lugares * E().CUSTO_LUGAR;
+    const custo = lugares * custoLugar(c);
     if (c.caixa < custo) return { ok: false, motivo: 'Caixa insuficiente para a obra.' };
-    const r = E().ampliar(c, lugares); lancar(g, c, 'des', 'obras', custo);
+    const r = E().ampliar(c, lugares, custoLugar(c)); lancar(g, c, 'des', 'obras', custo);
     bf.Mercado.noticia(g, 'Obra concluída: o ' + c.estadio.nome + ' agora comporta ' + c.estadio.capacidade.toLocaleString('pt-BR') + ' pessoas.', 'info');
     return r;
   }
@@ -2825,7 +2845,7 @@ window.ESCUDOS_REAIS = {};
     return { ok: true, aceitou: false, nome: o.s.nome };
   }
 
-  bf.Fin = { REC, DES, MAX_NIVEL, RODADAS, ESPERA, opcoesObra, razao, lancar, soma, registrarJogo, novoAno, precoPadrao, limitesPreco, definirPreco, projecao, ampliar, patrocinioPorRodada, desempenho, ofertas, propor };
+  bf.Fin = { REC, DES, MAX_NIVEL, RODADAS, ESPERA, opcoesObra, custoLugar, razao, lancar, soma, registrarJogo, novoAno, precoPadrao, limitesPreco, definirPreco, projecao, ampliar, patrocinioPorRodada, desempenho, ofertas, propor };
 })(typeof globalThis !== 'undefined' ? globalThis : this);
 ;
 // Aba Finanças: situação do caixa, receitas e despesas da temporada, preço do ingresso, obras no estádio, patrocínio e últimos jogos.
@@ -2838,7 +2858,7 @@ window.ESCUDOS_REAIS = {};
     folha: 'Soma dos salários mensais de todo o elenco. O desconto no caixa é proporcional aos dias entre um jogo e outro.',
     ingresso: 'Preço do ingresso para os seus jogos em casa. Mais caro enche menos o estádio; mais barato lota, mas arrecada menos por pessoa.',
     demanda: 'Quantas pessoas iriam ao estádio a este preço, se coubesse todo mundo. Depende do prestígio do clube e da fase recente.',
-    obra: 'Cada lugar novo custa R$ 400 (obra de 1998). A obra é imediata e sobe 1 nível, até o nível máximo.',
+    obra: 'O custo por lugar é 25 vezes o preço do ingresso da sua divisão (um lugar novo se paga em cerca de 1 a 2 temporadas, se o estádio lotar). A obra é imediata e sobe 1 nível, até o nível máximo.',
     chance: 'Chance de o patrocinador aceitar: melhora quando o clube está bem colocado na tabela e quanto maior o prestígio.',
   };
 
@@ -2848,23 +2868,14 @@ window.ESCUDOS_REAIS = {};
   }
 
   function secIngresso(g, c) {
-    const [lo, hi] = F.limitesPreco(c), padrao = F.precoPadrao(c), edit = G.finPreco && G.finPreco.id === c.id ? G.finPreco.v : c.precoIngresso;
-    const set = (v) => { G.finPreco = { id: c.id, v: Math.max(lo, Math.min(hi, Math.round(v))) }; K.renderKeep(); };
-    const p = F.projecao(g, c, edit), atual = F.projecao(g, c, c.precoIngresso), mudou = edit !== c.precoIngresso;
-    const entrada = h('input', { id: 'preco', type: 'text', inputmode: 'numeric', value: String(edit), autocomplete: 'off', 'aria-label': 'Preço do ingresso em reais' });
-    entrada.addEventListener('change', () => set(parseInt(String(entrada.value).replace(/\D/g, ''), 10) || edit));
+    const p = F.projecao(g, c, c.precoIngresso);
     return h('section', { class: 'card' }, h('h3', null, 'Ingressos'),
-      h('p', { class: 'muted' }, 'Preço atual: ', h('b', null, 'R$ ' + c.precoIngresso), ' · padrão da ' + K.DIV_NOME[c.div] + ': R$ ' + padrao + ' · limites: R$ ' + lo + ' a R$ ' + hi),
-      h('div', { class: 'precoctl' },
-        h('button', { class: 'btn alt sm', id: 'preco-menos', 'aria-label': 'Baixar o preço', disabled: edit <= lo, onclick: () => set(edit - 1) }, '−'),
-        h('div', { class: 'moeda' }, h('i', null, 'R$'), entrada),
-        h('button', { class: 'btn alt sm', id: 'preco-mais', 'aria-label': 'Subir o preço', disabled: edit >= hi, onclick: () => set(edit + 1) }, '+'),
-        h('button', { class: 'btn sm', id: 'preco-aplicar', disabled: !mudou, onclick: () => { F.definirPreco(c, edit); G.finPreco = null; G.finMsg = 'Preço do ingresso: R$ ' + c.precoIngresso + '. Vale a partir do próximo jogo em casa.'; K.renderKeep(); } }, 'Aplicar')),
+      h('p', { class: 'muted' }, 'Por enquanto o preço do ingresso é fixo: a média geral da ' + K.DIV_NOME[c.div] + ' (', h('b', null, 'R$ ' + c.precoIngresso), ').'),
       h('dl', { class: 'kv' },
-        h('dt', { 'data-tip': TIP.demanda, tabindex: 0 }, 'Demanda a R$ ' + edit), h('dd', null, nf.format(p.bruto) + ' pessoas'),
+        h('dt', { 'data-tip': TIP.demanda, tabindex: 0 }, 'Demanda'), h('dd', null, nf.format(p.bruto) + ' pessoas'),
         h('dt', null, 'Público esperado'), h('dd', null, nf.format(p.publico) + ' (' + pct(p.lotacao) + ' do estádio)'),
-        h('dt', null, 'Renda esperada por jogo'), h('dd', { class: mudou ? (p.renda >= atual.renda ? 'hi' : 'bad') : '' }, reais(p.renda) + (mudou ? ' (hoje ' + reais(atual.renda) + ')' : ''))),
-      h('p', { class: 'muted fin-dica' }, p.cheio ? 'A demanda passa da capacidade: o estádio lota e ainda sobra gente. Dá para cobrar mais ou ampliar o estádio.' : 'O estádio não lota a este preço. Baixar um pouco o ingresso traz mais gente.'));
+        h('dt', null, 'Renda esperada por jogo'), h('dd', null, reais(p.renda))),
+      h('p', { class: 'muted fin-dica' }, p.cheio ? 'A demanda passa da capacidade: o estádio lota e ainda sobra gente. Vale ampliar o estádio.' : 'O estádio ainda não lota com este ingresso.'));
   }
 
   function secEstadio(g, c) {
@@ -2872,8 +2883,8 @@ window.ESCUDOS_REAIS = {};
     return h('section', { class: 'card' }, h('h3', null, 'Estádio'),
       h('dl', { class: 'kv' }, h('dt', null, 'Nome'), h('dd', null, c.estadio.nome), h('dt', null, 'Capacidade'), h('dd', null, nf.format(c.estadio.capacidade) + ' pessoas'),
         h('dt', null, 'Nível de obras'), h('dd', null, nivel + ' de ' + F.MAX_NIVEL), h('dt', null, 'Demanda atual'), h('dd', null, nf.format(p.bruto) + ' pessoas')),
-      h('div', { class: 'eyebrow', 'data-tip': TIP.obra, tabindex: 0 }, 'Ampliar o estádio'),
-      h('div', { class: 'obras' }, F.opcoesObra(c).map((n, i) => { const custo = n * E.CUSTO_LUGAR, sem = c.caixa < custo;
+      h('div', { class: 'eyebrow', 'data-tip': TIP.obra, tabindex: 0 }, 'Ampliar o estádio · R$ ' + nf.format(F.custoLugar(c)) + ' por lugar'),
+      h('div', { class: 'obras' }, F.opcoesObra(c).map((n, i) => { const custo = n * F.custoLugar(c), sem = c.caixa < custo;
         return h('button', { class: 'btn alt sm', id: 'obra-' + i, disabled: cheio || sem, 'data-tip': cheio ? 'Nível máximo de obras.' : sem ? 'Caixa insuficiente.' : false,
           onclick: () => { const r = F.ampliar(g, c, n); G.finMsg = r.ok ? 'Obra concluída: +' + nf.format(n) + ' lugares por ' + reais(r.custo) + '.' : r.motivo; K.renderKeep(); } }, '+' + nf.format(n) + ' lugares · ' + reais(custo)); })),
       h('p', { class: 'muted fin-dica' }, p.bruto <= c.estadio.capacidade ? 'Hoje ampliar não traz público novo: a demanda cabe no estádio.' : 'A demanda ultrapassa a capacidade em ' + nf.format(p.bruto - c.estadio.capacidade) + ' pessoas.'));
@@ -3129,8 +3140,8 @@ window.ESCUDOS_REAIS = {};
       // 3: o globo gira por 3 segundos, com a narração "GIRA GIRA GIRA" a cada segundo
       msg.replaceChildren('Sorteando o clube do jogador ', h('b', { class: 'quem-sorteio' }, nomes[i]));
       girar(globo, true); Som.jingle();
-      for (let k = 0; k < 3; k++) { mostraGira('GIRA GIRA GIRA'); Som.fala('Gira, gira, gira!'); await esperar(reduzMov() ? 0 : 1000); }
-      girar(globo, false); mostraGira('GIROOOOU!', true); Som.fala('Giroooou!');
+      for (let k = 0; k < 3; k++) { mostraGira('GIRA GIRA GIRA'); await esperar(reduzMov() ? 0 : 1000); }
+      girar(globo, false); mostraGira('GIROOOOU!', true);
       // 4: sai a bola do clube sorteado e vai para o técnico
       const bola = globo.querySelector('[data-club="' + c.id + '"]'), alvo = document.getElementById('alvo' + i);
       if (!reduzMov()) await mover(bola, alvo, { ms: 800, sobe: 60, pausa: 400 });
@@ -3277,7 +3288,7 @@ window.ESCUDOS_REAIS = {};
       if (G.sort.k === 'pos' && K.SETOR[p.pos] !== setor) { setor = K.SETOR[p.pos]; linhas.push(h('tr', { class: 'sep' }, h('td', { colspan: COLS.length }, setor))); }
       const lim = (v) => (v >= 70 ? 'hi' : v < 35 ? 'lo' : ''), [st, stc] = situacao(p);
       linhas.push(h('tr', { 'data-id': p.id, class: p.id === G[selKey] ? 'sel' : '', tabindex: 0, onclick: () => selecionar(p.id, selKey), onkeydown: (e) => { if (e.key === 'Enter') selecionar(p.id, selKey); } },
-        h('td', null, p.num), h('td', { class: 'l nm' }, tits.has(p.id) ? h('span', { class: 'tit', title: 'Titular na escalação atual', html: JOGADORINHO }) : null, p.nome, p.estrela ? K.estrela() : null),
+        h('td', null, p.num), h('td', { class: 'l nm', 'data-tip': p.nome + ' nesta temporada: ' + (p.gols || 0) + (p.gols === 1 ? ' gol' : ' gols') + ' · ' + (p.faltas || 0) + ' faltas · ' + (p.cartAm || 0) + ' amarelos · ' + (p.cartVm || 0) + ' vermelhos' }, tits.has(p.id) ? h('span', { class: 'tit', title: 'Titular na escalação atual', html: JOGADORINHO }) : null, p.nome, p.estrela ? K.estrela() : null),
         h('td', null, K.bandeira(p.nac)), h('td', { class: 'pos' }, p.pos), h('td', null, p.idade), h('td', { 'data-tip': K.PE_NOME[p.pe] }, K.PE_SIGLA[p.pe]), h('td', null, K.metros(p.altura)), h('td', null, p.peso), h('td', { class: 'ovr' }, Math.round(PL.overall(p))),
         ...K.ATTRS.map((a) => h('td', { class: lim(p.attr[a]) }, p.attr[a])),
         h('td', null, PL.DISCIPLINAS[p.disciplina]), h('td', null, K.barra(p.stamina)), h('td', null, K.barra(p.moral)),
@@ -3288,13 +3299,11 @@ window.ESCUDOS_REAIS = {};
       ro ? null : noticias(),
       h('div', { class: 'strip' },
         info('Divisão', K.DIV_NOME[c.div]), estadioInfo(c), info('Caixa', reais(c.caixa)),
-        info('Folha mensal', reais(E.folhaMensal(c.elenco))), mediaInfo(c, media, tits), ro ? info('Técnico', c.tecnico) : info('Substituições', G.config.maxSubs + ' por jogo')),
+        info('Folha mensal', reais(E.folhaMensal(c.elenco))), mediaInfo(c, media, tits), ro ? info('Técnico', c.tecnico) : [info('Substituições', G.config.maxSubs + ' por jogo'), K.moralTreinadorMini()]),
+      ro ? null : h('p', { class: 'footnote legenda-topo' }, h('span', { class: 'tit', html: JOGADORINHO }), 'Titular na escalação atual. ', K.estrela(), ' Estrela. Clique em um jogador para ver os detalhes e no título de uma coluna para ordenar. Passe o mouse no nome para ver gols, faltas e cartões.'),
       h('div', { class: 'plantel' },
         h('div', { class: 'tablewrap' }, h('table', { 'aria-label': 'Plantel de ' + c.nome }, h('thead', null, h('tr', null, ths)), h('tbody', null, linhas))),
-        painel(c, c.elenco.find((p) => p.id === G[selKey]), ro)),
-      ro ? null : h('div', { class: 'rodape' },
-        h('p', { class: 'footnote' }, h('span', { class: 'tit', html: JOGADORINHO }), 'Titular na escalação atual. ', K.estrela(), ' Estrela. Clique em um jogador para ver os detalhes e no título de uma coluna para ordenar. Passe o mouse nos títulos para ver o que cada atributo significa.'),
-        K.moralTreinadorBox()));
+        painel(c, c.elenco.find((p) => p.id === G[selKey]), ro)));
   }
   const MK = BF.Mercado;
   function noticias() {
