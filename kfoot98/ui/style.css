@@ -421,3 +421,57 @@ td.treino, .kv .treino { color: var(--accent); font-weight: 700; }
 .subcols { grid-template-columns: 1fr; }
 .jmain .subpanel .seg { flex-wrap: wrap; }
 @media (max-width: 480px) { .sublinha { grid-template-columns: 30px minmax(0, 1fr) 24px 84px 84px; font-size: 13px; } .sublinha .barpct .bar { width: 34px; } }
+
+/* ======== rodada 4: emblemas, cores do clube no plantel, visão de clube, jogo ======== */
+.escudo { width: 22px; height: 23px; border: 0; border-radius: 0; background: none !important; display: inline-flex; vertical-align: middle; flex: none; line-height: 0; }
+.escudo svg, .escudo img { width: 100%; height: 100%; display: block; }
+.escudo.grande { width: 46px; height: 48px; border: 0; }
+.cn.link { cursor: pointer; } .cn.link:hover span:last-child { text-decoration: underline; text-decoration-color: var(--club1, var(--accent)); text-underline-offset: 3px; }
+.cn.link[data-tip] { text-decoration: none; }
+/* plantel nas cores do clube */
+.plantelwrap, .clubevisto, main.page { --club1: var(--accent); }
+.plantelwrap .tablewrap { border-top: 4px solid var(--club1); }
+.plantelwrap th { background: color-mix(in srgb, var(--club1) 16%, var(--panel2)); }
+.plantelwrap th.sorted { box-shadow: inset 0 -3px var(--club1); }
+.plantelwrap tbody tr[data-id]:hover td, .plantelwrap tbody tr[data-id]:hover td.nm { background: color-mix(in srgb, var(--club1) 18%, var(--panel)); }
+.plantelwrap tr.sel td, .plantelwrap tr.sel td.nm { background: color-mix(in srgb, var(--club1) 28%, var(--panel)); }
+.plantelwrap tr.sep td { background: color-mix(in srgb, var(--club1) 12%, var(--panel2)); }
+.plantelwrap .panel { border-top: 6px solid var(--club1); }
+.plantelwrap .strip { border-left: 6px solid var(--club1); }
+.plantelwrap .attrn { border-color: color-mix(in srgb, var(--club1) 45%, var(--line)); }
+.plantelwrap .tit { background: var(--club1); }
+.gamehead .status { border-top-color: var(--club1, var(--hot)); }
+.ligarod { background: var(--club1, var(--accent)); color: var(--club1ink, var(--accent-ink)); }
+table.liga tr td.nm { border-left: 4px solid var(--club1); }
+table.liga tr.z-sobe td.z { box-shadow: inset 4px 0 var(--st-verde); }
+.liga.art tr td.nm { border-left: 4px solid var(--club1); }
+.subvista { display: flex; gap: 12px 18px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+.subvista .seg { margin-top: 0; }
+.vazio { padding: 16px; background: var(--panel); border: 1px dashed var(--line); }
+/* visão de outro clube */
+.clubevisto { display: flex; flex-direction: column; gap: 14px; }
+.cv-head { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.cv-head h2 { font-size: clamp(30px, 6vw, 46px); }
+.cv-head .escudo.grande { width: 60px; height: 62px; }
+.cv-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; align-items: start; }
+.cv-tit { margin-top: 6px; }
+.strip.solto { border: 0; padding: 0; background: none; }
+.card .srow { padding: 6px 0; border-bottom: 1px dotted var(--line); }
+.moraltec { flex: 1 1 300px; margin-left: 0; }
+/* jogo */
+.ev { align-items: center; padding-left: 8px; }
+.ev .escudo { width: 16px; height: 17px; }
+.publico { color: var(--muted); font-size: 15px; } .publico b { color: var(--ink); font-size: 18px; }
+.jdiv li { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) 52px; }
+.jdiv .pub { text-align: right; color: var(--muted); font-size: 12px; }
+.javiso.intervalo { background: var(--hot); color: var(--hot-ink); padding: 8px 12px; font-family: var(--display); font-size: 22px; letter-spacing: .04em; text-transform: uppercase; }
+.subform { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
+.subform .seg { margin-top: 0; }
+.balanco .eyebrow { margin-top: 8px; }
+.strow2.fin { grid-template-columns: 1fr auto; } .strow2.fin span:first-child { text-align: left; font-weight: 400; } .strow2.fin span:last-child, .strow2.fin b { font-weight: 700; }
+.strow2.fin.rec b { color: var(--accent); }
+.strow2.fin.des b { color: #c0392b; } :root[data-theme="dark"] .strow2.fin.des b { color: #ff7a6e; } @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .strow2.fin.des b { color: #ff7a6e; } }
+.strow2.fin.saldo { border-top: 2px solid var(--ink); border-bottom: 0; font-size: 18px; margin-top: 4px; } .strow2.fin.saldo.neg b { color: #c0392b; } .strow2.fin.saldo.pos b { color: var(--accent); }
+.strow2.fin.cx { color: var(--muted); }
+.clubevisto > .btn { align-self: flex-start; }
+.rodada li .num.pl, .jdiv li .num.pl { align-self: center; }

@@ -47,6 +47,7 @@
   }
   function novaTemporada(g) {
     g.dias = gerarDias(g.ano); g.idx = 0; g.fim = false; g.live = null;
+    g.artilharia = { A: {}, B: {}, C: {}, D: {}, copa: {} };
     criarLigas(g); g.copa = S().copaCriar(g.clubes, g.rng);
   }
 
@@ -66,7 +67,8 @@
       humanos: opts.humanos.slice(), humanoIds: new Set(opts.humanos.map((h) => h.clubId)),
       clubes, porId: new Map(clubes.map((c) => [c.id, c])), hist: new Map(), taticas: new Map(), historico: [],
     };
-    g.humanos.forEach((hu) => { g.moralTreinador[hu.clubId] = { v: 60, hist: [{ data: g.data, v: 60, res: null, adv: null }] }; });
+    g.clubes.forEach((c) => { c.tecnico = PL().nomeTecnico(rng); g.moralTreinador[c.id] = { v: 60, hist: [{ data: g.data, v: 60, res: null, adv: null }] }; });
+    g.humanos.forEach((hu) => { g.porId.get(hu.clubId).tecnico = hu.nome; });
     novaTemporada(g);
     return g;
   }
@@ -110,13 +112,35 @@
     return S().escalarAuto(clube, formacao, tatica, g.config.maxSubs, cfg && g.humanoIds.has(clube.id) ? cfg.titulares : []);
   }
 
+  // ---- público e finanças ----
+  function formaRecente(g, id) {
+    const h = (g.hist.get(id) || []).slice(-5); if (!h.length) return 0;
+    return h.reduce((a, r) => a + (r.gp > r.gc ? 1 : r.gp < r.gc ? -1 : 0), 0) / h.length;
+  }
+  function publicoDe(g, jogo) {
+    const C = g.porId.get(jogo.casa), F = g.porId.get(jogo.fora);
+    const rival = (C.cidade === F.cidade ? 1.25 : 1) * Math.max(0.9, Math.min(1.3, 1 + (F.prestigio - C.prestigio) / 200));
+    const base = bf.Economy.publico(C, formaRecente(g, C.id), rival, 1), ruido = 0.92 + g.rng.next() * 0.16;
+    return Math.max(50, Math.min(C.estadio.capacidade, Math.round(base * ruido)));
+  }
+  // balanço de um clube no dia: salários proporcionais aos dias desde o último jogo, custos fixos, bilheteria (só em casa) e cota de TV da rodada
+  function balanco(g, c, jogo, publico, casa, gap) {
+    const E = bf.Economy, folha = E.folhaMensal(c.elenco);
+    const salarios = Math.round(folha * gap / 30.4), fixas = Math.round(E.CUSTO_FIXO[c.div] / 52);
+    const bruta = casa ? Math.round(publico * c.precoIngresso) : 0, custosJogo = Math.round(bruta * 0.15);
+    const tv = jogo.comp === 'liga' ? Math.round(bf.DIVISOES[c.div].tv / 38) : 0;
+    const receita = bruta + tv, despesa = salarios + fixas + custosJogo, saldo = receita - despesa;
+    c.caixa += saldo;
+    return { salarios, fixas, custosJogo, bilheteria: bruta, tv, patrocinio: 0, receita, despesa, saldo, caixa: c.caixa, publico: casa ? publico : null, ingresso: c.precoIngresso, casa, dias: gap };
+  }
+
   // ---- dia de jogos ao vivo ----
   function iniciarDia(g) {
     const dia = proximoDia(g); g.data = dia.data;
     const partidas = jogosDoDia(g, dia).map((j) => {
       const C = g.porId.get(j.casa), F = g.porId.get(j.fora);
       const m = M().criar(escalacaoDe(g, C, F), escalacaoDe(g, F, C), g.rng);
-      return { jogo: j, m, humano: [g.humanoIds.has(j.casa), g.humanoIds.has(j.fora)] };
+      return { jogo: j, m, humano: [g.humanoIds.has(j.casa), g.humanoIds.has(j.fora)], publico: publicoDe(g, j) };
     });
     g.live = { dia, partidas, min: 0 };
     return g.live;
@@ -145,7 +169,7 @@
       [[jogo.casa, jogo.fora, gh, ga, true], [jogo.fora, jogo.casa, ga, gh, false]].forEach(([id, adv, gp, gc, casa]) => {
         const arr = g.hist.get(id) || []; arr.push({ data: dia.data, comp: rot, rotulo: jogo.rotulo, adv, casa, gp, gc }); g.hist.set(id, arr);
       });
-      [[jogo.casa, jogo.fora, gh, ga], [jogo.fora, jogo.casa, ga, gh]].forEach(([id, adv, gp, gc]) => { if (g.humanoIds.has(id)) moralTreinador(g, id, adv, gp, gc); });
+      [[jogo.casa, jogo.fora, gh, ga], [jogo.fora, jogo.casa, ga, gh]].forEach(([id, adv, gp, gc]) => { moralTreinador(g, id, adv, gp, gc); });
       const detalhes = [[], []];
       m.S.forEach((side, i) => {
         const clube = g.porId.get(i === 0 ? jogo.casa : jogo.fora); jogaram.add(clube.id);
@@ -161,7 +185,13 @@
           detalhes[i].push({ id: p.id, nome: p.nome, num: p.num, slot: j.slot, pos: p.pos, nota: j.nota, g: j.g, ast: j.ast, defesas: j.defesas, desarmes: j.desarmes, faltas: j.faltas, amarelos: j.amarelos, expulso: j.expulso, minutos: j.minutos, entrou: j.entrou, saiu: j.saiu, lesao: j.lesionado, mudancas: mud, moralAntes, moralDepois: p.moral, stamina: p.stamina });
         }
       });
-      resumos.push({ jogo, placar: res.placar, stats: res.stats, eventos: res.eventos, detalhes, humano: part.humano, casaNome: g.porId.get(jogo.casa).nome, foraNome: g.porId.get(jogo.fora).nome });
+      const fin = [balanco(g, g.porId.get(jogo.casa), jogo, part.publico, true, gap), balanco(g, g.porId.get(jogo.fora), jogo, part.publico, false, gap)];
+      const chave = jogo.comp === 'liga' ? jogo.div : 'copa';
+      detalhes.forEach((lista, i) => lista.forEach((d) => {
+        const e = (g.artilharia[chave][d.id] = g.artilharia[chave][d.id] || { id: d.id, nome: d.nome, clubId: i === 0 ? jogo.casa : jogo.fora, pos: d.pos, gols: 0, jogos: 0 });
+        e.jogos++; e.gols += d.g; e.clubId = i === 0 ? jogo.casa : jogo.fora;
+      }));
+      resumos.push({ jogo, publico: part.publico, financas: fin, placar: res.placar, stats: res.stats, eventos: res.eventos, detalhes, humano: part.humano, casaNome: g.porId.get(jogo.casa).nome, foraNome: g.porId.get(jogo.fora).nome });
     }
     for (const id of jogaram) {   // treino e descanso de treino só andam quando o clube joga
       const c = g.porId.get(id);
@@ -206,6 +236,8 @@
       PR().virarAno(p, g.rng);
       p.stamina = 100; p.moral = 60; p.suspenso = 0; p.amarelosAcum = 0; p.treino = null; p.treinoCd = 0; if (p.lesao > 0) p.lesao = 0;
     }));
+    const dEntre = difDias(g.ano + '-10-26', g.ano + 1 + '-01-31');
+    g.clubes.forEach((c) => { c.caixa -= Math.round(bf.Economy.folhaMensal(c.elenco) * dEntre / 30.4); }); // salários da entressafra
     g.ano++; g.data = g.ano + '-01-31'; novaTemporada(g);
     bf.Mercado.processarContratos(g);   // quem estava com contrato vencido sai (computador renova)
     return { registro: reg, mov };
@@ -220,8 +252,8 @@
     const delta = res === 'V' ? 8 + clamp(dif / 8, -4, 6) + Math.min(3, gp - gc - 1) : res === 'D' ? -8 + clamp(dif / 10, -3, 3) : clamp(dif / 10, -3, 3);
     mt.v = clamp(Math.round(mt.v + delta), 0, 100);
     mt.hist.push({ data: g.data, v: mt.v, res, adv: advId, gp, gc });
-    g.porId.get(clubId).elenco.forEach((p) => { p.moral = clamp(p.moral + (mt.v - 50) * 0.02, 0, 100); }); // clima do vestiário
+    if (g.humanoIds.has(clubId)) g.porId.get(clubId).elenco.forEach((p) => { p.moral = clamp(p.moral + (mt.v - 50) * 0.02, 0, 100); }); // clima do vestiário
   }
 
-  bf.Game = { novo, gerarDias, jogosDoDia, proximoDia, proximoJogo, ultimosJogos, escalacaoDe, iniciarDia, passoDia, completarDia, finalizarDia, simularDia, avancar, classificacao, virarTemporada, envolveHumano, fimContrato, fmtData, fmtDataCurta, addDias, addMeses, fimDoMes, difDias, DIV_NOME };
+  bf.Game = { novo, gerarDias, jogosDoDia, proximoDia, proximoJogo, ultimosJogos, escalacaoDe, iniciarDia, passoDia, completarDia, finalizarDia, simularDia, avancar, classificacao, virarTemporada, envolveHumano, fimContrato, fmtData, fmtDataCurta, formaRecente, addDias, addMeses, fimDoMes, difDias, DIV_NOME };
 })(typeof globalThis !== 'undefined' ? globalThis : this);

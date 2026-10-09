@@ -192,4 +192,45 @@ t('Moral do técnico: vitória sobe, derrota desce, guarda o histórico', () => 
   assert(mt.v >= 0 && mt.v <= 100);
 });
 t('Tática contra-ataque existe', () => { assert(M.TATICA.contra && M.TATICA.contra.tempo < 1); });
+
+// ---------------- Rodada 4: perfil físico, público, finanças, artilharia, formação no intervalo ----------------
+t('Pé, altura e peso coerentes; todos os clubes têm técnico', () => {
+  const g = novoMundo(21), todos = g.clubes.flatMap((c) => c.elenco);
+  assert(todos.every((p) => ['D', 'E', 'A'].includes(p.pe) && p.altura >= 160 && p.altura <= 203 && p.peso >= 55 && p.peso <= 110));
+  const med = (pos) => { const a = todos.filter((p) => p.pos === pos); return a.reduce((s, p) => s + p.altura, 0) / a.length; };
+  assert(med('GOL') > med('MEI') + 8 && med('ZAG') > med('LD'));
+  const le = todos.filter((p) => p.pos === 'LE'), ld = todos.filter((p) => p.pos === 'LD');
+  assert(le.filter((p) => p.pe === 'E').length / le.length > 0.7 && ld.filter((p) => p.pe === 'D').length / ld.length > 0.8);
+  assert(g.clubes.every((c) => c.tecnico) && g.porId.get('bangu').tecnico === 'T');
+});
+t('Dia de jogos: público limitado pela capacidade, balanço financeiro e artilharia', () => {
+  const g = novoMundo(22), c = g.porId.get('bangu'), caixa0 = c.caixa;
+  while (!G.jogosDoDia(g, G.proximoDia(g)).some((j) => j.casa === 'bangu' || j.fora === 'bangu')) G.simularDia(g);
+  const caixaAntes = c.caixa; G.iniciarDia(g); G.completarDia(g); const rs = G.finalizarDia(g);
+  const r = rs.find((x) => x.jogo.casa === 'bangu' || x.jogo.fora === 'bangu'), casa = r.jogo.casa === 'bangu', f = r.financas[casa ? 0 : 1];
+  assert(r.publico > 0 && r.publico <= g.porId.get(r.jogo.casa).estadio.capacidade);
+  assert.equal(f.saldo, f.receita - f.despesa); assert.equal(c.caixa, caixaAntes + f.saldo); assert(f.salarios > 0);
+  if (casa) assert(f.bilheteria > 0 && f.custosJogo === Math.round(f.bilheteria * 0.15)); else assert.equal(f.bilheteria, 0);
+  for (const d of 'ABCD') { const art = Object.values(g.artilharia[d]); if (art.length) assert(art.every((e) => e.jogos >= 1 && e.gols >= 0)); }
+  const total = Object.values(g.artilharia.copa).reduce((s, e) => s + e.gols, 0), gols = rs.reduce((s, x) => s + x.placar[0] + x.placar[1], 0);
+  assert.equal(total, gols);
+  assert(g.moralTreinador.tupi.hist.length >= 1);
+});
+t('Formação no intervalo: 11 em campo, goleiro mantido, evento registrado', () => {
+  const g = novoMundo(23), A = g.porId.get('internacional'), B = g.porId.get('gremio');
+  const m = M.criar(S.escalarAuto(A, '4-4-2', 'equilibrado', 3), S.escalarAuto(B, '4-4-2', 'equilibrado', 3), g.rng);
+  for (let i = 0; i < 45; i++) M.passo(m);
+  assert(M.mudarFormacao(m, 0, '3-5-2').ok);
+  const camp = m.S[0].campo; assert.equal(camp.length, 11); assert.equal(camp.filter((j) => j.slot === 'GOL').length, 1);
+  assert.deepEqual(camp.map((j) => j.slot).sort(), M.FORMACOES['3-5-2'].slice().sort());
+  assert(m.eventos.some((e) => e.tipo === 'formacao') && !M.mudarFormacao(m, 0, '9-9-9').ok);
+  for (let i = 0; i < 45; i++) M.passo(m); assert(M.finalizar(m).placar.length === 2);
+});
+t('Emblemas: um por clube, todos diferentes (sigla e desenho)', () => {
+  const E = BF.EMBLEMAS; assert.equal(Object.keys(E).length, 80);
+  const sig = new Set(), des = new Set();
+  for (const c of CLUBS) { const e = E[c.id]; assert(e, c.id); sig.add(e[0]); des.add([e[1], e[2], c.cores[0], c.cores[1], (e[3] || []).join('')].join('|')); }
+  assert.equal(sig.size, 80, 'siglas únicas');
+  const rep = CLUBS.length - des.size; assert.equal(rep, 0, 'desenhos repetidos: ' + rep);
+});
 console.log('\n' + ok + ' testes passaram');

@@ -28,6 +28,9 @@
   K.ORDEM_POS = ['GOL', 'LD', 'ZAG', 'LIB', 'LE', 'VOL', 'MC', 'MEI', 'ALA', 'PD', 'PE', 'SA', 'CA'];
   K.SETOR = { GOL: 'Goleiros', ZAG: 'Defensores', LIB: 'Defensores', LD: 'Defensores', LE: 'Defensores', VOL: 'Meio-campistas', MC: 'Meio-campistas', MEI: 'Meio-campistas', ALA: 'Meio-campistas', PD: 'Atacantes', PE: 'Atacantes', CA: 'Atacantes', SA: 'Atacantes' };
   K.ATTRS = ['RIT', 'CHU', 'PAS', 'DRI', 'DEF', 'FIS'];
+  K.PE_NOME = { D: 'Direito', E: 'Esquerdo', A: 'Ambidestro' };
+  K.PE_SIGLA = { D: 'Dir', E: 'Esq', A: 'Amb' };
+  K.metros = (cm) => (cm / 100).toFixed(2).replace('.', ',');
   K.ATTR_NOME = { RIT: 'Ritmo', CHU: 'Finalização', PAS: 'Passe', DRI: 'Drible', DEF: 'Defesa', FIS: 'Físico' };
   K.ATTR_SIGLA = { RIT: 'Rit', CHU: 'Fin', PAS: 'Pas', DRI: 'Dri', DEF: 'Def', FIS: 'Fís' };
   // descrições mostradas ao passar o mouse
@@ -45,6 +48,9 @@
     sit: 'Situação: lesionado (jogos que faltam) ou suspenso.',
     contrato: 'Contrato: o jogador pertence ao clube até o fim deste mês.',
     nac: 'Nacionalidade do jogador.',
+    pe: 'Pé preferido: Dir (direito), Esq (esquerdo) ou Amb (ambidestro).',
+    altura: 'Altura do jogador, em metros.',
+    peso: 'Peso do jogador, em quilos.',
     estrela: 'Estrela: um dos melhores jogadores do campeonato.',
     salario: 'Salário mensal pago pelo clube.',
     valor: 'Valor de mercado do jogador.',
@@ -90,13 +96,6 @@
   K.bandeira = (cod) => K.h('span', { class: 'flag', 'data-tip': PLN()[cod] || cod, tabindex: 0, html: FLAGS[cod] || '' });
   const PLN = () => BF.Players.NAC_NOME;
   K.estrela = () => K.h('span', { class: 'star', 'data-tip': K.TIPS.estrela, 'aria-label': 'Estrela', role: 'img' }, '★');
-  // escudo-faixa nas cores do clube (aceita o clube ou o id)
-  K.escudo = (c, grande) => {
-    const cl = typeof c === 'string' ? K.G.g.porId.get(c) : c, [a, b] = cl.cores;
-    return K.h('span', { class: 'escudo' + (grande ? ' grande' : ''), style: 'background:linear-gradient(135deg,' + a + ' 50%,' + b + ' 50%)', 'aria-hidden': 'true' });
-  };
-  K.comEscudo = (c, texto) => K.h('span', { class: 'cn' }, K.escudo(c), K.h('span', null, texto == null ? (typeof c === 'string' ? K.G.g.porId.get(c) : c).nome : texto));
-
   // ---------- janela modal ----------
   K.modal = function (titulo, corpo, opts = {}) {
     const antes = document.activeElement;

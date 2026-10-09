@@ -57,6 +57,18 @@
   const NAC_NOME = { BRA: 'Brasil', ARG: 'Argentina', URU: 'Uruguai', PAR: 'Paraguai', CHI: 'Chile', COL: 'Colômbia', PER: 'Peru', EQU: 'Equador', BOL: 'Bolívia', VEN: 'Venezuela' };
   function sortearNac(rng, div) { return rng.chance(PBRA[div] || 0.95) ? 'BRA' : rng.weighted(NACS, (x) => x[1])[0]; }
 
+  // altura média (cm) e desvio por posição; peso sai de um IMC ~22,3
+  const ALTURA = { GOL: [187, 4], ZAG: [184, 4], LIB: [183, 4], LD: [176, 4], LE: [176, 4], VOL: [180, 4], MC: [177, 4], MEI: [174, 4], ALA: [177, 4], PD: [174, 4], PE: [174, 4], CA: [181, 4.5], SA: [177, 4] };
+  // chance de ser canhoto / ambidestro por posição: [E, A]
+  const PE_CHANCE = { LE: [0.85, 0.05], PE: [0.65, 0.1], MEI: [0.25, 0.1], ZAG: [0.2, 0.05], default: [0.2, 0.08], LD: [0.04, 0.05], PD: [0.05, 0.1], GOL: [0.1, 0.02] };
+  function perfilFisico(rng, pos) {
+    const [m, sd] = ALTURA[pos], altura = Math.round(clamp(m + rng.gauss() * sd, 160, 203));
+    const imc = 22.3 + rng.gauss() * 1.1 + (pos === 'ZAG' || pos === 'CA' || pos === 'GOL' ? 0.5 : pos === 'PD' || pos === 'PE' ? -0.4 : 0);
+    const [e, a] = PE_CHANCE[pos] || PE_CHANCE.default, r = rng.next();
+    return { altura, peso: Math.round(imc * (altura / 100) * (altura / 100)), pe: r < e ? 'E' : r < e + a ? 'A' : 'D' };
+  }
+  const nomeTecnico = (rng) => rng.pick(NOMES) + ' ' + rng.pick(SOBRENOMES);
+
   // registro de nomes já usados: garante que não existam dois jogadores com o mesmo nome no mundo
   let usadosGlobal = new Set();
   const resetNomes = () => { usadosGlobal = new Set(); };
@@ -84,7 +96,7 @@
       id: 'p' + Math.floor(rng.next() * 1e9).toString(36), nome: nomeUnico(rng, usados, nac !== 'BRA'), nac, estrela: false,
       pos, idade, attr, xp: { RIT: 0, CHU: 0, PAS: 0, DRI: 0, DEF: 0, FIS: 0 },
       disciplina: rng.weighted([0, 1, 2, 3, 4], (d) => [10, 25, 35, 20, 10][d] * ((GRUPO[pos] === 'D' || pos === 'VOL') && d >= 3 ? 1.4 : 1)),
-      stamina: rng.int(88, 100), moral: rng.int(48, 72), lesao: 0,       suspenso: 0, amarelosAcum: 0, treino: null, treinoCd: 0, aVenda: null,
+      stamina: rng.int(88, 100), moral: rng.int(48, 72), lesao: 0,       ...perfilFisico(rng, pos), suspenso: 0, amarelosAcum: 0, treino: null, treinoCd: 0, aVenda: null,
       gols: 0, jogos: 0,
     };
     // ajusta o nível geral: corrige para que o overall caia perto do alvo
@@ -125,5 +137,5 @@
     return el;
   }
 
-  bf.Players = { ATTRS, PESOS, GRUPO, DISCIPLINAS, DISC_FALTA, DISC_CARTAO, afinidade, overall, overallEm, ovrNoSlot, gerarElenco: gerarElencoComEstrelas, gerarJogador, resetNomes, NAC_NOME, nivelDoClube, clamp };
+  bf.Players = { ATTRS, PESOS, GRUPO, DISCIPLINAS, DISC_FALTA, DISC_CARTAO, afinidade, overall, overallEm, ovrNoSlot, gerarElenco: gerarElencoComEstrelas, gerarJogador, resetNomes, NAC_NOME, nomeTecnico, perfilFisico, nivelDoClube, clamp };
 })(typeof globalThis !== 'undefined' ? globalThis : this);

@@ -237,5 +237,21 @@
     return r;
   }
 
-  bf.Match = { FORMACOES, TATICA, CFG, criar, passo, finalizar, recalcular, placarDe, simular, calcNota, substituir, substituirM, iaSubstituicoes };
+  // Muda a formação (permitido no intervalo): redistribui quem está em campo nos novos slots, melhor encaixe primeiro.
+  function mudarFormacao(m, lado, formacao) {
+    const s = m.S[lado], slots = FORMACOES[formacao]; if (!slots) return { ok: false, motivo: 'Formação inválida' };
+    const livres = slots.map((sl, i) => i), jogs = s.campo.slice(), novos = [];
+    const gk = jogs.find((j) => j.slot === 'GOL');
+    if (gk) { novos[0] = { j: gk, slot: 'GOL' }; livres.splice(0, 1); jogs.splice(jogs.indexOf(gk), 1); }
+    const pares = []; jogs.forEach((j) => livres.forEach((i) => { if (slots[i] !== 'GOL') pares.push([P().ovrNoSlot(j.p, slots[i]), j, i]); }));
+    pares.sort((a, b) => b[0] - a[0]);
+    const usadoJ = new Set(), usadoI = new Set();
+    for (const [, j, i] of pares) { if (usadoJ.has(j) || usadoI.has(i)) continue; usadoJ.add(j); usadoI.add(i); novos[i] = { j, slot: slots[i] }; }
+    s.campo = []; novos.forEach((x) => { if (!x) return; x.j.slot = x.slot; x.j.base = P().ovrNoSlot(x.j.p, x.slot); s.campo.push(x.j); });
+    s.slots = slots; s.time.formacao = formacao; recalcular(m);
+    m.eventos.push({ min: m.min, tipo: 'formacao', lado, jogador: null, texto: 'Muda para o ' + formacao });
+    return { ok: true };
+  }
+
+  bf.Match = { mudarFormacao, FORMACOES, TATICA, CFG, criar, passo, finalizar, recalcular, placarDe, simular, calcNota, substituir, substituirM, iaSubstituicoes };
 })(typeof globalThis !== 'undefined' ? globalThis : this);

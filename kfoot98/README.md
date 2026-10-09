@@ -23,6 +23,9 @@ entre os 10 piores da Série D · 4) clubes dos técnicos · 5) plantel (estilo 
 - Plantel: bandeira de nacionalidade, estrela nos craques (poucos, quase nenhum nas séries baixas), atributos com nome completo, cores dos clubes.
 - Ações por jogador: **Vender** (preço fixo, sai quando alguém cobrir), **Leiloar** (leilão imediato, pode começar em R$ 0), **Renovar** (últimos 3 meses; opções de 3-6, 6-9 e 9-12 meses; o jogador pode pedir mais) e **Treinar** (1 a 3 jogos fora para evoluir um atributo). Contrato ativo = o comprador paga também a multa.
 - Moral do técnico (gráfico dos últimos 5 jogos). Tática Contra-ataque (ciclo ofensivo > defensivo > contra-ataque > ofensivo).
+- Emblemas originais únicos para os 80 clubes (os brasões oficiais são marcas registradas e não estão incluídos). Para usar escudos reais: coloque `assets/escudos/<id>.svg|png` (ids em `data/clubs.js`) e rode `node tools/escudos.js`.
+- Plantel nas cores do clube, pé/altura/peso, visão de qualquer clube pela Tabela (técnico, moral, estádio, jogos, plantel), artilheiros por campeonato.
+- Jogo: público por partida, formação e tática no intervalo (tática só depois do apito inicial), lances com as cores dos times, balanço financeiro de cada jogo.
 - Mercado de compra e Finanças completas: ainda não (abas "em breve").
 
 ## Comandos

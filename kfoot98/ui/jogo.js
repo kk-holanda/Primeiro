@@ -18,19 +18,22 @@
   function tick() {
     const live = L(); if (live.min >= 90) { K.jogoParar(); return; }
     GM.passoDia(G.g); atualizar();
-    if (live.min === 45) pausar('Intervalo');
+    if (live.min === 45) { G.jg.painel = true; pausar('FIM DO PRIMEIRO TEMPO'); }
     else if (live.min >= 90) pausar('Fim de jogo');
   }
   function iniciarTimer() { K.jogoParar(); if (!G.jg.pausado && L().min < 90) G.jg.timer = setInterval(tick, G.jg.vel); }
 
-  const tagEv = (e) => ({ gol: ['GOL', 'gol'], amarelo: ['AMARELO', 'am'], vermelho: ['VERMELHO', 'vm'], lesao: ['LESÃO', 'les'], substituicao: ['SUBST.', 'sub'] }[e.tipo]);
+  const tagEv = (e) => ({ gol: ['GOL', 'gol'], amarelo: ['AMARELO', 'am'], vermelho: ['VERMELHO', 'vm'], lesao: ['LESÃO', 'les'], substituicao: ['SUBST.', 'sub'], formacao: ['FORMAÇÃO', 'sub'] }[e.tipo]);
   function eventoLinha(e, p) {
-    const [t, c] = tagEv(e), clube = nome(e.lado === 0 ? p.jogo.casa : p.jogo.fora);
+    const [t, c] = tagEv(e), id = e.lado === 0 ? p.jogo.casa : p.jogo.fora, clube = nome(id), cl = G.g.porId.get(id);
     let txt = e.jogador + ' (' + clube + ')';
     if (e.tipo === 'gol') txt = e.jogador + ' (' + clube + ')' + (e.assist ? ', passe de ' + e.assist : '') + ' · ' + e.placar[0] + ' × ' + e.placar[1];
     if (e.tipo === 'substituicao') txt = 'Entra ' + e.jogador + ', sai ' + e.saiu + ' (' + clube + ')';
-    return h('li', { class: 'ev ' + c }, h('span', { class: 'mn num' }, e.min + "'"), h('span', { class: 'etag ' + c }, t), h('span', null, txt));
+    if (e.tipo === 'formacao') txt = clube + ': ' + e.texto;
+    return h('li', { class: 'ev ' + c, style: 'border-left:5px solid ' + cl.cores[0] + ';box-shadow:inset 5px 0 0 -2px ' + cl.cores[1] }, h('span', { class: 'mn num' }, e.min + "'"), K.escudo(cl), h('span', { class: 'etag ' + c }, t), h('span', null, txt));
   }
+  const fmtPub = (n) => (n >= 10000 ? Math.round(n / 1000) + ' mil' : n >= 1000 ? (n / 1000).toFixed(1).replace('.', ',') + ' mil' : String(n));
+  const nf = (n) => K.nf.format(n);
   const REFS = {};
   function pintarStats(P) {
     const st = P.m.stats, n = Math.max(1, P.m.min);
@@ -61,7 +64,7 @@
     const outros = [...grupos].map(([titulo, ps]) => h('section', { class: 'jdiv' }, h('h3', null, titulo),
       h('ul', null, ps.map((p) => {
         const pl = M.placarDe(p.m), sc = h('b', { class: 'num pl' }, pl[0] + ' × ' + pl[1]);
-        const li = h('li', { class: (p.humano[0] || p.humano[1]) ? 'meu' : '' }, h('span', { class: 'tc' }, K.comEscudo(p.jogo.casa)), sc, h('span', { class: 'tf' }, K.comEscudo(p.jogo.fora)));
+        const li = h('li', { class: (p.humano[0] || p.humano[1]) ? 'meu' : '' }, h('span', { class: 'tc' }, K.comEscudo(p.jogo.casa)), sc, h('span', { class: 'tf' }, K.comEscudo(p.jogo.fora)), h('small', { class: 'pub num', 'data-tip': 'Público: ' + nf(p.publico) + ' pessoas' }, fmtPub(p.publico)));
         REFS.rows.set(p, { el: sc, li }); return li;
       }))));
 
@@ -81,11 +84,12 @@
           : h('button', { class: 'btn alt', id: 'pause', onclick: () => pausar('Jogo pausado') }, 'Pausar'),
       !fim ? h('div', { class: 'seg', role: 'group', 'aria-label': 'Velocidade' }, VELS.map(([t, v]) => h('button', { type: 'button', 'aria-pressed': jg.vel === v ? 'true' : 'false', onclick: () => { jg.vel = v; if (!jg.pausado) iniciarTimer(); K.render(); } }, t))) : null,
       !fim ? h('button', { class: 'btn alt sm', id: 'pular', onclick: () => { K.jogoParar(); GM.completarDia(G.g); jg.pausado = true; jg.aviso = 'Fim de jogo'; K.render(); } }, 'Pular para o fim') : null,
-      !fim && jg.pausado && P ? h('button', { class: 'btn alt sm', id: 'subs', onclick: () => { jg.painel = !jg.painel; K.render(); } }, jg.painel ? 'Fechar substituições' : 'Substituições e tática') : null);
+      !fim && jg.pausado && P && live.min > 0 ? h('button', { class: 'btn alt sm', id: 'subs', onclick: () => { jg.painel = !jg.painel; K.render(); } }, jg.painel ? 'Fechar substituições' : 'Substituições e tática') : null);
 
     const campo = P ? h('section', { class: 'jmain' },
       h('div', { class: 'placar' }, h('span', { class: 'tn' + (lado === 0 ? ' eu' : '') }, nome(P.jogo.casa), K.escudo(P.jogo.casa, true)), h('span', { class: 'sc' }, REFS.pl0, h('i', null, '×'), REFS.pl1), h('span', { class: 'tn r' + (lado === 1 ? ' eu' : '') }, K.escudo(P.jogo.fora, true), nome(P.jogo.fora))),
-      h('div', { class: 'javiso', role: 'status' }, jg.aviso || (jg.pausado ? '' : 'Bola rolando'), P.jogo.perna === 'volta' ? h('small', { class: 'muted' }, ' Jogo de volta · ida: ' + P.jogo.confronto.ida[0] + ' × ' + P.jogo.confronto.ida[1] + ' (' + nome(P.jogo.confronto.a) + ' em casa)') : null),
+      h('div', { class: 'javiso' + (live.min === 45 && jg.pausado ? ' intervalo' : ''), role: 'status' }, jg.aviso || (jg.pausado ? '' : 'Bola rolando'), live.min === 0 ? h('small', { class: 'muted' }, ' Tática e escalação já definidas na aba Escalação. Depois do apito inicial você pode pausar para mexer.') : null, P.jogo.perna === 'volta' ? h('small', { class: 'muted' }, ' Jogo de volta · ida: ' + P.jogo.confronto.ida[0] + ' × ' + P.jogo.confronto.ida[1] + ' (' + nome(P.jogo.confronto.a) + ' em casa)') : null),
+      h('div', { class: 'publico', 'data-tip': 'Pessoas no estádio neste jogo.' }, h('b', { class: 'num' }, nf(P.publico)), ' pessoas · ' + nome(P.jogo.casa) + ' · ' + G.g.porId.get(P.jogo.casa).estadio.nome + ' (' + nf(G.g.porId.get(P.jogo.casa).estadio.capacidade) + ' lugares)'),
       h('div', { class: 'stats' }, stat('Posse de bola', 'posse'), stat('Chutes', 'chutes'), stat('No gol', 'no_gol'), stat('Faltas', 'faltas'), stat('Amarelos', 'amarelos'), stat('Vermelhos', 'vermelhos')),
       jg.painel ? painelSubs(P, lado) : null,
       h('h3', null, 'Lances'), REFS.feed) : h('p', null, 'Sem jogo seu neste dia.');
@@ -111,6 +115,7 @@
     const ok = jg.selOut && jg.selIn && side.subs < max;
     const msg = side.subs >= max ? 'Limite de substituições atingido.' : (jg.msgSub || '');
     return h('div', { class: 'subpanel' },
+      P.m.min === 45 ? h('div', { class: 'subform' }, h('b', null, 'Formação'), h('div', { class: 'seg', role: 'group', 'aria-label': 'Formação' }, Object.keys(M.FORMACOES).map((f) => h('button', { type: 'button', 'aria-pressed': (side.time.formacao || '4-4-2') === f ? 'true' : 'false', onclick: () => { const r = M.mudarFormacao(P.m, lado, f); jg.msgSub = r.ok ? '' : r.motivo; jg.selOut = jg.selIn = null; K.render(); } }, f))), h('small', { class: 'muted' }, 'A formação só pode mudar no intervalo.')) : null,
       h('div', { class: 'subtop' }, h('b', null, 'Substituições: ' + side.subs + ' de ' + max),
         h('div', { class: 'seg', role: 'group', 'aria-label': 'Tática' }, K.TATICAS.map(([k, t]) => h('button', { type: 'button', 'aria-pressed': side.time.tatica === k ? 'true' : 'false', 'data-tip': K.DESC_TATICA[k], onclick: () => { side.time.tatica = k; M.recalcular(P.m); K.render(); } }, t)))),
       h('div', { class: 'subcols' },
@@ -137,28 +142,42 @@
           eu ? h('td', { class: 'num ' + (Math.round(d.moralDepois - d.moralAntes) > 0 ? 'hi' : Math.round(d.moralDepois - d.moralAntes) < 0 ? 'bad' : 'lo') }, (() => { const dm = Math.round(d.moralDepois - d.moralAntes); return dm > 0 ? '+' + dm : dm < 0 ? '−' + Math.abs(dm) : '0'; })()) : null))))));
   }
 
+  // balanço financeiro do jogo para o clube do técnico
+  function balanco(f, casa) {
+    const lin = (rot, v, cls, tip) => h('div', { class: 'strow2 fin ' + (cls || ''), 'data-tip': tip || false }, h('span', null, rot), h('b', { class: 'num' }, (v < 0 ? '−' : '') + K.reais(Math.abs(v))));
+    return h('div', { class: 'card balanco' }, h('h3', null, 'Balanço financeiro'),
+      h('div', { class: 'eyebrow' }, 'Receitas'),
+      casa ? lin('Bilheteria (' + nf(f.publico) + ' × R$ ' + f.ingresso + ')', f.bilheteria, 'rec') : lin('Bilheteria (jogo fora de casa)', 0, 'rec', 'A bilheteria fica com o clube mandante.'),
+      lin('Cota de TV da rodada', f.tv, 'rec', 'Cota anual de TV dividida pelas 38 rodadas do Brasileirão. Jogos de Copa não pagam cota.'), lin('Patrocínio', f.patrocinio, 'rec', 'Patrocinadores ainda não implementados.'),
+      h('div', { class: 'eyebrow' }, 'Despesas'),
+      lin('Salários (' + f.dias + ' dias)', -f.salarios, 'des', 'Folha mensal dividida pelos dias desde o último jogo.'), lin('Despesas fixas', -f.fixas, 'des', 'Staff, manutenção, viagens e arbitragem (rateio anual por jogo).'), lin('Custos do jogo (15% da bilheteria)', -f.custosJogo, 'des', 'Segurança, impostos e arrecadação.'),
+      lin('Saldo do jogo', f.saldo, f.saldo >= 0 ? 'saldo pos' : 'saldo neg'), lin('Caixa do clube', f.caixa, 'cx'));
+  }
+
   K.telas.resumo = function () {
     const g = G.g, rs = G.resumos, R = rs.find((r) => r.humano[0] || r.humano[1]), lado = R.humano[0] ? 0 : 1;
     const eu = lado, adv = 1 - lado, [gh, ga] = R.placar, meus = lado === 0 ? gh : ga, deles = lado === 0 ? ga : gh;
     const res = meus > deles ? 'Vitória' : meus < deles ? 'Derrota' : 'Empate';
     const melhor = R.detalhes.flat().sort((a, b) => b.nota - a.nota)[0];
     const st = R.stats, linha = (rot, a, b) => h('div', { class: 'strow2' }, h('span', { class: 'num' }, a), h('small', null, rot), h('span', { class: 'num' }, b));
-    const feed = h('ol', { class: 'feed estatico' }, R.eventos.filter((e) => ['gol', 'amarelo', 'vermelho', 'lesao', 'substituicao'].includes(e.tipo)).map((e) => eventoLinha(e, R)));
+    const feed = h('ol', { class: 'feed estatico' }, R.eventos.filter((e) => ['gol', 'amarelo', 'vermelho', 'lesao', 'substituicao', 'formacao'].includes(e.tipo)).map((e) => eventoLinha(e, R)));
     const grupos = {};
     rs.filter((r) => r !== R).forEach((r) => { const k = r.jogo.comp === 'liga' ? K.DIV_NOME[r.jogo.div] : r.jogo.rotulo; (grupos[k] = grupos[k] || []).push(r); });
     return h('main', { class: 'wrap page' },
       h('div', { class: 'head' }, h('span', { class: 'eyebrow' }, R.jogo.rotulo + ' · ' + GM.fmtData(g.data)), h('h2', null, res + ' · fim de jogo')),
       h('div', { class: 'placar grande' }, h('span', { class: 'tn' + (lado === 0 ? ' eu' : '') }, R.casaNome, K.escudo(R.jogo.casa, true)), h('span', { class: 'sc' }, h('b', { class: 'num' }, gh), h('i', null, '×'), h('b', { class: 'num' }, ga)), h('span', { class: 'tn r' + (lado === 1 ? ' eu' : '') }, K.escudo(R.jogo.fora, true), R.foraNome)),
+      h('p', { class: 'publico', 'data-tip': 'Pessoas no estádio neste jogo.' }, h('b', { class: 'num' }, nf(R.publico)), ' pessoas no ' + g.porId.get(R.jogo.casa).estadio.nome),
       R.copa ? h('p', { class: 'copainfo' }, 'Agregado ' + R.copa.agregado[0] + ' × ' + R.copa.agregado[1] + (R.copa.penaltis ? ' · pênaltis ' + R.copa.penaltis[0] + ' × ' + R.copa.penaltis[1] : '') + ' · Classificado: ', h('b', null, nome(R.copa.vencedor)))
         : R.jogo.comp === 'copa' ? h('p', { class: 'copainfo' }, 'Jogo de ida. A volta será na casa de ' + nome(R.jogo.confronto.b) + '.') : null,
       h('div', { class: 'resgrid' },
         h('div', { class: 'card' }, h('h3', null, 'Estatísticas'), linha('Posse de bola', st[0].posse + '%', st[1].posse + '%'), linha('Chutes', st[0].chutes, st[1].chutes), linha('Chutes no gol', st[0].no_gol, st[1].no_gol), linha('Faltas', st[0].faltas, st[1].faltas), linha('Amarelos', st[0].amarelos, st[1].amarelos), linha('Vermelhos', st[0].vermelhos, st[1].vermelhos),
           h('p', { class: 'muted' }, 'Melhor em campo: ', h('b', null, melhor.nome + ' (' + melhor.nota.toFixed(1) + ')'))),
-        h('div', { class: 'card' }, h('h3', null, 'Lances'), feed)),
+        h('div', { class: 'card' }, h('h3', null, 'Lances'), feed),
+        balanco(R.financas[lado], lado === 0)),
       tabelaNotas(R.detalhes[eu], 'Seu time · notas e evolução', true),
       h('details', { class: 'det' }, h('summary', null, 'Notas do adversário'), tabelaNotas(R.detalhes[adv], nome(adv === 0 ? R.jogo.casa : R.jogo.fora), false)),
       h('details', { class: 'det' }, h('summary', null, 'Outros resultados do dia'),
-        Object.entries(grupos).map(([t, arr]) => h('section', { class: 'jdiv' }, h('h3', null, t), h('ul', null, arr.map((r) => h('li', null, h('span', { class: 'tc' }, K.comEscudo(r.jogo.casa)), h('b', { class: 'num pl' }, r.placar[0] + ' × ' + r.placar[1]), h('span', { class: 'tf' }, K.comEscudo(r.jogo.fora)))))))),
+        Object.entries(grupos).map(([t, arr]) => h('section', { class: 'jdiv' }, h('h3', null, t), h('ul', null, arr.map((r) => h('li', null, h('span', { class: 'tc' }, K.comEscudo(r.jogo.casa)), h('b', { class: 'num pl' }, r.placar[0] + ' × ' + r.placar[1]), h('span', { class: 'tf' }, K.comEscudo(r.jogo.fora)), h('small', { class: 'pub num' }, fmtPub(r.publico)))))))),
       h('div', { class: 'actions' }, h('button', { class: 'btn hot', id: 'continuar', onclick: () => { G.aba = 'plantel'; G.resumos = null; if (g.fim) K.ir('fim'); else K.ir(5); } }, g.fim ? 'Ver fim da temporada' : 'Continuar')));
   };
 

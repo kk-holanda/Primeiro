@@ -1,0 +1,1 @@
+Coloque aqui os escudos reais como <id-do-clube>.svg ou .png (ex.: corinthians.svg) e rode: node tools/escudos.js
