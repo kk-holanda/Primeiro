@@ -1,4 +1,4 @@
-# Kfoot 98: documentação do jogo (versão 25)
+# Kfoot 98: documentação do jogo (versão 26)
 
 Documento vivo: cresce junto com a implementação. Cada rodada de melhorias atualiza as seções que mudaram. Valores vêm do código da branch `claude/melhorias-5-xt6u1f` (pasta `kfoot98`). Quando algo ainda não está documentado, a seção diz "a detalhar".
 
@@ -15,7 +15,7 @@ Arquivos de dados desta pasta:
 - Os jogadores humanos só podem iniciar em 10 clubes da Série D (os "iniciáveis"): Bangu, Madureira, Marília, Olaria, Sertãozinho, Rio Branco-ES, Tuna Luso, Colatina, Ceilândia e Guarany de Bagé. A escolha é por sorteio de bolinhas.
 - Todo o motor é determinístico a partir de uma semente (gerador mulberry32): a mesma semente e as mesmas decisões dão o mesmo jogo.
 - Dificuldade (🔶 v25): a escolha saiu da tela inicial e o jogo fica sempre no Normal. Os multiplicadores continuam no código, todos ×1 (caixa inicial ×1, acerto do técnico do computador no intervalo +0, treino do computador ×1).
-- Opção de desligar a demissão pela diretoria. Substituições: 3 por jogo (padrão 1998) ou 5 (moderno).
+- Demissão pela diretoria (🔶 v26): a opção de desligar saiu da tela inicial; a demissão fica sempre ligada. Substituições: 3 por jogo (padrão 1998) ou 5 (moderno).
 
 ## 2. Números do jogo
 
@@ -87,7 +87,7 @@ Grupos: GOL = goleiro; ZAG, LIB, LD, LE = defesa; VOL, MC, MEI, ALA = meio; PD, 
 - Bola parada (cobrança de falta e pênalti): ≈ 0,45 finalização + 0,35 passe + 12 + ruído; 10% dos goleiros e 7% dos jogadores de linha têm um bônus grande.
 - Estrelas: ganham +8 em todos os atributos, idade entre 24 e 31 e moral +6. Quantidade por clube (v22): Série A 2 a 4 (média 3,0; clubes de prestígio 90+ têm 3 a 4), B 1 a 3 (média ≈ 2,2), C 1 ou 2 (média 1,6), D 1 ou 2 (média 1,3). Todo clube tem pelo menos 1.
 - Traits (características, v22): de 2 a 4 jogadores por time têm uma (no máximo uma por jogador); ver a seção 4.6.
-- Posições extras: 46% dos jogadores de linha têm 1 extra e 10% têm 2. Vizinhas permitidas: ZAG (LIB, VOL, LD, LE), LIB (ZAG, VOL), LD (LE, ALA, ZAG, PD), LE (LD, ALA, ZAG, PE), VOL (ZAG, MC, LIB), MC (MEI, VOL, ALA), MEI (MC, SA, PD, PE), ALA (LD, LE, MC, PD, PE), PD (PE, LD, ALA, CA), PE (PD, LE, ALA, CA), CA (SA, PD, PE), SA (CA, MEI, PD, PE).
+- Posições (🔶 v26): todo jogador de linha joga de **2 a 4 posições** no total (a natural + 1 a 3 extras: 50% com 1 extra, 35% com 2, 15% com 3; na prática ≈ 49% têm 2 posições, 34% têm 3 e 16% têm 4). Goleiro só joga no gol. As extras saem das vizinhas, favorecendo onde os atributos do jogador encaixam: ZAG (LIB, VOL, LD, LE), LIB (ZAG, VOL, MC), LD (LE, ALA, ZAG, PD), LE (LD, ALA, ZAG, PE), VOL (ZAG, MC, LIB), MC (MEI, VOL, ALA), MEI (MC, SA, PD, PE), ALA (LD, LE, MC, PD, PE), PD (PE, LD, ALA, CA, SA), PE (PD, LE, ALA, CA, SA), CA (SA, PD, PE, MEI), SA (CA, MEI, PD, PE).
 
 ### 4.3 Posição e afinidade
 Média no slot = média da posição do slot × afinidade. Natural: 1,00; posição extra: 0,985 (ou a afinidade da extra × 0,97). Pares próximos: ZAG-LIB 0,98; LD-LE 0,95; LD/LE-ALA 0,94; VOL-MC 0,96; MC-MEI 0,96; VOL-LIB 0,93; PD-PE 0,95; CA-SA 0,96; MEI-SA 0,94; PD/PE-ALA 0,93; MC-ALA 0,94; ZAG-VOL 0,94; LD/LE-ZAG 0,90; CA-PD/PE 0,90; SA-PD/PE 0,94; MEI-PD/PE 0,92; MC-SA 0,88; LD-PD, LE-PE 0,90; LD/LE-VOL 0,90; LIB-MC 0,90. Mesmo grupo: 0,90; grupos vizinhos: 0,80; distantes: 0,65; goleiro na linha: 0,35; jogador de linha no gol: 0,25 (e rende só 20% no gol).
@@ -156,11 +156,13 @@ Cada partida tem 90 minutos simulados minuto a minuto, mais acréscimos (ver 5.4
 5. **Drible × marcação**: o driblador enfrenta o marcador; quem perde o duelo faz falta (pênalti se foi na área: atacante 24%, meia 11%, zagueiro 2%; senão falta direta 50%).
 6. **Chute**: probabilidade = 0,378 + diferença de ataque×defesa × 0,0065 + diferença de passe × 0,0038 + diferença de ritmo × 0,0022 + bônus de duelo ganho (0,16) + bônus de nível baixo (até +0,04). Passe final vem de quem tem mais passe (meias com peso 1,6; atacantes 4,6; defensores 0,22; goleiro 0,03; laterais ×1,5).
 7. **Finalização**: chance de ir no gol = base (0,41 bola, 0,385 cabeça, 0,42 falta) + (finalização − 50) × 0,004 − (marcador − 50) × 0,0042. Chance de gol = base 0,31 + (finalização − goleiro) × 0,0032. A finalização efetiva pesa ×1,6 (Copa: individual comprimido). Goleiro de linha: ×0,2.
+7b. **Impedimento (🔶 v26)**: gol de bola rolando (jogada ou cruzamento; não vale para pênalti, falta direta nem escanteio) pode ser anulado por impedimento. Chance = (6,5% + 0,8 × impedimento provocado pelo estilo do rival) × peso da posição de quem finaliza (CA 1,4; SA 1,2; pontas 1,1; MEI 0,7; ALA 0,5; MC 0,4; VOL 0,3; demais 0,15) × velocidade relativa (ritmo do atacante contra o da defesa, de 0,6 a 1,4) × 0,85 se for Matador. A conversão dos chutes sobe na mesma medida, então a média de gols não muda (≈ 3% a 4% dos gols marcados são anulados). O lance aparece no feed como "Gol anulado! fulano estava impedido" e entra na estatística Impedimentos. A Linha Alta continua provocando impedimentos antes do chute (item 5.2).
 8. **Escanteios e cabeceios**: o melhor passador bate; quanto melhor o passe, mais cabeçadas; o melhor de cabeça finaliza.
 9. **Faltas e cartões**: 0,125 × 1,7 de chance de falta por minuto; falta direta perto da área em 7,5% delas; amarelo em 10,5% por falta × disciplina.
 10. **Pênaltis**: ver seção 6. Gol de pênalti ≈ 76% na média.
 11. **Intervalo**: o time do computador responde ao estilo que o adversário usou no 1º tempo com probabilidade = acerto do técnico (0,50 a 0,80), trocando para a melhor resposta da tabela 5.4 que combina melhor com a formação.
 12. **Cara a cara (v22)**: 11% dos chutes de jogada são cara a cara com o goleiro (×1,9 se quem deu o passe é Maestro, ×1,2 se o finalizador é Matador); nesses, a chance de gol sobe ×1,5, compensada em todos os chutes de jogada (×0,948) para a média de gols não mudar. Chance de gol geral ×1,065 (calibração depois das estrelas extras).
+12b. **Expulsão (🔶 v26)**: o jogador expulso sai e o time **segue com um a menos**; a vaga dele não é preenchida. O técnico humano é avisado e pode trocar um dos jogadores que ficaram em campo por alguém do banco (conta como uma das substituições do jogo); a tela mostra a lista dos que estão em campo (sem o expulso) e a do banco. Se o expulso for o goleiro, dá para tirar qualquer jogador de linha e pôr o goleiro reserva no gol (a vaga do jogador que sai deixa de existir). Pode também "seguir com um a menos". O computador só reage à expulsão do goleiro: tira o jogador de linha de menor valor (atacantes primeiro) e põe o goleiro reserva, se houver substituição disponível.
 13. **Substituições do computador**: em 60', 70' e 80' troca o mais cansado (stamina < 75) pelo melhor reserva do slot.
 
 Valores típicos por jogo (jogos entre times de prestígio 40 a 90): ≈ 2,8 gols, 24 chutes, 10 no gol, 6,4 escanteios, 21 faltas, 0,12 lesões; mandante vence 44%, empata 23%, perde 33%. Por divisão (liga completa): A ≈ 2,6 gols, B 2,6, C 2,6, D 2,5.
@@ -270,7 +272,9 @@ Tabela de respostas (usada no intervalo pelo humano e pelo computador): Posiçã
 
 ## 7. Técnicos
 
+- **Escalação automática (🔶 v26)**: ao escolher uma formação (ou clicar em Escalação automática), o jogo monta o time pela **média na posição**: ordena todos os pares jogador × vaga pela média do jogador naquele slot (já com a afinidade das posições extras) e vai preenchendo do maior para o menor, de modo que os de maior média na posição jogam. O cansaço só desempata (no máximo −2 pontos, para quem está com stamina baixa). Vale também para o computador.
 - **Humano**: escolhe formação, estilo principal e secundário (🔶 v25), titulares, capitão, batedores (falta e pênalti; escanteios), treinos, conversa com o elenco e bicho. **Conversa (v22)**: escolhe o tom (Elogiar: +3, sem risco; Motivar: (3+3k) × 1,3 para moral < 50 ou × 0,8, 20% − (moral do técnico − 50)/500 de cair mal (−2); Cobrar: +6 para moral < 60, −2 para moral > 75, risco 55% − moral do técnico/160 (entre 10% e 50%) de cair mal (−4)) e com quem falar (grupo, só os desanimados com moral < 50, ou um jogador, com efeito ×1,5 nos tons Elogiar e Motivar). Espera: 4 jogos para conversa com grupo, 3 jogos por jogador. A moral do técnico sobe com vitórias (principalmente contra times maiores) e desce com derrotas; abaixo de 20 gera aviso e, por 12 jogos seguidos abaixo de 20 com o clube na zona de rebaixamento, a diretoria o demite (desligável) e ele assume um clube pior.
+- **Técnicos do computador (🔶 v26)**: todo clube, da Série A à D, tem um técnico. **Séries A, B e C** começam sempre com o mesmo técnico (nome e estilo fixos por clube, os mesmos em todo jogo novo). **Série D**: existe um grupo fixo de 20 técnicos do computador; depois que os humanos escolhem os clubes, esses técnicos são sorteados entre os clubes da Série D que sobraram (um clube por técnico). A opção de demissão pela diretoria saiu da tela inicial (a demissão continua ligada, como antes).
 - **Computador**: cada clube tem um técnico com nome e um estilo escondido entre 6:
 
 | Estilo | Peso | Treina | Estilo de jogo preferido | Formações preferidas | Acerto no intervalo |
@@ -292,7 +296,7 @@ Tabela de respostas (usada no intervalo pelo humano e pelo computador): Posiçã
 - **Compras do computador (v24)**: a cada rodada de liga, cada clube do computador tem 4% de chance de tentar uma contratação. Procura, nas posições em que um reforço melhora o time em 3 pontos ou mais sobre o titular atual da posição (quantidade de vagas por posição: 2 ZAG, 2 MC e 1 nas outras), entre os jogadores de clubes **do mesmo nível ou de série abaixo** (nunca de série acima) e entre os livres que não são da base. O preço é o pedido normal mais a multa (livres: luvas), e o clube só compra se o custo for no máximo 60% do caixa e deixar pelo menos uma folha mensal em caixa. Escolhe o melhor (melhora no time menos 4 × custo/caixa). Computador nunca compra de jogadores de técnicos humanos (esses só vão por proposta aos que estão à venda). Medido: 94 a 121 compras por temporada (a maioria dentro da mesma série; poucas passam da D para a C, da C para a B e da B para a A).
 - Jogadores livres: 40 novos por ano, contrato de 12 meses, salário esperado e luvas (2 salários).
 - Venda e leilão de jogadores do próprio elenco; propostas do computador a jogadores à venda (chance de proposta 100% até 70% do valor, caindo a 0 em 160%).
-- Tela do mercado: filtros de posição, origem, média, idade, "cabe no caixa" (padrão ligado), "só quem melhora meu time"; coluna Δ = média do jogador − média do titular atual mais fraco na posição; ordem padrão "melhora para o meu time".
+- Tela do mercado (🔶 v26: "Jogadores livres" não mostra mais os garotos da base, que aparecem só em "Categorias de base"): filtros de posição, origem, média, idade, "cabe no caixa" (padrão ligado), "só quem melhora meu time"; coluna Δ = média do jogador − média do titular atual mais fraco na posição; ordem padrão "melhora para o meu time".
 
 ## 9. Copa do Brasil
 
