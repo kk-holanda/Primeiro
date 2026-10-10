@@ -1,10 +1,11 @@
-# Kfoot 98: documentação do jogo (versão 22)
+# Kfoot 98: documentação do jogo (versão 24)
 
 Documento vivo: cresce junto com a implementação. Cada rodada de melhorias atualiza as seções que mudaram. Valores vêm do código da branch `claude/melhorias-5-xt6u1f` (pasta `kfoot98`). Quando algo ainda não está documentado, a seção diz "a detalhar".
 
 Arquivos de dados desta pasta:
 - `times.csv`: os 80 clubes com divisão, prestígio, estádio, caixa, ingresso e se o jogador pode iniciar com ele.
 - `jogadores-exemplo-semente-1998.csv`: os 1.920 jogadores de um jogo de exemplo (semente 1998), com todos os atributos. Os jogadores são gerados por sorteio a cada jogo novo; esta lista é um exemplo, não um cadastro fixo.
+- `base-mercado-semente-1998.csv`: os 28 garotos das categorias de base que estão no mercado no início do mesmo jogo de exemplo, com o potencial escondido.
 
 ## 1. Visão geral
 
@@ -23,7 +24,7 @@ Arquivos de dados desta pasta:
 | Clubes | 80 (20 por divisão) |
 | Elenco inicial | 24 jogadores por clube (3 goleiros, 4 zagueiros, 2 laterais direitos, 2 esquerdos, 3 volantes, 2 meias centrais, 2 meios ofensivos, 1 ponta direita, 1 esquerda, 3 centroavantes, 1 segundo atacante) |
 | Limite de elenco | 30 |
-| Jogadores iniciais no mundo | 1.920 (mais 40 jogadores livres gerados a cada ano) |
+| Jogadores iniciais no mundo | 1.920 (mais 40 jogadores livres gerados a cada ano, e as categorias de base: 28 garotos de 15 a 19 anos no início do jogo e, a cada fim de ano, no mínimo 24 ou 80% do número de aposentados, o que for maior) |
 | Subem e descem por divisão | 4 |
 | Copa do Brasil | 64 clubes, fase preliminar com 32 clubes, ida e volta, sem gol fora dobrado, pênaltis |
 | Posições | GOL, ZAG, LIB, LD, LE, VOL, MC, MEI, ALA, PD, PE, CA, SA |
@@ -51,6 +52,10 @@ Por divisão (arquivo `times.csv` tem cada clube):
 - **Público** = demanda × forma recente × rivalidade × elasticidade do preço do ingresso, limitado pela capacidade. Rivalidade sobe 25% em clássico da mesma cidade. Receita de bilheteria = público × ingresso × 0,85 (15% de custos e impostos de jogo). O estádio pode ser ampliado a R$ 400 por lugar (nível máximo 5, +60%).
 - **Salários** são pagos proporcionalmente aos dias entre jogos. Custos fixos por jogo = custo fixo anual ÷ 52. Cota de TV por rodada.
 - **Prêmios de fim de temporada**: série A paga aos 5 primeiros (4,0 / 2,4 / 1,5 / 0,9 / 0,5 mi); B aos 4 primeiros (1,2 / 0,7 / 0,45 / 0,25); C (0,4 / 0,25 / 0,15 / 0,09); D (0,18 / 0,11 / 0,07 / 0,04); Copa: 3,0 / 1,5 / 0,75 mi; bônus ao clube do artilheiro (A 0,6 mi, B 0,2, C 0,08, D 0,04; 2º recebe 60% e 3º 35%) e outros prêmios (melhor goleiro, revelação, garçom, melhor técnico) que dão pontos de atributo.
+- **Caixa negativo (v24, humanos e computador)**: a cada jogo (liga ou Copa) que o clube termina com o caixa abaixo de zero, conta uma "rodada no negativo". Em cada uma delas todos os jogadores do clube perdem 3 de moral e a moral do técnico perde 2. Se o caixa voltar a zero ou mais, a contagem zera.
+  - **1ª rodada seguida**: o técnico humano recebe uma carta da diretoria (janela com a imagem "Diretoria") dizendo que o clube está negativo e que se espera uma solução o mais breve possível.
+  - **4ª rodada seguida** (e a 9ª, 14ª…): segunda carta (imagem "Jogadores"), avisando que os jogadores estão furiosos com os salários atrasados e que um deles vai a leilão na rodada seguinte.
+  - **5ª rodada seguida** (e a 10ª, 15ª…): leilão forçado, valendo para humanos e computador. São escolhidos os 5 jogadores de menor moral (desempate pelo maior salário), um deles é sorteado e vai a leilão imediato com preço inicial R$ 0, com as regras de sempre do leilão (só clubes do computador dão lance; o comprador paga também a multa). Se ninguém der lance, o jogador fica e o próximo candidato sorteado entre os 5 é tentado. Quem está no mínimo de 18 jogadores, ou é um dos 2 últimos goleiros, não pode ser leiloado. Para o humano aparece uma carta contando o resultado.
 - **Computador e dinheiro**: clubes do computador investem 20% do caixa que passa de 2 folhas anuais em CT e base (melhora os juniores até +3).
 - **Bicho (prêmio por vitória)**, nível 1 a 3, por relacionado (16) por vitória: A R$ 8.000, B 3.000, C 1.200, D 400 por nível; cada nível dá +2 de moral ao elenco.
 
@@ -88,18 +93,24 @@ Grupos: GOL = goleiro; ZAG, LIB, LD, LE = defesa; VOL, MC, MEI, ALA = meio; PD, 
 Média no slot = média da posição do slot × afinidade. Natural: 1,00; posição extra: 0,985 (ou a afinidade da extra × 0,97). Pares próximos: ZAG-LIB 0,98; LD-LE 0,95; LD/LE-ALA 0,94; VOL-MC 0,96; MC-MEI 0,96; VOL-LIB 0,93; PD-PE 0,95; CA-SA 0,96; MEI-SA 0,94; PD/PE-ALA 0,93; MC-ALA 0,94; ZAG-VOL 0,94; LD/LE-ZAG 0,90; CA-PD/PE 0,90; SA-PD/PE 0,94; MEI-PD/PE 0,92; MC-SA 0,88; LD-PD, LE-PE 0,90; LD/LE-VOL 0,90; LIB-MC 0,90. Mesmo grupo: 0,90; grupos vizinhos: 0,80; distantes: 0,65; goleiro na linha: 0,35; jogador de linha no gol: 0,25 (e rende só 20% no gol).
 
 ### 4.4 Estados do jogador
-- **Stamina** (0–100): cai no jogo (≈ 33 − 0,22 × FIS por 90 min), recupera com o descanso (taxa 0,085 + 0,001 × FIS ao dia, menor para veteranos).
+- **Stamina** (0–100): cai no jogo (≈ 33 − 0,22 × FIS por 90 min), recupera com o descanso (taxa 0,085 + 0,001 × FIS ao dia, menor para veteranos). O efeito na força do jogador é 0,55 + 0,45 × (stamina/100)^1,25 (na v22 o expoente era 2): quem está com 80 de stamina rende ≈ 89% da força, com 70 ≈ 84%.
 - **Moral** (0–100): nota boa sobe, nota ruim desce (±5 por ponto de nota diferente de 6,3). Reserva que entra ganha confiança; moral de quem não joga tende a 50. Moral do computador se recupera 12% da distância até 55 por jogo, com piso de 30.
 - **Lesão**: risco por minuto 0,000062 × fator (1,85 − FIS/65, entre 0,5 e 1,6).
 - **Cartões**: 3 amarelos = suspensão; vermelho = 1 jogo.
 - **Evolução**: pelo desempenho em campo (nota), idade e moral; retorno decrescente em atributos altos. Treinos e prêmios de fim de ano somam pontos (nada acima de 87 nos prêmios).
-- **Contrato**: salário = valor de mercado × 0,0117 (mínimo R$ 500/mês); renovação nos últimos 3 meses.
+- **Contrato**: salário = valor de mercado × 0,0117 (mínimo R$ 500/mês); renovação nos últimos 3 meses. Garotos das categorias de base ganham R$ 400/mês.
 
 ### 4.5 Valor de mercado
-valor = 17.000 × e^((média − 40) × 0,14) × fator de idade × fator da posição, arredondado a R$ 1.000. Exemplo para o mesmo jogador: média 60 ≈ R$ 294 mil; 70 ≈ R$ 1,2 mi; 80 ≈ R$ 4,8 mi.
+**Valor base**: 17.000 × e^((média − 40) × 0,14) × fator de idade × fator da posição, arredondado a R$ 1.000. Exemplo para o mesmo jogador: média 60 ≈ R$ 294 mil; 70 ≈ R$ 1,2 mi; 80 ≈ R$ 4,8 mi. O salário (0,0117 do valor) continua saindo deste valor base.
+
+**Preço de mercado (v24)**: é o que o jogo usa para o preço pedido, a multa, o leilão e as propostas. Preço = valor base ÷ fator de idade em degraus × **curva de idade suave** × **fator de desempenho**.
+
+- **Curva de idade suave** (interpolação linear entre os pontos): 15 → 1,45; 18 → 1,40; 20 → 1,35; 22 → 1,25; 24 → 1,12; 26 → 1,00; 28 → 0,88; 30 → 0,72; 32 → 0,52; 34 → 0,38; 36 → 0,28; 38 → 0,20; 40 → 0,14. (Antes eram degraus: até 20 anos 1,35; 21–23: 1,2; 24–27: 1,0; 28–30: 0,8; 31–33: 0,5; 34+: 0,3.)
+- **Desempenho na temporada passada**: no fim da temporada o jogo guarda, para quem jogou 8 jogos ou mais, uma nota de desempenho comparada com os jogadores **da mesma posição e da mesma série**. Métrica por posição (por jogo): goleiro = 0,5 × defesas − gols sofridos; zagueiro e líbero = desarmes + 1,5 × gols; lateral = 0,8 × desarmes + 1,2 × assistências + 1,2 × gols; volante = desarmes + 0,8 × assistências + gols; meia central = 1,2 × assistências + 1,2 × gols + 0,4 × desarmes; MEI, ALA, PD e PE = assistências + gols; CA e SA = gols + 0,5 × assistências. O índice é z = 0,65 × (métrica − média do grupo) ÷ desvio + 0,35 × (nota média − média do grupo) ÷ desvio. **Fator de desempenho = 1 + 0,12 × z** (z limitado a −2 … +2,5), entre 0,80 e 1,40. Quem não jogou o mínimo de jogos, ou chegou depois, tem fator 1,0. O retrato aparece na ficha ("Temporada passada").
+- Exemplos reais de um jogo de teste (preço antes → agora): goleiro com 158 defesas e nota 7,61 (média 69): R$ 703 mil → R$ 965 mil; zagueiro com 137 desarmes (média 75, série B): R$ 2,78 mi → R$ 3,54 mi; volante com 17 gols e 139 desarmes (média 67, série C): R$ 774 mil → R$ 1,13 mi; centroavante com 19 gols e 9 assistências (média 72, série A): R$ 1,25 mi → R$ 1,63 mi; zagueiro de média 76 com 9 jogos e nota 5,81: R$ 2,77 mi → R$ 2,44 mi; meia de média 68 com 0 gols e 0 assistências em 12 jogos: R$ 724 mil → R$ 637 mil. Para o mesmo meia central de média 66, o preço por idade passa de R$ 963 mil aos 17 anos para R$ 639 mil aos 27, R$ 306 mil aos 33 e R$ 116 mil aos 39.
 
 ### 4.6 Traits (características, v22)
-De 2 a 4 jogadores por time têm uma característica (uma por jogador; aparece como etiqueta de 3 letras ao lado do nome). Sorteio por elegibilidade e peso; jogadores gerados depois (mercado, base) têm 4% de chance e, na virada do ano, cada time é completado a 2 e limitado a 4.
+De 2 a 4 jogadores por time têm uma característica (uma por jogador; aparece como etiqueta de 3 letras ao lado do nome). A trait Promessa (jogadores de base) não conta nesse limite. Sorteio por elegibilidade e peso; jogadores gerados depois (mercado, base) têm 4% de chance e, na virada do ano, cada time é completado a 2 e limitado a 4.
 
 | Trait | Abrev. | Quem pode | Efeito (valores no motor) |
 |---|---|---|---|
@@ -116,16 +127,30 @@ De 2 a 4 jogadores por time têm uma característica (uma por jogador; aparece c
 | Maestro | MAE | só MC ou MEI | Peso de passe ×1,4 e cara a cara ×1,9 quando dá o passe final. |
 | Menino prodígio | PRO | até 21 anos | Ganho de atributos nos jogos ×1,5 (×1,3 se venceu, ×1,1 se o time está entre os 10 primeiros da tabela) e ganho de treino ×1,5. Perde ao completar 22 anos. |
 | Cabeça de gelo | GEL | linha | Amarelo ×0,55, vermelho direto ×0,5. |
-| Highlander | HIG | qualquer | Lesão ×0,6, perda de stamina ×0,85. |
+| Highlander | HIG | só 30+ anos | Lesão ×0,45 (era ×0,6), perda de stamina ×0,85. Quem faz **exatamente 30 anos** sem nenhuma lesão no ano (e com pelo menos 15 jogos), sem trait e em time com menos de 4 traits tem 12% de chance de ganhar (medido: ≈ 7 a 8 ganhos por ano no mundo todo, em 80 clubes). Nunca se perde. |
+| Promessa | PRM | só jogadores da base (não sorteada) | Ver 4.7. |
 
 Efeitos medidos em 1.500 jogos pareados (ver o relatório de medições da v22).
+
+### 4.7 Categorias de base e Promessa (v24)
+- **Quem são**: garotos de 15 a 19 anos com média de 20 a 30 (parecida com a dos piores jogadores da Série D), nomes, posições e atributos sorteados, salário de R$ 400/mês, contrato de 24 meses, moral e stamina 100 ao serem contratados. Aparecem com a etiqueta **BASE** no plantel e no mercado.
+- **Chegada**: no início do jogo (28) e a cada fim de ano entram no mercado como livres: no mínimo 24 ou 80% do número de aposentados do ano, o que for maior. Quem não foi contratado volta para casa no fim do ano seguinte. O mercado tem o filtro **Categorias de base**; a contratação é como a de um livre (luvas de 2 salários = R$ 800).
+- **Potencial escondido**: cada garoto tem um potencial (média 59 no mercado; os garotos que um clube do computador revela têm potencial ligado ao prestígio do clube). Ele cresce, só por estar no elenco (jogando ou não), um número de pontos por jogo do clube tal que chega perto do potencial aos 22 anos (6 × (potencial − média) ÷ (anos até os 22 × 38 jogos) pontos de atributo por jogo). Medido: média 33 aos 15 anos, 42 aos 18, 53 aos 20, 58 aos 22.
+- **Bônus de base** (enquanto tem menos de 20 anos): ganho de atributos nos jogos ×1,6 e +3 de moral por jogo no primeiro ano; ganho de treino ×1,5 e perde metade da moral dos treinos.
+- **Promessa**: cada garoto tem 30% de chance de nascer com a trait Promessa; outras traits aparecem em 10% dos demais. A Promessa dá +20% de ganho nos 3 primeiros treinos. Ao **concluir o 3º treino**: abre uma janela para o técnico humano escolher **3 posições** da área do jogador (defesa: ZAG, LIB, LD, LE; meio: VOL, MC, MEI, ALA; ataque: PD, PE, CA, SA; no computador as 3 de maior média), e o jogador passa a atuar nelas (a de maior média vira a principal). **Goleiro** não escolhe posições: ganha +5 de defesa. Em todos os casos a trait Promessa some e há 40% de chance de ganhar uma nova trait que combine com o perfil do jogador, se o time tiver menos de 4 traits.
+- **Computador**: o técnico escolhe sozinho. Os clubes do computador completam o elenco até 24 jogadores com garotos da base criados no clube (contrato de 24 meses).
+
+### 4.8 Aposentadoria (v24)
+- **Aos 40 anos o jogador se aposenta automaticamente**, na virada do ano. Antes disso, a chance de aposentar na virada é de 20% × (idade − 35) para o computador e 20% × (idade − 36) para o humano, a partir dos 36 anos.
+- Com **39 anos** o jogador ganha a etiqueta **APOS** no plantel e uma linha "Aposentadoria" na ficha: ele se aposenta no fim do ano.
+- Aposentados saem do clube; clubes do computador repõem com garotos da base. Medido numa simulação de 12 anos: 18 aposentados no 1º ano e cerca de 175 por ano no ritmo estável; idade média do mundo 27 a 29 anos.
 
 ## 5. O jogo (motor de partida)
 
 Cada partida tem 90 minutos simulados minuto a minuto, mais acréscimos (ver 5.4).
 
 1. **Forças de cada time**: ataque = 0,60 × média do ataque + 0,30 × meio + 0,10 × defesa; defesa = 0,76 × defesa + 0,08 × meio + 0,16 × goleiro; controle = 0,60 × meio + 0,20 × ataque + 0,20 × defesa. Cada jogador entra com média no slot × stamina × moral × sinergia. Tudo multiplicado pelos modificadores da formação e da tática, por um fator de forma do dia (±3%) e pelo capitão.
-2. **Stamina e moral**: força × (0,55 + 0,45 × (stamina/100)²) e × (0,95 + 0,10 × moral/100). Quem entra do banco tem pernas frescas: +15% decaindo em 40 minutos.
+2. **Stamina e moral**: força × (0,55 + 0,45 × (stamina/100)^1,25) e × (0,95 + 0,10 × moral/100). Quem entra do banco tem pernas frescas: +15% decaindo em 40 minutos.
 3. **Posse**: (controle A)^2,2 ÷ soma, mais uma "maré" (v22): onda que se arrasta de um minuto para o outro (m = 0,88 × m + ruído de 0,04) e um empurrão de 1,5 ponto percentual por gol de desvantagem (até 4). A posse mostrada na tela é a dos últimos minutos (média móvel de 15%), então varia ao vivo; o resumo mostra o total do jogo. Mandante tem controle ×1,07.
 4. **Ataque**: a cada minuto há 0,575 × tempo médio das táticas de chance de um ataque; a posse e o ritmo (tempo) da tática decidem quem ataca. Time com folga de 2+ gols poupa o time.
 5. **Drible × marcação**: o driblador enfrenta o marcador; quem perde o duelo faz falta (pênalti se foi na área: atacante 24%, meia 11%, zagueiro 2%; senão falta direta 50%).
@@ -168,7 +193,7 @@ Mede o quanto os jogadores certos estão nos lugares que a tática e a formaçã
 
 | Estilo | Peso | Treina | Tática preferida | Formações preferidas | Acerto no intervalo |
 |---|---|---|---|---|---|
-| Formador | 20 | jovens até 23 anos | equilibrada | — | 55% |
+| Formador | 20 | jovens até 23 anos | — | — | 55% |
 | Ofensivista | 17 | CHU, DRI, RIT de atacantes e meias | ofensiva (40%) | 4-3-3, 3-4-3, 4-2-3-1 | 50% |
 | Retranqueiro | 17 | DEF, FIS de defensores, volantes e goleiros | defensiva/contra (40%) | 4-5-1, 3-5-2, 4-4-2 | 55% |
 | Preparador físico | 14 | FIS, RIT | — | — | 55% |
@@ -181,7 +206,8 @@ Mede o quanto os jogadores certos estão nos lugares que a tática e a formaçã
 
 ## 8. Mercado
 
-- Compra de jogadores de outros clubes: preço pedido = valor de mercado × (1 + 10% se titular + 25% se estrela). Aceita se cobrir o pedido; até 12% abaixo, contraproposta. Quem tem contrato exige também a multa rescisória.
+- Compra de jogadores de outros clubes: preço pedido = **preço de mercado (4.5)** × (1 + 10% se titular + 25% se estrela). Aceita se cobrir o pedido; até 12% abaixo, contraproposta. Quem tem contrato exige também a multa rescisória.
+- **Compras do computador (v24)**: a cada rodada de liga, cada clube do computador tem 4% de chance de tentar uma contratação. Procura, nas posições em que um reforço melhora o time em 3 pontos ou mais sobre o titular atual da posição (quantidade de vagas por posição: 2 ZAG, 2 MC e 1 nas outras), entre os jogadores de clubes **do mesmo nível ou de série abaixo** (nunca de série acima) e entre os livres que não são da base. O preço é o pedido normal mais a multa (livres: luvas), e o clube só compra se o custo for no máximo 60% do caixa e deixar pelo menos uma folha mensal em caixa. Escolhe o melhor (melhora no time menos 4 × custo/caixa). Computador nunca compra de jogadores de técnicos humanos (esses só vão por proposta aos que estão à venda). Medido: 94 a 121 compras por temporada (a maioria dentro da mesma série; poucas passam da D para a C, da C para a B e da B para a A).
 - Jogadores livres: 40 novos por ano, contrato de 12 meses, salário esperado e luvas (2 salários).
 - Venda e leilão de jogadores do próprio elenco; propostas do computador a jogadores à venda (chance de proposta 100% até 70% do valor, caindo a 0 em 160%).
 - Tela do mercado: filtros de posição, origem, média, idade, "cabe no caixa" (padrão ligado), "só quem melhora meu time"; coluna Δ = média do jogador − média do titular atual mais fraco na posição; ordem padrão "melhora para o meu time".
@@ -192,4 +218,10 @@ Mede o quanto os jogadores certos estão nos lugares que a tática e a formaçã
 
 ## 10. A detalhar nas próximas versões
 
-Calendário completo (datas, rodadas, dias de Copa); fórmula exata do público e da elasticidade do ingresso; patrocínios; campanhas de sócios; leilão; fórmula de evolução por idade (progressão anual); aposentadoria; tabela completa de prêmios individuais; regras de desempate; som e interface.
+Calendário completo (datas, rodadas, dias de Copa); fórmula exata do público e da elasticidade do ingresso; patrocínios; campanhas de sócios; fórmula de evolução por idade (progressão anual); tabela completa de prêmios individuais; regras de desempate; som e interface.
+
+## 11. Sons da torcida (v24)
+Todos gerados no próprio navegador (nada de gravações). Quando o técnico humano tem um jogador expulso, ou há pênalti contra o time dele, a torcida grita com raiva uma das duas frases sorteadas: "Fela da puta!" ou "Juiz ladrão!" (voz do navegador, sobre o ruído de arquibancada em fúria usado no gol sofrido). No pênalti, o grito vem logo depois do apito do juiz.
+
+## 12. Estilos dos técnicos do computador
+A lista completa e a planilha dos estilos estão em `03-estilos-dos-tecnicos-do-computador.md` e `estilos-dos-tecnicos-do-computador.xlsx` (thread Regras e Características). Nenhum estilo novo foi implementado, aguardando decisão do KK.

@@ -38,7 +38,7 @@ Flamengo;Série A;Cleiton Miranda;13;Nilton Siqueira;BRA;LD;LE;25;74;74;61;65;77
 Flamengo;Série A;Cleiton Miranda;6;Fernando Franco;BRA;LE;;24;84;85;74;80;97;91;67;78;173;64;E;sim;;Fair player;100;70;1999-03-31;119300;10200000
 Flamengo;Série A;Cleiton Miranda;16;Adriano Lima;BRA;LE;;19;75;79;52;73;71;79;72;80;172;67;E;;;De boa;100;70;1998-12-31;42300;3616000
 Flamengo;Série A;Cleiton Miranda;1;Clemer;BRA;GOL;;31;86;62;41;72;74;95;85;26;188;76;D;sim;;De boa;100;70;1999-06-30;62600;5350000
-Flamengo;Série A;Cleiton Miranda;12;Eduardo Costa;BRA;GOL;;29;75;52;41;66;62;86;64;49;188;77;D;;Highlander;Equilibrado;100;70;1999-03-31;21500;1835000
+Flamengo;Série A;Cleiton Miranda;12;Eduardo Costa;BRA;GOL;;29;75;52;41;66;62;86;64;49;188;77;D;;Cabeça de gelo;Equilibrado;100;70;1999-03-31;21500;1835000
 Flamengo;Série A;Cleiton Miranda;22;Sandro Lopes;BRA;GOL;;26;74;60;44;64;70;79;71;33;190;79;D;;;Macetador;100;70;1999-05-31;22100;1885000
 Flamengo;Série A;Cleiton Miranda;8;Ronaldo Lopes;BRA;VOL;;22;75;64;62;77;66;81;74;65;180;74;D;;Cabeça de gelo;Porradeiro;100;70;1999-04-30;33500;2865000
 Flamengo;Série A;Cleiton Miranda;5;Aílton Freitas;BRA;VOL;LIB;30;77;62;60;84;64;81;81;62;182;78;D;;;Porradeiro;100;70;1999-06-30;30800;2636000
@@ -48,7 +48,7 @@ Flamengo;Série A;Cleiton Miranda;24;Paulo Farias;BRA;MC;;28;63;50;63;70;68;58;5
 Flamengo;Série A;Cleiton Miranda;20;Wilson Ramos;BRA;MEI;;21;67;58;69;68;74;46;64;68;171;67;D;;;Porradeiro;100;70;1998-12-31;11200;959000
 Flamengo;Série A;Cleiton Miranda;10;Carlos Teixeira;BRA;MEI;;37;68;53;80;80;64;42;46;97;182;74;E;;;De boa;100;70;1999-03-31;3100;264000
 Palmeiras;Série A;Jonas Martins;9;Alberto Cavalcante;BRA;PD;;21;66;70;59;59;74;45;54;65;173;63;D;;;De boa;100;70;1999-02-28;8600;735000
-Palmeiras;Série A;Jonas Martins;11;Euller;BRA;PE;;28;68;74;69;64;66;50;65;60;172;65;E;;Highlander;Porradeiro;100;70;1999-01-31;7900;679000
+Palmeiras;Série A;Jonas Martins;11;Euller;BRA;PE;;28;68;74;69;64;66;50;65;60;172;65;E;;Cabeça de gelo;Porradeiro;100;70;1999-01-31;7900;679000
 Palmeiras;Série A;Jonas Martins;23;Evair;BRA;CA;;21;63;47;75;38;47;22;65;91;172;64;D;;;Equilibrado;100;70;1998-12-31;5200;445000
 Palmeiras;Série A;Jonas Martins;18;Oséas;BRA;CA;;28;65;55;68;46;64;45;71;75;180;81;D;;;De boa;100;70;1999-03-31;4600;396000
 Palmeiras;Série A;Jonas Martins;19;Paulo Nunes;URU;CA;;29;65;70;65;63;55;45;70;58;182;71;D;;;De boa;100;70;1998-12-31;4700;405000
@@ -93,7 +93,7 @@ São Paulo;Série A;Vander Pacheco;8;Souza;BRA;VOL;;23;75;66;61;71;68;82;81;53;1
 São Paulo;Série A;Vander Pacheco;15;Marcelinho Paraíba;BRA;VOL;;27;74;70;63;81;67;73;78;55;181;72;E;;Coringa;Porradeiro;100;70;1999-05-31;25900;2211000
 São Paulo;Série A;Vander Pacheco;23;Helton Rocha;BRA;MC;;21;63;61;56;69;57;65;63;69;175;64;D;;;Fair player;100;70;1999-06-30;6000;516000
 São Paulo;Série A;Vander Pacheco;17;Carlos Miguel;BRA;MC;MEI;24;67;61;66;69;71;65;68;55;177;71;D;;;Porradeiro;100;70;1999-03-31;9800;838000
-São Paulo;Série A;Vander Pacheco;10;Denílson;BRA;MEI;;28;64;68;61;76;62;47;41;61;166;62;D;;Líder nato;Porradeiro;100;70;1999-04-30;4400;379000
+São Paulo;Série A;Vander Pacheco;10;Denílson;BRA;MEI;;28;64;68;61;76;62;47;41;61;166;62;D;;Salvador da pátria;Porradeiro;100;70;1999-04-30;4400;379000
 São Paulo;Série A;Vander Pacheco;20;Raí;BRA;MEI;;22;63;70;67;69;63;42;41;64;176;66;D;;;Equilibrado;100;70;1998-12-31;6000;516000
 Vasco da Gama;Série A;Sandro Oliveira;9;Hélio Santos;BRA;PD;;21;66;69;58;62;75;45;54;60;176;68;D;;;De boa;100;70;1999-06-30;9000;767000
 Vasco da Gama;Série A;Sandro Oliveira;11;Mauricinho;BRA;PE;CA;25;67;71;67;63;69;36;59;74;174;66;D;;;Fair player;100;70;1999-05-31;8600;736000
@@ -183,7 +183,7 @@ Internacional;Série A;Reinaldo Rodrigues;6;Dida Miranda;BRA;LE;;25;75;77;62;86;
 Internacional;Série A;Reinaldo Rodrigues;16;Fabián Medina;PAR;LE;;32;73;70;67;71;75;78;71;61;182;72;E;;;Equilibrado;100;70;1999-06-30;12600;1078000
 Internacional;Série A;Reinaldo Rodrigues;12;Sandro Carvalho;BRA;GOL;;30;75;58;35;56;66;83;70;35;185;79;D;;;Macetador;100;70;1999-06-30;19100;1629000
 Internacional;Série A;Reinaldo Rodrigues;1;Edu Lopes;BRA;GOL;;25;85;60;45;88;70;93;74;39;187;83;E;sim;;Equilibrado;100;70;1999-05-31;96600;8258000
-Internacional;Série A;Reinaldo Rodrigues;22;Vander Cunha;BRA;GOL;;24;74;49;40;56;60;83;76;31;181;70;D;;Highlander;De boa;100;70;1999-06-30;22400;1912000
+Internacional;Série A;Reinaldo Rodrigues;22;Vander Cunha;BRA;GOL;;24;74;49;40;56;60;83;76;31;181;70;D;;Cabeça de gelo;De boa;100;70;1999-06-30;22400;1912000
 Internacional;Série A;Reinaldo Rodrigues;8;Vágner Cardoso;BRA;VOL;;22;75;69;65;73;67;83;72;77;181;71;D;;;Fair player;100;70;1999-01-31;34400;2943000
 Internacional;Série A;Reinaldo Rodrigues;15;Raimundo Martins;BRA;VOL;ZAG/LIB;34;73;55;56;73;70;83;68;72;177;64;D;;;De boa;100;70;1999-04-30;6300;540000
 Internacional;Série A;Reinaldo Rodrigues;5;Hélio Furtado;BRA;VOL;ZAG;26;85;81;59;86;71;92;88;73;182;72;D;sim;;Macetador;100;70;1999-04-30;114100;9751000
@@ -196,7 +196,7 @@ Atlético-MG;Série A;Marcelo Nunes;24;Ivan Farias;BRA;PE;;25;61;66;61;69;56;41;
 Atlético-MG;Série A;Marcelo Nunes;9;Eduardo Torres;ARG;CA;;27;67;49;79;53;61;53;61;73;178;74;D;;;Equilibrado;100;70;1998-12-31;7800;665000
 Atlético-MG;Série A;Marcelo Nunes;19;Adriano Duarte;BRA;CA;PE;28;64;59;70;55;55;40;62;78;174;75;D;;;Fair player;100;70;1999-03-31;3900;334000
 Atlético-MG;Série A;Marcelo Nunes;18;Antônio Freitas;BRA;CA;;25;62;48;71;57;47;40;63;65;177;74;D;;;De boa;100;70;1999-05-31;3900;332000
-Atlético-MG;Série A;Marcelo Nunes;21;José Cardoso;BRA;SA;;28;67;80;63;58;71;46;51;58;173;68;D;;Highlander;Equilibrado;100;70;1999-05-31;6100;524000
+Atlético-MG;Série A;Marcelo Nunes;21;José Cardoso;BRA;SA;;28;67;80;63;58;71;46;51;58;173;68;D;;Cabeça de gelo;Equilibrado;100;70;1999-05-31;6100;524000
 Atlético-MG;Série A;Marcelo Nunes;3;Nicolás Medina;PAR;ZAG;;26;77;67;57;65;50;86;82;56;175;67;D;;;De boa;100;70;1999-04-30;47000;4021000
 Atlético-MG;Série A;Marcelo Nunes;15;Amaral Franco;BRA;ZAG;;26;73;58;58;74;66;76;74;70;182;68;D;;Coringa;Equilibrado;100;70;1999-04-30;26000;2218000
 Atlético-MG;Série A;Marcelo Nunes;4;Tadeu Oliveira;BRA;ZAG;LIB;31;75;67;53;66;64;80;77;61;183;79;E;;;Equilibrado;100;70;1999-03-31;16200;1387000
@@ -284,7 +284,7 @@ Bahia;Série A;Dida Souza;5;André Fernandes;BRA;VOL;MC;24;73;58;56;80;66;79;71;
 Bahia;Série A;Dida Souza;8;Davi Viana;BRA;VOL;LIB;27;73;69;60;68;62;81;74;69;190;77;D;;;De boa;100;70;1998-12-31;21000;1797000
 Bahia;Série A;Dida Souza;7;Dida Ramos;BRA;VOL;ZAG;20;73;71;63;70;61;82;68;75;188;71;E;;;Equilibrado;100;70;1999-03-31;28000;2392000
 Bahia;Série A;Dida Souza;21;Silvio Silva;BRA;MC;MEI;27;62;64;63;66;61;57;56;63;178;70;D;;;Equilibrado;100;70;1998-12-31;4300;365000
-Bahia;Série A;Dida Souza;17;Vágner Vieira;BRA;MC;;28;62;56;55;67;70;60;53;72;179;76;E;;Driblador;De boa;100;70;1999-06-30;3600;310000
+Bahia;Série A;Dida Souza;17;Vágner Vieira;BRA;MC;;28;62;56;55;67;70;60;53;72;179;76;E;;Coringa;De boa;100;70;1999-06-30;3600;310000
 Bahia;Série A;Dida Souza;20;Rogério Oliveira;BRA;MEI;;29;62;40;65;62;74;45;44;75;181;72;E;;;Equilibrado;100;70;1999-04-30;3400;290000
 Bahia;Série A;Dida Souza;10;Hélio Araújo;BRA;MEI;;31;66;63;58;65;79;56;50;62;183;69;D;;Maestro;Equilibrado;100;70;1999-05-31;3700;313000
 Vitória;Série A;Sérgio Pacheco;24;Tadeu Almeida;BRA;PD;PE;19;59;68;58;43;61;43;54;60;177;63;D;;;Macetador;100;70;1999-01-31;3600;310000
@@ -330,7 +330,7 @@ Portuguesa;Série A;Carlos Nascimento;12;Fábio Toledo;BRA;GOL;;22;71;55;35;57;6
 Portuguesa;Série A;Carlos Nascimento;1;Leonardo Peralta;PAR;GOL;;29;75;58;40;63;73;79;75;89;184;78;D;;;Fair player;100;70;1999-05-31;19900;1699000
 Portuguesa;Série A;Carlos Nascimento;5;Marcelo Benítez;URU;VOL;ZAG;31;82;73;74;78;64;87;95;75;178;71;E;sim;;Macetador;100;70;1999-06-30;40800;3489000
 Portuguesa;Série A;Carlos Nascimento;7;Jefferson Viana;BRA;VOL;;20;70;69;63;63;63;72;79;67;181;75;D;;;Macetador;100;70;1999-02-28;18800;1607000
-Portuguesa;Série A;Carlos Nascimento;8;Santiago Aguirre;CHI;VOL;;25;75;76;60;71;56;88;72;49;180;70;D;;Cabeça de gelo;De boa;100;70;1998-12-31;30500;2608000
+Portuguesa;Série A;Carlos Nascimento;8;Santiago Aguirre;CHI;VOL;;25;75;76;60;71;56;88;72;49;180;70;D;;Popstar;De boa;100;70;1998-12-31;30500;2608000
 Portuguesa;Série A;Carlos Nascimento;11;Diego Borges;BRA;MC;MEI;17;62;54;56;72;69;48;66;70;173;64;D;;;Porradeiro;100;70;1999-04-30;6600;562000
 Portuguesa;Série A;Carlos Nascimento;17;Sérgio Mendes;BRA;MC;MEI;30;63;53;62;70;55;61;73;83;171;58;D;;;Macetador;100;70;1999-06-30;4400;379000
 Portuguesa;Série A;Carlos Nascimento;10;Kleber Pereira;BRA;MEI;;24;65;63;64;71;72;39;47;89;174;72;E;;;Macetador;100;70;1999-06-30;7000;596000
@@ -340,12 +340,12 @@ Coritiba;Série A;Marcos Martins;19;Francisco Andrade;BRA;PE;;23;60;63;61;47;70;
 Coritiba;Série A;Marcos Martins;23;Beto Fernandes;BRA;CA;PE;20;59;66;56;50;49;29;69;66;176;68;E;;;Equilibrado;100;70;1999-05-31;3200;275000
 Coritiba;Série A;Marcos Martins;9;Guilherme Souza;BRA;CA;SA;26;64;48;74;54;56;37;62;67;181;73;D;;;Equilibrado;100;70;1999-05-31;5300;450000
 Coritiba;Série A;Marcos Martins;24;Jefferson Borges;BRA;CA;;19;59;42;62;42;62;26;64;47;192;81;D;;;Equilibrado;100;70;1999-01-31;3200;275000
-Coritiba;Série A;Marcos Martins;21;Ignacio Medina;ARG;SA;CA/MEI;29;60;60;61;54;67;33;42;63;174;61;E;;Driblador;Porradeiro;100;70;1998-12-31;2500;210000
+Coritiba;Série A;Marcos Martins;21;Ignacio Medina;ARG;SA;CA/MEI;29;60;60;61;54;67;33;42;63;174;61;E;;Coringa;Porradeiro;100;70;1998-12-31;2500;210000
 Coritiba;Série A;Marcos Martins;7;Jorge Aguirre;URU;ZAG;VOL;27;71;47;61;63;63;74;83;56;183;75;D;;;Porradeiro;100;70;1999-01-31;19100;1635000
 Coritiba;Série A;Marcos Martins;3;Rodrigo Melo;BRA;ZAG;LD/LIB;28;75;65;59;62;63;81;83;56;191;77;D;;;Porradeiro;100;70;1999-02-28;29000;2476000
 Coritiba;Série A;Marcos Martins;14;Alexandre Cunha;BRA;ZAG;;31;74;73;54;56;58;81;81;47;184;80;E;;;Equilibrado;100;70;1999-01-31;15200;1301000
 Coritiba;Série A;Marcos Martins;4;Helton Barbosa;BRA;ZAG;;30;74;54;50;64;60;83;77;52;185;82;D;;;Porradeiro;100;70;1999-03-31;25600;2186000
-Coritiba;Série A;Marcos Martins;2;Antônio Cardoso;BRA;LD;ZAG/LE;24;83;89;65;75;87;90;75;61;188;84;D;sim;Coringa;Equilibrado;100;70;1999-04-30;105200;8992000
+Coritiba;Série A;Marcos Martins;2;Antônio Cardoso;BRA;LD;ZAG/LE;24;83;89;65;75;87;90;75;61;188;84;D;sim;Catimbeiro;Equilibrado;100;70;1999-04-30;105200;8992000
 Coritiba;Série A;Marcos Martins;13;Gustavo Duarte;BRA;LD;LE;30;83;90;71;71;89;88;77;87;174;65;D;sim;;Fair player;100;70;1999-02-28;79400;6783000
 Coritiba;Série A;Marcos Martins;6;João Gomes;BRA;LE;ZAG;25;73;73;64;71;65;83;64;67;169;61;E;;;Macetador;100;70;1999-06-30;24700;2111000
 Coritiba;Série A;Marcos Martins;16;Wagner Almeida;BRA;LE;;26;73;74;73;76;70;75;64;78;181;78;E;;;Fair player;100;70;1998-12-31;23500;2005000
@@ -394,12 +394,12 @@ Sport;Série A;Leandro Barbosa;7;Valdir Lima;BRA;ZAG;;17;69;57;57;59;58;74;74;57
 Sport;Série A;Leandro Barbosa;14;Leonardo Andrade;BRA;ZAG;LE;26;70;58;45;59;52;82;64;61;181;70;E;;;De boa;100;70;1999-01-31;18300;1567000
 Sport;Série A;Leandro Barbosa;4;Federico López;URU;ZAG;LE;36;71;66;41;61;56;76;79;60;183;81;D;;;Macetador;100;70;1999-02-28;6000;516000
 Sport;Série A;Leandro Barbosa;13;Luís Silva;BRA;LD;;34;72;72;62;74;78;76;58;79;178;69;D;;;De boa;100;70;1999-01-31;6300;538000
-Sport;Série A;Leandro Barbosa;2;Edmar Barbosa;BRA;LD;;25;72;73;61;74;80;71;68;66;168;65;D;;Batedor de faltas;Porradeiro;100;70;1999-01-31;21800;1859000
+Sport;Série A;Leandro Barbosa;2;Edmar Barbosa;BRA;LD;;25;72;73;61;74;80;71;68;66;168;65;D;;Líder nato;Porradeiro;100;70;1999-01-31;21800;1859000
 Sport;Série A;Leandro Barbosa;16;Marcelo Moreira;BRA;LE;ZAG;18;69;77;62;58;56;73;77;50;177;61;E;;;Fair player;100;70;1999-06-30;18800;1603000
 Sport;Série A;Leandro Barbosa;6;Cleber Peixoto;BRA;LE;ZAG/LD;24;75;77;52;80;69;74;80;83;167;67;E;;;Macetador;100;70;1999-04-30;32500;2778000
 Sport;Série A;Leandro Barbosa;22;Renato Rocha;BRA;GOL;;26;71;58;42;59;68;75;71;15;185;72;D;;;Equilibrado;100;70;1999-06-30;14300;1222000
 Sport;Série A;Leandro Barbosa;12;Edson Freitas;BRA;GOL;;22;73;56;24;60;65;80;67;37;184;75;E;;;De boa;100;70;1999-06-30;21800;1860000
-Sport;Série A;Leandro Barbosa;1;Edson Cunha;BRA;GOL;;26;75;55;24;61;54;85;73;35;188;81;D;;Highlander;Fair player;100;70;1999-02-28;24200;2065000
+Sport;Série A;Leandro Barbosa;1;Edson Cunha;BRA;GOL;;26;75;55;24;61;54;85;73;35;188;81;D;;Cabeça de gelo;Fair player;100;70;1999-02-28;24200;2065000
 Sport;Série A;Leandro Barbosa;5;Adílson Duarte;BRA;VOL;;24;82;69;66;79;67;95;80;66;182;71;D;sim;;Porradeiro;100;70;1999-03-31;77000;6580000
 Sport;Série A;Leandro Barbosa;8;Alex Lopes;BRA;VOL;MC;24;74;66;70;73;63;80;74;80;178;67;D;;;De boa;100;70;1999-06-30;25100;2144000
 Sport;Série A;Leandro Barbosa;15;Pedro Nunes;BRA;VOL;;27;71;66;60;72;70;73;74;55;178;69;A;;;Equilibrado;100;70;1999-06-30;17300;1477000
@@ -447,7 +447,7 @@ Paraná;Série A;André Vieira;6;Pedro Duarte;BRA;LE;;27;74;85;59;66;79;74;69;59
 Paraná;Série A;André Vieira;16;Mauro Borges;BRA;LE;;28;69;77;60;67;71;66;68;53;171;62;E;;;De boa;100;70;1999-01-31;11100;950000
 Paraná;Série A;André Vieira;1;Fabián Rodríguez;CHI;GOL;;28;72;41;25;52;59;84;64;31;189;83;D;;;Fair player;100;70;1999-03-31;13200;1124000
 Paraná;Série A;André Vieira;22;Cláudio Leite;BRA;GOL;;29;70;58;32;46;70;76;70;37;179;72;A;;;De boa;100;70;1999-04-30;10500;899000
-Paraná;Série A;André Vieira;12;Adriano Costa;BRA;GOL;;26;72;49;30;59;58;81;66;23;182;83;D;;Cabeça de gelo;Fair player;100;70;1999-03-31;15500;1329000
+Paraná;Série A;André Vieira;12;Adriano Costa;BRA;GOL;;26;72;49;30;59;58;81;66;23;182;83;D;;Líder nato;Fair player;100;70;1999-03-31;15500;1329000
 Paraná;Série A;André Vieira;8;Henrique Pinto;BRA;VOL;MC;31;80;73;58;69;66;92;91;53;168;57;D;sim;;De boa;100;70;1999-02-28;31600;2704000
 Paraná;Série A;André Vieira;15;José Rodríguez;PAR;VOL;LIB/MC;17;71;63;61;75;62;71;78;79;176;69;D;;;Macetador;100;70;1999-03-31;22400;1918000
 Paraná;Série A;André Vieira;5;Ronaldo Cavalcante;BRA;VOL;LIB/MC;31;81;63;81;84;66;84;89;84;178;71;D;sim;;Macetador;100;70;1999-06-30;35300;3016000
@@ -515,7 +515,7 @@ Ceará;Série B;Caio Nascimento;4;Anderson Moreira;BRA;ZAG;;23;65;63;43;63;42;70
 Ceará;Série B;Caio Nascimento;7;Adailton Correia;BRA;ZAG;;18;60;45;41;52;43;68;61;64;186;81;D;;;Porradeiro;100;70;1999-02-28;5800;498000
 Ceará;Série B;Caio Nascimento;2;Gilson Carvalho;BRA;LD;PD;26;65;76;55;63;55;61;69;55;185;82;D;;;De boa;100;70;1999-04-30;7400;633000
 Ceará;Série B;Caio Nascimento;13;Helton Coelho;BRA;LD;LE;31;64;62;55;65;61;70;55;63;173;63;D;;;De boa;100;70;1999-03-31;3300;280000
-Ceará;Série B;Caio Nascimento;16;Gilson Peixoto;BRA;LE;ZAG;17;61;65;42;66;65;58;57;52;180;72;E;;Cabeça de gelo;Porradeiro;100;70;1999-06-30;6100;519000
+Ceará;Série B;Caio Nascimento;16;Gilson Peixoto;BRA;LE;ZAG;17;61;65;42;66;65;58;57;52;180;72;E;;Menino prodígio;Porradeiro;100;70;1999-06-30;6100;519000
 Ceará;Série B;Caio Nascimento;6;Cláudio Batista;BRA;LE;PE;31;73;75;56;70;70;79;68;77;176;67;E;sim;;Fair player;100;70;1999-04-30;12000;1028000
 Ceará;Série B;Caio Nascimento;12;Edmar Araújo;BRA;GOL;;23;65;51;28;48;54;71;67;73;189;80;D;;;Equilibrado;100;70;1999-03-31;7100;603000
 Ceará;Série B;Caio Nascimento;1;Gilmar Moreira;BRA;GOL;;28;74;50;35;62;69;79;75;26;193;81;D;sim;;De boa;100;70;1999-04-30;17000;1456000
@@ -559,7 +559,7 @@ Náutico;Série B;Eduardo Fernandes;19;Pedro Almeida;BRA;CA;PE;29;54;40;62;45;45
 Náutico;Série B;Eduardo Fernandes;21;Ricardo Rocha;BRA;SA;;31;55;56;51;45;67;28;45;63;179;76;D;;;Porradeiro;100;70;1998-12-31;700;64000
 Náutico;Série B;Eduardo Fernandes;7;Tadeu Moura;BRA;ZAG;;17;61;47;50;59;44;66;65;61;194;89;D;;;De boa;100;70;1999-02-28;6900;589000
 Náutico;Série B;Eduardo Fernandes;4;Elias Rocha;BRA;ZAG;;29;62;44;40;55;38;73;58;78;185;79;D;;;De boa;100;70;1999-02-28;4600;389000
-Náutico;Série B;Eduardo Fernandes;3;Vander Maciel;BRA;ZAG;LE;24;65;53;50;57;43;71;70;60;174;67;D;;Coringa;Equilibrado;100;70;1999-03-31;8200;699000
+Náutico;Série B;Eduardo Fernandes;3;Vander Maciel;BRA;ZAG;LE;24;65;53;50;57;43;71;70;60;174;67;D;;Batedor de faltas;Equilibrado;100;70;1999-03-31;8200;699000
 Náutico;Série B;Eduardo Fernandes;14;Cláudio Melo;BRA;ZAG;;31;62;60;40;59;54;60;77;42;192;95;E;;;Equilibrado;100;70;1999-04-30;2700;235000
 Náutico;Série B;Eduardo Fernandes;2;Cláudio Brito;BRA;LD;;30;66;64;62;53;61;77;65;63;178;70;D;;;De boa;100;70;1999-05-31;6900;591000
 Náutico;Série B;Eduardo Fernandes;13;Cleiton Pereira;BRA;LD;;21;64;80;53;60;50;68;56;56;173;65;D;;;Porradeiro;100;70;1999-06-30;8800;750000
@@ -631,7 +631,7 @@ Ponte Preta;Série B;Kleber Maciel;19;Elias Batista;BRA;CA;;28;52;33;59;57;43;18
 Ponte Preta;Série B;Kleber Maciel;21;Edmar Pacheco;BRA;SA;CA;22;56;49;62;58;57;22;41;63;173;62;D;;;Equilibrado;100;70;1999-03-31;2100;182000
 Ponte Preta;Série B;Kleber Maciel;7;Pedro Carvalho;BRA;ZAG;;26;62;49;49;49;51;71;60;57;187;83;D;;;Porradeiro;100;70;1999-05-31;5700;483000
 Ponte Preta;Série B;Kleber Maciel;4;Aílton Lima;BRA;ZAG;LE/LIB;24;64;58;44;57;56;70;61;50;179;68;E;;;Fair player;100;70;1999-01-31;7300;628000
-Ponte Preta;Série B;Kleber Maciel;3;Gabriel Ramos;BRA;ZAG;LIB;25;66;52;48;55;51;71;75;57;185;72;D;;Popstar;Porradeiro;100;70;1999-01-31;9500;811000
+Ponte Preta;Série B;Kleber Maciel;3;Gabriel Ramos;BRA;ZAG;LIB;25;66;52;48;55;51;71;75;57;185;72;D;;Cabeção;Porradeiro;100;70;1999-01-31;9500;811000
 Ponte Preta;Série B;Kleber Maciel;14;Hélio Silva;BRA;ZAG;LE;23;64;48;41;60;26;74;65;94;195;84;D;;;Fair player;100;70;1999-01-31;8800;754000
 Ponte Preta;Série B;Kleber Maciel;2;Luciano Oliveira;BRA;LD;;24;73;79;60;71;74;73;72;69;172;69;D;sim;;Equilibrado;100;70;1999-04-30;25200;2153000
 Ponte Preta;Série B;Kleber Maciel;13;Vágner Lopes;BRA;LD;ALA;29;62;59;44;54;55;72;69;52;182;77;D;;;Equilibrado;100;70;1999-02-28;4400;376000
@@ -641,7 +641,7 @@ Ponte Preta;Série B;Kleber Maciel;12;Jair Moreira;BRA;GOL;;21;62;49;24;46;61;67
 Ponte Preta;Série B;Kleber Maciel;1;João Souza;BRA;GOL;;24;64;46;24;53;70;68;55;34;194;81;D;;;Equilibrado;100;70;1999-02-28;5300;449000
 Ponte Preta;Série B;Kleber Maciel;22;Gilmar Xavier;BRA;GOL;;28;62;48;10;53;53;68;58;77;188;71;D;;;Fair player;100;70;1999-02-28;3200;271000
 Ponte Preta;Série B;Kleber Maciel;8;Tadeu Dias;BRA;VOL;;28;65;60;60;63;64;65;70;71;176;69;D;;;Equilibrado;100;70;1999-05-31;5500;474000
-Ponte Preta;Série B;Kleber Maciel;5;Adriano Freitas;BRA;VOL;;28;73;61;60;75;61;81;72;49;176;69;E;sim;Cabeça de gelo;Equilibrado;100;70;1999-05-31;17700;1510000
+Ponte Preta;Série B;Kleber Maciel;5;Adriano Freitas;BRA;VOL;;28;73;61;60;75;61;81;72;49;176;69;E;sim;Popstar;Equilibrado;100;70;1999-05-31;17700;1510000
 Ponte Preta;Série B;Kleber Maciel;15;Thiago Carvalho;BRA;VOL;;33;62;58;56;64;55;62;69;48;181;68;E;;;Equilibrado;100;70;1999-02-28;2500;212000
 Ponte Preta;Série B;Kleber Maciel;17;Santiago Giménez;COL;MC;MEI;27;53;50;58;52;52;57;48;92;178;67;D;;;Equilibrado;100;70;1999-01-31;1300;114000
 Ponte Preta;Série B;Kleber Maciel;24;Jair Bezerra;BRA;MC;;24;50;56;52;55;51;44;41;55;182;75;D;;;Fair player;100;70;1998-12-31;900;73000
@@ -657,7 +657,7 @@ Remo;Série B;Silvio Machado;14;Alberto Dias;BRA;ZAG;LE;18;62;60;30;46;43;73;60;
 Remo;Série B;Silvio Machado;4;Edu Xavier;BRA;ZAG;;32;62;62;40;53;50;68;63;44;186;77;E;;;Equilibrado;100;70;1999-01-31;2900;252000
 Remo;Série B;Silvio Machado;7;Rogério Melo;BRA;ZAG;;27;61;48;49;45;50;68;67;49;181;73;D;;;Equilibrado;100;70;1998-12-31;4800;414000
 Remo;Série B;Silvio Machado;3;Osvaldo Cunha;BRA;ZAG;;29;72;55;58;59;64;81;68;58;176;71;D;sim;;De boa;100;70;1999-01-31;17300;1481000
-Remo;Série B;Silvio Machado;13;Renato Cunha;BRA;LD;;26;61;74;43;54;64;60;59;74;173;64;D;;Driblador;Porradeiro;100;70;1999-01-31;4700;404000
+Remo;Série B;Silvio Machado;13;Renato Cunha;BRA;LD;;26;61;74;43;54;64;60;59;74;173;64;D;;Coringa;Porradeiro;100;70;1999-01-31;4700;404000
 Remo;Série B;Silvio Machado;2;Wilson Farias;BRA;LD;ALA;20;62;72;48;48;54;66;66;47;180;73;D;;;Porradeiro;100;70;1999-01-31;6600;568000
 Remo;Série B;Silvio Machado;16;Paulo Freitas;BRA;LE;;17;62;70;61;58;56;60;67;64;175;69;E;;;Fair player;100;70;1999-02-28;7200;613000
 Remo;Série B;Silvio Machado;6;Aloísio Dias;BRA;LE;;28;65;63;47;58;56;77;63;50;170;62;E;;;De boa;100;70;1999-04-30;6200;534000
@@ -666,7 +666,7 @@ Remo;Série B;Silvio Machado;22;Walter Silva;URU;GOL;;30;63;51;10;47;59;69;61;24
 Remo;Série B;Silvio Machado;1;Adriano Miranda;BRA;GOL;;31;73;54;42;54;64;78;81;29;181;76;D;sim;;Fair player;100;70;1999-02-28;9300;791000
 Remo;Série B;Silvio Machado;8;Gabriel Pacheco;BRA;VOL;ZAG/LIB;27;63;58;55;64;56;63;68;61;174;65;D;;;Porradeiro;100;70;1999-02-28;5100;436000
 Remo;Série B;Silvio Machado;15;Luís Duarte;BRA;VOL;;20;61;51;23;74;50;67;60;52;177;71;D;;;Equilibrado;100;70;1999-06-30;5700;483000
-Remo;Série B;Silvio Machado;5;Beto Pereira;BRA;VOL;LIB;28;65;40;48;74;60;66;70;54;175;63;E;;Highlander;Porradeiro;100;70;1999-04-30;5400;462000
+Remo;Série B;Silvio Machado;5;Beto Pereira;BRA;VOL;LIB;28;65;40;48;74;60;66;70;54;175;63;E;;Cabeça de gelo;Porradeiro;100;70;1999-04-30;5400;462000
 Remo;Série B;Silvio Machado;24;Davi Souza;BRA;MC;MEI;26;50;42;44;45;61;50;53;59;174;62;E;;;Porradeiro;100;70;1998-12-31;800;68000
 Remo;Série B;Silvio Machado;17;Rafael Borges;BRA;MC;MEI;21;51;44;49;52;56;52;45;50;171;71;D;;;De boa;100;70;1999-01-31;1200;99000
 Remo;Série B;Silvio Machado;10;Juninho Rodrigues;BRA;MEI;;27;55;54;54;57;63;50;31;63;168;63;D;;;Fair player;100;70;1998-12-31;1700;147000
@@ -757,19 +757,19 @@ Criciúma;Série B;Valdir Duarte;13;Luciano Batista;BRA;LD;ZAG;26;62;73;53;60;62
 Criciúma;Série B;Valdir Duarte;2;Renato Batista;BRA;LD;LE;28;71;77;45;70;74;69;73;56;179;72;D;sim;;Porradeiro;100;70;1999-03-31;14600;1250000
 Criciúma;Série B;Valdir Duarte;16;Givanildo Teixeira;BRA;LE;;33;59;51;42;63;58;64;63;67;175;66;E;;;Fair player;100;70;1999-04-30;1800;156000
 Criciúma;Série B;Valdir Duarte;6;Paulo Oliveira;BRA;LE;;29;62;61;54;56;62;66;63;62;176;71;A;;;De boa;100;70;1999-04-30;4000;341000
-Criciúma;Série B;Valdir Duarte;12;Givanildo Azevedo;BRA;GOL;;29;63;32;15;46;46;74;58;27;192;82;D;;Highlander;Porradeiro;100;70;1999-02-28;3500;302000
+Criciúma;Série B;Valdir Duarte;12;Givanildo Azevedo;BRA;GOL;;29;63;32;15;46;46;74;58;27;192;82;D;;Cabeça de gelo;Porradeiro;100;70;1999-02-28;3500;302000
 Criciúma;Série B;Valdir Duarte;1;Sandro Correia;BRA;GOL;;31;63;57;29;49;60;67;65;36;185;70;D;;;Macetador;100;70;1999-01-31;2500;212000
 Criciúma;Série B;Valdir Duarte;22;Matías Morales;ARG;GOL;;37;60;40;26;51;49;68;54;16;183;76;D;;;Equilibrado;100;70;1999-01-31;900;79000
 Criciúma;Série B;Valdir Duarte;5;Helton Peixoto;BRA;VOL;LIB;30;63;52;52;57;59;72;63;71;184;75;D;;;Equilibrado;100;70;1999-05-31;4300;366000
 Criciúma;Série B;Valdir Duarte;7;Dida Lopes;BRA;VOL;LIB;26;61;48;51;56;46;73;63;54;178;67;E;;;Equilibrado;100;70;1999-03-31;4300;368000
-Criciúma;Série B;Valdir Duarte;8;Gustavo Correia;BRA;VOL;MC;25;62;50;51;66;51;68;60;71;179;72;D;;Cabeção;Porradeiro;100;70;1999-01-31;4600;392000
+Criciúma;Série B;Valdir Duarte;8;Gustavo Correia;BRA;VOL;MC;25;62;50;51;66;51;68;60;71;179;72;D;;Coringa;Porradeiro;100;70;1999-01-31;4600;392000
 Criciúma;Série B;Valdir Duarte;17;Roberto Moreira;BRA;MC;;26;52;55;42;59;55;48;46;51;181;68;D;;;De boa;100;70;1999-02-28;1100;93000
 Criciúma;Série B;Valdir Duarte;11;Denílson Nascimento;BRA;MC;;24;50;46;42;58;53;43;48;42;181;72;D;;;Equilibrado;100;70;1999-03-31;800;70000
 Criciúma;Série B;Valdir Duarte;10;Luís Siqueira;BRA;MEI;MC;23;53;42;49;61;58;33;38;61;179;75;D;;;De boa;100;70;1999-01-31;1400;121000
 Criciúma;Série B;Valdir Duarte;20;Juninho Vieira;BRA;MEI;PD;30;51;38;64;49;60;30;22;60;174;71;E;;;Porradeiro;100;70;1999-01-31;700;64000
 América-MG;Série B;Thiago Freitas;10;Leandro Santos;BRA;PD;CA;25;51;57;50;43;54;27;37;57;176;66;D;;;De boa;100;70;1998-12-31;900;73000
 América-MG;Série B;Thiago Freitas;11;Juninho Coelho;BRA;PE;;23;52;49;53;48;57;32;47;50;173;70;E;;;Porradeiro;100;70;1999-06-30;1200;101000
-América-MG;Série B;Thiago Freitas;9;Mauro Monteiro;BRA;CA;PD/PE;25;52;47;56;46;47;30;53;59;184;72;E;;Highlander;De boa;100;70;1999-04-30;1000;84000
+América-MG;Série B;Thiago Freitas;9;Mauro Monteiro;BRA;CA;PD/PE;25;52;47;56;46;47;30;53;59;184;72;E;;Cabeça de gelo;De boa;100;70;1999-04-30;1000;84000
 América-MG;Série B;Thiago Freitas;19;Juan Martínez;ARG;CA;PD;25;52;40;57;34;55;20;53;47;182;68;D;;Matador;Porradeiro;100;70;1999-01-31;1000;82000
 América-MG;Série B;Thiago Freitas;24;Kleber Freitas;BRA;CA;;20;47;43;53;30;39;23;46;68;182;74;D;;;Equilibrado;100;70;1999-03-31;600;52000
 América-MG;Série B;Thiago Freitas;21;Elias Machado;BRA;SA;;31;51;47;54;48;54;24;32;59;180;73;D;;;Porradeiro;100;70;1999-03-31;500;33000
@@ -834,7 +834,7 @@ Vila Nova;Série B;Silvio Bezerra;1;Cássio Furtado;BRA;GOL;;23;61;50;25;40;61;6
 Vila Nova;Série B;Silvio Bezerra;22;Anderson Medeiros;BRA;GOL;;17;56;33;18;37;41;70;41;18;190;83;D;;Menino prodígio;Equilibrado;100;70;1999-04-30;2400;209000
 Vila Nova;Série B;Silvio Bezerra;7;Diego Costa;BRA;VOL;;19;57;56;44;53;60;55;69;48;185;74;D;;;Porradeiro;100;70;1999-02-28;3200;275000
 Vila Nova;Série B;Silvio Bezerra;5;Francisco Melo;BRA;VOL;ZAG;29;62;64;51;66;56;61;66;76;182;68;D;;;Macetador;100;70;1999-05-31;3800;327000
-Vila Nova;Série B;Silvio Bezerra;8;Juninho Ramos;BRA;VOL;;29;61;55;47;57;61;65;67;52;179;74;A;;Highlander;De boa;100;70;1999-01-31;3400;293000
+Vila Nova;Série B;Silvio Bezerra;8;Juninho Ramos;BRA;VOL;;29;61;55;47;57;61;65;67;52;179;74;A;;Cabeça de gelo;De boa;100;70;1999-01-31;3400;293000
 Vila Nova;Série B;Silvio Bezerra;17;Javier Silva;URU;MC;VOL;27;53;52;53;66;50;42;42;73;185;81;A;;;De boa;100;70;1999-03-31;1200;104000
 Vila Nova;Série B;Silvio Bezerra;11;Silvio Almeida;BRA;MC;;24;51;44;52;62;45;41;55;70;173;72;D;;;De boa;100;70;1999-02-28;1000;85000
 Vila Nova;Série B;Silvio Bezerra;10;Sérgio Leite;BRA;MEI;;29;52;36;45;61;60;29;40;82;175;68;D;;;De boa;100;70;1999-01-31;800;72000
@@ -851,7 +851,7 @@ Sampaio Corrêa;Série B;Marcos Monteiro;14;Reinaldo Vieira;BRA;ZAG;LIB;28;61;50
 Sampaio Corrêa;Série B;Marcos Monteiro;15;Adílson Rocha;BRA;ZAG;;29;60;53;36;52;49;65;61;38;186;80;D;;;Porradeiro;100;70;1999-06-30;3200;273000
 Sampaio Corrêa;Série B;Marcos Monteiro;2;Paulo Rodrigues;BRA;LD;LE;30;62;63;50;59;63;64;61;61;170;66;D;;;De boa;100;70;1999-06-30;4000;343000
 Sampaio Corrêa;Série B;Marcos Monteiro;13;Jorge Moura;BRA;LD;LE;30;61;77;46;60;53;58;59;67;178;68;D;;;Macetador;100;70;1999-03-31;3700;319000
-Sampaio Corrêa;Série B;Marcos Monteiro;16;Nélio Coelho;BRA;LE;ZAG;20;59;60;51;53;57;64;59;58;173;64;E;;Menino prodígio;Macetador;100;70;1999-06-30;4600;396000
+Sampaio Corrêa;Série B;Marcos Monteiro;16;Nélio Coelho;BRA;LE;ZAG;20;59;60;51;53;57;64;59;58;173;64;E;;Popstar;Macetador;100;70;1999-06-30;4600;396000
 Sampaio Corrêa;Série B;Marcos Monteiro;6;Sandro Siqueira;BRA;LE;ZAG/PE;25;62;67;50;59;59;62;65;62;176;69;D;;;Fair player;100;70;1999-04-30;5200;444000
 Sampaio Corrêa;Série B;Marcos Monteiro;22;Osvaldo Rocha;BRA;GOL;;20;59;42;23;49;47;67;56;18;185;76;D;;;De boa;100;70;1998-12-31;3800;325000
 Sampaio Corrêa;Série B;Marcos Monteiro;1;Edmar Rocha;BRA;GOL;;30;64;67;25;46;66;68;59;31;187;82;D;;;De boa;100;70;1999-02-28;4400;377000
@@ -892,7 +892,7 @@ Atlético-GO;Série B;Wellington Coelho;11;Leonardo Ramos;BRA;PE;;23;52;64;50;44
 Atlético-GO;Série B;Wellington Coelho;24;Aloísio Cunha;BRA;CA;SA;28;48;29;59;45;33;23;45;56;173;66;D;;;Equilibrado;100;70;1999-02-28;500;35000
 Atlético-GO;Série B;Wellington Coelho;9;Gilmar Costa;BRA;CA;;22;49;47;51;37;39;20;54;44;177;73;D;;;Macetador;100;70;1999-03-31;700;59000
 Atlético-GO;Série B;Wellington Coelho;19;Eduardo Correia;BRA;CA;;32;48;37;58;30;41;17;44;52;186;82;E;;;Fair player;100;70;1999-04-30;500;23000
-Atlético-GO;Série B;Wellington Coelho;21;Gustavo Nascimento;BRA;SA;PE;27;52;60;48;44;61;17;28;58;174;69;D;;Popstar;De boa;100;70;1999-05-31;1000;82000
+Atlético-GO;Série B;Wellington Coelho;21;Gustavo Nascimento;BRA;SA;PE;27;52;60;48;44;61;17;28;58;174;69;D;;Cabeção;De boa;100;70;1999-05-31;1000;82000
 Atlético-GO;Série B;Wellington Coelho;7;Adriano Ribeiro;BRA;ZAG;;31;58;50;42;54;46;60;68;49;183;76;D;;;Porradeiro;100;70;1999-04-30;1700;142000
 Atlético-GO;Série B;Wellington Coelho;14;Edmar Cunha;BRA;ZAG;LE;25;59;45;36;43;42;68;65;39;186;75;D;;;Equilibrado;100;70;1999-02-28;3800;323000
 Atlético-GO;Série B;Wellington Coelho;4;Dario Fernandes;BRA;ZAG;LIB;25;61;49;36;48;51;70;58;53;186;79;D;;;Equilibrado;100;70;1999-06-30;4700;405000
@@ -912,9 +912,9 @@ Atlético-GO;Série B;Wellington Coelho;17;Davi Lopes;BRA;MC;VOL;22;51;51;56;50;
 Atlético-GO;Série B;Wellington Coelho;20;Claudio Ortiz;URU;MEI;MC/SA;29;48;37;47;53;53;26;42;56;178;73;D;;;De boa;100;70;1999-05-31;500;42000
 Atlético-GO;Série B;Wellington Coelho;10;Fernando Andrade;BRA;MEI;;25;49;44;43;57;53;29;38;54;175;67;D;;;De boa;100;70;1999-05-31;700;58000
 XV de Piracicaba;Série B;Rodrigo Brito;9;Roberto Carvalho;BRA;PD;;25;52;50;45;55;60;35;39;49;175;65;D;;;De boa;100;70;1999-06-30;1000;84000
-XV de Piracicaba;Série B;Rodrigo Brito;11;Dario Duarte;BRA;PE;LE/ALA;26;52;63;51;54;45;27;47;47;171;59;E;;Popstar;Equilibrado;100;70;1999-03-31;1100;93000
+XV de Piracicaba;Série B;Rodrigo Brito;11;Dario Duarte;BRA;PE;LE/ALA;26;52;63;51;54;45;27;47;47;171;59;E;;Coringa;Equilibrado;100;70;1999-03-31;1100;93000
 XV de Piracicaba;Série B;Rodrigo Brito;24;Hernán Peralta;PER;CA;;19;45;32;55;32;41;14;40;76;177;78;D;;;Porradeiro;100;70;1999-05-31;500;43000
-XV de Piracicaba;Série B;Rodrigo Brito;18;Aloísio Ramos;BRA;CA;PD/SA;20;49;32;59;31;36;12;50;46;178;70;D;;Highlander;De boa;100;70;1999-06-30;800;67000
+XV de Piracicaba;Série B;Rodrigo Brito;18;Aloísio Ramos;BRA;CA;PD/SA;20;49;32;59;31;36;12;50;46;178;70;D;;Cabeça de gelo;De boa;100;70;1999-06-30;800;67000
 XV de Piracicaba;Série B;Rodrigo Brito;19;Juninho Bezerra;BRA;CA;PE;26;49;55;48;38;51;22;50;58;183;73;D;;;Fair player;100;70;1999-04-30;600;53000
 XV de Piracicaba;Série B;Rodrigo Brito;21;Cleiton Azevedo;BRA;SA;;23;49;43;53;46;53;25;38;34;173;70;D;;;Equilibrado;100;70;1999-03-31;800;67000
 XV de Piracicaba;Série B;Rodrigo Brito;14;Amaral Teixeira;BRA;ZAG;;21;59;54;34;41;42;71;56;72;191;89;D;;;Fair player;100;70;1999-06-30;4700;401000
@@ -949,7 +949,7 @@ Gama;Série B;Eduardo Ramos;2;Márcio Tavares;BRA;LD;;23;60;56;53;59;47;72;55;58
 Gama;Série B;Eduardo Ramos;13;Francisco Franco;BRA;LD;;28;59;62;43;58;59;59;61;70;176;65;D;;Driblador;De boa;100;70;1999-03-31;2700;235000
 Gama;Série B;Eduardo Ramos;6;Jorge Acosta;PER;LE;ZAG;30;62;65;62;58;62;65;55;70;179;70;E;;;Equilibrado;100;70;1999-05-31;4000;345000
 Gama;Série B;Eduardo Ramos;16;Cleber Maciel;BRA;LE;;17;57;61;42;46;58;64;57;49;172;65;E;;;Equilibrado;100;70;1998-12-31;3700;315000
-Gama;Série B;Eduardo Ramos;1;Gustavo Pacheco;BRA;GOL;;29;58;24;23;35;44;72;49;33;186;72;D;;Highlander;Equilibrado;100;70;1999-01-31;1900;166000
+Gama;Série B;Eduardo Ramos;1;Gustavo Pacheco;BRA;GOL;;29;58;24;23;35;44;72;49;33;186;72;D;;Cabeça de gelo;Equilibrado;100;70;1999-01-31;1900;166000
 Gama;Série B;Eduardo Ramos;22;Jefferson Moura;BRA;GOL;;20;57;33;23;49;55;60;60;36;195;86;D;;;De boa;100;70;1999-01-31;2700;229000
 Gama;Série B;Eduardo Ramos;12;Cristian Acosta;PAR;GOL;;30;58;43;12;50;54;64;51;27;187;74;E;;;Equilibrado;100;70;1998-12-31;1900;163000
 Gama;Série B;Eduardo Ramos;5;Davi Melo;BRA;VOL;;31;68;76;66;59;55;78;65;60;179;69;D;sim;;Equilibrado;100;70;1999-05-31;5700;487000
@@ -1006,7 +1006,7 @@ Londrina;Série C;Nilton Teixeira;5;Wellington Santos;BRA;VOL;;28;65;52;50;65;63
 Londrina;Série C;Nilton Teixeira;17;Marcelo Aguirre;PER;MC;;25;46;56;34;45;46;56;45;37;174;69;E;;;Porradeiro;100;70;1998-12-31;500;44000
 Londrina;Série C;Nilton Teixeira;24;Vítor Monteiro;BRA;MC;;18;42;40;35;41;49;40;43;79;170;59;E;;;Equilibrado;100;70;1999-05-31;500;30000
 Londrina;Série C;Nilton Teixeira;20;Givanildo Nunes;BRA;MEI;;34;46;49;48;39;56;29;39;46;181;75;D;;;Fair player;100;70;1999-01-31;500;12000
-Londrina;Série C;Nilton Teixeira;10;Néstor Cabrera;URU;MEI;SA/PE;24;50;45;54;49;56;29;41;61;170;66;E;;Maestro;Equilibrado;100;70;1999-01-31;800;68000
+Londrina;Série C;Nilton Teixeira;10;Néstor Cabrera;URU;MEI;SA/PE;24;50;45;54;49;56;29;41;61;170;66;E;;Popstar;Equilibrado;100;70;1999-01-31;800;68000
 CSA;Série C;Givanildo Silva;24;Aílton Bezerra;BRA;PD;CA;28;43;53;32;53;43;16;23;56;172;63;D;;;Equilibrado;100;70;1999-05-31;500;20000
 CSA;Série C;Givanildo Silva;23;Gustavo Coelho;BRA;PE;;27;44;53;36;38;47;19;34;53;171;56;E;;Matador;Equilibrado;100;70;1999-01-31;500;28000
 CSA;Série C;Givanildo Silva;19;Dario Tavares;BRA;CA;PD;25;47;36;48;46;52;27;48;44;189;78;D;;;Fair player;100;70;1999-01-31;500;40000
@@ -1109,7 +1109,7 @@ São Caetano;Série C;Marcão Dias;9;Leonardo Lopes;BRA;CA;PD;26;47;44;50;31;40;
 São Caetano;Série C;Marcão Dias;23;Anderson Rodrigues;BRA;CA;;17;41;34;47;33;35;10;38;55;170;69;D;;;Equilibrado;100;70;1999-04-30;500;23000
 São Caetano;Série C;Marcão Dias;19;Helton Souza;BRA;CA;;35;42;20;51;27;35;6;45;58;176;71;D;;;Equilibrado;100;70;1999-02-28;500;6000
 São Caetano;Série C;Marcão Dias;21;Cássio Bezerra;BRA;SA;CA;24;43;45;44;46;41;24;38;37;186;70;E;;;Porradeiro;100;70;1999-03-31;500;24000
-São Caetano;Série C;Marcão Dias;4;Gilson Lima;BRA;ZAG;;26;58;48;50;44;35;65;64;65;188;74;D;;Cabeção;Macetador;100;70;1999-02-28;3000;259000
+São Caetano;Série C;Marcão Dias;4;Gilson Lima;BRA;ZAG;;26;58;48;50;44;35;65;64;65;188;74;D;;Coringa;Macetador;100;70;1999-02-28;3000;259000
 São Caetano;Série C;Marcão Dias;3;Felipe Oliveira;BRA;ZAG;VOL;26;58;44;51;37;54;64;71;51;185;74;D;;;Porradeiro;100;70;1999-06-30;3400;291000
 São Caetano;Série C;Marcão Dias;14;Jonas Nunes;BRA;ZAG;LIB;23;56;49;48;54;39;59;62;47;185;79;D;;;Fair player;100;70;1999-02-28;3000;256000
 São Caetano;Série C;Marcão Dias;7;Jorge Pacheco;BRA;ZAG;;23;54;36;35;49;45;56;69;49;185;78;D;;;Porradeiro;100;70;1999-05-31;2300;199000
@@ -1132,7 +1132,7 @@ Caxias;Série C;Vágner Rodrigues;11;Felipe Borges;BRA;PE;;28;48;55;38;45;53;26;
 Caxias;Série C;Vágner Rodrigues;19;André Dias;BRA;CA;SA/PD;24;45;29;56;27;32;13;43;57;184;72;E;;;Fair player;100;70;1998-12-31;500;28000
 Caxias;Série C;Vágner Rodrigues;18;Sérgio Cunha;BRA;CA;PD/PE;36;44;31;48;31;36;13;51;51;187;81;D;;Salvador da pátria;Fair player;100;70;1999-02-28;500;8000
 Caxias;Série C;Vágner Rodrigues;24;Gustavo Souza;BRA;CA;PE/SA;17;40;38;46;20;39;8;36;68;179;75;D;;;De boa;100;70;1999-02-28;500;20000
-Caxias;Série C;Vágner Rodrigues;21;Gilson Dias;BRA;SA;;24;47;43;43;45;54;27;45;42;179;70;D;;Cabeça de gelo;Equilibrado;100;70;1999-04-30;500;38000
+Caxias;Série C;Vágner Rodrigues;21;Gilson Dias;BRA;SA;;24;47;43;43;45;54;27;45;42;179;70;D;;Popstar;Equilibrado;100;70;1999-04-30;500;38000
 Caxias;Série C;Vágner Rodrigues;3;João Fernandes;BRA;ZAG;LE;29;65;44;51;56;40;75;69;64;184;76;D;sim;;Equilibrado;100;70;1999-02-28;7300;627000
 Caxias;Série C;Vágner Rodrigues;14;Bruno Monteiro;BRA;ZAG;VOL/LD;17;55;41;40;38;41;64;60;49;180;71;E;;;Fair player;100;70;1998-12-31;2900;252000
 Caxias;Série C;Vágner Rodrigues;4;Leonardo Azevedo;BRA;ZAG;;29;56;36;38;43;40;67;54;61;184;76;E;;;Porradeiro;100;70;1999-05-31;2000;167000
@@ -1167,7 +1167,7 @@ Treze;Série C;Júlio Ribeiro;16;Alberto Nunes;BRA;LE;;24;54;61;49;47;55;54;54;5
 Treze;Série C;Júlio Ribeiro;6;Juninho Monteiro;BRA;LE;ZAG;24;55;65;38;49;50;63;37;44;179;71;E;;;De boa;100;70;1999-06-30;1800;156000
 Treze;Série C;Júlio Ribeiro;12;Sandro Souza;BRA;GOL;;29;55;35;22;51;53;61;46;27;180;76;D;;;Porradeiro;100;70;1999-01-31;1300;109000
 Treze;Série C;Júlio Ribeiro;1;Reinaldo Cunha;BRA;GOL;;25;56;39;13;51;57;58;58;33;183;76;D;;;Fair player;100;70;1999-04-30;1800;156000
-Treze;Série C;Júlio Ribeiro;22;Maurício Nunes;BRA;GOL;;29;54;50;24;46;43;59;51;29;186;81;D;;Highlander;Equilibrado;100;70;1999-05-31;1000;87000
+Treze;Série C;Júlio Ribeiro;22;Maurício Nunes;BRA;GOL;;29;54;50;24;46;43;59;51;29;186;81;D;;Cabeça de gelo;Equilibrado;100;70;1999-05-31;1000;87000
 Treze;Série C;Júlio Ribeiro;5;Alex Maciel;BRA;VOL;;21;58;45;47;59;36;65;64;74;176;71;D;;;Macetador;100;70;1999-04-30;3200;271000
 Treze;Série C;Júlio Ribeiro;8;Rogério Vieira;BRA;VOL;LIB/MC;21;56;60;48;41;45;61;69;50;181;79;E;;;Macetador;100;70;1998-12-31;2400;203000
 Treze;Série C;Júlio Ribeiro;15;Valdir Santos;BRA;VOL;;29;55;55;36;51;54;58;59;61;174;71;D;;;Porradeiro;100;70;1999-03-31;1300;115000
@@ -1190,7 +1190,7 @@ Volta Redonda;Série C;Elias Cunha;2;Jefferson Peixoto;BRA;LD;ZAG;24;65;62;55;60
 Volta Redonda;Série C;Elias Cunha;16;Bruno Nascimento;BRA;LE;LD;30;53;54;42;54;54;56;46;48;170;64;E;;;Macetador;100;70;1999-06-30;1200;101000
 Volta Redonda;Série C;Elias Cunha;6;José Souza;BRA;LE;;22;54;60;43;55;49;53;52;71;178;69;E;;;Equilibrado;100;70;1998-12-31;2000;168000
 Volta Redonda;Série C;Elias Cunha;1;Felipe Viana;BRA;GOL;;27;56;32;26;55;56;60;52;34;184;73;D;;;Fair player;100;70;1999-01-31;1800;158000
-Volta Redonda;Série C;Elias Cunha;12;Gabriel Miranda;BRA;GOL;;27;53;32;14;39;33;62;58;24;188;78;D;;Cabeça de gelo;De boa;100;70;1999-02-28;1200;103000
+Volta Redonda;Série C;Elias Cunha;12;Gabriel Miranda;BRA;GOL;;27;53;32;14;39;33;62;58;24;188;78;D;;Líder nato;De boa;100;70;1999-02-28;1200;103000
 Volta Redonda;Série C;Elias Cunha;22;Wagner Rodrigues;BRA;GOL;;19;51;30;32;41;43;60;39;31;183;80;D;;;Porradeiro;100;70;1999-05-31;1200;100000
 Volta Redonda;Série C;Elias Cunha;15;Carlos Nunes;BRA;VOL;LIB/ZAG;30;54;45;42;52;44;63;54;57;176;69;D;;;De boa;100;70;1998-12-31;1300;109000
 Volta Redonda;Série C;Elias Cunha;5;Lúcio Barbosa;BRA;VOL;;29;57;41;52;56;52;62;59;59;179;68;D;;;Macetador;100;70;1999-05-31;1800;157000
@@ -1212,7 +1212,7 @@ Campinense;Série C;Raimundo Fernandes;4;Caio Franco;BRA;ZAG;;30;56;40;38;49;61;
 Campinense;Série C;Raimundo Fernandes;2;Diego Ribeiro;BRA;LD;;26;64;75;56;65;56;64;56;48;173;66;D;sim;;De boa;100;70;1999-06-30;6900;586000
 Campinense;Série C;Raimundo Fernandes;13;Silvio Ribeiro;BRA;LD;;17;51;55;38;38;55;54;59;44;175;63;E;;;Porradeiro;100;70;1999-01-31;1600;135000
 Campinense;Série C;Raimundo Fernandes;16;André Peixoto;BRA;LE;PE;32;54;63;56;54;54;52;44;52;177;70;E;;;Equilibrado;100;70;1999-06-30;800;71000
-Campinense;Série C;Raimundo Fernandes;6;Edu Tavares;BRA;LE;ZAG;26;58;63;52;31;58;74;51;37;173;65;E;;Cabeça de gelo;Equilibrado;100;70;1999-06-30;2800;240000
+Campinense;Série C;Raimundo Fernandes;6;Edu Tavares;BRA;LE;ZAG;26;58;63;52;31;58;74;51;37;173;65;E;;Popstar;Equilibrado;100;70;1999-06-30;2800;240000
 Campinense;Série C;Raimundo Fernandes;1;Alejandro Gómez;URU;GOL;;26;65;39;25;60;45;72;69;31;195;85;D;sim;;Porradeiro;100;70;1999-02-28;6000;509000
 Campinense;Série C;Raimundo Fernandes;22;Edu Moreira;BRA;GOL;;27;55;42;16;46;43;63;51;36;192;86;D;;;Equilibrado;100;70;1999-06-30;1600;140000
 Campinense;Série C;Raimundo Fernandes;12;Diego Mendes;BRA;GOL;;26;56;30;19;48;42;63;55;39;185;79;D;;;Fair player;100;70;1999-04-30;1600;141000
@@ -1237,7 +1237,7 @@ Brasil de Pelotas;Série C;Pedro Mendes;2;Sandro Cardoso;BRA;LD;PD;29;55;67;42;4
 Brasil de Pelotas;Série C;Pedro Mendes;13;Mário Monteiro;BRA;LD;ZAG/PD;25;55;67;52;47;50;57;46;42;173;72;D;;;Porradeiro;100;70;1999-01-31;1800;156000
 Brasil de Pelotas;Série C;Pedro Mendes;16;Cássio Medeiros;BRA;LE;LD/PE;22;53;56;48;52;58;52;51;34;173;67;E;;;Fair player;100;70;1999-01-31;1800;156000
 Brasil de Pelotas;Série C;Pedro Mendes;6;Neto Miranda;BRA;LE;ZAG;33;54;49;48;54;52;61;47;66;172;69;E;;;De boa;100;70;1999-04-30;800;70000
-Brasil de Pelotas;Série C;Pedro Mendes;22;Marcos Costa;BRA;GOL;;23;54;37;14;44;48;56;62;31;180;75;D;;Highlander;Equilibrado;100;70;1998-12-31;1500;129000
+Brasil de Pelotas;Série C;Pedro Mendes;22;Marcos Costa;BRA;GOL;;23;54;37;14;44;48;56;62;31;180;75;D;;Cabeça de gelo;Equilibrado;100;70;1998-12-31;1500;129000
 Brasil de Pelotas;Série C;Pedro Mendes;1;Walter Vera;PAR;GOL;;29;55;44;12;43;47;59;61;32;190;86;D;;;De boa;100;70;1999-02-28;1300;108000
 Brasil de Pelotas;Série C;Pedro Mendes;12;Dida Moura;BRA;GOL;;23;54;33;17;53;45;65;28;34;185;75;D;;;Porradeiro;100;70;1999-03-31;1500;131000
 Brasil de Pelotas;Série C;Pedro Mendes;8;Reinaldo Oliveira;BRA;VOL;ZAG;30;55;47;43;46;47;63;63;48;181;77;D;;Cabeção;Porradeiro;100;70;1999-02-28;1500;125000
@@ -1246,7 +1246,7 @@ Brasil de Pelotas;Série C;Pedro Mendes;5;Diego Sánchez;ARG;VOL;;24;66;56;65;65
 Brasil de Pelotas;Série C;Pedro Mendes;17;Geraldo Monteiro;BRA;MC;VOL;25;48;55;42;51;56;39;42;67;175;69;E;;;De boa;100;70;1999-02-28;600;51000
 Brasil de Pelotas;Série C;Pedro Mendes;18;Ivan Almeida;BRA;MC;;23;45;48;35;48;44;51;41;36;172;62;D;;;Fair player;100;70;1998-12-31;500;43000
 Brasil de Pelotas;Série C;Pedro Mendes;10;Tadeu Cardoso;BRA;MEI;PE;31;45;45;44;46;54;28;29;67;170;62;D;;;Equilibrado;100;70;1999-02-28;500;18000
-Brasil de Pelotas;Série C;Pedro Mendes;23;Gilmar Bezerra;BRA;MEI;SA;23;44;34;49;54;42;14;34;79;172;64;D;;Cabeça de gelo;De boa;100;70;1999-01-31;500;35000
+Brasil de Pelotas;Série C;Pedro Mendes;23;Gilmar Bezerra;BRA;MEI;SA;23;44;34;49;54;42;14;34;79;172;64;D;;Maestro;De boa;100;70;1999-01-31;500;35000
 Juventus-SP;Série C;Alexandre Franco;10;Gabriel Coelho;BRA;PD;PE;24;44;53;37;33;51;26;30;62;176;69;D;;;Equilibrado;100;70;1999-05-31;500;29000
 Juventus-SP;Série C;Alexandre Franco;11;Nilton Bezerra;BRA;PE;LE;27;44;46;40;42;46;22;47;64;176;71;E;;;De boa;100;70;1999-04-30;500;30000
 Juventus-SP;Série C;Alexandre Franco;19;Rogério Toledo;BRA;CA;PE;26;43;45;46;41;24;15;48;35;176;75;D;;Coringa;De boa;100;70;1999-01-31;500;22000
@@ -1271,7 +1271,7 @@ Juventus-SP;Série C;Alexandre Franco;18;Gustavo Guimarães;BRA;MC;;24;43;49;31;
 Juventus-SP;Série C;Alexandre Franco;17;Leandro Cardoso;BRA;MC;MEI;30;45;51;42;57;37;37;44;45;177;69;D;;;De boa;100;70;1999-05-31;500;29000
 Juventus-SP;Série C;Alexandre Franco;21;Caio Viana;BRA;MEI;;26;42;39;35;45;50;27;39;37;173;70;A;;;Porradeiro;100;70;1999-05-31;500;24000
 Juventus-SP;Série C;Alexandre Franco;20;Fabiano Leite;BRA;MEI;;22;44;42;41;46;51;25;29;51;170;64;E;;;Equilibrado;100;70;1999-05-31;500;33000
-Confiança;Série C;Vítor Dias;10;Mário Ramos;BRA;PD;ALA/PE;25;47;50;44;45;53;31;32;60;174;69;D;;Catimbeiro;Equilibrado;100;70;1999-05-31;500;45000
+Confiança;Série C;Vítor Dias;10;Mário Ramos;BRA;PD;ALA/PE;25;47;50;44;45;53;31;32;60;174;69;D;;Batedor de faltas;Equilibrado;100;70;1999-05-31;500;45000
 Confiança;Série C;Vítor Dias;23;Cleber Furtado;BRA;PE;ALA;19;40;46;36;35;42;26;34;51;173;63;E;;;Equilibrado;100;70;1999-06-30;500;22000
 Confiança;Série C;Vítor Dias;9;Juninho Costa;BRA;CA;;24;48;43;51;36;41;14;52;54;179;73;D;;;Macetador;100;70;1999-03-31;500;45000
 Confiança;Série C;Vítor Dias;19;Raimundo Oliveira;BRA;CA;PD/SA;34;43;43;41;34;39;27;53;55;178;78;D;;;Porradeiro;100;70;1999-04-30;500;7000
@@ -1377,7 +1377,7 @@ Operário-MS;Série C;Antônio Toledo;4;Nilton Araújo;BRA;ZAG;VOL/LD;30;54;39;2
 Operário-MS;Série C;Antônio Toledo;7;Edson Moreira;BRA;ZAG;VOL;25;53;43;37;38;33;62;56;57;188;80;D;;;Equilibrado;100;70;1999-04-30;1600;136000
 Operário-MS;Série C;Antônio Toledo;3;Jefferson Nascimento;BRA;ZAG;;25;55;38;30;51;42;63;49;53;184;77;D;;;Equilibrado;100;70;1999-06-30;2000;171000
 Operário-MS;Série C;Antônio Toledo;14;Helton Almeida;BRA;ZAG;;31;54;43;39;40;31;61;64;55;180;76;D;;;Porradeiro;100;70;1999-03-31;900;79000
-Operário-MS;Série C;Antônio Toledo;13;Wilson Nunes;BRA;LD;;26;54;57;47;57;56;49;58;60;171;72;D;;Highlander;Porradeiro;100;70;1999-01-31;1700;148000
+Operário-MS;Série C;Antônio Toledo;13;Wilson Nunes;BRA;LD;;26;54;57;47;57;56;49;58;60;171;72;D;;Cabeça de gelo;Porradeiro;100;70;1999-01-31;1700;148000
 Operário-MS;Série C;Antônio Toledo;2;Dario Barbosa;BRA;LD;PD/ALA;23;55;61;52;52;50;54;56;60;177;70;D;;;Porradeiro;100;70;1999-05-31;2300;193000
 Operário-MS;Série C;Antônio Toledo;6;Nélio Franco;BRA;LE;PE;28;55;58;41;44;65;53;64;42;177;71;A;;;Equilibrado;100;70;1999-05-31;1500;129000
 Operário-MS;Série C;Antônio Toledo;16;Gilson Pacheco;BRA;LE;;23;52;57;42;44;34;62;54;50;176;67;E;;;Equilibrado;100;70;1999-06-30;1600;137000
@@ -1388,7 +1388,7 @@ Operário-MS;Série C;Antônio Toledo;8;André Costa;BRA;VOL;MC;25;54;51;39;54;5
 Operário-MS;Série C;Antônio Toledo;5;Beto Medeiros;BRA;VOL;ZAG;23;55;46;48;52;49;66;46;69;185;78;D;;;Equilibrado;100;70;1998-12-31;2100;176000
 Operário-MS;Série C;Antônio Toledo;15;Jair Cardoso;BRA;VOL;;26;54;44;40;47;43;65;58;53;181;70;E;;;Porradeiro;100;70;1998-12-31;1600;138000
 Operário-MS;Série C;Antônio Toledo;18;Elias Mendes;BRA;MC;;35;44;39;43;49;40;44;39;52;181;73;D;;;Porradeiro;100;70;1999-01-31;500;9000
-Operário-MS;Série C;Antônio Toledo;17;Ronaldo Souza;BRA;MC;;25;45;47;36;55;42;38;45;54;167;56;D;;Popstar;Porradeiro;100;70;1999-05-31;500;34000
+Operário-MS;Série C;Antônio Toledo;17;Ronaldo Souza;BRA;MC;;25;45;47;36;55;42;38;45;54;167;56;D;;Coringa;Porradeiro;100;70;1999-05-31;500;34000
 Operário-MS;Série C;Antônio Toledo;10;Fabiano Franco;BRA;MEI;;26;45;37;45;47;53;25;34;50;168;59;D;;;Macetador;100;70;1998-12-31;500;35000
 Operário-MS;Série C;Antônio Toledo;24;Juninho Toledo;BRA;MEI;SA;22;41;30;43;43;49;26;22;69;172;68;D;;;De boa;100;70;1999-04-30;500;23000
 Ituano;Série C;Marcelo Bezerra;9;Kleber Costa;BRA;PD;;27;44;52;43;35;49;28;26;41;176;69;A;;Cabeça de gelo;De boa;100;70;1999-04-30;500;30000
@@ -1457,7 +1457,7 @@ Comercial-MS;Série D;Diego Pinto;1;Neto Gomes;BRA;GOL;;21;54;34;18;30;43;62;56;
 Comercial-MS;Série D;Diego Pinto;12;Wilson Campos;BRA;GOL;;23;52;32;8;36;40;63;41;36;189;84;D;;;Macetador;100;70;1999-04-30;1200;104000
 Comercial-MS;Série D;Diego Pinto;22;Vágner Nunes;BRA;GOL;;28;51;34;10;37;39;61;43;45;193;89;D;;;Equilibrado;100;70;1999-03-31;700;62000
 Comercial-MS;Série D;Diego Pinto;5;Wilson Xavier;BRA;VOL;;30;62;53;59;63;56;64;63;51;181;72;A;sim;;De boa;100;70;1999-01-31;3600;306000
-Comercial-MS;Série D;Diego Pinto;15;Nilton Brito;BRA;VOL;;25;51;33;32;50;34;70;38;50;176;74;D;;Cabeça de gelo;Equilibrado;100;70;1999-02-28;900;81000
+Comercial-MS;Série D;Diego Pinto;15;Nilton Brito;BRA;VOL;;25;51;33;32;50;34;70;38;50;176;74;D;;Popstar;Equilibrado;100;70;1999-02-28;900;81000
 Comercial-MS;Série D;Diego Pinto;8;Jair Costa;BRA;VOL;;33;51;43;39;48;46;56;53;52;184;69;E;;;De boa;100;70;1999-02-28;500;41000
 Comercial-MS;Série D;Diego Pinto;17;Amaral Fernandes;BRA;MC;;31;44;50;38;51;46;31;46;45;182;75;D;;;Porradeiro;100;70;1998-12-31;500;15000
 Comercial-MS;Série D;Diego Pinto;18;Davi Cardoso;BRA;MC;ALA;24;40;38;31;45;40;41;43;29;171;67;D;;;De boa;100;70;1998-12-31;500;19000
@@ -1485,7 +1485,7 @@ Rio Branco-AC;Série D;Bruno Farias;5;Edson Fernandes;BRA;VOL;;24;52;39;36;52;37
 Rio Branco-AC;Série D;Bruno Farias;8;André Pereira;BRA;VOL;;29;51;45;42;62;31;58;43;49;182;74;D;;;Macetador;100;70;1999-02-28;800;71000
 Rio Branco-AC;Série D;Bruno Farias;17;Flávio Lima;BRA;MC;MEI;31;42;49;41;46;42;37;34;42;176;64;D;;Catimbeiro;Equilibrado;100;70;1999-06-30;500;11000
 Rio Branco-AC;Série D;Bruno Farias;11;Cleiton Maciel;BRA;MC;ALA;25;38;27;33;44;42;42;24;39;174;69;E;;;Equilibrado;100;70;1999-04-30;500;13000
-Rio Branco-AC;Série D;Bruno Farias;20;Jonas Duarte;BRA;MEI;;25;41;35;47;37;48;30;30;35;167;59;D;;Catimbeiro;Porradeiro;100;70;1999-04-30;500;20000
+Rio Branco-AC;Série D;Bruno Farias;20;Jonas Duarte;BRA;MEI;;25;41;35;47;37;48;30;30;35;167;59;D;;Líder nato;Porradeiro;100;70;1999-04-30;500;20000
 Rio Branco-AC;Série D;Bruno Farias;10;Gabriel Viana;BRA;MEI;;27;43;47;38;50;46;25;30;46;172;65;D;;;Equilibrado;100;70;1999-03-31;500;26000
 Anápolis;Série D;Valdir Dias;9;Adriano Siqueira;BRA;PD;;29;44;54;38;37;42;11;40;58;174;63;D;;;De boa;100;70;1999-04-30;500;21000
 Anápolis;Série D;Valdir Dias;11;João Azevedo;BRA;PE;;25;42;42;37;38;50;13;31;41;174;67;E;;Catimbeiro;Equilibrado;100;70;1999-01-31;500;21000
@@ -1523,7 +1523,7 @@ Ferroviário;Série D;Vágner Martins;7;Lúcio Toledo;BRA;ZAG;LIB;18;50;26;30;39
 Ferroviário;Série D;Vágner Martins;3;Felipe Siqueira;BRA;ZAG;;27;52;36;31;48;39;59;52;42;184;76;D;;;Porradeiro;100;70;1999-04-30;1400;123000
 Ferroviário;Série D;Vágner Martins;13;Kleber Araújo;BRA;LD;ZAG;33;52;70;34;46;49;50;43;52;177;76;D;;Catimbeiro;Porradeiro;100;70;1999-03-31;600;51000
 Ferroviário;Série D;Vágner Martins;2;Jorge Barbosa;BRA;LD;LE;35;54;71;50;49;44;52;52;65;175;61;D;;;Porradeiro;100;70;1999-04-30;500;45000
-Ferroviário;Série D;Vágner Martins;16;Leandro Lopes;BRA;LE;;29;54;54;35;56;45;57;57;57;171;67;E;;Catimbeiro;De boa;100;70;1999-01-31;1300;114000
+Ferroviário;Série D;Vágner Martins;16;Leandro Lopes;BRA;LE;;29;54;54;35;56;45;57;57;57;171;67;E;;Desarmador;De boa;100;70;1999-01-31;1300;114000
 Ferroviário;Série D;Vágner Martins;6;Alberto Machado;BRA;LE;;24;61;73;51;58;58;58;63;40;170;66;E;sim;;Macetador;100;70;1999-04-30;4800;409000
 Ferroviário;Série D;Vágner Martins;12;Cássio Franco;BRA;GOL;;24;51;34;20;48;49;56;44;36;183;73;D;;;De boa;100;70;1998-12-31;900;78000
 Ferroviário;Série D;Vágner Martins;1;Mário Barbosa;BRA;GOL;;28;52;24;5;31;46;61;45;38;183;78;D;;;Equilibrado;100;70;1999-04-30;800;65000
@@ -1554,7 +1554,7 @@ Nacional-AM;Série D;Maurício Pereira;1;Cássio Machado;BRA;GOL;;29;53;33;11;41
 Nacional-AM;Série D;Maurício Pereira;22;Elias Miranda;BRA;GOL;;22;52;27;10;33;44;61;48;82;189;81;D;;;Equilibrado;100;70;1999-01-31;1200;104000
 Nacional-AM;Série D;Maurício Pereira;8;Osvaldo Azevedo;BRA;VOL;;28;50;35;31;43;42;59;60;45;177;76;D;;;Equilibrado;100;70;1999-05-31;700;63000
 Nacional-AM;Série D;Maurício Pereira;15;Lúcio Fernandes;BRA;VOL;;26;50;49;30;43;40;58;54;41;184;76;E;;;Porradeiro;100;70;1999-05-31;800;72000
-Nacional-AM;Série D;Maurício Pereira;5;Beto Azevedo;BRA;VOL;ZAG/MC;25;54;41;34;55;36;66;51;63;185;80;E;;Cabeça de gelo;Porradeiro;100;70;1999-02-28;1500;126000
+Nacional-AM;Série D;Maurício Pereira;5;Beto Azevedo;BRA;VOL;ZAG/MC;25;54;41;34;55;36;66;51;63;185;80;E;;Popstar;Porradeiro;100;70;1999-02-28;1500;126000
 Nacional-AM;Série D;Maurício Pereira;17;Cleber Mendes;BRA;MC;VOL;33;42;35;40;49;42;38;37;54;174;65;D;;;De boa;100;70;1999-03-31;500;11000
 Nacional-AM;Série D;Maurício Pereira;11;Valdir Melo;BRA;MC;;24;38;41;35;44;30;42;34;53;186;71;D;;;Porradeiro;100;70;1999-04-30;500;14000
 Nacional-AM;Série D;Maurício Pereira;10;Reinaldo Dias;BRA;MEI;;25;42;47;42;38;49;30;35;39;175;67;D;;;Equilibrado;100;70;1999-03-31;500;22000
@@ -1564,7 +1564,7 @@ Itabaiana;Série D;Wellington Vieira;11;Thiago Fernandes;BRA;PE;;28;40;58;28;32;
 Itabaiana;Série D;Wellington Vieira;9;Neto Santos;BRA;CA;PD/PE;23;42;44;43;30;47;6;39;47;172;63;D;;;De boa;100;70;1999-06-30;500;23000
 Itabaiana;Série D;Wellington Vieira;18;Aílton Rodrigues;BRA;CA;;33;39;29;41;9;47;26;44;38;176;70;D;;;Macetador;100;70;1999-06-30;500;6000
 Itabaiana;Série D;Wellington Vieira;19;Elias Silva;BRA;CA;PD;23;41;44;42;25;42;13;44;55;189;77;D;;Cabeça de gelo;Fair player;100;70;1999-06-30;500;22000
-Itabaiana;Série D;Wellington Vieira;21;Pedro Rodrigues;BRA;SA;;25;40;33;46;29;46;14;27;36;179;73;E;;Popstar;Equilibrado;100;70;1999-05-31;500;15000
+Itabaiana;Série D;Wellington Vieira;21;Pedro Rodrigues;BRA;SA;;25;40;33;46;29;46;14;27;36;179;73;E;;Cabeção;Equilibrado;100;70;1999-05-31;500;15000
 Itabaiana;Série D;Wellington Vieira;14;Felipe Rodrigues;BRA;ZAG;LD;25;49;27;20;34;31;62;48;25;184;83;E;;;Equilibrado;100;70;1999-04-30;1000;82000
 Itabaiana;Série D;Wellington Vieira;3;Hélio Machado;BRA;ZAG;;30;50;47;37;42;28;58;50;56;182;78;E;;;Equilibrado;100;70;1999-05-31;900;77000
 Itabaiana;Série D;Wellington Vieira;15;Renato Azevedo;BRA;ZAG;;27;48;45;27;35;28;56;51;40;184;71;D;;;De boa;100;70;1998-12-31;800;70000
@@ -1587,7 +1587,7 @@ Operário-VG;Série D;Emerson Ramos;24;Júlio Pereira;BRA;PD;;19;34;36;27;26;43;
 Operário-VG;Série D;Emerson Ramos;11;Caio Santos;BRA;PE;CA/ALA;24;41;53;29;33;47;27;20;30;165;57;A;;;De boa;100;70;1999-04-30;500;18000
 Operário-VG;Série D;Emerson Ramos;9;Edson Rodrigues;BRA;CA;;26;42;35;54;29;36;11;29;53;184;79;A;;;Macetador;100;70;1999-02-28;500;20000
 Operário-VG;Série D;Emerson Ramos;23;Nilton Nunes;BRA;CA;PD;25;38;28;42;24;36;16;43;43;179;74;E;;;Porradeiro;100;70;1998-12-31;500;12000
-Operário-VG;Série D;Emerson Ramos;19;Caio Xavier;BRA;CA;;26;39;40;43;26;38;16;37;46;178;73;E;;Popstar;De boa;100;70;1999-02-28;500;14000
+Operário-VG;Série D;Emerson Ramos;19;Caio Xavier;BRA;CA;;26;39;40;43;26;38;16;37;46;178;73;E;;Cabeção;De boa;100;70;1999-02-28;500;14000
 Operário-VG;Série D;Emerson Ramos;21;Valdir Coelho;BRA;SA;CA;29;41;37;44;42;42;13;24;62;172;62;E;;;Fair player;100;70;1999-03-31;500;13000
 Operário-VG;Série D;Emerson Ramos;4;Wellington Melo;BRA;ZAG;LIB;26;50;54;32;34;45;53;60;30;194;94;D;;;De boa;100;70;1999-01-31;1100;92000
 Operário-VG;Série D;Emerson Ramos;3;Kleber Farias;BRA;ZAG;LE;29;51;33;27;36;40;63;45;49;187;79;D;;;Equilibrado;100;70;1999-06-30;1000;82000
@@ -1597,7 +1597,7 @@ Operário-VG;Série D;Emerson Ramos;2;Pedro Cunha;BRA;LD;;33;49;55;49;41;51;49;4
 Operário-VG;Série D;Emerson Ramos;13;Osvaldo Cavalcante;BRA;LD;LE/PD;30;48;56;45;46;46;46;44;57;173;62;A;;;De boa;100;70;1998-12-31;600;48000
 Operário-VG;Série D;Emerson Ramos;16;Juninho Martins;BRA;LE;;23;49;54;32;37;41;57;50;38;175;70;E;;;Equilibrado;100;70;1999-06-30;1000;83000
 Operário-VG;Série D;Emerson Ramos;6;Francisco Souza;BRA;LE;;22;50;60;40;50;44;51;42;51;173;70;E;;;Porradeiro;100;70;1999-05-31;1200;100000
-Operário-VG;Série D;Emerson Ramos;12;Marcão Peixoto;BRA;GOL;;27;48;27;19;43;43;52;48;33;189;80;D;;Highlander;Equilibrado;100;70;1999-04-30;600;49000
+Operário-VG;Série D;Emerson Ramos;12;Marcão Peixoto;BRA;GOL;;27;48;27;19;43;43;52;48;33;189;80;D;;Cabeça de gelo;Equilibrado;100;70;1999-04-30;600;49000
 Operário-VG;Série D;Emerson Ramos;1;Elias Costa;BRA;GOL;;24;59;41;18;39;53;69;50;33;191;82;E;sim;;Equilibrado;100;70;1999-04-30;2800;242000
 Operário-VG;Série D;Emerson Ramos;22;Adailton Bezerra;BRA;GOL;;18;46;16;11;42;38;51;51;23;187;84;D;;Menino prodígio;Macetador;100;70;1999-03-31;600;53000
 Operário-VG;Série D;Emerson Ramos;15;Leandro Gomes;BRA;VOL;;29;47;42;30;39;39;54;57;49;180;72;D;;;Fair player;100;70;1998-12-31;500;41000
@@ -1636,7 +1636,7 @@ Ypiranga-RS;Série D;Kleber Siqueira;11;Zé Toledo;BRA;PE;ALA;27;43;57;25;48;44;
 Ypiranga-RS;Série D;Kleber Siqueira;9;Hélio Nascimento;BRA;CA;;27;42;30;43;36;40;14;50;43;178;71;E;;;Porradeiro;100;70;1999-02-28;500;20000
 Ypiranga-RS;Série D;Kleber Siqueira;19;Bruno Medeiros;BRA;CA;;17;40;37;44;29;32;8;40;43;174;68;D;;;Equilibrado;100;70;1999-05-31;500;19000
 Ypiranga-RS;Série D;Kleber Siqueira;21;Reinaldo Ramos;BRA;CA;PE;31;39;36;40;24;33;22;49;26;182;77;D;;;Macetador;100;70;1999-03-31;500;7000
-Ypiranga-RS;Série D;Kleber Siqueira;23;Denílson Toledo;BRA;SA;;29;39;37;41;35;44;16;24;71;184;74;D;;Highlander;De boa;100;70;1999-04-30;500;11000
+Ypiranga-RS;Série D;Kleber Siqueira;23;Denílson Toledo;BRA;SA;;29;39;37;41;35;44;16;24;71;184;74;D;;Cabeça de gelo;De boa;100;70;1999-04-30;500;11000
 Ypiranga-RS;Série D;Kleber Siqueira;4;Wagner Nascimento;BRA;ZAG;;25;52;46;23;48;35;58;51;43;187;78;D;;;Equilibrado;100;70;1999-04-30;1400;116000
 Ypiranga-RS;Série D;Kleber Siqueira;14;Vítor Melo;BRA;ZAG;LIB;29;49;36;43;33;51;50;66;42;188;80;D;;;Equilibrado;100;70;1999-01-31;700;62000
 Ypiranga-RS;Série D;Kleber Siqueira;3;Wagner Xavier;BRA;ZAG;;28;61;51;45;56;50;68;55;61;184;77;A;sim;;Porradeiro;100;70;1999-04-30;3800;324000
@@ -1683,7 +1683,7 @@ Olaria;Série D;Francisco Peixoto;24;Bruno Melo;BRA;PD;;25;35;35;29;39;38;20;35;
 Olaria;Série D;Francisco Peixoto;11;Sandro Barbosa;BRA;PE;;25;40;40;42;34;45;25;30;54;167;59;E;;;Porradeiro;100;70;1999-03-31;500;16000
 Olaria;Série D;Francisco Peixoto;9;Lúcio Farias;BRA;CA;PE/SA;25;41;37;43;32;34;7;48;46;177;67;E;;;Equilibrado;100;70;1999-03-31;500;18000
 Olaria;Série D;Francisco Peixoto;19;Guilherme Franco;BRA;CA;PD;27;37;35;43;30;28;5;36;56;178;78;D;;;De boa;100;70;1999-01-31;500;11000
-Olaria;Série D;Francisco Peixoto;23;Helton Teixeira;BRA;CA;;23;36;28;42;15;29;5;41;38;184;78;D;;Highlander;Equilibrado;100;70;1999-02-28;500;11000
+Olaria;Série D;Francisco Peixoto;23;Helton Teixeira;BRA;CA;;23;36;28;42;15;29;5;41;38;184;78;D;;Cabeça de gelo;Equilibrado;100;70;1999-02-28;500;11000
 Olaria;Série D;Francisco Peixoto;21;Mário Viana;BRA;SA;PE/MEI;23;37;32;39;31;45;8;20;40;175;70;D;;;Equilibrado;100;70;1999-04-30;500;12000
 Olaria;Série D;Francisco Peixoto;7;Adriano Tavares;BRA;ZAG;;19;46;25;14;39;27;53;52;45;190;78;D;;;De boa;100;70;1998-12-31;800;67000
 Olaria;Série D;Francisco Peixoto;3;Cleiton Almeida;BRA;ZAG;;25;49;36;29;41;35;57;49;45;182;73;E;;;De boa;100;70;1999-05-31;900;81000
@@ -1717,7 +1717,7 @@ Guarany de Bagé;Série D;Renato Almeida;13;Dida Rocha;BRA;LD;;20;43;40;35;42;43
 Guarany de Bagé;Série D;Renato Almeida;2;Wagner Tavares;BRA;LD;ALA/ZAG;26;45;39;41;45;51;43;55;31;182;68;D;;;De boa;100;70;1999-05-31;500;42000
 Guarany de Bagé;Série D;Renato Almeida;16;Odair Moreira;BRA;LE;ZAG;23;45;49;43;36;39;49;47;30;177;67;E;;;Porradeiro;100;70;1999-02-28;600;48000
 Guarany de Bagé;Série D;Renato Almeida;6;Silvio Freitas;BRA;LE;;22;46;52;30;55;45;40;44;49;177;67;E;;;Equilibrado;100;70;1999-05-31;700;57000
-Guarany de Bagé;Série D;Renato Almeida;22;Bruno Andrade;BRA;GOL;;26;47;36;5;27;35;55;49;31;184;81;D;;Cabeça de gelo;Equilibrado;100;70;1998-12-31;500;45000
+Guarany de Bagé;Série D;Renato Almeida;22;Bruno Andrade;BRA;GOL;;26;47;36;5;27;35;55;49;31;184;81;D;;Líder nato;Equilibrado;100;70;1998-12-31;500;45000
 Guarany de Bagé;Série D;Renato Almeida;12;Adailton Siqueira;BRA;GOL;;27;48;29;16;45;43;54;40;17;190;85;D;;;Equilibrado;100;70;1998-12-31;600;50000
 Guarany de Bagé;Série D;Renato Almeida;1;Ricardo Moreira;BRA;GOL;;24;56;26;28;39;38;68;50;28;192;83;D;sim;;Equilibrado;100;70;1999-02-28;1700;148000
 Guarany de Bagé;Série D;Renato Almeida;8;Elias Campos;BRA;VOL;LIB;21;46;52;27;44;39;55;40;38;179;78;D;;;De boa;100;70;1998-12-31;600;52000
@@ -1736,7 +1736,7 @@ Colatina;Série D;Felipe Teixeira;21;Rodrigo Leite;BRA;SA;;30;36;40;33;54;33;9;1
 Colatina;Série D;Felipe Teixeira;7;Pedro Lima;BRA;ZAG;;32;44;39;27;29;27;53;42;42;180;75;D;;;De boa;100;70;1999-06-30;500;19000
 Colatina;Série D;Felipe Teixeira;3;Ricardo Pacheco;BRA;ZAG;LIB;23;46;26;35;30;34;58;42;42;187;81;D;;;Fair player;100;70;1999-06-30;700;63000
 Colatina;Série D;Felipe Teixeira;14;Vítor Lopes;BRA;ZAG;LE;26;45;43;22;33;34;50;50;30;186;78;D;;;Macetador;100;70;1999-06-30;500;44000
-Colatina;Série D;Felipe Teixeira;4;Henrique Nascimento;BRA;ZAG;;27;45;27;19;32;30;53;51;37;173;74;E;;Cabeça de gelo;Porradeiro;100;70;1999-06-30;500;44000
+Colatina;Série D;Felipe Teixeira;4;Henrique Nascimento;BRA;ZAG;;27;45;27;19;32;30;53;51;37;173;74;E;;Popstar;Porradeiro;100;70;1999-06-30;500;44000
 Colatina;Série D;Felipe Teixeira;13;Francisco Bezerra;BRA;LD;PD;34;44;54;32;41;41;43;45;37;169;68;A;;;De boa;100;70;1999-04-30;500;11000
 Colatina;Série D;Felipe Teixeira;2;Jair Moura;BRA;LD;ZAG;24;56;71;44;55;46;53;55;53;176;70;D;sim;;Macetador;100;70;1999-02-28;2300;193000
 Colatina;Série D;Felipe Teixeira;16;Diego Farias;BRA;LE;ZAG;28;45;50;33;37;50;45;47;54;180;74;E;;;Equilibrado;100;70;1999-05-31;500;32000
@@ -1773,7 +1773,7 @@ Ceilândia;Série D;Pedro Freitas;2;Silvio Brito;BRA;VOL;ZAG;20;45;32;25;36;31;5
 Ceilândia;Série D;Pedro Freitas;5;Carlos Pereira;BRA;VOL;;23;47;41;45;57;35;47;47;71;180;76;E;;;Macetador;100;70;1998-12-31;700;62000
 Ceilândia;Série D;Pedro Freitas;18;Anderson Pacheco;BRA;MC;;29;36;42;33;40;33;32;38;41;182;70;E;;;De boa;100;70;1999-03-31;500;8000
 Ceilândia;Série D;Pedro Freitas;17;Gabriel Teixeira;BRA;MC;MEI;23;38;38;31;40;43;40;28;42;180;69;D;;;Macetador;100;70;1999-03-31;500;15000
-Ceilândia;Série D;Pedro Freitas;10;Paulo Costa;BRA;MEI;SA;29;37;40;30;41;42;23;28;58;176;72;A;;Maestro;Porradeiro;100;70;1999-06-30;500;9000
+Ceilândia;Série D;Pedro Freitas;10;Paulo Costa;BRA;MEI;SA;29;37;40;30;41;42;23;28;58;176;72;A;;Popstar;Porradeiro;100;70;1999-06-30;500;9000
 Ceilândia;Série D;Pedro Freitas;20;Edmar Machado;BRA;MEI;PE;33;36;26;32;41;47;17;14;42;172;60;E;;;Fair player;100;70;1999-05-31;500;5000
 Rio Branco-ES;Série D;Luís Monteiro;10;Emerson Melo;BRA;PD;;28;37;45;38;41;31;18;30;43;166;63;D;;;Fair player;100;70;1999-06-30;500;9000
 Rio Branco-ES;Série D;Luís Monteiro;11;Pedro Guimarães;BRA;PE;;22;34;35;31;30;40;5;29;51;175;63;E;;;De boa;100;70;1999-06-30;500;9000
@@ -1832,7 +1832,7 @@ Tuna Luso;Série D;Pedro Duarte;21;Valdir Nunes;BRA;SA;;29;37;36;39;31;41;12;24;
 Tuna Luso;Série D;Pedro Duarte;15;Zé Ribeiro;BRA;ZAG;;32;46;34;5;28;24;60;44;36;185;84;D;;;Porradeiro;100;70;1999-03-31;500;27000
 Tuna Luso;Série D;Pedro Duarte;4;Nilton Lopes;BRA;ZAG;;30;48;31;30;44;32;53;51;37;184;78;D;;;Equilibrado;100;70;1998-12-31;600;51000
 Tuna Luso;Série D;Pedro Duarte;14;João Cunha;BRA;ZAG;LD;26;47;55;18;31;24;59;39;29;184;81;D;;Coringa;Macetador;100;70;1999-02-28;700;61000
-Tuna Luso;Série D;Pedro Duarte;3;Henrique Costa;BRA;ZAG;;27;56;53;38;51;36;65;47;33;185;75;D;sim;Coringa;Macetador;100;70;1999-02-28;2400;208000
+Tuna Luso;Série D;Pedro Duarte;3;Henrique Costa;BRA;ZAG;;27;56;53;38;51;36;65;47;33;185;75;D;sim;Líder nato;Macetador;100;70;1999-02-28;2400;208000
 Tuna Luso;Série D;Pedro Duarte;13;Marcos Teixeira;BRA;LD;PD/LE;28;43;51;33;44;41;37;48;52;172;68;D;;;Equilibrado;100;70;1999-04-30;500;25000
 Tuna Luso;Série D;Pedro Duarte;2;Mário Toledo;BRA;LD;;27;44;45;29;38;43;49;46;35;174;67;E;;;Fair player;100;70;1998-12-31;500;37000
 Tuna Luso;Série D;Pedro Duarte;6;Pedro Xavier;BRA;LE;;25;46;45;33;47;53;46;42;67;174;72;E;;;De boa;100;70;1999-02-28;500;46000
@@ -1849,7 +1849,7 @@ Tuna Luso;Série D;Pedro Duarte;10;Adílson Ramos;BRA;MEI;;29;37;29;35;40;45;17;
 Tuna Luso;Série D;Pedro Duarte;20;Vágner Toledo;BRA;MEI;SA;23;37;35;38;33;50;14;17;46;172;64;D;;;De boa;100;70;1999-03-31;500;13000
 Marília;Série D;Adriano Rodrigues;11;Cleiton Andrade;BRA;PD;;22;37;41;35;29;42;20;26;42;176;69;D;;;De boa;100;70;1999-04-30;500;13000
 Marília;Série D;Adriano Rodrigues;18;Renato Campos;BRA;PE;;28;37;50;32;35;32;11;25;43;175;64;D;;;De boa;100;70;1999-04-30;500;8000
-Marília;Série D;Adriano Rodrigues;9;Adailton Silva;BRA;CA;PE;26;38;32;41;22;39;10;40;41;180;82;E;;Highlander;Macetador;100;70;1999-02-28;500;11000
+Marília;Série D;Adriano Rodrigues;9;Adailton Silva;BRA;CA;PE;26;38;32;41;22;39;10;40;41;180;82;E;;Cabeça de gelo;Macetador;100;70;1999-02-28;500;11000
 Marília;Série D;Adriano Rodrigues;19;Gilmar Farias;BRA;CA;SA;24;37;27;43;18;25;12;45;38;181;77;D;;;Porradeiro;100;70;1998-12-31;500;10000
 Marília;Série D;Adriano Rodrigues;23;Denílson Farias;BRA;CA;PE;30;34;29;38;25;30;5;34;61;177;69;D;;;Fair player;100;70;1999-02-28;500;5000
 Marília;Série D;Adriano Rodrigues;24;Gilmar Gomes;BRA;SA;;19;32;27;36;28;36;5;9;44;180;70;D;;;Porradeiro;100;70;1999-01-31;500;6000
@@ -1885,7 +1885,7 @@ Sertãozinho;Série D;Adailton Toledo;7;Altair Moreira;BRA;LD;LE;30;43;44;30;47;
 Sertãozinho;Série D;Adailton Toledo;13;Rogério Mendes;BRA;LD;;17;43;49;27;44;41;38;53;43;186;76;D;;;Equilibrado;100;70;1999-04-30;500;44000
 Sertãozinho;Série D;Adailton Toledo;6;Júlio Teixeira;BRA;LE;PE/ZAG;27;45;49;30;40;45;43;54;25;177;69;E;;;Macetador;100;70;1999-03-31;500;40000
 Sertãozinho;Série D;Adailton Toledo;16;Vander Fernandes;BRA;LE;LD;31;45;53;39;39;45;43;46;50;171;61;E;;;Macetador;100;70;1999-04-30;500;20000
-Sertãozinho;Série D;Adailton Toledo;1;Wellington Medeiros;BRA;GOL;;29;46;34;14;22;28;59;39;27;185;76;D;;Highlander;Equilibrado;100;70;1999-06-30;500;32000
+Sertãozinho;Série D;Adailton Toledo;1;Wellington Medeiros;BRA;GOL;;29;46;34;14;22;28;59;39;27;185;76;D;;Cabeça de gelo;Equilibrado;100;70;1999-06-30;500;32000
 Sertãozinho;Série D;Adailton Toledo;12;Roberto Franco;BRA;GOL;;25;45;24;11;36;34;52;43;32;187;73;D;;;Equilibrado;100;70;1998-12-31;500;32000
 Sertãozinho;Série D;Adailton Toledo;22;Jorge Souza;BRA;GOL;;21;44;29;16;21;35;52;45;17;183;79;E;;;Fair player;100;70;1999-03-31;500;35000
 Sertãozinho;Série D;Adailton Toledo;5;Raimundo Ramos;BRA;VOL;;28;55;44;42;61;50;56;61;46;179;75;D;sim;;Equilibrado;100;70;1999-05-31;1500;130000
@@ -1899,7 +1899,7 @@ Madureira;Série D;Osvaldo Cunha;9;Geraldo Freitas;BRA;PD;CA;23;35;38;24;25;47;5
 Madureira;Série D;Osvaldo Cunha;24;Felipe Dias;BRA;PE;;30;30;27;36;28;38;6;5;55;174;67;E;;;Porradeiro;100;70;1999-04-30;500;3000
 Madureira;Série D;Osvaldo Cunha;20;Luís Xavier;BRA;CA;;30;31;24;36;15;24;5;34;40;186;83;E;;;Equilibrado;100;70;1999-03-31;500;3000
 Madureira;Série D;Osvaldo Cunha;19;Zé Cavalcante;BRA;CA;;34;34;25;41;19;27;5;32;48;180;74;D;;;De boa;100;70;1999-06-30;500;2000
-Madureira;Série D;Osvaldo Cunha;18;Davi Medeiros;BRA;CA;;29;31;37;27;32;29;17;37;45;186;82;D;;Highlander;Porradeiro;100;70;1999-03-31;500;3000
+Madureira;Série D;Osvaldo Cunha;18;Davi Medeiros;BRA;CA;;29;31;37;27;32;29;17;37;45;186;82;D;;Cabeça de gelo;Porradeiro;100;70;1999-03-31;500;3000
 Madureira;Série D;Osvaldo Cunha;21;Gilson Moreira;BRA;SA;PE;24;31;25;39;19;37;5;15;40;179;71;E;;;Equilibrado;100;70;1999-06-30;500;5000
 Madureira;Série D;Osvaldo Cunha;7;Fabiano Toledo;BRA;ZAG;LD;26;40;28;11;37;31;42;52;34;183;83;D;;;Equilibrado;100;70;1999-02-28;500;23000
 Madureira;Série D;Osvaldo Cunha;3;Lúcio Mendes;BRA;ZAG;;32;45;41;22;32;35;45;68;37;190;83;E;;;Macetador;100;70;1999-03-31;500;23000
