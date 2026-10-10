@@ -1,0 +1,81 @@
+id;nome;cidade;uf;divisão;prestígio base;iniciável pelo jogador;estádio;capacidade;caixa inicial (R$);preço do ingresso (R$);demanda base;cor 1;cor 2
+corinthians;Corinthians;São Paulo;SP;Série A;97;não;Pacaembu;37000;15640000;15;30022;#111111;#ffffff
+flamengo;Flamengo;Rio de Janeiro;RJ;Série A;96;não;Maracanã;100000;15520000;15;29543;#c8102e;#111111
+palmeiras;Palmeiras;São Paulo;SP;Série A;95;não;Palestra Itália;32000;15400000;15;29068;#006437;#ffffff
+saopaulo;São Paulo;São Paulo;SP;Série A;94;não;Morumbi;80000;15280000;15;28595;#e4002b;#111111
+vasco;Vasco da Gama;Rio de Janeiro;RJ;Série A;93;não;São Januário;35000;15160000;15;28125;#111111;#ffffff
+cruzeiro;Cruzeiro;Belo Horizonte;MG;Série A;91;não;Mineirão;75000;14920000;15;27193;#0033a0;#ffffff
+gremio;Grêmio;Porto Alegre;RS;Série A;89;não;Olímpico;45000;14680000;15;26272;#0d80bf;#111111
+internacional;Internacional;Porto Alegre;RS;Série A;87;não;Beira-Rio;55000;14440000;15;25363;#e5050f;#ffffff
+atleticomg;Atlético-MG;Belo Horizonte;MG;Série A;86;não;Mineirão;75000;14320000;15;24912;#111111;#ffffff
+santos;Santos;Santos;SP;Série A;82;não;Vila Belmiro;20000;13840000;15;23139;#ffffff;#111111
+botafogo;Botafogo;Rio de Janeiro;RJ;Série A;80;não;Maracanã;100000;13600000;15;22270;#111111;#ffffff
+bahia;Bahia;Salvador;BA;Série A;78;não;Fonte Nova;66000;13360000;15;21413;#0057b8;#e4002b
+vitoria;Vitória;Salvador;BA;Série A;76;não;Barradão;30000;13120000;15;20568;#e4002b;#111111
+portuguesa;Portuguesa;São Paulo;SP;Série A;74;não;Canindé;20000;12880000;15;19736;#e4002b;#00843d
+coritiba;Coritiba;Curitiba;PR;Série A;72;não;Couto Pereira;37000;12640000;15;18915;#00843d;#ffffff
+atleticopr;Atlético-PR;Curitiba;PR;Série A;70;não;Joaquim Américo;20000;12400000;15;18107;#c8102e;#111111
+sport;Sport;Recife;PE;Série A;68;não;Ilha do Retiro;32000;12160000;15;17311;#c8102e;#111111
+guarani;Guarani;Campinas;SP;Série A;66;não;Brinco de Ouro;29000;11920000;15;16528;#00843d;#ffffff
+parana;Paraná;Curitiba;PR;Série A;62;não;Vila Capanema;20000;11440000;15;15002;#0057b8;#c8102e
+juventude;Juventude;Caxias do Sul;RS;Série A;60;não;Alfredo Jaconi;19000;11200000;15;14259;#00843d;#ffffff
+fluminense;Fluminense;Rio de Janeiro;RJ;Série B;75;não;Maracanã;100000;4290000;9;14105;#8b1538;#00843d
+ceara;Ceará;Fortaleza;CE;Série B;66;não;Castelão;60000;3934000;9;11570;#111111;#ffffff
+fortaleza;Fortaleza;Fortaleza;CE;Série B;65;não;Pici;10000;3894000;9;11299;#0057b8;#e4002b
+nautico;Náutico;Recife;PE;Série B;64;não;Aflitos;22000;3854000;9;11031;#e4002b;#ffffff
+santacruz;Santa Cruz;Recife;PE;Série B;63;não;Arruda;60000;3815000;9;10765;#111111;#e4002b
+goias;Goiás;Goiânia;GO;Série B;63;não;Serra Dourada;41000;3815000;9;10765;#00843d;#ffffff
+pontepreta;Ponte Preta;Campinas;SP;Série B;62;não;Moisés Lucarelli;30000;3775000;9;10501;#111111;#ffffff
+remo;Remo;Belém;PA;Série B;61;não;Baenão;17000;3736000;9;10240;#0033a0;#ffffff
+paysandu;Paysandu;Belém;PA;Série B;60;não;Curuzu;15000;3696000;9;9981;#0099d8;#ffffff
+bragantino;Bragantino;Bragança Paulista;SP;Série B;58;não;Nabi Abi Chedid;17000;3617000;9;9470;#ffffff;#e4002b
+avai;Avaí;Florianópolis;SC;Série B;57;não;Ressacada;17000;3577000;9;9218;#0057b8;#ffffff
+criciuma;Criciúma;Criciúma;SC;Série B;56;não;Heriberto Hülse;19000;3538000;9;8969;#f2c200;#111111
+americamg;América-MG;Belo Horizonte;MG;Série B;55;não;Independência;23000;3498000;9;8722;#00843d;#111111
+figueirense;Figueirense;Florianópolis;SC;Série B;54;não;Orlando Scarpelli;20000;3458000;9;8477;#111111;#ffffff
+vilanova;Vila Nova;Goiânia;GO;Série B;53;não;Onésio Brasileiro Alvarenga;11000;3419000;9;8235;#e4002b;#ffffff
+sampaio;Sampaio Corrêa;São Luís;MA;Série B;52;não;Castelão-MA;40000;3379000;9;7995;#f2c200;#e4002b
+botafogosp;Botafogo-SP;Ribeirão Preto;SP;Série B;50;não;Santa Cruz;27000;3300000;9;7524;#e4002b;#ffffff
+atleticogo;Atlético-GO;Goiânia;GO;Série B;48;não;Antônio Accioly;12000;3221000;9;7063;#e4002b;#111111
+xv;XV de Piracicaba;Piracicaba;SP;Série B;47;não;Barão de Serra Negra;18000;3181000;9;6836;#111111;#ffffff
+gama;Gama;Gama;DF;Série B;45;não;Bezerrão;20000;3102000;9;6390;#00843d;#f2c200
+joinville;Joinville;Joinville;SC;Série C;46;não;Ernestão;16000;1238000;6;7084;#111111;#ffffff
+londrina;Londrina;Londrina;PR;Série C;44;não;do Café;32000;1206000;6;6612;#0057b8;#ffffff
+csa;CSA;Maceió;AL;Série C;43;não;Rei Pelé;20000;1191000;6;6381;#0057b8;#ffffff
+americarn;América-RN;Natal;RN;Série C;42;não;Machadão;40000;1175000;6;6152;#e4002b;#ffffff
+crb;CRB;Maceió;AL;Série C;42;não;Rei Pelé;20000;1175000;6;6152;#e4002b;#ffffff
+mogimirim;Mogi Mirim;Mogi Mirim;SP;Série C;41;não;Vail Chaves;19000;1160000;6;5927;#f2c200;#00843d
+saocaetano;São Caetano;São Caetano do Sul;SP;Série C;40;não;Anacleto Campanella;15000;1144000;6;5704;#0057b8;#ffffff
+caxias;Caxias;Caxias do Sul;RS;Série C;40;não;Centenário;22000;1144000;6;5704;#8b1538;#0057b8
+treze;Treze;Campina Grande;PB;Série C;39;não;Amigão;35000;1128000;6;5485;#111111;#ffffff
+voltaredonda;Volta Redonda;Volta Redonda;RJ;Série C;38;não;Raulino de Oliveira;20000;1113000;6;5268;#f2c200;#0057b8
+campinense;Campinense;Campina Grande;PB;Série C;38;não;Renatão;20000;1113000;6;5268;#e4002b;#111111
+brasilpel;Brasil de Pelotas;Pelotas;RS;Série C;38;não;Bento Freitas;18000;1113000;6;5268;#e4002b;#111111
+juventus;Juventus-SP;São Paulo;SP;Série C;37;não;Rua Javari;6000;1097000;6;5055;#8b1538;#ffffff
+confianca;Confiança;Aracaju;SE;Série C;37;não;Batistão;15000;1097000;6;5055;#0057b8;#ffffff
+americano;Americano;Campos;RJ;Série C;36;não;Godofredo Cruz;8000;1082000;6;4845;#f2c200;#111111
+motoclub;Moto Club;São Luís;MA;Série C;36;não;Nhozinho Santos;15000;1082000;6;4845;#0057b8;#ffffff
+santoandre;Santo André;Santo André;SP;Série C;36;não;Bruno José Daniel;16000;1082000;6;4845;#0057b8;#ffffff
+operariosms;Operário-MS;Campo Grande;MS;Série C;35;não;Morenão;30000;1066000;6;4638;#111111;#ffffff
+ituano;Ituano;Itu;SP;Série C;35;não;Novelli Júnior;18000;1066000;6;4638;#e4002b;#111111
+central;Central;Caruaru;PE;Série C;34;não;Lacerdão;19000;1050000;6;4434;#111111;#ffffff
+tupi;Tupi;Juiz de Fora;MG;Série D;30;não;Mário Helênio;15000;608000;4;4869;#111111;#ffffff
+ypiranga;Ypiranga-RS;Erechim;RS;Série D;29;não;Colosso da Lagoa;22000;598000;4;4620;#f2c200;#0057b8
+villanova;Villa Nova-MG;Nova Lima;MG;Série D;28;não;Castor Cifuentes;9000;589000;4;4376;#e4002b;#ffffff
+ferroviario;Ferroviário;Fortaleza;CE;Série D;27;não;Elzir Cabral;12000;579000;4;4136;#e4002b;#111111
+nacionalam;Nacional-AM;Manaus;AM;Série D;26;não;Vivaldão;43000;570000;4;3901;#ffffff;#111111
+anapolis;Anápolis;Anápolis;GO;Série D;26;não;Jonas Duarte;17000;570000;4;3901;#0057b8;#ffffff
+comercialms;Comercial-MS;Campo Grande;MS;Série D;25;não;Jacques da Luz;8000;560000;4;3671;#111111;#ffffff
+riobrancoac;Rio Branco-AC;Rio Branco;AC;Série D;24;não;José de Melo;12000;550000;4;3446;#111111;#ffffff
+operariovg;Operário-VG;Várzea Grande;MT;Série D;24;não;Louro Veloso;8000;550000;4;3446;#111111;#ffffff
+itabaiana;Itabaiana;Itabaiana;SE;Série D;23;não;Mendonção;12000;541000;4;3226;#0057b8;#ffffff
+bangu;Bangu;Rio de Janeiro;RJ;Série D;20;sim;Moça Bonita;17000;512000;4;2597;#e4002b;#ffffff
+madureira;Madureira;Rio de Janeiro;RJ;Série D;17;sim;Conselheiro Galvão;10000;483000;4;2019;#f2c200;#0057b8
+marilia;Marília;Marília;SP;Série D;15;sim;Bento de Abreu;19000;464000;4;1663;#e4002b;#ffffff
+olaria;Olaria;Rio de Janeiro;RJ;Série D;14;sim;Bariri;8000;454000;4;1494;#0057b8;#ffffff
+sertaozinho;Sertãozinho;Sertãozinho;SP;Série D;13;sim;Frederico Dalmaso;8000;445000;4;1332;#e4002b;#ffffff
+riobrancoes;Rio Branco-ES;Vitória;ES;Série D;12;sim;Engenheiro Araripe;5000;435000;4;1177;#00843d;#ffffff
+tunaluso;Tuna Luso;Belém;PA;Série D;11;sim;Soares de Carvalho;5000;426000;4;1028;#0057b8;#ffffff
+colatina;Colatina;Colatina;ES;Série D;10;sim;Justiniano de Melo;5000;416000;4;887;#0057b8;#f2c200
+ceilandia;Ceilândia;Ceilândia;DF;Série D;9;sim;Abadião;6000;406000;4;753;#0057b8;#ffffff
+guaranybage;Guarany de Bagé;Bagé;RS;Série D;8;sim;Carlos Salzano;10000;397000;4;628;#e4002b;#ffffff
