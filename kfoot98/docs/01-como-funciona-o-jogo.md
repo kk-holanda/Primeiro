@@ -1,4 +1,4 @@
-# Kfoot 98: documentação do jogo (versão 24)
+# Kfoot 98: documentação do jogo (versão 25)
 
 Documento vivo: cresce junto com a implementação. Cada rodada de melhorias atualiza as seções que mudaram. Valores vêm do código da branch `claude/melhorias-5-xt6u1f` (pasta `kfoot98`). Quando algo ainda não está documentado, a seção diz "a detalhar".
 
@@ -14,7 +14,7 @@ Arquivos de dados desta pasta:
 - 80 clubes em 4 divisões de 20 clubes: Série A, B, C e D. Temporada de 1998 em diante, sem fim.
 - Os jogadores humanos só podem iniciar em 10 clubes da Série D (os "iniciáveis"): Bangu, Madureira, Marília, Olaria, Sertãozinho, Rio Branco-ES, Tuna Luso, Colatina, Ceilândia e Guarany de Bagé. A escolha é por sorteio de bolinhas.
 - Todo o motor é determinístico a partir de uma semente (gerador mulberry32): a mesma semente e as mesmas decisões dão o mesmo jogo.
-- Níveis de dificuldade: Fácil, Normal, Difícil (caixa inicial do humano ×1,5 / ×1 / ×0,8; acerto do técnico do computador no intervalo −0,15 / 0 / +0,15; frequência de treino do computador ×0,6 / ×1 / ×1,4).
+- Dificuldade (🔶 v25): a escolha saiu da tela inicial e o jogo fica sempre no Normal. Os multiplicadores continuam no código, todos ×1 (caixa inicial ×1, acerto do técnico do computador no intervalo +0, treino do computador ×1).
 - Opção de desligar a demissão pela diretoria. Substituições: 3 por jogo (padrão 1998) ou 5 (moderno).
 
 ## 2. Números do jogo
@@ -28,8 +28,8 @@ Arquivos de dados desta pasta:
 | Subem e descem por divisão | 4 |
 | Copa do Brasil | 64 clubes, fase preliminar com 32 clubes, ida e volta, sem gol fora dobrado, pênaltis |
 | Posições | GOL, ZAG, LIB, LD, LE, VOL, MC, MEI, ALA, PD, PE, CA, SA |
-| Formações | 4-3-3, 4-2-3-1, 4-4-2, 4-5-1, 3-5-2, 3-4-3 |
-| Táticas | Ofensivo, Equilibrado, Defensivo, Contra-ataque |
+| Formações (🔶 v25) | 4-4-2, 4-4-2 Losango, 3-5-2, 4-3-3, 4-2-3-1, 4-1-4-1, 3-4-2-1, 4-3-2-1, 3-3-1-3, 4-2-4, 5-4-1, 5-3-2 |
+| Estilos de jogo (🔶 v25) | Posição, Gegenpressing, Reativo, Jogo Direto, Relacionismo, Retranca, Linha Alta, Corredores, Vertical, Saída Curta (um principal e um secundário opcional) |
 | Atributos | Ritmo (RIT), Finalização (CHU), Passe (PAS), Drible (DRI), Defesa (DEF), Físico (FIS) e Bola parada (cobrança) |
 | Nacionalidades dos jogadores | BRA (92% na média), ARG, PAR, URU, CHI, COL, PER, BOL, VEN, EQU |
 | Técnicos do computador | 80, com nome sorteado e um entre 6 estilos escondidos |
@@ -149,32 +149,114 @@ Efeitos medidos em 1.500 jogos pareados (ver o relatório de medições da v22).
 
 Cada partida tem 90 minutos simulados minuto a minuto, mais acréscimos (ver 5.4).
 
-1. **Forças de cada time**: ataque = 0,60 × média do ataque + 0,30 × meio + 0,10 × defesa; defesa = 0,76 × defesa + 0,08 × meio + 0,16 × goleiro; controle = 0,60 × meio + 0,20 × ataque + 0,20 × defesa. Cada jogador entra com média no slot × stamina × moral × sinergia. Tudo multiplicado pelos modificadores da formação e da tática, por um fator de forma do dia (±3%) e pelo capitão.
+1. **Forças de cada time**: ataque = 0,60 × média do ataque + 0,30 × meio + 0,10 × defesa; defesa = 0,76 × defesa + 0,08 × meio + 0,16 × goleiro; controle = 0,60 × meio + 0,20 × ataque + 0,20 × defesa. Cada jogador entra com média no slot × stamina × moral × sinergia. Tudo multiplicado pelos modificadores da formação e do estilo (ver 5.1 a 5.3), por um fator de forma do dia (±3%) e pelo capitão.
 2. **Stamina e moral**: força × (0,55 + 0,45 × (stamina/100)^1,25) e × (0,95 + 0,10 × moral/100). Quem entra do banco tem pernas frescas: +15% decaindo em 40 minutos.
 3. **Posse**: (controle A)^2,2 ÷ soma, mais uma "maré" (v22): onda que se arrasta de um minuto para o outro (m = 0,88 × m + ruído de 0,04) e um empurrão de 1,5 ponto percentual por gol de desvantagem (até 4). A posse mostrada na tela é a dos últimos minutos (média móvel de 15%), então varia ao vivo; o resumo mostra o total do jogo. Mandante tem controle ×1,07.
-4. **Ataque**: a cada minuto há 0,575 × tempo médio das táticas de chance de um ataque; a posse e o ritmo (tempo) da tática decidem quem ataca. Time com folga de 2+ gols poupa o time.
+4. **Ataque**: a cada minuto há 0,575 × ritmo médio dos estilos de chance de um ataque; a posse e o ritmo (tempo) do estilo decidem quem ataca. Time com folga de 2+ gols poupa o time.
 5. **Drible × marcação**: o driblador enfrenta o marcador; quem perde o duelo faz falta (pênalti se foi na área: atacante 24%, meia 11%, zagueiro 2%; senão falta direta 50%).
 6. **Chute**: probabilidade = 0,378 + diferença de ataque×defesa × 0,0065 + diferença de passe × 0,0038 + diferença de ritmo × 0,0022 + bônus de duelo ganho (0,16) + bônus de nível baixo (até +0,04). Passe final vem de quem tem mais passe (meias com peso 1,6; atacantes 4,6; defensores 0,22; goleiro 0,03; laterais ×1,5).
 7. **Finalização**: chance de ir no gol = base (0,41 bola, 0,385 cabeça, 0,42 falta) + (finalização − 50) × 0,004 − (marcador − 50) × 0,0042. Chance de gol = base 0,31 + (finalização − goleiro) × 0,0032. A finalização efetiva pesa ×1,6 (Copa: individual comprimido). Goleiro de linha: ×0,2.
 8. **Escanteios e cabeceios**: o melhor passador bate; quanto melhor o passe, mais cabeçadas; o melhor de cabeça finaliza.
 9. **Faltas e cartões**: 0,125 × 1,7 de chance de falta por minuto; falta direta perto da área em 7,5% delas; amarelo em 10,5% por falta × disciplina.
 10. **Pênaltis**: ver seção 6. Gol de pênalti ≈ 76% na média.
-11. **Intervalo**: o time do computador responde à tática que o adversário usou no 1º tempo com probabilidade = acerto do técnico (0,50 a 0,80) ± dificuldade.
+11. **Intervalo**: o time do computador responde ao estilo que o adversário usou no 1º tempo com probabilidade = acerto do técnico (0,50 a 0,80), trocando para a melhor resposta da tabela 5.4 que combina melhor com a formação.
 12. **Cara a cara (v22)**: 11% dos chutes de jogada são cara a cara com o goleiro (×1,9 se quem deu o passe é Maestro, ×1,2 se o finalizador é Matador); nesses, a chance de gol sobe ×1,5, compensada em todos os chutes de jogada (×0,948) para a média de gols não mudar. Chance de gol geral ×1,065 (calibração depois das estrelas extras).
 13. **Substituições do computador**: em 60', 70' e 80' troca o mais cansado (stamina < 75) pelo melhor reserva do slot.
 
 Valores típicos por jogo (jogos entre times de prestígio 40 a 90): ≈ 2,8 gols, 24 chutes, 10 no gol, 6,4 escanteios, 21 faltas, 0,12 lesões; mandante vence 44%, empata 23%, perde 33%. Por divisão (liga completa): A ≈ 2,6 gols, B 2,6, C 2,6, D 2,5.
 
-### 5.1 Formações (modificadores de ataque / defesa / controle)
-4-3-3: 1,023 / 0,937 / 1,016; 4-2-3-1: 0,965 / 0,995 / 0,986; 4-4-2: 1 / 1 / 0,994; 4-5-1: 0,983 / 1,066 / 0,990; 3-5-2: 0,991 / 1,002 / 0,996; 3-4-3: 1,008 / 0,86 / 1,019. Ajustadas por simulação para que nenhuma domine (amplitude entre formações ≈ 0,04 ponto por jogo).
+### 5.1 Formações (🔶 v25: 12, da planilha "Guia tático")
+Modificadores da estrutura (multiplicam ataque, defesa e controle). Foram ajustados por simulação (5 rodadas) para que nenhuma formação domine: a média de cada uma, medida contra combinações sorteadas, fica entre 1,32 e 1,37 ponto por jogo (ver relatório 12).
 
-### 5.2 Táticas
-Ofensivo (ataque 1,142, defesa 0,994, ritmo 1,08, faltas +10%, abertura +1); Equilibrado (tudo 1); Defensivo (0,934 / 1,036, ritmo 0,92, retranca −2% nas chances do adversário, compacta); Contra-ataque (1,009 / 1,071, ritmo 0,88, bônus no contra-ataque proporcional à abertura do adversário). Melhor resposta: ofensivo → contra; equilibrado → ofensivo; defensivo → ofensivo; contra → defensivo ou equilibrado.
+| Formação | Ataque | Defesa | Controle |
+|---|---|---|---|
+| 4-4-2 | 0,979 | 0,979 | 0,994 |
+| 4-4-2L | 1,017 | 1,002 | 1,020 |
+| 3-5-2 | 0,994 | 1,005 | 0,996 |
+| 4-3-3 | 0,991 | 0,907 | 1,016 |
+| 4-2-3-1 | 0,947 | 0,977 | 0,986 |
+| 4-1-4-1 | 0,959 | 1,014 | 1,005 |
+| 3-4-2-1 | 1,008 | 0,994 | 1,010 |
+| 4-3-2-1 | 1,049 | 1,059 | 1,020 |
+| 3-3-1-3 | 0,998 | 0,876 | 1,020 |
+| 4-2-4 | 1,060 | 0,888 | 0,970 |
+| 5-4-1 | 0,978 | 1,130 | 0,985 |
+| 5-3-2 | 0,981 | 1,067 | 0,990 |
 
-### 5.3 Sinergia
-Mede o quanto os jogadores certos estão nos lugares que a tática e a formação pedem, comparado a um time comum (elencos reais gerados, escalados automaticamente). Teto ±8%. Normalizada: a média de cada combinação fica entre −0,7% e 0%.
+Posições de cada formação (11 slots): 4-4-2 GOL LD ZAG ZAG LE VOL MC ALA ALA CA SA; 4-4-2 Losango GOL LD ZAG ZAG LE VOL MC MC MEI CA SA; 3-5-2 GOL ZAG ZAG LIB ALA VOL VOL MEI ALA CA SA; 4-3-3 GOL LD ZAG ZAG LE VOL MC MEI PD CA PE; 4-2-3-1 GOL LD ZAG ZAG LE VOL VOL MEI PD PE CA; 4-1-4-1 GOL LD ZAG ZAG LE VOL ALA MC MC ALA CA; 3-4-2-1 GOL ZAG LIB ZAG ALA MC MC ALA MEI MEI CA; 4-3-2-1 GOL LD ZAG ZAG LE VOL MC MC MEI MEI CA; 3-3-1-3 GOL ZAG LIB ZAG VOL ALA ALA MEI PD CA PE; 4-2-4 GOL LD ZAG ZAG LE VOL MC PD CA SA PE; 5-4-1 GOL LD ZAG LIB ZAG LE VOL VOL MC MEI CA; 5-3-2 GOL LD ZAG LIB ZAG LE VOL MC MC CA SA. Descrição, pontos fortes e fracos e "elenco ideal" de cada uma (texto da planilha) aparecem na tela. Jogos salvos com 4-5-1 ou 3-4-3 viram 4-1-4-1 e 3-3-1-3.
 
-### 5.4 Acréscimos e prorrogação (v22)
+### 5.2 Estilos de jogo (🔶 v25: 10, no lugar das 4 táticas)
+Cada estilo tem um **bônus** (o que ele dá), um **custo** (o que ele pede em troca) e um efeito **fixo** de calibração (soma ou subtrai ataque e defesa para equilibrar). Valores nominais, antes de aplicar a compatibilidade e o encaixe do elenco (fração = ×(1 + valor); "pts" = pontos de probabilidade ou de nota de finalização):
+
+| Estilo | Bônus nominal | Custo nominal | Fixo (calibração) |
+|---|---|---|---|
+| Posição | ctl +0,05, chute +0,01, qual +1 | tempo -0,07, atk -0,015 | abertura +0,1, atk -0,024, def -0,024 |
+| Gegenpressing | ctl +0,025, fecha +0,025, atk +0,015 | fad +0,5, def -0,03, costas +0,7, faltas +0,18 | abertura +0,5, atk +0,059, def +0,059 |
+| Reativo | contraK +0,18, def +0,02, fecha +0,01 | ctl -0,05, tempo -0,1, atk -0,02 | abertura -0,5, atk -0,039, def -0,039 |
+| Jogo Direto | aereo +3, tempo +0,04, chute +0,012, atk +0,01 | ctl -0,05, qual -1 | abertura +0,2, atk -0,019, def -0,019 |
+| Relacionismo | ctl +0,03, qual +1,5, atk +0,01 | def -0,03, costas +0,3 | abertura +0,2, atk -0,012, def -0,012 |
+| Retranca | def +0,05, fecha +0,04, comp -0,18 | atk -0,1, tempo -0,1, ctl -0,04 | abertura -1, atk +0,026, def +0,026 |
+| Linha Alta | ctl +0,02, fecha +0,015, offs +0,06, def +0,01 | costas +1, fad +0,15 | abertura +0,4, atk +0,011, def +0,011 |
+| Corredores | cruz +0,8, aereo +1,5, atk +0,012 | ctl -0,02, qual -0,8 | abertura +0,3, atk +0,019, def +0,019 |
+| Vertical | tempo +0,06, atk +0,025, chute +0,012 | ctl -0,035, qual -0,8 | abertura +0,5, atk -0,034, def -0,034 |
+| Saída Curta | ctl +0,025, def +0,01 | tempo -0,03, perda +0,8 | abertura 0, atk +0,032, def +0,032 |
+
+Significado: ctl = controle do meio; atk/def = ataque e defesa; tempo = ritmo (quantos lances saem); chute = chance de um ataque virar finalização (pontos de probabilidade); qual = qualidade da finalização (pontos na nota do finalizador); fecha = reduz as finalizações do adversário (pontos de probabilidade); contraK = bônus de contra-ataque, proporcional à abertura do adversário; comp = compactação (a vantagem de qualidade do adversário rende menos); aereo = pontos na nota de cabeceio; cruz = probabilidade de cruzar; offs = impedimentos provocados (fração dos ataques rivais, ajustada pela velocidade dos atacantes); fad = gasto extra de stamina; costas = risco de bola nas costas (só pesa contra atacante veloz); faltas = faltas e cartões; perda = risco de perda perigosa na saída de bola; abertura = o quanto o time se expõe.
+
+**Compatibilidade formação × estilo** (nota 1 a 5 da aba Matriz da planilha; 120 combinações com bônus e penalidade em % em cada uma):
+
+| Formação | Posição | Gegen | Reativo | Direto | Relac. | Retranca | L. Alta | Corredores | Vertical | Saída |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 4-4-2 | 4 | 4 | 5 | 5 | 4 | 3 | 4 | 4 | 4 | 3 |
+| 4-4-2 Losango | 5 | 4 | 4 | 3 | 5 | 2 | 2 | 2 | 4 | 4 |
+| 3-5-2 | 4 | 4 | 5 | 5 | 4 | 5 | 4 | 4 | 4 | 4 |
+| 4-3-3 | 5 | 5 | 4 | 4 | 4 | 2 | 5 | 5 | 5 | 5 |
+| 4-2-3-1 | 5 | 5 | 5 | 4 | 4 | 4 | 4 | 4 | 5 | 5 |
+| 4-1-4-1 | 5 | 5 | 4 | 3 | 4 | 4 | 5 | 3 | 4 | 5 |
+| 3-4-2-1 | 5 | 5 | 5 | 4 | 5 | 4 | 4 | 4 | 5 | 5 |
+| 4-3-2-1 | 5 | 4 | 4 | 3 | 5 | 4 | 4 | 2 | 4 | 4 |
+| 3-3-1-3 | 4 | 5 | 2 | 4 | 5 | 1 | 5 | 4 | 5 | 3 |
+| 4-2-4 | 2 | 4 | 4 | 5 | 3 | 1 | 2 | 5 | 5 | 2 |
+| 5-4-1 | 2 | 2 | 5 | 4 | 2 | 5 | 2 | 3 | 3 | 2 |
+| 5-3-2 | 3 | 4 | 5 | 5 | 3 | 5 | 3 | 4 | 4 | 3 |
+
+Como a combinação vira número: o bônus do estilo é multiplicado por (meio da faixa de bônus da planilha ÷ 7,5) × k_bônus da nota (1: 0,4; 2: 0,7; 3: 0,9; 4: 1,0; 5: 1,12). Quando a planilha diz "sem bônus automático", usa 0,35. O custo é multiplicado por (meio da faixa de penalidade ÷ 8) × k_custo da nota (1: 1,35; 2: 1,15; 3: 1,0; 4: 0,9; 5: 0,8). Resultado medido: nota 5 rende 1,38 ponto por jogo, nota 4 1,36, nota 3 1,30, nota 2 1,29 e nota 1 1,12.
+
+**Teto**: ataque, defesa e controle ficam entre ×0,82 e ×1,15 (teto de +15% da planilha), ritmo entre ×0,80 e ×1,15.
+
+**Fôlego**: estilos com dependência de energia (Gegenpressing 1,0; Linha Alta 0,7; Vertical 0,5; Corredores 0,3) perdem até 40% do bônus com a stamina média do XI abaixo de 70 (bônus × stamina/70, mínimo 0,6) e o custo cresce (1 + dependência × (70 − stamina)/100). O gasto de energia por minuto é multiplicado por 1 + fad (Gegenpressing ≈ ×1,45; Linha Alta ≈ ×1,14; ver 2).
+
+**Estilo secundário**: entra com peso conforme a relação da aba "Estilos x Estilos": Sinergia forte 0,70; Boa sinergia 0,60; Boa sinergia com risco 0,55; Compatível com tensão 0,45; Situacional 0,35; Conflito de progressão 0,30; Conflito frequente 0,25. Os conflitos tiram ainda ataque e controle (Conflito frequente −2%; Conflito de progressão −1,5%; tensão e risco −0,6%). O comportamento (propriedades usadas no duelo) é uma média ponderada dos dois estilos.
+
+### 5.3 Sinergia e encaixe do elenco
+Mede o quanto os jogadores certos estão nos lugares que o estilo e a formação pedem, comparado a um time comum (elencos reais gerados, escalados automaticamente). Teto ±8% em ataque, defesa e controle. 🔶 v25: cada estilo tem uma lista "grupo, atributos, o que melhora, peso" (por exemplo, Posição: meias com PAS e DRI → controle, defensores com PAS → controle; Gegenpressing: meias com FIS e DEF → defesa, atacantes com FIS e RIT → ataque; Linha Alta: zagueiros com RIT e DEF → defesa; Corredores: jogadores de lado com DRI e RIT → ataque, atacantes com CHU e FIS → ataque). A média do encaixe, normalizada por elencos comuns, vira o **encaixe** (−100% a +100%) que escala o bônus do estilo em até ±60% (bônus ×(1 + 0,6 × encaixe); custo ×(1 − 0,6 × encaixe)). Cada formação também tem seus papéis (ex.: 4-3-3: pontas com RIT e DRI; 4-2-4: pontas e centroavantes com CHU e RIT; 5-4-1: zagueiros com DEF e FIS; losango: armador com PAS e DRI).
+
+### 5.4 Duelo de estilos (🔶 v25)
+O estilo de cada time rende mais ou menos conforme o estilo e a estrutura do adversário. Só conta quando a condição acontece. O desconto vale para a chance do ataque virar finalização (pontos de probabilidade; teto ±9) e para a nota de finalização (±2,5):
+- Pressão do adversário × saída de bola do atacante (posse, saída curta, relacionismo): −0,110 × pressão × construção × (1 + perda).
+- Bola longa e vertical passam por cima da pressão: +0,055 × pressão × verticalidade.
+- Bola nas costas: +0,085 × risco de costas do adversário × verticalidade × (0,7 + 0,02 × diferença de RIT).
+- Bloco baixo do adversário: −0,075 × bloco × construção (circular sem criar), −0,055 × bloco × contra-ataque, −0,028 × bloco × verticalidade e −2 pts de qualidade × bloco × uso das laterais (cruzamento contra defesa fechada). O bloco também depende da formação (+0,07 por defensor acima de 4, −0,04 por atacante acima de 2).
+- Impedimento da Linha Alta: 6% dos ataques rivais, × (0,6 + 0,8 × verticalidade do atacante) × velocidade relativa; conta na estatística "Impedimentos".
+
+Melhores respostas medidas (relatório 12). Pontos por jogo do estilo da linha contra o da coluna (elencos iguais):
+
+| Estilo (linha) contra → | Posição | Gegenpressing | Reativo | Jogo Direto | Relacionismo | Retranca | Linha Alta | Corredores | Vertical | Saída Curta |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Posição | — | 1,26 | 1,39 | 1,34 | 1,33 | 1,34 | 1,35 | 1,44 | 1,36 | 1,38 |
+| Gegenpressing | 1,47 | — | 1,18 | 1,29 | 1,37 | 1,40 | 1,39 | 1,29 | 1,22 | 1,45 |
+| Reativo | 1,32 | 1,56 | — | 1,39 | 1,39 | 1,22 | 1,47 | 1,33 | 1,49 | 1,19 |
+| Jogo Direto | 1,38 | 1,46 | 1,35 | — | 1,41 | 1,32 | 1,45 | 1,38 | 1,39 | 1,30 |
+| Relacionismo | 1,39 | 1,34 | 1,35 | 1,34 | — | 1,40 | 1,38 | 1,34 | 1,36 | 1,40 |
+| Retranca | 1,35 | 1,28 | 1,46 | 1,36 | 1,28 | — | 1,29 | 1,39 | 1,34 | 1,33 |
+| Linha Alta | 1,39 | 1,34 | 1,26 | 1,30 | 1,34 | 1,41 | — | 1,43 | 1,31 | 1,49 |
+| Corredores | 1,27 | 1,45 | 1,38 | 1,38 | 1,41 | 1,31 | 1,29 | — | 1,39 | 1,27 |
+| Vertical | 1,37 | 1,52 | 1,25 | 1,34 | 1,39 | 1,36 | 1,43 | 1,37 | — | 1,41 |
+| Saída Curta | 1,32 | 1,25 | 1,52 | 1,42 | 1,30 | 1,34 | 1,22 | 1,47 | 1,32 | — |
+
+Tabela de respostas (usada no intervalo pelo humano e pelo computador): Posição → Gegenpressing, Linha Alta; Gegenpressing → Reativo, Vertical, Jogo Direto; Reativo → Saída Curta, Retranca; Jogo Direto → Saída Curta, Reativo; Relacionismo → Jogo Direto, Corredores; Retranca → Linha Alta, Relacionismo; Linha Alta → Reativo, Jogo Direto, Vertical; Corredores → Saída Curta, Posição, Linha Alta; Vertical → Reativo, Jogo Direto; Saída Curta → Linha Alta, Gegenpressing. Intervalo: trocar o estilo principal para uma boa resposta +3%, para algo que o adversário anula −2%, trocar só o secundário para uma boa resposta +1,5%; mudança de formação como antes (+2% / −1,5%); total entre −3% e +5%.
+
+### 5.5 Acréscimos e prorrogação (v22)
 - O relógio corre sem parar; a tela mostra 45+2', 90+4'. Acréscimo do 1º tempo = 0,6 + 0,55 por gol + 1 por lesão + 0,35 por cartão + 0,4 por pênalti perdido + 0,2 por substituição + ruído normal (0,6), arredondado, de 1 a 8; no 2º tempo a base é 1,4. Médias medidas: 1,8' e 3,6'.
 - Como o jogo dura ≈ 5,4 minutos a mais, todo o que é por minuto (ataques, faltas, pênaltis sem drible, lesões, cansaço) é multiplicado por 0,94: gols, faltas e lesões por jogo ficam iguais.
 - **Copa do Brasil**: se a volta termina empatada no agregado, há prorrogação de 2 tempos de 15 minutos, cada um com acréscimos (base 0,3 no 1º e 0,4 no 2º), com pausas para o técnico humano. Pênaltis só se continuar empatado depois da prorrogação. ≈ 15% das voltas vão à prorrogação e ≈ 8% aos pênaltis.
@@ -188,16 +270,16 @@ Mede o quanto os jogadores certos estão nos lugares que a tática e a formaçã
 
 ## 7. Técnicos
 
-- **Humano**: escolhe formação, tática, titulares, capitão, batedores (falta e pênalti; escanteios), treinos, conversa com o elenco e bicho. **Conversa (v22)**: escolhe o tom (Elogiar: +3, sem risco; Motivar: (3+3k) × 1,3 para moral < 50 ou × 0,8, 20% − (moral do técnico − 50)/500 de cair mal (−2); Cobrar: +6 para moral < 60, −2 para moral > 75, risco 55% − moral do técnico/160 (entre 10% e 50%) de cair mal (−4)) e com quem falar (grupo, só os desanimados com moral < 50, ou um jogador, com efeito ×1,5 nos tons Elogiar e Motivar). Espera: 4 jogos para conversa com grupo, 3 jogos por jogador. A moral do técnico sobe com vitórias (principalmente contra times maiores) e desce com derrotas; abaixo de 20 gera aviso e, por 12 jogos seguidos abaixo de 20 com o clube na zona de rebaixamento, a diretoria o demite (desligável) e ele assume um clube pior.
+- **Humano**: escolhe formação, estilo principal e secundário (🔶 v25), titulares, capitão, batedores (falta e pênalti; escanteios), treinos, conversa com o elenco e bicho. **Conversa (v22)**: escolhe o tom (Elogiar: +3, sem risco; Motivar: (3+3k) × 1,3 para moral < 50 ou × 0,8, 20% − (moral do técnico − 50)/500 de cair mal (−2); Cobrar: +6 para moral < 60, −2 para moral > 75, risco 55% − moral do técnico/160 (entre 10% e 50%) de cair mal (−4)) e com quem falar (grupo, só os desanimados com moral < 50, ou um jogador, com efeito ×1,5 nos tons Elogiar e Motivar). Espera: 4 jogos para conversa com grupo, 3 jogos por jogador. A moral do técnico sobe com vitórias (principalmente contra times maiores) e desce com derrotas; abaixo de 20 gera aviso e, por 12 jogos seguidos abaixo de 20 com o clube na zona de rebaixamento, a diretoria o demite (desligável) e ele assume um clube pior.
 - **Computador**: cada clube tem um técnico com nome e um estilo escondido entre 6:
 
-| Estilo | Peso | Treina | Tática preferida | Formações preferidas | Acerto no intervalo |
+| Estilo | Peso | Treina | Estilo de jogo preferido | Formações preferidas | Acerto no intervalo |
 |---|---|---|---|---|---|
 | Formador | 20 | jovens até 23 anos | — | — | 55% |
-| Ofensivista | 17 | CHU, DRI, RIT de atacantes e meias | ofensiva (40%) | 4-3-3, 3-4-3, 4-2-3-1 | 50% |
-| Retranqueiro | 17 | DEF, FIS de defensores, volantes e goleiros | defensiva/contra (40%) | 4-5-1, 3-5-2, 4-4-2 | 55% |
+| Ofensivista | 17 | CHU, DRI, RIT de atacantes e meias | Vertical, Corredores, Gegenpressing ou Jogo Direto (50%) | 4-3-3, 3-3-1-3, 4-2-4, 4-2-3-1 | 50% |
+| Retranqueiro | 17 | DEF, FIS de defensores, volantes e goleiros | Retranca, Reativo ou Linha Alta (50%) | 5-4-1, 5-3-2, 3-5-2, 4-1-4-1 | 55% |
 | Preparador físico | 14 | FIS, RIT | — | — | 55% |
-| Professor | 17 | PAS, DRI | equilibrada (30%) | 4-2-3-1, 4-4-2, 4-3-3 | 70% |
+| Professor | 17 | PAS, DRI | Posição, Relacionismo ou Saída Curta (45%) | 4-2-3-1, 4-3-2-1, 4-4-2 Losango, 4-3-3 | 70% |
 | Estrategista | 15 | quase não treina | — | — | 80% |
 
 - **Dicas de estilo**: o jogo observa cada técnico (tática e formação usadas, jovens no time, mudanças no intervalo, treinos), com memória que decai 3% por jogo. Com 8+ jogos, o mouseover no nome dá uma dica com linguagem incerta (talvez / parece / provavelmente), com ruído que diminui até 40 jogos. A primeira dica acerta 59% com 8 jogos e 79% com 30.
