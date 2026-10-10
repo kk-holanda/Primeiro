@@ -4618,13 +4618,14 @@ window.ESCUDOS_REAIS = {};
     rs.forEach((r) => { const k = r.jogo.rotulo; (grupos[k] = grupos[k] || []).push(r); });
     return h('main', { class: 'wrap page' }, K.tecnicosBar(),
       h('div', { class: 'head' }, h('span', { class: 'eyebrow' }, GM.fmtData(g.data)), h('h2', null, 'Resultados da rodada')),
-      Object.entries(grupos).map(([t, arr]) => h('section', { class: 'card jdiv' }, h('h3', null, t),
+      (() => { const ch = Object.keys(grupos), sel = ch.includes(G.resTab) ? G.resTab : ch[0]; return ch.length > 1 ? h('div', { class: 'tabs', role: 'tablist' }, ch.map((t) => h('button', { class: 'tabbtn' + (t === sel ? ' on' : ''), role: 'tab', 'aria-selected': t === sel ? 'true' : 'false', onclick: () => { G.resTab = t; K.renderKeep(); } }, t + ' (' + grupos[t].length + ')'))) : null; })(),
+      Object.entries(grupos).filter(([t]) => { const ch = Object.keys(grupos); return t === (ch.includes(G.resTab) ? G.resTab : ch[0]); }).map(([t, arr]) => h('section', { class: 'card jdiv' }, h('h3', null, t),
         h('ul', { class: 'resultados' }, arr.map((r) => h('li', { class: 'clicavel', tabindex: 0, role: 'button', 'data-tip': 'Ver o resumo deste jogo', onclick: () => { G.resumoSel = rs.indexOf(r); K.ir('resumo'); }, onkeydown: (e) => { if (e.key === 'Enter') e.currentTarget.click(); } },
           h('span', { class: 'tc' }, K.comEscudo(r.jogo.casa)), h('b', { class: 'num pl' }, r.placar[0] + ' × ' + r.placar[1]), h('span', { class: 'tf' }, K.comEscudo(r.jogo.fora)),
           r.prorr ? h('small', { class: 'etag' }, ' prorrogação') : null,
           r.copa ? h('small', { class: 'muted num' }, ' · agregado ' + r.copa.agregado[0] + '×' + r.copa.agregado[1] + (r.copa.penaltis ? ' (pên. ' + r.copa.penaltis[0] + '×' + r.copa.penaltis[1] + ')' : '') + ' · passa: ') : null,
           r.copa ? h('b', null, nome(r.copa.vencedor)) : null))))),
-      h('div', { class: 'actions' }, h('button', { class: 'btn hot', id: 'continuar', onclick: () => { G.aba = 'plantel'; G.resumos = null; G.resumoSel = null; G.posTab = null; G.prontos.clear(); if (g.fim) K.ir('fim'); else K.ir(5); } }, 'Continuar')));
+      h('div', { class: 'actions' }, h('button', { class: 'btn hot', id: 'continuar', onclick: () => { G.aba = 'plantel'; G.resumos = null; G.resumoSel = null; G.posTab = null; G.resTab = null; G.prontos.clear(); if (g.fim) K.ir('fim'); else K.ir(5); } }, 'Continuar')));
   }
   K.telas.resumo = function () {
     const g = G.g, rs = G.resumos, meuClube = K.clubeHumano().id, doHumano = (r) => r.humano[0] || r.humano[1];
