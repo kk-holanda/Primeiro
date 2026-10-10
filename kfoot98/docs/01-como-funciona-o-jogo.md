@@ -96,7 +96,7 @@ Média no slot = média da posição do slot × afinidade. Natural: 1,00; posiç
 - **Stamina** (0–100): cai no jogo (≈ 33 − 0,22 × FIS por 90 min), recupera com o descanso (taxa 0,085 + 0,001 × FIS ao dia, menor para veteranos). O efeito na força do jogador é 0,55 + 0,45 × (stamina/100)^1,25 (na v22 o expoente era 2): quem está com 80 de stamina rende ≈ 89% da força, com 70 ≈ 84%.
 - **Moral** (0–100): nota boa sobe, nota ruim desce (±5 por ponto de nota diferente de 6,3). Reserva que entra ganha confiança; moral de quem não joga tende a 50. Moral do computador se recupera 12% da distância até 55 por jogo, com piso de 30.
 - **Lesão**: risco por minuto 0,000062 × fator (1,85 − FIS/65, entre 0,5 e 1,6).
-- **Cartões**: 3 amarelos = suspensão; vermelho = 1 jogo.
+- **Cartões**: 3 amarelos = 1 jogo de suspensão. 🔶 v33 **Vermelho**: o 2º amarelo no mesmo jogo rende 1 jogo de suspensão; o vermelho direto rende de 1 a 3 jogos conforme a gravidade da falta (sorteio: 20% 1 jogo, 50% 2 jogos, 30% 3 jogos; jogador de disciplina muito ruim: 10%, 40%, 50%; de disciplina boa: 35%, 50%, 15%). O lance mostra "suspenso por N jogos" e a situação do jogador mostra "SUSP N" (jogos que faltam), valendo para liga e Copa.
 - **Evolução**: pelo desempenho em campo (nota), idade e moral; retorno decrescente em atributos altos. Treinos e prêmios de fim de ano somam pontos (nada acima de 87 nos prêmios).
 - **Contrato**: salário = valor de mercado × 0,0117 (mínimo R$ 500/mês); renovação nos últimos 3 meses. Garotos das categorias de base ganham R$ 400/mês.
 

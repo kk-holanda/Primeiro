@@ -629,10 +629,13 @@ th { z-index: 3; }
 td.nm { z-index: 1; }
 .plantel th.l, .lista th.l { left: 0; z-index: 4; }
 .tecfoto { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; vertical-align: middle; margin-right: 6px; border: 1px solid #0b6e3f; }
+.tico { position: relative; border-radius: 50%; background: color-mix(in srgb, currentColor 13%, #fff); }
+.tico svg { position: absolute; inset: 16%; width: 68%; height: 68%; }
+.tico.t-forca { color: #b45309; } .tico.t-finalizacao { color: #b91c1c; } .tico.t-passes { color: #1d4ed8; } .tico.t-tecnico { color: #7e22ce; } .tico.t-defesa { color: #0f766e; } .tico.t-corrida { color: #15803d; }
 .treino-ic { display: inline-block; margin-left: 4px; font-size: 12px; cursor: help; vertical-align: middle; color: #0b6e3f; }
 .tico { display: inline-flex; flex: none; }
 .tico svg { display: block; }
-.treino-card .tico { color: #0b6e3f; margin-bottom: 2px; }
+.treino-card .tico { margin-bottom: 2px; }
 .escbox { margin: 10px 0; display: flex; flex-direction: column; gap: 8px; }
 .escjogo .escinfo { margin: 8px 0 4px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
 .sublista.escj { max-height: none; }
@@ -1633,10 +1636,10 @@ window.ESCUDOS_REAIS = {};
     fj.faltas++; stats[lado].faltas++;
     const calma = S1.campo.some((j) => j.p.id === S1.capId) ? 0.85 : 1;
     const pc = CFG.amareloPorFalta * k * P().DISC_CARTAO[fj.p.disciplina] * (fj.amarelos ? 0.6 : 1) * calma * (fj.p.trait === 'gelo' ? 0.55 : 1);
-    if (rng.chance(CFG.vermelhoDireto * P().DISC_CARTAO[fj.p.disciplina] * (fj.p.trait === 'gelo' ? 0.5 : 1))) { expulsar(S1, fj, min, ev, lado, stats, 'vermelho'); recalcular(m); }
+    if (rng.chance(CFG.vermelhoDireto * P().DISC_CARTAO[fj.p.disciplina] * (fj.p.trait === 'gelo' ? 0.5 : 1))) { expulsar(S1, fj, min, ev, lado, stats, 'vermelho', rng); recalcular(m); }
     else if (rng.chance(pc)) {
       fj.amarelos++; stats[lado].amarelos++; ev(min, 'amarelo', lado, fj);
-      if (fj.amarelos >= 2) { expulsar(S1, fj, min, ev, lado, stats, 'vermelho (2º amarelo)'); recalcular(m); }
+      if (fj.amarelos >= 2) { expulsar(S1, fj, min, ev, lado, stats, 'vermelho (2º amarelo)', rng); recalcular(m); }
     }
   }
 
@@ -1855,8 +1858,14 @@ window.ESCUDOS_REAIS = {};
     substituirM(m, m.S.indexOf(s), cand.p.id, melhor.id, 'tática');
   }
 
-  function expulsar(s, j, min, ev, lado, stats, motivo) {
-    j.expulso = true; stats[lado].vermelhos++; ev(min, 'vermelho', lado, j, { motivo });
+  // gravidade da falta: o 2º amarelo rende 1 jogo; o vermelho direto, de 1 a 3 (jogador de pior disciplina tende a pegar mais)
+  function jogosSuspensao(rng, p, motivo) {
+    if (motivo !== 'vermelho' || !rng) return 1;
+    const d = P().DISC_CARTAO[p.disciplina], w = d >= 1.6 ? [0.1, 0.4, 0.5] : d <= 0.8 ? [0.35, 0.5, 0.15] : [0.2, 0.5, 0.3], r = rng.next();
+    return r < w[0] ? 1 : r < w[0] + w[1] ? 2 : 3;
+  }
+  function expulsar(s, j, min, ev, lado, stats, motivo, rng) {
+    j.expulso = true; stats[lado].vermelhos++; j.suspJogos = jogosSuspensao(rng, j.p, motivo); ev(min, 'vermelho', lado, j, { motivo, jogos: j.suspJogos });
     const idx = s.campo.indexOf(j);
     s.campo = s.campo.filter((x) => x !== j); j.saiu = min;
     abrirVaga(s, j, idx, min, ev, lado, 'vermelho');
@@ -2720,7 +2729,7 @@ window.ESCUDOS_REAIS = {};
           const p = j.p, moralAntes = p.moral, mud = PR().aplicarPosJogo(j, { venceu: i === 0 ? gh > ga : ga > gh, topo: () => { if (jogo.comp !== 'liga') return false; const ord = S().ordenar(g.ligas[jogo.div].tabela); return ord.findIndex((r) => r.id === clube.id) < 10; } });
           if (p.suspenso > 0) p.suspenso--;
           p.faltas = (p.faltas || 0) + j.faltas; p.cartAm = (p.cartAm || 0) + j.amarelos; p.cartVm = (p.cartVm || 0) + (j.expulso ? 1 : 0);
-          if (j.expulso) p.suspenso = 1;
+          if (j.expulso) p.suspenso = j.suspJogos || 1;
           else if (j.amarelos > 0) { p.amarelosAcum++; if (p.amarelosAcum >= 3) { p.suspenso = 1; p.amarelosAcum = 0; } }
           detalhes[i].push({ id: p.id, nome: p.nome, num: p.num, slot: j.slot, pos: p.pos, nota: j.nota, g: j.g, ast: j.ast, defesas: j.defesas, desarmes: j.desarmes, faltas: j.faltas, amarelos: j.amarelos, expulso: j.expulso, chutes: j.chutes, noGol: j.noGol, minutos: j.minutos, chutes: j.chutes || 0, noGol: j.noGol || 0, entrou: j.entrou, saiu: j.saiu, lesao: j.lesionado, mudancas: mud, moralAntes, moralDepois: p.moral, stamina: p.stamina, pt: j.pt || 0, pc: j.pc || 0 });
         }
@@ -3576,7 +3585,7 @@ window.ESCUDOS_REAIS = {};
   // barra colorida pela porcentagem: verde (≥90), verde-claro (70-89), amarelo (50-69), laranja (20-49), vermelho (<20)
   K.barra = (v, cls, nome) => K.h('span', { class: 'bar ' + (cls || ''), role: 'img', 'aria-label': (nome ? nome + ' ' : '') + Math.round(v) + '%', 'data-tip': (nome ? nome + ': ' : '') + Math.round(v) + '%' }, K.h('i', { class: 'c-' + PR.cor(v), style: 'width:' + Math.max(2, Math.round(v)) + '%' }));
   K.barraPct = (v) => K.h('span', { class: 'barpct' }, K.barra(v), K.h('b', { class: 'num' }, Math.round(v) + '%'));
-  K.situacao = (p) => (p.lesao > 0 ? 'LES ' + p.lesao : p.suspenso > 0 ? 'SUSP' : '');
+  K.situacao = (p) => (p.lesao > 0 ? 'LES ' + p.lesao : p.suspenso > 0 ? 'SUSP ' + p.suspenso : '');
 
   // tooltip único, posicionado perto do elemento com data-tip (mouse e teclado)
   let tip;
@@ -3867,8 +3876,8 @@ window.ESCUDOS_REAIS = {};
     const t = p.treino, f = MK.faixas(p, t.attr, t.total);
     return p.nome + ' está no ' + MK.TREINOS[t.tipo].nome.toLowerCase() + ' (' + K.ATTR_NOME[t.attr] + '). Faltam ' + t.restante + ' de ' + t.total + ' jogo(s). Ganho esperado: ' + faixaGanho(f) + '. Moral: −' + f.moral[0] + ' a −' + f.moral[1] + '. Stamina: +' + f.stamina[0] + ' a +' + f.stamina[1] + '.';
   };
-  K.TREINO_ICO = {"forca": "<circle cx=\"12\" cy=\"5\" r=\"2\"/><path d=\"M12 7v8M12 15l-3 6M12 15l3 6M12 10l-4-2M12 10l4-2M2 8h20M3 5v6M5 5v6M19 5v6M21 5v6\"/>", "finalizacao": "<circle cx=\"6.5\" cy=\"15\" r=\"3\"/><path d=\"M5 14l1.5-1 1.5 1-.5 1.8H5.5zM1.5 12.5h2M1.5 17.5h2M10 14l4-1.5\" stroke-dasharray=\"1.6 1.4\"/><path d=\"M14 6h8v12h-8zM14 10h8M14 14h8M18 6v12\" opacity=\".7\"/>", "passes": "<circle cx=\"6\" cy=\"5\" r=\"2\"/><path d=\"M6 7.5v7M6 14.5l-3 6M6 14.5l4 2 2 4M6 10l-3 2M6 10l4 1\"/><circle cx=\"18\" cy=\"19\" r=\"2\"/><path d=\"M13 12l6-3M16 8.5l3 .5-1 3\"/>", "tecnico": "<circle cx=\"9\" cy=\"4.5\" r=\"2\"/><path d=\"M9 7l-1 8M8 15l-3 6M8 15l5 4M9 9l-3 2M9 9l3 2\"/><circle cx=\"15\" cy=\"9\" r=\"2.3\"/><path d=\"M13.7 8.3l1.3-.8 1.3.8-.5 1.5h-1.6z\"/>", "defesa": "<path d=\"M12 2.5l8 3v6c0 5-3.5 8.5-8 10.5-4.5-2-8-5.5-8-10.5v-6z\"/><path d=\"M12 6v12M8 11h8\" opacity=\".6\"/>", "corrida": "<circle cx=\"14\" cy=\"4\" r=\"2\"/><path d=\"M13 7l-3 6 4 3-1 4M10 13l-4 1M13 8l4 3 3-1M10 13l-2 4-3 1\"/><path d=\"M2 22h20M2 19.5h20\" opacity=\".5\"/>"};
-  K.treinoSvg = (tipo, px) => K.h('span', { class: 'tico', style: 'width:' + (px || 22) + 'px;height:' + (px || 22) + 'px', 'aria-hidden': 'true', html: '<svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' + (K.TREINO_ICO[tipo] || '') + '</svg>' });
+  K.TREINO_ICO = {"forca": "<path d=\"M7 6v12M17 6v12M3.5 9v6M20.5 9v6M7 12h10\" stroke-width=\"2.2\"/>", "finalizacao": "<circle cx=\"12\" cy=\"12\" r=\"9\"/><circle cx=\"12\" cy=\"12\" r=\"4.6\"/><circle cx=\"12\" cy=\"12\" r=\"1.2\" fill=\"currentColor\"/>", "passes": "<circle cx=\"5.5\" cy=\"18.5\" r=\"2.4\"/><path d=\"M8 16.5c4-1 8-5 9.5-10\"/><path d=\"M12.5 6.8h5.2v5.2\"/>", "tecnico": "<path d=\"M12 3.2l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17.1l-5.4 3 1-6.1L3.2 9.7l6.1-.9z\" fill=\"currentColor\" fill-opacity=\".25\"/>", "defesa": "<path d=\"M12 3l8 3v6c0 5-3.5 8-8 9.5C7.5 20 4 17 4 12V6z\" fill=\"currentColor\" fill-opacity=\".18\"/><path d=\"M8.5 12l2.5 2.5 4.5-5\"/>", "corrida": "<path d=\"M13.5 2.5L5.5 14h5.5l-1 7.5 8.5-11.5h-5.5z\" fill=\"currentColor\" fill-opacity=\".25\"/>"};
+  K.treinoSvg = (tipo, px) => K.h('span', { class: 'tico t-' + tipo, style: 'width:' + (px || 22) + 'px;height:' + (px || 22) + 'px', 'aria-hidden': 'true', html: '<svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">' + (K.TREINO_ICO[tipo] || '') + '</svg>' });
   K.treinoIcone = (p) => (p.treino ? K.h('span', { class: 'treino-ic', 'data-tip': K.treinoDica(p), tabindex: 0, 'aria-label': 'Em treino' }, K.treinoSvg(p.treino.tipo, 18)) : null);
   D.treinar = (c, p) => {
     let tipo = 'corrida', n = 2; const err = h('p', { class: 'err', role: 'alert' }), C = MK.TREINO_CFG;
@@ -4259,7 +4268,7 @@ window.ESCUDOS_REAIS = {};
     const linhas = lista.map((p) => {
       const st = slotDe.has(p.id) ? 'Titular' : noBanco.has(p.id) ? 'Banco' : '';
       const v = slotSel ? PL.ovrNoSlot(p, slotSel) : PL.overall(p);
-      const sit = p.lesao ? 'LES ' + p.lesao : p.suspenso ? 'SUSP' : p.treino ? 'TREINO' : '';
+      const sit = p.lesao ? 'LES ' + p.lesao : p.suspenso ? 'SUSP ' + p.suspenso : p.treino ? 'TREINO' : '';
       return h('tr', { 'data-id': p.id, tabindex: 0, class: (slotDe.has(p.id) ? 'tit-row ' : '') + (!S.disponivel(p) ? 'indisp' : ''), onclick: () => colocar(p), onkeydown: (e) => { if (e.key === 'Enter') colocar(p); } },
         h('td', null, p.num), h('td', { class: 'l nm' }, p.nome, p.estrela ? K.estrela() : null, K.traitTag(p), K.treinoIcone(p)), K.posCel(p), h('td', { class: 'ovr' }, Math.round(v)),
         ...K.ATTRS.map((a) => h('td', { class: 'at ' + (p.attr[a] >= 70 ? 'hi' : p.attr[a] < 35 ? 'lo' : '') }, p.attr[a])),
@@ -4409,6 +4418,7 @@ window.ESCUDOS_REAIS = {};
     if (e.tipo === 'penalti') txt = e.jogador + ' *pen (' + clube + ') perdeu: ' + e.texto;
     if (e.tipo === 'gol') txt = e.jogador + (e.pen ? ' *pen' : '') + (e.falta ? ' (de falta)' : e.cabeca ? ' (de cabeça)' : e.cara ? ' (cara a cara)' : '') + ' (' + clube + ')' + (e.assist ? (e.origem === 'escanteio' ? ', escanteio de ' : e.origem === 'cruzamento' ? ', cruzamento de ' : e.origem === 'falta' ? ', bola parada de ' : ', passe de ') + e.assist : '') + ' · ' + e.placar[0] + ' × ' + e.placar[1];
     if (e.tipo === 'lesao' && e.pos) txt = e.jogador + ' (' + e.pos + ', ' + clube + ')';
+    if (e.tipo === 'vermelho' && e.jogos) txt += ' · suspenso por ' + e.jogos + (e.jogos > 1 ? ' jogos' : ' jogo');
     if (e.tipo === 'substituicao') txt = 'Entra ' + e.jogador + ', sai ' + e.saiu + ' (' + clube + ')';
     if (e.tipo === 'formacao') txt = clube + ': ' + e.texto;
     if (e.tipo === 'impedimento') txt = 'Gol anulado! ' + e.jogador + ' (' + clube + ') estava impedido';
@@ -4648,10 +4658,11 @@ window.ESCUDOS_REAIS = {};
       neutro ? [tabelaNotas(R.detalhes[0], R.casaNome, false), tabelaNotas(R.detalhes[1], R.foraNome, false)]
         : [tabelaNotas(R.detalhes[lado], 'Seu time · notas e evolução', true), h('details', { class: 'det' }, h('summary', null, 'Notas do adversário'), tabelaNotas(R.detalhes[1 - lado], nome(lado === 0 ? R.jogo.fora : R.jogo.casa), false))],
       h('details', { class: 'det', open: true }, h('summary', null, 'Outros jogos do dia · clique em um jogo para ver o resumo'),
-        Object.entries(grupos).map(([t, arr]) => h('section', { class: 'jdiv' }, h('h3', null, t), h('ul', null, arr.map((r) => h('li', { class: 'clicavel' + (doHumano(r) ? ' meu' : ''), tabindex: 0, role: 'button', 'aria-label': 'Ver resumo de ' + r.casaNome + ' ' + r.placar[0] + ' a ' + r.placar[1] + ' ' + r.foraNome, 'data-tip': 'Ver o resumo deste jogo', onclick: () => abrir(r), onkeydown: (e) => { if (e.key === 'Enter') abrir(r); } },
+        (() => { const ch = Object.keys(grupos), sel = ch.includes(G.resTab) ? G.resTab : (ch.find((t) => grupos[t].some(doHumano)) || ch[0]); return h('div', { class: 'tabs', role: 'tablist' }, ch.map((t) => h('button', { class: 'tabbtn' + (t === sel ? ' on' : ''), role: 'tab', 'aria-selected': t === sel ? 'true' : 'false', onclick: () => { G.resTab = t; K.renderKeep(); } }, t + ' (' + grupos[t].length + ')'))); })(),
+        Object.entries(grupos).filter(([t]) => { const ch = Object.keys(grupos), sel = ch.includes(G.resTab) ? G.resTab : (ch.find((x) => grupos[x].some(doHumano)) || ch[0]); return t === sel; }).map(([t, arr]) => h('section', { class: 'jdiv' }, h('h3', null, t), h('ul', null, arr.map((r) => h('li', { class: 'clicavel' + (doHumano(r) ? ' meu' : ''), tabindex: 0, role: 'button', 'aria-label': 'Ver resumo de ' + r.casaNome + ' ' + r.placar[0] + ' a ' + r.placar[1] + ' ' + r.foraNome, 'data-tip': 'Ver o resumo deste jogo', onclick: () => abrir(r), onkeydown: (e) => { if (e.key === 'Enter') abrir(r); } },
           h('span', { class: 'tc' }, K.comEscudo(r.jogo.casa)), h('b', { class: 'num pl' }, r.placar[0] + ' × ' + r.placar[1]), h('span', { class: 'tf' }, K.comEscudo(r.jogo.fora)), h('small', { class: 'pub num' }, fmtPub(r.publico)))))))),
       posJogo(R, meuClube),
-      h('div', { class: 'actions' }, h('button', { class: 'btn hot', id: 'continuar', onclick: () => { G.aba = 'plantel'; G.resumos = null; G.resumoSel = null; G.posTab = null; G.prontos.clear(); if (g.fim) K.ir('fim'); else K.ir(5); } }, g.fim ? 'Ver fim da temporada' : 'Continuar')));
+      h('div', { class: 'actions' }, h('button', { class: 'btn hot', id: 'continuar', onclick: () => { G.aba = 'plantel'; G.resumos = null; G.resumoSel = null; G.posTab = null; G.resTab = null; G.prontos.clear(); if (g.fim) K.ir('fim'); else K.ir(5); } }, g.fim ? 'Ver fim da temporada' : 'Continuar')));
   };
 
   // ---------- fim de temporada ----------
@@ -5615,7 +5626,7 @@ window.ESCUDOS_REAIS = {};
     ['disc', 'Disciplina', (p) => p.disciplina, 'disc'], ['stamina', 'Stamina', (p) => p.stamina, 'stamina'], ['moral', 'Moral', (p) => p.moral, 'moral'], ['pe', 'Pé', (p) => p.pe, 'pe'], ['altura', 'Alt', (p) => p.altura, 'altura'], ['peso', 'Peso', (p) => p.peso, 'peso'], ['sit', 'Sit.', (p) => p.lesao * 10 + (p.suspenso ? 1 : 0), 'sit'],
     ['contrato', 'Contrato', (p) => p.contratoAte, 'contrato'], ['salario', 'Salário/mês', (p) => E.salario(p), 'salario'], ['valor', 'Valor', (p) => window.BF98.Mercado.valorAjustado(window.K.G.g, p), 'valor'],
   ];
-  function situacao(p) { return p.lesao > 0 ? ['LES ' + p.lesao, 'bad'] : p.suspenso > 0 ? ['SUSP', 'warn'] : p.treino ? ['TREINO ' + p.treino.restante, 'treino'] : p.aVenda ? ['À VENDA', 'venda'] : ['', '']; }
+  function situacao(p) { return p.lesao > 0 ? ['LES ' + p.lesao, 'bad'] : p.suspenso > 0 ? ['SUSP ' + p.suspenso, 'warn'] : p.treino ? ['TREINO ' + p.treino.restante, 'treino'] : p.aVenda ? ['À VENDA', 'venda'] : ['', '']; }
   function plantel(c, opts = {}) {
     const ro = !!opts.readonly, selKey = ro ? 'selX' : 'sel';
     const esc = GM.escalacaoDe(G.g, c, ro ? G.g.porId.get(c.id) : c), ue = ro ? K.ultEsc(c.id) : null, tits = new Set(ro ? (ue ? ue.titulares : []) : esc.titulares);
@@ -5693,7 +5704,7 @@ window.ESCUDOS_REAIS = {};
         h('dt', { 'data-tip': K.TIPS.cobr, tabindex: 0 }, 'Bola parada'), h('dd', null, Math.round(PL.cobrDe(p))),
         h('dt', null, 'Pé preferido'), h('dd', null, K.PE_NOME[p.pe]), h('dt', null, 'Altura'), h('dd', null, K.metros(p.altura) + ' m'), h('dt', null, 'Peso'), h('dd', null, p.peso + ' kg'),
         p.lesao ? [h('dt', null, 'Lesão'), h('dd', { class: 'bad' }, p.lesao + ' jogo(s) fora')] : null,
-        p.suspenso ? [h('dt', null, 'Suspensão'), h('dd', { class: 'warn' }, 'cumpre no próximo jogo')] : null,
+        p.suspenso ? [h('dt', null, 'Suspensão'), h('dd', { class: 'warn' }, p.suspenso > 1 ? 'faltam ' + p.suspenso + ' jogos' : 'cumpre no próximo jogo')] : null,
         p.treino ? [h('dt', null, 'Treino'), h('dd', { class: 'treino' }, MK.TREINOS[p.treino.tipo].nome.replace('Treino de ', '').replace('Treino ', '') + ' · ' + p.treino.restante + ' jogo(s)')] : null,
         p.aVenda ? [h('dt', null, 'À venda por'), h('dd', { class: 'venda' }, reais(p.aVenda.preco))] : null,
         h('dt', null, 'Contrato até'), h('dd', null, GM.fimContrato(G.g, p)),
