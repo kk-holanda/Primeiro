@@ -170,6 +170,8 @@ Cada partida tem 90 minutos simulados minuto a minuto, mais acréscimos (ver 5.4
 Valores típicos por jogo (jogos entre times de prestígio 40 a 90): ≈ 2,8 gols, 24 chutes, 10 no gol, 6,4 escanteios, 21 faltas, 0,12 lesões; mandante vence 44%, empata 23%, perde 33%. Por divisão (liga completa): A ≈ 2,6 gols, B 2,6, C 2,6, D 2,5.
 
 ### 5.1 Formações (🔶 v25: 12, da planilha "Guia tático"; 🔶 v30: o 3-4-3 entrou no lugar do 3-3-1-3)
+**3-4-3 (🔶 v30)**: três zagueiros, dois alas, dois meias centrais e três atacantes (dois pontas e um centroavante); a formação mais larga do jogo. Forte: largura, três atacantes que fixam a defesa rival, superioridade pelos lados, pressão alta, cruzamentos. Fraco: só dois meias centrais (perde o meio para linhas de três), alas dependem de fôlego, espaços nas costas dos alas em contra-ataque, três zagueiros exigem cobertura. Sinergia: pontas e centroavante com finalização, ritmo e drible; alas com físico e ritmo; zagueiros e líbero com defesa. Jogos antigos com 3-3-1-3 passam a usar 3-4-3. Modificadores calibrados por simulação (relatório 17): a primeira estimativa (1,025 / 0,930) deixava o 3-4-3 em 1,44 ponto por jogo, acima da faixa; com 0,992 / 0,903 ele ficou em 1,37 e 1,38, igual à média das formações.
+
 Modificadores da estrutura (multiplicam ataque, defesa e controle). Foram ajustados por simulação (5 rodadas) para que nenhuma formação domine: a média de cada uma, medida contra combinações sorteadas, fica entre 1,32 e 1,37 ponto por jogo (ver relatório 12).
 
 | Formação | Ataque | Defesa | Controle |
@@ -182,7 +184,7 @@ Modificadores da estrutura (multiplicam ataque, defesa e controle). Foram ajusta
 | 4-1-4-1 | 0,959 | 1,014 | 1,005 |
 | 3-4-2-1 | 1,008 | 0,994 | 1,010 |
 | 4-3-2-1 | 1,049 | 1,059 | 1,020 |
-| 3-4-3 (🔶 v30, no lugar do 3-3-1-3) | 1,025 | 0,930 | 1,000 |
+| 3-4-3 (🔶 v30, no lugar do 3-3-1-3) | 0,992 | 0,903 | 1,000 |
 | 4-2-4 | 1,060 | 0,888 | 0,970 |
 | 5-4-1 | 0,978 | 1,130 | 0,985 |
 | 5-3-2 | 0,981 | 1,067 | 0,990 |
