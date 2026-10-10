@@ -28,7 +28,7 @@ Arquivos de dados desta pasta:
 | Subem e descem por divisão | 4 |
 | Copa do Brasil | 64 clubes, fase preliminar com 32 clubes, ida e volta, sem gol fora dobrado, pênaltis |
 | Posições | GOL, ZAG, LIB, LD, LE, VOL, MC, MEI, ALA, PD, PE, CA, SA |
-| Formações (🔶 v25) | 4-4-2, 4-4-2 Losango, 3-5-2, 4-3-3, 4-2-3-1, 4-1-4-1, 3-4-2-1, 4-3-2-1, 3-3-1-3, 4-2-4, 5-4-1, 5-3-2 |
+| Formações (🔶 v25) | 4-4-2, 4-4-2 Losango, 3-5-2, 4-3-3, 4-2-3-1, 4-1-4-1, 3-4-2-1, 4-3-2-1, 3-4-3, 4-2-4, 5-4-1, 5-3-2 |
 | Estilos de jogo (🔶 v25) | Posição, Gegenpressing, Reativo, Jogo Direto, Relacionismo, Retranca, Linha Alta, Corredores, Vertical, Saída Curta (🔶 v27: só o estilo principal; o secundário foi retirado da escalação) |
 | Atributos | Ritmo (RIT), Finalização (CHU), Passe (PAS), Drible (DRI), Defesa (DEF), Físico (FIS) e Bola parada (cobrança) |
 | Nacionalidades dos jogadores | BRA (92% na média), ARG, PAR, URU, CHI, COL, PER, BOL, VEN, EQU |
@@ -169,7 +169,7 @@ Cada partida tem 90 minutos simulados minuto a minuto, mais acréscimos (ver 5.4
 
 Valores típicos por jogo (jogos entre times de prestígio 40 a 90): ≈ 2,8 gols, 24 chutes, 10 no gol, 6,4 escanteios, 21 faltas, 0,12 lesões; mandante vence 44%, empata 23%, perde 33%. Por divisão (liga completa): A ≈ 2,6 gols, B 2,6, C 2,6, D 2,5.
 
-### 5.1 Formações (🔶 v25: 12, da planilha "Guia tático")
+### 5.1 Formações (🔶 v25: 12, da planilha "Guia tático"; 🔶 v30: o 3-4-3 entrou no lugar do 3-3-1-3)
 Modificadores da estrutura (multiplicam ataque, defesa e controle). Foram ajustados por simulação (5 rodadas) para que nenhuma formação domine: a média de cada uma, medida contra combinações sorteadas, fica entre 1,32 e 1,37 ponto por jogo (ver relatório 12).
 
 | Formação | Ataque | Defesa | Controle |
@@ -182,12 +182,12 @@ Modificadores da estrutura (multiplicam ataque, defesa e controle). Foram ajusta
 | 4-1-4-1 | 0,959 | 1,014 | 1,005 |
 | 3-4-2-1 | 1,008 | 0,994 | 1,010 |
 | 4-3-2-1 | 1,049 | 1,059 | 1,020 |
-| 3-3-1-3 | 0,998 | 0,876 | 1,020 |
+| 3-4-3 (🔶 v30, no lugar do 3-3-1-3) | 1,025 | 0,930 | 1,000 |
 | 4-2-4 | 1,060 | 0,888 | 0,970 |
 | 5-4-1 | 0,978 | 1,130 | 0,985 |
 | 5-3-2 | 0,981 | 1,067 | 0,990 |
 
-Posições de cada formação (11 slots): 4-4-2 GOL LD ZAG ZAG LE VOL MC ALA ALA CA SA; 4-4-2 Losango GOL LD ZAG ZAG LE VOL MC MC MEI CA SA; 3-5-2 GOL ZAG ZAG LIB ALA VOL VOL MEI ALA CA SA; 4-3-3 GOL LD ZAG ZAG LE VOL MC MEI PD CA PE; 4-2-3-1 GOL LD ZAG ZAG LE VOL VOL MEI PD PE CA; 4-1-4-1 GOL LD ZAG ZAG LE VOL ALA MC MC ALA CA; 3-4-2-1 GOL ZAG LIB ZAG ALA MC MC ALA MEI MEI CA; 4-3-2-1 GOL LD ZAG ZAG LE VOL MC MC MEI MEI CA; 3-3-1-3 GOL ZAG LIB ZAG VOL ALA ALA MEI PD CA PE; 4-2-4 GOL LD ZAG ZAG LE VOL MC PD CA SA PE; 5-4-1 GOL LD ZAG LIB ZAG LE VOL VOL MC MEI CA; 5-3-2 GOL LD ZAG LIB ZAG LE VOL MC MC CA SA. Descrição, pontos fortes e fracos e "elenco ideal" de cada uma (texto da planilha) aparecem na tela. Jogos salvos com 4-5-1 ou 3-4-3 viram 4-1-4-1 e 3-3-1-3.
+Posições de cada formação (11 slots): 4-4-2 GOL LD ZAG ZAG LE VOL MC ALA ALA CA SA; 4-4-2 Losango GOL LD ZAG ZAG LE VOL MC MC MEI CA SA; 3-5-2 GOL ZAG ZAG LIB ALA VOL VOL MEI ALA CA SA; 4-3-3 GOL LD ZAG ZAG LE VOL MC MEI PD CA PE; 4-2-3-1 GOL LD ZAG ZAG LE VOL VOL MEI PD PE CA; 4-1-4-1 GOL LD ZAG ZAG LE VOL ALA MC MC ALA CA; 3-4-2-1 GOL ZAG LIB ZAG ALA MC MC ALA MEI MEI CA; 4-3-2-1 GOL LD ZAG ZAG LE VOL MC MC MEI MEI CA; 3-4-3 GOL ZAG LIB ZAG ALA MC MC ALA PD CA PE; 4-2-4 GOL LD ZAG ZAG LE VOL MC PD CA SA PE; 5-4-1 GOL LD ZAG LIB ZAG LE VOL VOL MC MEI CA; 5-3-2 GOL LD ZAG LIB ZAG LE VOL MC MC CA SA. Descrição, pontos fortes e fracos e "elenco ideal" de cada uma (texto da planilha) aparecem na tela. Jogos salvos com 4-5-1 ou 3-4-3 viram 4-1-4-1 e 3-3-1-3.
 
 ### 5.2 Estilos de jogo (🔶 v25: 10, no lugar das 4 táticas)
 Cada estilo tem um **bônus** (o que ele dá), um **custo** (o que ele pede em troca) e um efeito **fixo** de calibração (soma ou subtrai ataque e defesa para equilibrar). Valores nominais, antes de aplicar a compatibilidade e o encaixe do elenco (fração = ×(1 + valor); "pts" = pontos de probabilidade ou de nota de finalização):
@@ -219,7 +219,7 @@ Significado: ctl = controle do meio; atk/def = ataque e defesa; tempo = ritmo (q
 | 4-1-4-1 | 5 | 5 | 4 | 3 | 4 | 4 | 5 | 3 | 4 | 5 |
 | 3-4-2-1 | 5 | 5 | 5 | 4 | 5 | 4 | 4 | 4 | 5 | 5 |
 | 4-3-2-1 | 5 | 4 | 4 | 3 | 5 | 4 | 4 | 2 | 4 | 4 |
-| 3-3-1-3 | 4 | 5 | 2 | 4 | 5 | 1 | 5 | 4 | 5 | 3 |
+| 3-4-3 (🔶 v30) | 4 | 5 | 3 | 4 | 3 | 2 | 4 | 5 | 5 | 3 |
 | 4-2-4 | 2 | 4 | 4 | 5 | 3 | 1 | 2 | 5 | 5 | 2 |
 | 5-4-1 | 2 | 2 | 5 | 4 | 2 | 5 | 2 | 3 | 3 | 2 |
 | 5-3-2 | 3 | 4 | 5 | 5 | 3 | 5 | 3 | 4 | 4 | 3 |
@@ -301,7 +301,7 @@ Tabela de respostas (usada no intervalo pelo humano e pelo computador): Posiçã
 | 4-1-4-1 | 1,40 | 0,70 | 1,30 | 0,50 | 1,50 | — | — |
 | 3-4-2-1 | 0,70 | 1,60 | 1,30 | 1,30 | 0,40 | — | — |
 | 4-3-2-1 | 1,00 | 1,80 | 1,80 | 1,10 | 0,50 | — | — |
-| 3-3-1-3 | 0,20 | 1,30 | 0,90 | 1,70 | 0,10 | — | — |
+| 3-4-3 (🔶 v30) | 0,30 | 1,10 | 0,70 | 1,80 | 0,10 | — | — |
 | 4-2-4 | 0,15 | 1,20 | 0,50 | 1,30 | 0,05 | — | — |
 | 5-4-1 | 0,30 | 0,10 | 0,20 | 0,05 | 2,20 | — | — |
 | 5-3-2 | 0,70 | 0,20 | 0,30 | 0,10 | 2,00 | — | — |
