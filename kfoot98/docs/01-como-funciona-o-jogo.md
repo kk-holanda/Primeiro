@@ -1,4 +1,4 @@
-# Kfoot 98: documentação do jogo (versão 21)
+# Kfoot 98: documentação do jogo (versão 22)
 
 Documento vivo: cresce junto com a implementação. Cada rodada de melhorias atualiza as seções que mudaram. Valores vêm do código da branch `claude/melhorias-5-xt6u1f` (pasta `kfoot98`). Quando algo ainda não está documentado, a seção diz "a detalhar".
 
@@ -80,7 +80,8 @@ Grupos: GOL = goleiro; ZAG, LIB, LD, LE = defesa; VOL, MC, MEI, ALA = meio; PD, 
 - Cada atributo = alvo + deslocamento do perfil da posição + ruído normal de desvio 5,5; depois o conjunto é ajustado para a média cair no alvo. 16% têm uma especialidade fora do padrão (+8 a +18 em um atributo) e 6% um ponto fraco (−8 a −16).
 - Idade: normal de média 26 e desvio 4,2, entre 17 e 37. Disciplina (Fair player, De boa, Equilibrado, Porradeiro, Macetador), altura, peso, pé (D/E), nacionalidade.
 - Bola parada (cobrança de falta e pênalti): ≈ 0,45 finalização + 0,35 passe + 12 + ruído; 10% dos goleiros e 7% dos jogadores de linha têm um bônus grande.
-- Estrelas: poucos jogadores por clube (na A: de 0 a 2) ganham +8 em todos os atributos, idade entre 24 e 31 e moral +6.
+- Estrelas: ganham +8 em todos os atributos, idade entre 24 e 31 e moral +6. Quantidade por clube (v22): Série A 2 a 4 (média 3,0; clubes de prestígio 90+ têm 3 a 4), B 1 a 3 (média ≈ 2,2), C 1 ou 2 (média 1,6), D 1 ou 2 (média 1,3). Todo clube tem pelo menos 1.
+- Traits (características, v22): de 2 a 4 jogadores por time têm uma (no máximo uma por jogador); ver a seção 4.6.
 - Posições extras: 46% dos jogadores de linha têm 1 extra e 10% têm 2. Vizinhas permitidas: ZAG (LIB, VOL, LD, LE), LIB (ZAG, VOL), LD (LE, ALA, ZAG, PD), LE (LD, ALA, ZAG, PE), VOL (ZAG, MC, LIB), MC (MEI, VOL, ALA), MEI (MC, SA, PD, PE), ALA (LD, LE, MC, PD, PE), PD (PE, LD, ALA, CA), PE (PD, LE, ALA, CA), CA (SA, PD, PE), SA (CA, MEI, PD, PE).
 
 ### 4.3 Posição e afinidade
@@ -97,14 +98,36 @@ Média no slot = média da posição do slot × afinidade. Natural: 1,00; posiç
 ### 4.5 Valor de mercado
 valor = 17.000 × e^((média − 40) × 0,14) × fator de idade × fator da posição, arredondado a R$ 1.000. Exemplo para o mesmo jogador: média 60 ≈ R$ 294 mil; 70 ≈ R$ 1,2 mi; 80 ≈ R$ 4,8 mi.
 
+### 4.6 Traits (características, v22)
+De 2 a 4 jogadores por time têm uma característica (uma por jogador; aparece como etiqueta de 3 letras ao lado do nome). Sorteio por elegibilidade e peso; jogadores gerados depois (mercado, base) têm 4% de chance e, na virada do ano, cada time é completado a 2 e limitado a 4.
+
+| Trait | Abrev. | Quem pode | Efeito (valores no motor) |
+|---|---|---|---|
+| Matador | MAT | CA, SA, PD, PE, MEI | Em cara a cara, a chance de errar cai 30%; aparece 20% mais vezes em cara a cara. |
+| Salvador da pátria | SAL | atacantes e MEI | Se entra depois dos 30' do 2º tempo com o time perdendo ou empatando: chance de gol ×1,3 e é escolhido 2× mais para finalizar. A IA o prefere no banco. |
+| Líder nato | LID | 25+ anos | Se é capitão e o time perde no intervalo: +5 de moral a todos em campo no 2º tempo; +6 na nota de capitão. |
+| Batedor de faltas | FAL | linha, bola parada ≥ 60 | +5 na finalização das faltas e +4 na nota de cobrador (vira o cobrador natural). |
+| Desarmador | DES | defensores, VOL, MC com disciplina Fair player ou De boa | Chance de falta ao marcar ×0,6; escolhido 1,25× como marcador e 1,5× como desarmador; +3 na marcação. |
+| Catimbeiro | CAT | PD, PE, MEI, SA, MC, laterais, ALA | Quando dribla: falta sofrida ×1,4 e o cartão do infrator ×1,5; é escolhido 1,25× como driblador. |
+| Coringa | COR | linha | Afinidade 1,0 em qualquer posição de linha e média no slot nunca menor que a natural. |
+| Driblador | DRI | PD, PE, MEI, SA, MC, ALA, laterais com DRI ≥ 55 | +6 no duelo do drible, falta ×1,3, pênalti ×1,3 depois da falta, passes ×0,7. |
+| Cabeção | CAB | CA, SA, ZAG, LIB, VOL | +12 no cabeceio (mais chance de ser o cabeceador e de converter). |
+| Popstar | POP | linha | Patrocínio aceita +4 pontos percentuais por popstar (máx. +12); público em casa +4% por popstar (máx. +8%). |
+| Maestro | MAE | só MC ou MEI | Peso de passe ×1,4 e cara a cara ×1,9 quando dá o passe final. |
+| Menino prodígio | PRO | até 21 anos | Ganho de atributos nos jogos ×1,5 (×1,3 se venceu, ×1,1 se o time está entre os 10 primeiros da tabela) e ganho de treino ×1,5. Perde ao completar 22 anos. |
+| Cabeça de gelo | GEL | linha | Amarelo ×0,55, vermelho direto ×0,5. |
+| Highlander | HIG | qualquer | Lesão ×0,6, perda de stamina ×0,85. |
+
+Efeitos medidos em 1.500 jogos pareados (ver o relatório de medições da v22).
+
 ## 5. O jogo (motor de partida)
 
-Cada partida tem 90 minutos simulados minuto a minuto.
+Cada partida tem 90 minutos simulados minuto a minuto, mais acréscimos (ver 5.4).
 
 1. **Forças de cada time**: ataque = 0,60 × média do ataque + 0,30 × meio + 0,10 × defesa; defesa = 0,76 × defesa + 0,08 × meio + 0,16 × goleiro; controle = 0,60 × meio + 0,20 × ataque + 0,20 × defesa. Cada jogador entra com média no slot × stamina × moral × sinergia. Tudo multiplicado pelos modificadores da formação e da tática, por um fator de forma do dia (±3%) e pelo capitão.
 2. **Stamina e moral**: força × (0,55 + 0,45 × (stamina/100)²) e × (0,95 + 0,10 × moral/100). Quem entra do banco tem pernas frescas: +15% decaindo em 40 minutos.
-3. **Posse**: (controle A)^2,2 ÷ soma. Mandante tem controle ×1,07.
-4. **Ataque**: a cada minuto há 0,56 × tempo médio das táticas de chance de um ataque; a posse e o ritmo (tempo) da tática decidem quem ataca. Time com folga de 2+ gols poupa o time.
+3. **Posse**: (controle A)^2,2 ÷ soma, mais uma "maré" (v22): onda que se arrasta de um minuto para o outro (m = 0,88 × m + ruído de 0,04) e um empurrão de 1,5 ponto percentual por gol de desvantagem (até 4). A posse mostrada na tela é a dos últimos minutos (média móvel de 15%), então varia ao vivo; o resumo mostra o total do jogo. Mandante tem controle ×1,07.
+4. **Ataque**: a cada minuto há 0,575 × tempo médio das táticas de chance de um ataque; a posse e o ritmo (tempo) da tática decidem quem ataca. Time com folga de 2+ gols poupa o time.
 5. **Drible × marcação**: o driblador enfrenta o marcador; quem perde o duelo faz falta (pênalti se foi na área: atacante 24%, meia 11%, zagueiro 2%; senão falta direta 50%).
 6. **Chute**: probabilidade = 0,378 + diferença de ataque×defesa × 0,0065 + diferença de passe × 0,0038 + diferença de ritmo × 0,0022 + bônus de duelo ganho (0,16) + bônus de nível baixo (até +0,04). Passe final vem de quem tem mais passe (meias com peso 1,6; atacantes 4,6; defensores 0,22; goleiro 0,03; laterais ×1,5).
 7. **Finalização**: chance de ir no gol = base (0,41 bola, 0,385 cabeça, 0,42 falta) + (finalização − 50) × 0,004 − (marcador − 50) × 0,0042. Chance de gol = base 0,31 + (finalização − goleiro) × 0,0032. A finalização efetiva pesa ×1,6 (Copa: individual comprimido). Goleiro de linha: ×0,2.
@@ -112,7 +135,8 @@ Cada partida tem 90 minutos simulados minuto a minuto.
 9. **Faltas e cartões**: 0,125 × 1,7 de chance de falta por minuto; falta direta perto da área em 7,5% delas; amarelo em 10,5% por falta × disciplina.
 10. **Pênaltis**: ver seção 6. Gol de pênalti ≈ 76% na média.
 11. **Intervalo**: o time do computador responde à tática que o adversário usou no 1º tempo com probabilidade = acerto do técnico (0,50 a 0,80) ± dificuldade.
-12. **Substituições do computador**: em 60', 70' e 80' troca o mais cansado (stamina < 75) pelo melhor reserva do slot.
+12. **Cara a cara (v22)**: 11% dos chutes de jogada são cara a cara com o goleiro (×1,9 se quem deu o passe é Maestro, ×1,2 se o finalizador é Matador); nesses, a chance de gol sobe ×1,5, compensada em todos os chutes de jogada (×0,948) para a média de gols não mudar. Chance de gol geral ×1,065 (calibração depois das estrelas extras).
+13. **Substituições do computador**: em 60', 70' e 80' troca o mais cansado (stamina < 75) pelo melhor reserva do slot.
 
 Valores típicos por jogo (jogos entre times de prestígio 40 a 90): ≈ 2,8 gols, 24 chutes, 10 no gol, 6,4 escanteios, 21 faltas, 0,12 lesões; mandante vence 44%, empata 23%, perde 33%. Por divisão (liga completa): A ≈ 2,6 gols, B 2,6, C 2,6, D 2,5.
 
@@ -125,6 +149,12 @@ Ofensivo (ataque 1,142, defesa 0,994, ritmo 1,08, faltas +10%, abertura +1); Equ
 ### 5.3 Sinergia
 Mede o quanto os jogadores certos estão nos lugares que a tática e a formação pedem, comparado a um time comum (elencos reais gerados, escalados automaticamente). Teto ±8%. Normalizada: a média de cada combinação fica entre −0,7% e 0%.
 
+### 5.4 Acréscimos e prorrogação (v22)
+- O relógio corre sem parar; a tela mostra 45+2', 90+4'. Acréscimo do 1º tempo = 0,6 + 0,55 por gol + 1 por lesão + 0,35 por cartão + 0,4 por pênalti perdido + 0,2 por substituição + ruído normal (0,6), arredondado, de 1 a 8; no 2º tempo a base é 1,4. Médias medidas: 1,8' e 3,6'.
+- Como o jogo dura ≈ 5,4 minutos a mais, todo o que é por minuto (ataques, faltas, pênaltis sem drible, lesões, cansaço) é multiplicado por 0,94: gols, faltas e lesões por jogo ficam iguais.
+- **Copa do Brasil**: se a volta termina empatada no agregado, há prorrogação de 2 tempos de 15 minutos, cada um com acréscimos (base 0,3 no 1º e 0,4 no 2º), com pausas para o técnico humano. Pênaltis só se continuar empatado depois da prorrogação. ≈ 15% das voltas vão à prorrogação e ≈ 8% aos pênaltis.
+- Sem técnico humano na rodada da Copa: o jogo passa ao vivo com o botão "Pular para os resultados" e termina numa tela de resultados (placares, agregado, classificados); clicar num jogo abre o resumo dele.
+
 ## 6. Pênaltis (jogo e Copa)
 - Chance de errar o chute = 0,125 − (finalização do batedor − 55) × 0,0018 − (moral − 60) × 0,0008 + (100 − stamina) × 0,0004 − ajuste de mando, limitada a 3%–26%. Finalização do batedor = 65% finalização + 35% bola parada.
 - Se chuta no gol, escolhe o canto (cantos 20%, ângulos 12%, meio 10%, em cima 7%), e a chance de defesa depende do canto, da defesa do goleiro, da stamina e da moral dele e do mando.
@@ -133,7 +163,7 @@ Mede o quanto os jogadores certos estão nos lugares que a tática e a formaçã
 
 ## 7. Técnicos
 
-- **Humano**: escolhe formação, tática, titulares, capitão, batedores (falta e pênalti; escanteios), treinos, conversa com o elenco e bicho. A moral do técnico sobe com vitórias (principalmente contra times maiores) e desce com derrotas; abaixo de 20 gera aviso e, por 12 jogos seguidos abaixo de 20 com o clube na zona de rebaixamento, a diretoria o demite (desligável) e ele assume um clube pior.
+- **Humano**: escolhe formação, tática, titulares, capitão, batedores (falta e pênalti; escanteios), treinos, conversa com o elenco e bicho. **Conversa (v22)**: escolhe o tom (Elogiar: +3, sem risco; Motivar: (3+3k) × 1,3 para moral < 50 ou × 0,8, 20% − (moral do técnico − 50)/500 de cair mal (−2); Cobrar: +6 para moral < 60, −2 para moral > 75, risco 55% − moral do técnico/160 (entre 10% e 50%) de cair mal (−4)) e com quem falar (grupo, só os desanimados com moral < 50, ou um jogador, com efeito ×1,5 nos tons Elogiar e Motivar). Espera: 4 jogos para conversa com grupo, 3 jogos por jogador. A moral do técnico sobe com vitórias (principalmente contra times maiores) e desce com derrotas; abaixo de 20 gera aviso e, por 12 jogos seguidos abaixo de 20 com o clube na zona de rebaixamento, a diretoria o demite (desligável) e ele assume um clube pior.
 - **Computador**: cada clube tem um técnico com nome e um estilo escondido entre 6:
 
 | Estilo | Peso | Treina | Tática preferida | Formações preferidas | Acerto no intervalo |
@@ -158,7 +188,7 @@ Mede o quanto os jogadores certos estão nos lugares que a tática e a formaçã
 
 ## 9. Copa do Brasil
 
-64 clubes (preliminar com os 32 mais fracos), mata-mata em ida e volta, sem gol fora dobrado, pênaltis. Jogos da Copa são nivelados (a diferença de força entre os times vale 55% e a diferença individual de atributos é comprimida) para os pequenos terem chance real.
+64 clubes (preliminar com os 32 mais fracos), mata-mata em ida e volta, sem gol fora dobrado, prorrogação se empatar no agregado e pênaltis só se persistir o empate. Jogos da Copa são nivelados (a diferença de força entre os times vale 55% e a diferença individual de atributos é comprimida) para os pequenos terem chance real.
 
 ## 10. A detalhar nas próximas versões
 
