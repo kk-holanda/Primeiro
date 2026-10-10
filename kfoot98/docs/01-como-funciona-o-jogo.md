@@ -1,4 +1,4 @@
-# Kfoot 98: documentação do jogo (versão 26)
+# Kfoot 98: documentação do jogo (versão 27)
 
 Documento vivo: cresce junto com a implementação. Cada rodada de melhorias atualiza as seções que mudaram. Valores vêm do código da branch `claude/melhorias-5-xt6u1f` (pasta `kfoot98`). Quando algo ainda não está documentado, a seção diz "a detalhar".
 
@@ -29,7 +29,7 @@ Arquivos de dados desta pasta:
 | Copa do Brasil | 64 clubes, fase preliminar com 32 clubes, ida e volta, sem gol fora dobrado, pênaltis |
 | Posições | GOL, ZAG, LIB, LD, LE, VOL, MC, MEI, ALA, PD, PE, CA, SA |
 | Formações (🔶 v25) | 4-4-2, 4-4-2 Losango, 3-5-2, 4-3-3, 4-2-3-1, 4-1-4-1, 3-4-2-1, 4-3-2-1, 3-3-1-3, 4-2-4, 5-4-1, 5-3-2 |
-| Estilos de jogo (🔶 v25) | Posição, Gegenpressing, Reativo, Jogo Direto, Relacionismo, Retranca, Linha Alta, Corredores, Vertical, Saída Curta (um principal e um secundário opcional) |
+| Estilos de jogo (🔶 v25) | Posição, Gegenpressing, Reativo, Jogo Direto, Relacionismo, Retranca, Linha Alta, Corredores, Vertical, Saída Curta (🔶 v27: só o estilo principal; o secundário foi retirado da escalação) |
 | Atributos | Ritmo (RIT), Finalização (CHU), Passe (PAS), Drible (DRI), Defesa (DEF), Físico (FIS) e Bola parada (cobrança) |
 | Nacionalidades dos jogadores | BRA (92% na média), ARG, PAR, URU, CHI, COL, PER, BOL, VEN, EQU |
 | Técnicos do computador | 80, com nome sorteado e um entre 6 estilos escondidos |
@@ -228,7 +228,7 @@ Como a combinação vira número: o bônus do estilo é multiplicado por (meio d
 
 **Fôlego**: estilos com dependência de energia (Gegenpressing 1,0; Linha Alta 0,7; Vertical 0,5; Corredores 0,3) perdem até 40% do bônus com a stamina média do XI abaixo de 70 (bônus × stamina/70, mínimo 0,6) e o custo cresce (1 + dependência × (70 − stamina)/100). O gasto de energia por minuto é multiplicado por 1 + fad (Gegenpressing ≈ ×1,45; Linha Alta ≈ ×1,14; ver 2).
 
-**Estilo secundário**: entra com peso conforme a relação da aba "Estilos x Estilos": Sinergia forte 0,70; Boa sinergia 0,60; Boa sinergia com risco 0,55; Compatível com tensão 0,45; Situacional 0,35; Conflito de progressão 0,30; Conflito frequente 0,25. Os conflitos tiram ainda ataque e controle (Conflito frequente −2%; Conflito de progressão −1,5%; tensão e risco −0,6%). O comportamento (propriedades usadas no duelo) é uma média ponderada dos dois estilos.
+**Estilo secundário (🔶 v27: retirado da tela de escalação e do computador; a regra fica no motor, sem uso, e a descrição abaixo vale só como histórico da v25)**: entra com peso conforme a relação da aba "Estilos x Estilos": Sinergia forte 0,70; Boa sinergia 0,60; Boa sinergia com risco 0,55; Compatível com tensão 0,45; Situacional 0,35; Conflito de progressão 0,30; Conflito frequente 0,25. Os conflitos tiram ainda ataque e controle (Conflito frequente −2%; Conflito de progressão −1,5%; tensão e risco −0,6%). O comportamento (propriedades usadas no duelo) é uma média ponderada dos dois estilos.
 
 ### 5.3 Sinergia e encaixe do elenco
 Mede o quanto os jogadores certos estão nos lugares que o estilo e a formação pedem, comparado a um time comum (elencos reais gerados, escalados automaticamente). Teto ±8% em ataque, defesa e controle. 🔶 v25: cada estilo tem uma lista "grupo, atributos, o que melhora, peso" (por exemplo, Posição: meias com PAS e DRI → controle, defensores com PAS → controle; Gegenpressing: meias com FIS e DEF → defesa, atacantes com FIS e RIT → ataque; Linha Alta: zagueiros com RIT e DEF → defesa; Corredores: jogadores de lado com DRI e RIT → ataque, atacantes com CHU e FIS → ataque). A média do encaixe, normalizada por elencos comuns, vira o **encaixe** (−100% a +100%) que escala o bônus do estilo em até ±60% (bônus ×(1 + 0,6 × encaixe); custo ×(1 − 0,6 × encaixe)). Cada formação também tem seus papéis (ex.: 4-3-3: pontas com RIT e DRI; 4-2-4: pontas e centroavantes com CHU e RIT; 5-4-1: zagueiros com DEF e FIS; losango: armador com PAS e DRI).
@@ -273,21 +273,64 @@ Tabela de respostas (usada no intervalo pelo humano e pelo computador): Posiçã
 ## 7. Técnicos
 
 - **Escalação automática (🔶 v26)**: ao escolher uma formação (ou clicar em Escalação automática), o jogo monta o time pela **média na posição**: ordena todos os pares jogador × vaga pela média do jogador naquele slot (já com a afinidade das posições extras) e vai preenchendo do maior para o menor, de modo que os de maior média na posição jogam. O cansaço só desempata (no máximo −2 pontos, para quem está com stamina baixa). Vale também para o computador.
-- **Humano**: escolhe formação, estilo principal e secundário (🔶 v25), titulares, capitão, batedores (falta e pênalti; escanteios), treinos, conversa com o elenco e bicho. **Conversa (v22)**: escolhe o tom (Elogiar: +3, sem risco; Motivar: (3+3k) × 1,3 para moral < 50 ou × 0,8, 20% − (moral do técnico − 50)/500 de cair mal (−2); Cobrar: +6 para moral < 60, −2 para moral > 75, risco 55% − moral do técnico/160 (entre 10% e 50%) de cair mal (−4)) e com quem falar (grupo, só os desanimados com moral < 50, ou um jogador, com efeito ×1,5 nos tons Elogiar e Motivar). Espera: 4 jogos para conversa com grupo, 3 jogos por jogador. A moral do técnico sobe com vitórias (principalmente contra times maiores) e desce com derrotas; abaixo de 20 gera aviso e, por 12 jogos seguidos abaixo de 20 com o clube na zona de rebaixamento, a diretoria o demite (desligável) e ele assume um clube pior.
+- **Humano**: escolhe formação e estilo de jogo (🔶 v27: o estilo secundário saiu da escalação), titulares, capitão, batedores (falta e pênalti; escanteios), treinos, conversa com o elenco e bicho. **Conversa (v22)**: escolhe o tom (Elogiar: +3, sem risco; Motivar: (3+3k) × 1,3 para moral < 50 ou × 0,8, 20% − (moral do técnico − 50)/500 de cair mal (−2); Cobrar: +6 para moral < 60, −2 para moral > 75, risco 55% − moral do técnico/160 (entre 10% e 50%) de cair mal (−4)) e com quem falar (grupo, só os desanimados com moral < 50, ou um jogador, com efeito ×1,5 nos tons Elogiar e Motivar). Espera: 4 jogos para conversa com grupo, 3 jogos por jogador. A moral do técnico sobe com vitórias (principalmente contra times maiores) e desce com derrotas; abaixo de 20 gera aviso e, por 12 jogos seguidos abaixo de 20 com o clube na zona de rebaixamento, a diretoria o demite (desligável) e ele assume um clube pior.
 - **Técnicos do computador (🔶 v26)**: todo clube, da Série A à D, tem um técnico. **Séries A, B e C** começam sempre com o mesmo técnico (nome e estilo fixos por clube, os mesmos em todo jogo novo). **Série D**: existe um grupo fixo de 20 técnicos do computador; depois que os humanos escolhem os clubes, esses técnicos são sorteados entre os clubes da Série D que sobraram (um clube por técnico). A opção de demissão pela diretoria saiu da tela inicial (a demissão continua ligada, como antes).
-- **Computador**: cada clube tem um técnico com nome e um estilo escondido entre 6:
+- **Computador (🔶 v27: 7 estilos de técnico, no lugar dos 6 antigos)**: cada clube tem um técnico com nome e um estilo escondido. Sorteio por peso: Equilibrado 20, Ofensivista 16, Retranqueiro 16, Domínio de bola 14, Futebol arte 12, Camaleão 12, Imprevisível 10 (as Séries A, B e C já saem com o estilo fixo de cada técnico). O estilo decide (1) a formação e o estilo de jogo do dia, (2) quem e o que treina, (3) quem prefere comprar e (4) o que faz no intervalo.
 
-| Estilo | Peso | Treina | Estilo de jogo preferido | Formações preferidas | Acerto no intervalo |
-|---|---|---|---|---|---|
-| Formador | 20 | jovens até 23 anos | — | — | 55% |
-| Ofensivista | 17 | CHU, DRI, RIT de atacantes e meias | Vertical, Corredores, Gegenpressing ou Jogo Direto (50%) | 4-3-3, 3-3-1-3, 4-2-4, 4-2-3-1 | 50% |
-| Retranqueiro | 17 | DEF, FIS de defensores, volantes e goleiros | Retranca, Reativo ou Linha Alta (50%) | 5-4-1, 5-3-2, 3-5-2, 4-1-4-1 | 55% |
-| Preparador físico | 14 | FIS, RIT | — | — | 55% |
-| Professor | 17 | PAS, DRI | Posição, Relacionismo ou Saída Curta (45%) | 4-2-3-1, 4-3-2-1, 4-4-2 Losango, 4-3-3 | 70% |
-| Estrategista | 15 | quase não treina | — | — | 80% |
+| Estilo | Como pensa | Intervalo | Acerto na leitura |
+|---|---|---|---|
+| Equilibrado | Evita os extremos (ataque total, retranca, estilos radicais). Treina todos os atributos, atrás dos mais fracos e importantes de cada posição | só lê o adversário | 60% |
+| Futebol arte | Ataque e criação de chances; drible, passe e finalização. Treina menos físico e ritmo. Escala o Maestro de preferência (+4 na nota) e compra Maestro (+8 pontos de média) quando vê à venda ou em leilão | só lê o adversário | 50% |
+| Domínio de bola | Posse: não gosta de perder a bola e cria chances. Treina passe, ritmo e finalização; não valoriza drible em excesso | só lê o adversário | 60% |
+| Ofensivista | Formações e estilos agressivos; treina finalização, passe e drible, principalmente de atacantes e meias; prioriza comprar atacantes (+3) e meias (+2) fortes | só lê o adversário | 45% |
+| Retranqueiro | Formações e estilos defensivos e de contra-ataque; treina defesa, físico e ritmo (27% cada contra 6% a 7% dos outros); ganhando no 1º tempo (85%), fecha o time no 2º com Retranca/Reativo e formação de 5 zagueiros ou 4-1-4-1; na Copa, se ganhou o jogo de ida em casa, joga a volta ainda mais fechado (peso ×3 para estilos e formações defensivos desde o início, e fecha também no 2º tempo se não estiver perdendo) | fecha o jogo | 55% |
+| Camaleão | Monta o time pelos pontos fortes do elenco do momento (testa 5 formações × 3 estilos e escolhe a de melhor encaixe e sinergia) e reage ao último estilo do adversário; treina os atributos que o estilo que usa pede | **sempre faz pelo menos 1 substituição** (a que mais melhora o time contra o estilo do rival) | 70% |
+| Imprevisível | Sorteia pesos novos para todos os estilos e formações a cada jogo, sem olhar a força do rival; treina atributos e posições sorteados (1 a 3 jogadores, 1 a 3 jogos) | 55% de chance de trocar o estilo, 40% de mudar a formação, 50% de 1 a 2 substituições ousadas (nunca jogador de linha no gol nem goleiro na linha) | variável (15% a 75%) |
 
-- **Dicas de estilo**: o jogo observa cada técnico (tática e formação usadas, jovens no time, mudanças no intervalo, treinos), com memória que decai 3% por jogo. Com 8+ jogos, o mouseover no nome dá uma dica com linguagem incerta (talvez / parece / provavelmente), com ruído que diminui até 40 jogos. A primeira dica acerta 59% com 8 jogos e 79% com 30.
-- **Evolução**: ao fim de cada temporada, cada técnico do computador troca de estilo com chance de 10% (+22 pontos se rebaixado, +8 se terminou no terço de baixo, −5 se campeão ou promovido).
+**Tabelas de preferência (🔶 v27).** Os números são pesos de sorteio: 1,00 = neutro; 2,00 = o dobro da chance; 0,10 = um décimo. **Nenhum peso é zero**: preferência não é exclusividade, todo técnico ainda joga e treina fora do perfil de vez em quando. O sorteio do dia multiplica ainda a compatibilidade da formação com o estilo (1 a 5, ao quadrado), +30% para estilos ofensivos se o time é bem mais forte (15+ de prestígio) ou para estilos defensivos se é bem mais fraco, e a leitura do último estilo do adversário (probabilidade = acerto × 0,6, escolhendo entre as boas respostas da tabela 5.4 ponderadas pelo perfil). Camaleão e Imprevisível não usam tabela (ver acima).
+
+| Formação | Equilibrado | Futebol arte | Domínio de bola | Ofensivista | Retranqueiro | Camaleão | Imprevisível |
+|---|---|---|---|---|---|---|---|
+| 4-4-2 | 2,00 | 0,80 | 0,80 | 1,10 | 1,00 | — | — |
+| 4-4-2◇ | 1,20 | 1,60 | 2,00 | 0,80 | 0,60 | — | — |
+| 3-5-2 | 0,90 | 0,80 | 1,10 | 0,80 | 1,20 | — | — |
+| 4-3-3 | 1,20 | 2,00 | 1,50 | 2,00 | 0,25 | — | — |
+| 4-2-3-1 | 1,80 | 1,80 | 1,70 | 1,40 | 0,70 | — | — |
+| 4-1-4-1 | 1,40 | 0,70 | 1,30 | 0,50 | 1,50 | — | — |
+| 3-4-2-1 | 0,70 | 1,60 | 1,30 | 1,30 | 0,40 | — | — |
+| 4-3-2-1 | 1,00 | 1,80 | 1,80 | 1,10 | 0,50 | — | — |
+| 3-3-1-3 | 0,20 | 1,30 | 0,90 | 1,70 | 0,10 | — | — |
+| 4-2-4 | 0,15 | 1,20 | 0,50 | 1,30 | 0,05 | — | — |
+| 5-4-1 | 0,30 | 0,10 | 0,20 | 0,05 | 2,20 | — | — |
+| 5-3-2 | 0,70 | 0,20 | 0,30 | 0,10 | 2,00 | — | — |
+
+| Estilo de jogo | Equilibrado | Futebol arte | Domínio de bola | Ofensivista | Retranqueiro | Camaleão | Imprevisível |
+|---|---|---|---|---|---|---|---|
+| Posição | 1,80 | 1,70 | 2,20 | 0,80 | 0,40 | — | — |
+| Gegenpressing | 0,70 | 0,90 | 1,00 | 1,90 | 0,20 | — | — |
+| Reativo | 0,80 | 0,30 | 0,20 | 0,30 | 2,20 | — | — |
+| Jogo Direto | 0,70 | 0,50 | 0,15 | 1,40 | 1,20 | — | — |
+| Relacionismo | 1,60 | 2,00 | 1,90 | 0,80 | 0,40 | — | — |
+| Retranca | 0,25 | 0,10 | 0,15 | 0,05 | 2,40 | — | — |
+| Linha Alta | 0,40 | 0,70 | 0,80 | 1,30 | 0,60 | — | — |
+| Corredores | 1,10 | 1,40 | 0,60 | 1,80 | 0,50 | — | — |
+| Vertical | 1,20 | 1,40 | 0,50 | 2,00 | 0,40 | — | — |
+| Saída Curta | 1,00 | 1,00 | 2,00 | 0,60 | 0,40 | — | — |
+
+| Treino (peso por atributo) | Equilibrado | Futebol arte | Domínio de bola | Ofensivista | Retranqueiro | Camaleão | Imprevisível |
+|---|---|---|---|---|---|---|---|
+| RIT | igual | 7% | 25% | 7% | 27% | estilo | sorteio |
+| CHU | igual | 27% | 25% | 27% | 6% | estilo | sorteio |
+| PAS | igual | 27% | 32% | 27% | 7% | estilo | sorteio |
+| DRI | igual | 27% | 6% | 27% | 6% | estilo | sorteio |
+| DEF | igual | 6% | 6% | 6% | 27% | estilo | sorteio |
+| FIS | igual | 6% | 6% | 6% | 27% | estilo | sorteio |
+
+Treino: o atributo é sorteado com peso (preferência do técnico) × (fraqueza do jogador no atributo × importância na posição)^1,5, então um Ofensivista ainda treina defesa de vez em quando, só com menos frequência. Quem treina: reservas fora dos 11 e do banco; a frequência é de 40% por jogo do clube (Camaleão 35%), com peso por grupo (ex.: Ofensivista: atacantes ×1,6, meias ×1,4, defensores ×0,4).
+
+- **Dicas de estilo**: o jogo observa cada técnico (estilos de jogo e formações usados, ofensividade média da formação, variedade de estilos, mudanças no intervalo, treinos), com memória que decai 3% por jogo. Com 8+ jogos, o mouseover no nome dá uma dica com linguagem incerta (talvez / parece / provavelmente), com ruído que diminui até 40 jogos. A primeira dica acerta 59% com 8 jogos e 79% com 30.
+- **Evolução**: ao fim de cada temporada, cada técnico do computador troca de estilo com chance de 10% (+22 pontos se rebaixado, +8 se terminou no terço de baixo, −5 se campeão ou promovido). Depois de rebaixado tende a virar Retranqueiro ou Equilibrado (×1,8); promovido, Ofensivista ou Futebol arte (×1,5).
+- **Atributo de gestão do clube e do grupo**: fica para uma versão futura.
 - **Treino**: 1 a 3 jogos por jogador, no máximo 3 jogadores ao mesmo tempo, descanso de 4 jogos, no máximo 3 treinos seguidos da mesma valência; ganho esperado = jogos × fator de idade (0,9 até 20 anos … 0,12 acima de 31) × fator do atributo × retorno decrescente × moral.
 
 ## 8. Mercado
@@ -310,4 +353,4 @@ Calendário completo (datas, rodadas, dias de Copa); fórmula exata do público 
 Todos gerados no próprio navegador (nada de gravações). Quando o técnico humano tem um jogador expulso, ou há pênalti contra o time dele, a torcida grita com raiva uma das duas frases sorteadas: "Fela da puta!" ou "Juiz ladrão!" (voz do navegador, sobre o ruído de arquibancada em fúria usado no gol sofrido). No pênalti, o grito vem logo depois do apito do juiz.
 
 ## 12. Estilos dos técnicos do computador
-A lista completa e a planilha dos estilos estão em `03-estilos-dos-tecnicos-do-computador.md` e `estilos-dos-tecnicos-do-computador.xlsx` (thread Regras e Características). Nenhum estilo novo foi implementado, aguardando decisão do KK.
+🔶 v27: os 7 estilos novos (Equilibrado, Futebol arte, Domínio de bola, Ofensivista, Retranqueiro, Camaleão, Imprevisível) e as tabelas de preferência estão na seção 7. O resultado das simulações misturando estilos de técnico, formações e estilos de jogo está no relatório 14. Os documentos `03-estilos-dos-tecnicos-do-computador.md` e a planilha pertencem à thread Regras e Características e ainda descrevem os 6 estilos antigos.
