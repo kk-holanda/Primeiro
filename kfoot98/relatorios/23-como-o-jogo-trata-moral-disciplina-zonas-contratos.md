@@ -346,6 +346,147 @@ Folha mensal medida: Bangu R$ 13 mil, Palmeiras R$ 724 mil. Quando o computador 
 
 ---
 
+## 7. Faltas: como são geradas e se registram a área do campo
+
+### Como funciona hoje
+
+- Existem três origens de falta, todas dentro do `passo` (minuto a minuto): (a) o duelo de drible de cada ataque (driblador contra marcador) pode terminar em falta; (b) um sorteio de falta geral por minuto, com base `faltaBase` 0,125 × 1,7 × fator do jogo, em que o lado com menos bola faz mais faltas; (c) o pênalti aleatório `PEN_P` 0,0008 por minuto.
+- O infrator da falta geral é sorteado entre todos os jogadores de linha e o goleiro, com peso `DISC_FALTA × (0,6 se atacante) × (1,2 − DEF/300)`. A disciplina pesa 0,55 (Fair player), 0,85, 1,0, 1,3 e 1,7 (Macetador).
+- Depois de uma falta geral, 7,5% viram tiro livre direto e 5% viram falta lateral que cruza na área. As faltas de duelo têm sua própria cobrança.
+- A falta não é um evento: só o cartão (amarelo ou vermelho) aparece no relato. Não há registro de local, de quem sofreu a falta (na falta geral) nem de quantas faltas cada jogador fez, a não ser a contagem interna.
+
+### Impacto medido (1000 jogos simulados)
+
+- 21,5 faltas por jogo, 3,5 bolas paradas perigosas por jogo (2,5 tiros livres diretos e 1,0 faltas laterais).
+- Faltas a cada 90 minutos por posição: LIB 1,12; LD 1,09; ZAG 1,06; VOL 1,01; MC 0,94; **GOL 0,86**; atacantes entre 0,56 e 0,71. A diferença entre defensor e atacante é de apenas cerca de 1,7 vez.
+- Por disciplina (faltas/90): Fair player 0,54; De boa 0,71; Equilibrado 0,89; Porradeiro 1,12; Macetador 1,45. Amarelos/90 vão de 0,023 a 0,287.
+
+### Lacunas ou problemas
+
+- **A falta não tem área do campo.** O jogo não diz onde aconteceu (área própria, terço defensivo, meio, ataque, faixa esquerda, centro ou direita) e o relato não mostra a falta, só o cartão.
+- O goleiro faz falta geral quase como um meia (0,86 por 90 min). Na prática um goleiro só faz falta dentro da própria área ou ao sair da área; fora disso, o número é irreal.
+- Quem sofre a falta geral não é sorteado: não há vítima, então não dá para ligar lesão, moral ou cartão à vítima.
+- A falta não é limitada pela posição em que o jogador joga: um ponta-direita faz falta no próprio campo de defesa com a mesma lógica de qualquer outra.
+
+### Possíveis soluções
+
+1. Sortear uma zona abstrata para cada falta (área própria, terço defensivo, meio, terço de ataque, área adversária) × faixa (esquerda, centro, direita), com peso pelo estilo de jogo e pela formação, e registrar no relato ("Falta de X em Y, lado esquerdo, a 25 metros do gol").
+2. Sortear antes a vítima (atacante com mais drible ou RIT tem mais chance) e o infrator condicionado à zona.
+3. Tirar o goleiro do sorteio geral e dar a ele só faltas na própria área, com peso muito menor.
+4. Ligar lesão (hoje independente) à gravidade da falta e à disciplina do infrator.
+
+## 8. Pênaltis: são faltas na grande área?
+
+### Como funciona hoje
+
+- Pênalti nasce de dois caminhos independentes:
+  1. **Duelo de drible** (341 de 418 pênaltis medidos, 82%). Se o duelo termina em falta, a chance de ser pênalti é `{atacante 0,24; meia 0,11; defensor 0,02} × 1,3 se for driblador`. A posição de quem sofreu decide a chance, não o lugar onde o lance aconteceu.
+  2. **Pênalti aleatório** `PEN_P` 0,0008 por minuto (77 de 418). O infrator é sorteado entre os jogadores de linha (goleiro fora), com k 2,9.
+- Não existe um teste "a falta ocorreu dentro da grande área?". Falta geral nunca vira pênalti, e falta de duelo vira pênalti conforme o sorteio acima, mesmo que o lance fosse no meio-campo.
+
+### Impacto medido
+
+- 0,42 pênalti por jogo (418 em 1000 jogos), realista (o futebol real fica entre 0,25 e 0,35).
+- Posição do infrator: ZAG 137, LD 53, LE 45, MC 42, VOL 39, LIB 30, ALA 30, MEI 28, só 3 de PD e 8 de CA. Ou seja, 66% por defensor e meio-campista, e a concentração é natural.
+- Disciplina do infrator: Fair player 28, De boa 52, Equilibrado 136, Porradeiro 105, Macetador 97. Os porradeiros e macetadores somam 48%, enquanto representam cerca de 30% do elenco.
+- Quem sofre o pênalti de drible: CA 64, SA 56, PE 46, PD 40, MC 37, VOL 36, ALA 32, MEI 29 (a distribuição é razoável).
+
+### Lacunas ou problemas
+
+- O pênalti é decidido sem lugar; ele só *parece* uma falta na área porque o resultado final é um pênalti.
+- Sem o conceito de lance na área, não dá para existir "pênalti perdoado por estar fora da área" nem "falta na linha da área": toda falta de duelo é ou pênalti, ou tiro livre.
+- O pênalti aleatório não exclui o goleiro. Isso é intencional, mas o goleiro nunca é infrator de pênalti em saída de bola.
+
+### Possíveis soluções
+
+1. Gerar a falta de duelo já com a zona do lance. Se a zona for "área adversária", é pênalti; se for "perto da área", tiro livre direto; senão, tiro livre comum ou lateral.
+2. Quando a falta é na área própria do infrator, aplicar fator extra de disciplina (ver seção 9).
+3. Permitir que o goleiro seja o infrator em lances de saída e de 1 contra 1 (pênalti + cartão vermelho de "último homem").
+
+## 9. Goleiros, zagueiros e volantes porradeiros: mais faltas e pênaltis na própria área?
+
+### Como funciona hoje
+
+- Não. A chance de falta e de pênalti **não depende** de a bola estar na área do infrator, porque a bola não tem posição.
+- O que existe é a disciplina (`DISC_FALTA` 0,55 a 1,7 sobre o peso de infrator) e o peso `(1,2 − DEF/300)`: defensores e volantes com DEF alto fazem menos falta, o que é um viés oposto ao de "defensor que bate".
+- No pênalti de duelo, o infrator é o marcador sorteado dentro da defesa do time, e a disciplina entra no peso. No pênalti aleatório o goleiro é excluído.
+
+### Impacto medido
+
+- Porradeiro faz 1,12 falta por 90 min e Macetador 1,45, contra 0,89 do Equilibrado: efeito de +26% e +63%.
+- Para pênaltis, os dois níveis mais duros respondem por 48% dos casos, e o zagueiro por 33% (137 de 418). Então o efeito desejado pelo KK **já existe indiretamente**, mas por distribuição de peso, não por localização.
+- O goleiro é infrator de 0,86 falta por 90 min fora da área e nunca de pênalti.
+
+### Lacunas ou problemas
+
+- Faltas do goleiro ficam sem sentido (ver seção 7); um goleiro Macetador faz mais faltas gerais do que um atacante Equilibrado.
+- Um defensor porradeiro faz tanta falta no meio-campo adversário quanto na própria área. O correto seria: a chance é maior quando ele está sob pressão (bola na própria área ou em zona de perigo).
+- Não há diferença entre "falta tática" (cortar contra-ataque) e "falta de desespero" (último homem).
+
+### Possíveis soluções
+
+1. Com a zona de cada falta (seção 7), multiplicar o peso do infrator por um fator de pressão defensiva: ×1,0 nas zonas neutras, ×1,3 na própria área.
+2. Em zonas perigosas, usar peso extra para Porradeiro (×1,4) e Macetador (×1,8) em ZAG, VOL e GOL, e atrelar o cartão vermelho de "último homem".
+3. Goleiro: só participa quando a zona é a área própria, com peso baixo e cartão amarelo mais provável.
+
+## 10. Início do jogo, bola do meio, lados do campo e segundo tempo
+
+### Como funciona hoje
+
+- **Não há saída de bola do meio-campo.** O jogo começa no minuto 1 já com a posse sorteada por `pc` (posse da casa = `ctrl() + m.mom + ajuste do placar`, limitado a 15% a 85%).
+- O mandante tem apenas a vantagem implícita do bônus de casa em `ctrl`. A posse no 1º minuto é 0,54 da casa, em média.
+- Não existe lado de campo, nem troca de lados no intervalo, nem reinício com a bola do meio depois do gol, nem o "outro time sai no 2º tempo".
+- O intervalo é só uma pausa (substituições, ajuste do técnico, +X acréscimos). O 2º tempo continua o mesmo cálculo.
+
+### Impacto medido
+
+- Posse média da casa 54,0% com desvio de 6,2 pontos; mínimo 36%, máximo 74%.
+- Quanto maior a posse, maior a vitória da casa: 23% (posse até 40%), 27% (40 a 47%), 33% (47 a 53%), 44% (53 a 60%) e 49% (acima de 60%).
+
+### Lacunas ou problemas
+
+- O visitante não "abre" o jogo com a bola, como o KK descreveu; nada marca quem sai jogando.
+- Sem lados do campo não dá para dizer que "o time A ataca para a direita no 1º tempo" nem que "as formações se reposicionam" a partir de uma saída de bola.
+- Sem reinício após gol, o time que sofreu o gol não "bate o meio" no jogo; é o mesmo cálculo de posse.
+- O fim do 1º tempo e o início do 2º não mostram nenhuma troca (relato ou animação).
+
+### Possíveis soluções
+
+1. Criar um estado `bola` no jogo: `{ zona, faixa, posse, lado }`. O mandante escolhe o lado no 1º tempo; o visitante *abre* o jogo (posse inicial do visitante, como o KK pediu). Segundo tempo: troca-se os lados e quem abre é o mandante. Depois de gol, quem sofreu reinicia no centro.
+2. Mostrar no relato "Começa o jogo: o visitante toca a bola no meio-campo" e "Começa o 2º tempo: o mandante dá a saída".
+3. Usar a saída para impor a posição inicial das formações (todos no próprio campo) e deixá-los avançar conforme tática e estilo nos primeiros minutos.
+4. Implementar tudo isso antes das zonas e faixas (seção 5), pois a saída é o estado inicial delas.
+
+## 11. Em que área a bola está e como a bola em jogo e a posse são gerenciadas
+
+### Como funciona hoje
+
+- **A bola não tem posição.** O minuto é a unidade: o jogo calcula `ctrl()` (força relativa do meio-campo com tática, estilo, moral e placar), soma o momento `m.mom` e o ajuste do placar, e aplica o limite 0,15 a 0,85. Esse é `pc`, a probabilidade de a casa ficar com a bola naquele minuto.
+- `m.rec` é uma média suavizada dessa posse, usada só para mostrar a estatística de posse.
+- A cada minuto sorteia-se quem ataca (pela posse e pelo tempo do estilo) e quantos ataques ocorrem. Cada ataque passa por finalização, drible, bola aérea e bola parada.
+- O jogo não tem "bola em jogo/bola fora", escanteio ou lateral por saída de campo; o escanteio vem de um sorteio dentro do ataque, e o tiro de meta/lateral não existe como lance.
+- A zona de cada lance não é guardada. O texto do relato escolhe jogador e lado por sorteio ao montar a frase.
+
+### Impacto medido
+
+- A posse varia pouco (desvio de 6,2 pontos), por isso times muito desiguais raramente passam de 70% (máximo medido 74%).
+- Saldo médio de gols casa x visitante por faixa de posse: de −0,15 (posse 40 a 47%) a +0,54 (posse acima de 60%), o que mostra que a posse é um bom resumo da força do meio-campo, mas não cria efeito de campo.
+
+### Lacunas ou problemas
+
+- Falta uma noção real de "posse com bola": o time com mais posse não é necessariamente quem trabalha a bola na zona de ataque.
+- Escanteios, laterais e tiros de meta não são lances contados (hoje só escanteio, de forma indireta).
+- Não há como mostrar "bola recuperada no terço de ataque", "troca de passes até a área" ou "bola longa para a lateral".
+
+### Possíveis soluções
+
+1. Camada leve de zonas: a cada minuto a bola está em uma de cinco zonas (área própria, defesa, meio, ataque, área adversária) e três faixas (esquerda, centro, direita), com matriz de transição que depende de estilo, formação, qualidade de passe e marcação.
+2. Manter o `pc` atual como "viés" dessa matriz, assim o equilíbrio dos relatórios de 11 a 22 não muda.
+3. Registrar cada lance com sua zona para produzir: relato com local, estatística de posse por terço, faltas por zona e pênalti na área.
+4. Implementação em etapas: (1) saída de bola e lados, (2) zona e faixa, (3) falta com zona, (4) pênalti como falta na área, (5) ajuste fino do Porradeiro/Macetador por zona.
+
+---
+
 ## Resumo dos problemas encontrados
 
 - Moral dos jogadores (seção 1): efeito grande nas partidas (30 pontos de moral valem cerca de +0,3 gol e +0,25 ponto por jogo) e nada explica isso na interface; resetada a 60 todo ano.
@@ -356,3 +497,10 @@ Folha mensal medida: Bangu R$ 13 mil, Palmeiras R$ 724 mil. Quando o computador 
 - Pressão na saída (seção 4): não existe como lance nem estatística; é um desconto na chance de chute que depende só do estilo, nunca de DEF/FIS/RIT dos atacantes nem da qualidade do zagueiro ou do goleiro.
 - Zonas e faixas (seção 5): o motor trabalha só com 3 linhas (D, M, A) por média; não existem faixas esquerda/centro/direita, LD = LE e PD = PE, o pé do jogador não é usado, e o marcador é sorteado sem relação com o atacante.
 - Contratos (seção 6): renovação máxima de 3 a 12 meses, computador renova sempre e reseta o salário, humano perde quem não renovar; jogadores nunca recusam; a multa só existe na compra e cai a zero perto do vencimento; livres são baratos (luvas de 2 salários) e podem ser recontratados.
+- Faltas (seção 7): não têm área do campo nem vítima, não aparecem no relato (só cartões) e o goleiro faz 0,86 falta por 90 min, quase como um meia.
+- Pênaltis (seção 8): 0,42 por jogo (realista), mas decididos sem localização; falta de duelo vira pênalti pela posição de quem sofreu, não porque ocorreu na grande área.
+- Porradeiros na própria área (seção 9): o efeito existe só por peso de disciplina (48% dos pênaltis vêm de Porradeiro/Macetador), não por a bola estar na área do infrator.
+- Início do jogo (seção 10): não há bola do meio, lados do campo, saída do visitante, troca de lados nem reinício após gol; a posse do 1º minuto é 54% da casa.
+- Bola e posse (seção 11): a bola não tem posição; a posse é um sorteio por minuto limitado a 15%-85%. Proposta de camada leve de zonas e faixas, mantendo o `pc` como viés, em 5 etapas.
+
+Nenhuma dessas propostas foi implementada; aguardam a decisão do KK.
