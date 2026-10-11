@@ -1,4 +1,4 @@
-# Kfoot 98: documentação do jogo (versão 40)
+# Kfoot 98: documentação do jogo (versão 41)
 
 Documento vivo: cresce junto com a implementação. Cada rodada de melhorias atualiza as seções que mudaram. Valores vêm do código da branch `claude/melhorias-5-xt6u1f` (pasta `kfoot98`). Quando algo ainda não está documentado, a seção diz "a detalhar".
 
@@ -411,18 +411,19 @@ Todos gerados no próprio navegador (nada de gravações). Quando o técnico hum
 - **Estádios.** Capacidades sorteadas entre os 20 clubes de cada série, espaçadas por igual nas faixas A 25 a 50 mil, B 15 a 30 mil, C 8 a 16 mil e D 5 a 10 mil, mantendo os nomes e a proporção das áreas. Os 10 clubes que o humano pode receber no sorteio ficam com os 10 menores estádios da D.
 - **Celebridades na cidade (marketing).** De 2 a 4 vezes por temporada, em jogos em casa (liga ou Copa), uma celebridade quer ir ao jogo: Paula Oliver, rainha de bateria do bloco "Unidos da Galera", ou Mique Jordão, lenda do basquete mundial. O humano recebe uma carta na tela do clube com a foto, a proposta e as contas (público e renda sem e com a visita, cachê, ingresso VIP e resultado estimado). Custo: 20% da renda do jogo com o estádio cheio + 1 ingresso VIP (cadeira, se o estádio não tem VIP). Aceitando, todos os setores lotam naquele jogo. Recusando, ela volta com a carta "Último dia na cidade" no jogo em casa seguinte. O computador aceita quando a conta dá lucro (90% das vezes). Medido: cerca de 2,2 visitas por clube por temporada; compensa para quem costuma ter até ~75% de lotação.
 
-## 17. Celebridades e bônus secretos (v40)
+## 17. Celebridades e bônus secretos (v40 e v41)
 
 - **8 celebridades.** Paula Oliver (rainha de bateria do bloco "Unidos da Galera"), Mique Jordão (lenda do basquete), Senhor Lunga (figura do folclore cearense, rabugento e resmungão), Senhor Santos (comunicador), Melé (ex-melhor jogador do mundo), Muzão (comediante nordestino), Marcia (melhor jogadora do mundo) e a dupla sertaneja Zandy e Xunior. Fotos novas enviadas pelo KK, com as logomarcas cobertas.
 - **Quantas vezes aparecem.** Cada clube recebe de 2 a 4 propostas por temporada (a recusa gera a carta "Último dia na cidade", que conta como a mesma aparição). Cada celebridade aparece no máximo 1 vez por ano em cada clube. Os 4 últimos da tabela têm mais chance de receber a visita e os 4 primeiros têm menos.
 - **Bônus secreto.** A carta-convite só diz que "toda visita dessas deixa uma surpresa". Na rodada seguinte à visita chega a carta "Presente de ..." revelando o bônus, que vale no jogo seguinte do clube (Santos e Muzão: no jogo em casa seguinte):
-  - Paula Oliver: todos com moral 100.
+  - Paula Oliver: todos com moral 100 e, só naquela rodada, 3 treinos instantâneos com o tempo máximo (3 jogos), além dos treinos normais e sem o descanso depois. O técnico escolhe jogador e treino na própria carta.
   - Mique Jordão: todos com energia 100.
-  - Senhor Lunga: a torcida xinga o juiz aos 5 minutos e depois de 10 em 10 ("JUIZ FÉLA DA PUTA", "JUIZ CORNO", "VAI SE LASCAR JUIZ SAFADO"), com coro e voz no relato; o juiz pressionado dá 30% menos amarelos ao time.
+  - Senhor Lunga: a torcida xinga o juiz aos 5 minutos e depois de 10 em 10 ("JUIZ FÉLA DA PUTA", "JUIZ CORNO", "VAI SE LASCAR JUIZ SAFADO"), com coro cantado e voz no relato. O juiz pressionado favorece o time: 10% mais pênaltis e faltas a favor, 10% menos faltas contra e 10% menos chance de cartão ou expulsão.
   - Senhor Santos: renda do estádio +50%.
   - Melé: +10 no melhor atributo de cada jogador.
-  - Muzão: procura por ingressos +50% (até lotar).
-  - Marcia: +5 em drible e +5 em finalização para todos.
-  - Zandy e Xunior: proposta de um 3º patrocinador até o fim da temporada, pagando o mesmo que o secundário (sem secundário, 40% do master); sem patrocinador nenhum, a próxima proposta de patrocínio tem o dobro de chance.
-- **Computador.** Vale igual: o clube do computador que aceitar a visita recebe o mesmo bônus e sempre aceita o 3º patrocínio.
+  - Muzão: procura por ingressos +75% (até lotar).
+  - Marcia: +5 em drible, finalização e passe para todos.
+  - Zandy e Xunior: 50% de desconto na próxima compra de jogador (de outro clube ou livre); o vendedor recebe o valor cheio.
+- **Cartas.** A carta do bônus tem uma imagem própria de cada celebridade com o presente (enviadas pelo KK, logomarcas cobertas).
+- **Computador.** Vale igual: o clube do computador que aceitar a visita recebe o mesmo bônus; os 3 treinos da Paula vão para os jogadores com maior ganho esperado.
 
