@@ -359,8 +359,11 @@ Todos gerados no próprio navegador (nada de gravações). Quando o técnico hum
 ## 12. Estilos dos técnicos do computador
 🔶 v27: os 7 estilos novos (Equilibrado, Futebol arte, Domínio de bola, Ofensivista, Retranqueiro, Camaleão, Imprevisível) e as tabelas de preferência estão na seção 7. O resultado das simulações misturando estilos de técnico, formações e estilos de jogo está no relatório 14. Os documentos `03-estilos-dos-tecnicos-do-computador.md` e a planilha pertencem à thread Regras e Características e ainda descrevem os 6 estilos antigos.
 
-## 13. Finanças (v35)
-- **Ingresso**: você escolhe o preço (de 50% a 300% da média da série). Abaixo da média a demanda sobe pouco; acima, cai rápido. O botão "Melhor preço" mostra o que mais rende hoje.
+## 13. Finanças (v35 e v36)
+- **Estádio por áreas (v36)**: arquibancada, cadeiras e VIP, cada uma com preço, público e obras próprios. Os estádios foram equilibrados por série (A 25 a 60 mil lugares, B 15 a 35 mil, C 8 a 20 mil, D 4 a 12 mil). Série D começa sem VIP, mas qualquer clube pode construir.
+- **Ingresso**: você escolhe o preço de cada área (de 50% a 300% da média). Abaixo da média a demanda sobe pouco; acima, cai rápido. Por padrão o preço é automático por jogo (sobe em jogo decisivo quando a demanda passa dos lugares); dá para deixar fixo.
+- **Obras**: cada área tem lotes de ampliação com prazo de algumas rodadas (o setor continua aberto) e retorno estimado em anos.
+- **Sócios-torcedores (v36)**: cada clube tem um número de sócios que enche o estádio mesmo com ingresso caro, paga mensalidade (Bronze, Prata ou Ouro) e varia com vitórias, derrotas, estrelas, Popstars, campanhas, título, acesso e rebaixamento.
 - **Marketing**: campanha de sócios (+18% de demanda em 10 jogos em casa) e jogo-evento (+35% em um jogo). Agora custam bem menos e a tela mostra quanto devem render. Só valem com o estádio abaixo de 85% de lotação.
 - **Patrocínio**: master (camisa) e secundário (calção e mangas, 40% do valor), contratos de 1 a 3 anos, bônus por meta (livrar do rebaixamento, top 4 ou título), reajuste de 5% a cada 10 rodadas pela posição na tabela e convites quando o clube vai muito bem. Quem está na lanterna pode perder um contrato.
 - **Computador**: os outros clubes também fecham patrocínio, ajustam o preço e ampliam o estádio quando lota.
