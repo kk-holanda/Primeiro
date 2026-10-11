@@ -34,17 +34,19 @@ Sobre as faixas: o relatório 23 falava em 3 faixas, mas a imagem enviada pelo K
 
 | | v37 A | v38 A | v37 B | v38 B | v37 C | v38 C | v37 D | v38 D |
 |---|---|---|---|---|---|---|---|---|
-| Gols por jogo | 1,99 | 2,07 | 2,16 | 2,04 | 2,08 | 2,05 | 2,21 | 2,14 |
-| Vitória do mandante | 38,9% | 38,5% | 41,3% | 38,9% | 41,7% | 42,6% | 40,6% | 41,8% |
-| Empates | 30,4% | 33,2% | 28,1% | 30,6% | 27,3% | 26,8% | 29,0% | 29,3% |
-| Chutes por jogo | 21,9 | 21,6 | 23,3 | 23,1 | 23,5 | 23,1 | 23,9 | 23,4 |
-| Faltas por jogo | 21,5 | 21,2 | 21,3 | 21,5 | 21,3 | 21,2 | 21,4 | 21,4 |
-| Pênaltis por jogo | 0,42 | 0,47 | 0,41 | 0,45 | 0,43 | 0,39 | 0,45 | 0,48 |
-| Gols de falta direta | 0,09 | 0,09 | 0,09 | 0,07 | 0,07 | 0,07 | 0,07 | 0,05 |
-| Vermelhos por jogo | 0,17 | 0,21 | 0,14 | 0,17 | 0,13 | 0,15 | 0,13 | 0,18 |
-| Posse do mandante | 54,0% | 54,0% | 53,8% | 53,9% | 53,9% | 53,7% | 54,1% | 54,1% |
+| Gols por jogo | 1,99 | 1,94 | 2,16 | 2,07 | 2,08 | 2,07 | 2,21 | 2,13 |
+| Vitória do mandante | 38,9% | 38,0% | 41,3% | 39,4% | 41,7% | 41,9% | 40,6% | 42,0% |
+| Empates | 30,4% | 32,7% | 28,1% | 29,7% | 27,3% | 27,7% | 29,0% | 26,7% |
+| Chutes por jogo | 21,9 | 21,3 | 23,3 | 23,0 | 23,5 | 22,9 | 23,9 | 23,6 |
+| Faltas por jogo | 21,5 | 21,3 | 21,3 | 21,2 | 21,3 | 21,5 | 21,4 | 21,4 |
+| Pênaltis por jogo | 0,42 | 0,39 | 0,41 | 0,44 | 0,43 | 0,46 | 0,45 | 0,45 |
+| Gols de falta direta | 0,09 | 0,08 | 0,09 | 0,06 | 0,07 | 0,07 | 0,07 | 0,05 |
+| Vermelhos por jogo | 0,17 | 0,18 | 0,14 | 0,22 | 0,13 | 0,16 | 0,13 | 0,17 |
+| Posse do mandante | 54,0% | 53,5% | 53,8% | 53,7% | 53,9% | 53,5% | 54,1% | 54,2% |
 
-Média das 4 séries: gols 2,11 → 2,08; vitória do mandante 40,6% → 40,5%; pênaltis 0,43 → 0,45. As diferenças estão dentro do ruído de 1000 jogos (cerca de ±0,05 gol), menos os vermelhos: subiram cerca de 0,03 por jogo, por causa do goleiro último homem e dos porradeiros mais presentes perto da própria área.
+Média das 4 séries: gols 2,11 → 2,05; vitória do mandante 40,6% → 40,3%; pênaltis 0,43 → 0,44. Os gols caíram cerca de 3% (um pouco acima do ruído de 1000 jogos), e os vermelhos subiram cerca de 0,04 por jogo, por causa do goleiro último homem e dos porradeiros mais presentes perto da própria área.
+
+Correção (20:15): a primeira publicação da v38 saiu com as bolas paradas da falta geral em 30% (cobrança direta) e 20% (cruzamento), e não nos 27% e 64% calibrados. Corrigido; a tabela acima já é da versão corrigida.
 
 **Novos números da v38**
 - Saídas de bola por jogo: 4,0 (início, 2º tempo e uma depois de cada gol).
@@ -63,4 +65,4 @@ Média das 4 séries: gols 2,11 → 2,08; vitória do mandante 40,6% → 40,5%; 
 2. O lateral e o tiro de meta são só estatística: não mudam quem fica com a bola nem criam lances.
 3. A matriz de transição usa o estilo (saída curta, jogo direto) e a posse; ainda não usa diretamente o passe e a marcação de cada jogador na troca de dono.
 4. O campinho mostra posições aproximadas (linhas da formação e faixas), não um posicionamento jogador a jogador.
-5. Os vermelhos subiram cerca de 0,03 por jogo. Se o KK achar demais, dá para baixar a chance do goleiro último homem (hoje 1,2%) ou o peso dos porradeiros perto da área.
+5. Os gols caíram cerca de 3% (2,11 → 2,05 por jogo). Se o KK quiser, dá para devolver com um ajuste fino na conversão. Os vermelhos subiram cerca de 0,04 por jogo. Se o KK achar demais, dá para baixar a chance do goleiro último homem (hoje 1,2%) ou o peso dos porradeiros perto da área.

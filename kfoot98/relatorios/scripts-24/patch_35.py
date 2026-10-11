@@ -142,7 +142,7 @@ rep("  function cometerFalta(m, lado, fj, min, ev, k) {\n    const { S, rng, sta
     const { S, rng, stats } = m, S1 = S[lado];
     fj.faltas++; stats[lado].faltas++;
     if (loc) { const c = m.fzCont = m.fzCont || [0, 0, 0, 0, 0, 0, 0]; c[loc.z]++; if (loc.z === 3) c[loc.lat ? 6 : 5]++; if (CFG.logFaltas || S[0].manual || S[1].manual) ev(min, 'falta', lado, fj, { zona: loc.z, faixa: loc.f, pos: fj.slot, area: loc.z === 4 }); }""")
-rep("fz: { dir: 0.27, lat: 0.64 },", "fz: { dir: 0.30, lat: 0.20 }, penDisc: 0.87,")
+rep("fz: { dir: 0.27, lat: 0.64 },", "fz: { dir: 0.27, lat: 0.64 }, penDisc: 0.87,")
 rep("          if (imped) { stats[a].imp = (stats[a].imp || 0) + 1; }", "          if (imped) { stats[a].imp = (stats[a].imp || 0) + 1; m.bola = bolaXY(m, d, 1, 4 - L); m.tr.push({ pos: d, z: 1, f: 4 - L }); }   // impedimento: tiro livre indireto para quem defende")
 
 # ===================== interface =====================
