@@ -1,4 +1,4 @@
-# Kfoot 98: documentação do jogo (versão 27)
+# Kfoot 98: documentação do jogo (versão 33)
 
 Documento vivo: cresce junto com a implementação. Cada rodada de melhorias atualiza as seções que mudaram. Valores vêm do código da branch `claude/melhorias-5-xt6u1f` (pasta `kfoot98`). Quando algo ainda não está documentado, a seção diz "a detalhar".
 
@@ -49,7 +49,7 @@ Por divisão (arquivo `times.csv` tem cada clube):
 
 - **Prestígio** (5 a 99) é a força e a torcida do clube. Move devagar a cada temporada: campanha na liga (−1,5 a +1,5), título (+2), acesso (+2), descenso (−2), título da Copa (+3), fases finais da Copa (+0,5 a +1).
 - **Sorteio de força**: a cada jogo novo, os 10 clubes iniciáveis embaralham o prestígio entre si, e os outros 10 da Série D também; os iniciáveis continuam sendo os 10 mais fracos da D, mas o jogador não sabe qual é o mais forte. Caixa e demanda são recalculados.
-- **Público** = demanda × forma recente × rivalidade × elasticidade do preço do ingresso, limitado pela capacidade. Rivalidade sobe 25% em clássico da mesma cidade. Receita de bilheteria = público × ingresso × 0,85 (15% de custos e impostos de jogo). O estádio pode ser ampliado a R$ 400 por lugar (nível máximo 5, +60%).
+- **Público** = demanda × forma recente × rivalidade × elasticidade do preço do ingresso, limitado pela capacidade. Rivalidade sobe 25% em clássico da mesma cidade. Receita de bilheteria = público × ingresso × 0,85 (15% de custos e impostos de jogo). O estádio pode ser ampliado (custo por lugar = 25 × ingresso padrão da divisão, até 5 obras). Desde a v35 o jogador escolhe o preço do ingresso.
 - **Salários** são pagos proporcionalmente aos dias entre jogos. Custos fixos por jogo = custo fixo anual ÷ 52. Cota de TV por rodada.
 - **Prêmios de fim de temporada**: série A paga aos 5 primeiros (4,0 / 2,4 / 1,5 / 0,9 / 0,5 mi); B aos 4 primeiros (1,2 / 0,7 / 0,45 / 0,25); C (0,4 / 0,25 / 0,15 / 0,09); D (0,18 / 0,11 / 0,07 / 0,04); Copa: 3,0 / 1,5 / 0,75 mi; bônus ao clube do artilheiro (A 0,6 mi, B 0,2, C 0,08, D 0,04; 2º recebe 60% e 3º 35%) e outros prêmios (melhor goleiro, revelação, garçom, melhor técnico) que dão pontos de atributo.
 - **Caixa negativo (v24, humanos e computador)**: a cada jogo (liga ou Copa) que o clube termina com o caixa abaixo de zero, conta uma "rodada no negativo". Em cada uma delas todos os jogadores do clube perdem 3 de moral e a moral do técnico perde 2. Se o caixa voltar a zero ou mais, a contagem zera.
@@ -351,10 +351,17 @@ Treino: o atributo é sorteado com peso (preferência do técnico) × (fraqueza 
 
 ## 10. A detalhar nas próximas versões
 
-Calendário completo (datas, rodadas, dias de Copa); fórmula exata do público e da elasticidade do ingresso; patrocínios; campanhas de sócios; fórmula de evolução por idade (progressão anual); tabela completa de prêmios individuais; regras de desempate; som e interface.
+Calendário completo (datas, rodadas, dias de Copa); fórmula de evolução por idade (progressão anual); tabela completa de prêmios individuais; regras de desempate; som e interface.
 
 ## 11. Sons da torcida (v24)
 Todos gerados no próprio navegador (nada de gravações). Quando o técnico humano tem um jogador expulso, ou há pênalti contra o time dele, a torcida grita com raiva uma das duas frases sorteadas: "Fela da puta!" ou "Juiz ladrão!" (voz do navegador, sobre o ruído de arquibancada em fúria usado no gol sofrido). No pênalti, o grito vem logo depois do apito do juiz.
 
 ## 12. Estilos dos técnicos do computador
 🔶 v27: os 7 estilos novos (Equilibrado, Futebol arte, Domínio de bola, Ofensivista, Retranqueiro, Camaleão, Imprevisível) e as tabelas de preferência estão na seção 7. O resultado das simulações misturando estilos de técnico, formações e estilos de jogo está no relatório 14. Os documentos `03-estilos-dos-tecnicos-do-computador.md` e a planilha pertencem à thread Regras e Características e ainda descrevem os 6 estilos antigos.
+
+## 13. Finanças (v35)
+- **Ingresso**: você escolhe o preço (de 50% a 300% da média da série). Abaixo da média a demanda sobe pouco; acima, cai rápido. O botão "Melhor preço" mostra o que mais rende hoje.
+- **Marketing**: campanha de sócios (+18% de demanda em 10 jogos em casa) e jogo-evento (+35% em um jogo). Agora custam bem menos e a tela mostra quanto devem render. Só valem com o estádio abaixo de 85% de lotação.
+- **Patrocínio**: master (camisa) e secundário (calção e mangas, 40% do valor), contratos de 1 a 3 anos, bônus por meta (livrar do rebaixamento, top 4 ou título), reajuste de 5% a cada 10 rodadas pela posição na tabela e convites quando o clube vai muito bem. Quem está na lanterna pode perder um contrato.
+- **Computador**: os outros clubes também fecham patrocínio, ajustam o preço e ampliam o estádio quando lota.
+- Detalhes e fórmulas: documento 02, seção 4.3 e seção 19.
