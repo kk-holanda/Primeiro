@@ -1136,7 +1136,7 @@ window.ESCUDOS_REAIS = {};
   // nacionalidades (chance de ser brasileiro depende da divisão; o resto é sul-americano)
   const NACS = [['ARG', 30], ['URU', 22], ['PAR', 22], ['CHI', 8], ['COL', 8], ['PER', 4], ['EQU', 3], ['BOL', 2], ['VEN', 1]];
   const PBRA = { A: 0.86, B: 0.91, C: 0.94, D: 0.97 };
-  const NAC_NOME = { POR: 'Portugal', BRA: 'Brasil', ARG: 'Argentina', URU: 'Uruguai', PAR: 'Paraguai', CHI: 'Chile', COL: 'Colômbia', PER: 'Peru', EQU: 'Equador', BOL: 'Bolívia', VEN: 'Venezuela' };
+  const NAC_NOME = { MOZ: 'Moçambique', POR: 'Portugal', BRA: 'Brasil', ARG: 'Argentina', URU: 'Uruguai', PAR: 'Paraguai', CHI: 'Chile', COL: 'Colômbia', PER: 'Peru', EQU: 'Equador', BOL: 'Bolívia', VEN: 'Venezuela' };
   function sortearNac(rng, div) { return rng.chance(PBRA[div] || 0.95) ? 'BRA' : rng.weighted(NACS, (x) => x[1])[0]; }
 
   // altura média (cm) e desvio por posição; peso sai de um IMC ~22,3
@@ -1153,7 +1153,6 @@ window.ESCUDOS_REAIS = {};
 
   // registro de nomes já usados: garante que não existam dois jogadores com o mesmo nome no mundo
   let usadosGlobal = new Set();
-  const resetNomes = () => { usadosGlobal = new Set(); };
   function nomeUnico(rng, usados, hisp) {
     const N = hisp ? NOMES_ES : NOMES, SN = hisp ? SOBRENOMES_ES : SOBRENOMES;
     for (let t = 0; t < 40; t++) {
@@ -1211,10 +1210,95 @@ window.ESCUDOS_REAIS = {};
   function ajustarTraits(rng, el, forcarN) {
     let com = el.filter((p) => p.trait && p.trait !== 'promessa');
     const alvo = forcarN != null ? forcarN : com.length < 2 ? rng.int(2, 4) : Math.min(4, com.length);
-    while (com.length > alvo) { const p = rng.pick(com); p.trait = null; com = com.filter((x) => x !== p); }
+    while (com.length > alvo) { const sem = com.filter((x) => !x.fixoTrait), p = rng.pick(sem.length ? sem : com); p.trait = null; com = com.filter((x) => x !== p); }
     for (let t = 0; com.length < alvo && t < 80; t++) { const p = rng.pick(el.filter((x) => !x.trait)), k = sortearTrait(rng, p, true); if (k) { p.trait = k; com.push(p); } }
   }
-  function gerarJogador(rng, pos, alvo, idade, usados = usadosGlobal, nac = 'BRA') {
+  // ---------- v44: nomes variados (só Série D, livres e base; as outras séries continuam com nome + sobrenome como antes) ----------
+  // Entradas curadas: [nome, posições, dicas]. Dicas: v ritmo, f físico, d drible, c finalização, p passe, x defesa, b bola parada, e canhoto,
+  // T:trait, D:disciplina (3 porradeiro, 4 macetador), N:nacionalidade. Cada nome aparece no máximo uma vez por mundo.
+  const POS_ATQ = 'CA/SA/PD/PE', POS_MEIA = 'MEI/MC', POS_LAT = 'LD/LE', POS_PTA = 'PD/PE', POS_ANY = '*';
+  const NOMES_CURADOS = [
+    // lista do KK (1)
+    ['Flávio Caça-Rato', 'CA/SA', 'c'], ['Guly Guly', POS_MEIA, 'd'], ['Cerezo de Formosa', POS_MEIA, 'p'], ['Pantico', POS_ATQ, 'v'], ['Dill', POS_ATQ, ''],
+    ['Chiquinho Conde', 'CA/SA', 'c N:MOZ'], ['Beto Cachaça', POS_ANY, ''], ['Finazzi', POS_ANY, ''], ['Tuto', POS_ANY, ''], ['Cláudio Pitbull', 'CA/SA', 'D:3 f'],
+    ['Baiano', POS_LAT, ''], ['Diones Paraíba', 'MC', 'p'], ['Nildo Petrolina', POS_MEIA, 'e d'], ['Marcos Paraná', POS_MEIA, 'd'], ['Washington Santana', 'ZAG', 'x'],
+    ['Jefferson Feijão', 'LD', 'f'], ['Magrão', 'VOL', 'f'], ['Basílio', 'CA/SA', 'T:salvador c'], ['Schwenck', 'CA', 'c f'], ['Gralak', 'ZAG', 'x'],
+    ['Gauchinho', 'SA', 'd'], ['Aluísio Chulapa', 'CA/SA', 'c'], ['Valdir Bigode', POS_ANY, ''], ['Mário Tilico', 'PE', 'v'], ['Chiquinho', 'LD/LE/ALA', 'p'],
+    ['Créu', POS_ATQ, 'v d'], ['Pipoca', POS_MEIA, 'v'], ['Cafu de Canindé', 'LD', 'f v'], ['Preto Pará', 'VOL', 'x'], ['Bolinha', POS_MEIA, 'b p'],
+    ['Alisson Farias', 'CA/SA', 'T:salvador'], ['Didi Cearense', POS_MEIA, 'T:salvador p'], ['Thales Magno do Interior', POS_ANY, ''], ['Zetão', 'CA', 'T:salvador f c'],
+    ['Roni Maranhão', 'CA', 'c'], ['Juninho Cearense', POS_LAT, 'v'], ['Marcelo Uberaba', 'ZAG', 'D:3 x'], ['Wellington Cabeça', 'VOL', 'D:4 x'],
+    ['Marcus Vinícius Baiano', 'MEI/SA', 'd c'], ['Max Pardalzinho', POS_ANY, ''], ['Guto Goiano', 'LE', 'e b c'],
+    // lista do KK (2)
+    ['Valdir Caça-Rato', 'CA/SA', 'D:3 c'], ['Nelsinho Farinha', 'MEI', 'd'], ['Cláudio Cabeção', 'VOL', 'x f'], ['Zé Batata', 'GOL', ''], ['Edmar Sucuri', 'ZAG', 'f x'],
+    ['Toninho Pimpim', POS_PTA, 'v'], ['Wellington Minhoca', POS_MEIA, 'd'], ['Jorginho Carrapeta', POS_LAT, 'f'], ['Beto Foguete', POS_ATQ, 'v'],
+    ['Raimundo Patuta', 'CA', 'T:matador c'], ['Damião Bocão', 'ZAG', 'D:3 f'], ['Cícero Testinha', 'GOL', ''], ['Marquinhos Biloca', POS_MEIA, 'p d'],
+    // lista do KK (3)
+    ['Ruy Cabeção', 'ZAG', 'T:cabecao f'], ['Daniel Gigante', 'GOL/ZAG', 'f'], ['Alan Taxista', 'LD/LE/VOL', 'f'], ['André Belezinha', 'MEI', 'd p'], ['Gabriel Bigode', POS_ANY, ''],
+    ['Vinícius Barba', 'ZAG/VOL', 'x'], ['Emerson Bombado', 'CA/ZAG', 'f'], ['Kennedy Balotelli', 'CA/SA', 'c d'], ['Eric Di María', 'PD/PE/MEI', 'd v'],
+    ['Everson Bilal', POS_ANY, ''], ['Clayton He-Man', 'CA/ZAG', 'f'], ['Ronald Camarão', 'PD/PE/ALA', 'v'], ['Nathan Cachorrão', 'VOL', 'D:3 x'],
+    // sugestões (inventadas) para completar todas as posições
+    ['Juca Peixe', 'GOL', ''], ['Jairo Paredão', 'GOL', 'f'], ['Osmar Sapo', 'GOL', ''], ['Luisão Pantera', 'GOL', ''], ['Jeremias Tamanduá', 'GOL', 'f'], ['Weber', 'GOL', ''],
+    ['Tonhão', 'ZAG', 'f'], ['Paulão Tijolo', 'ZAG', 'f x'], ['Pedrão Muralha', 'ZAG', 'x'], ['Roberval Zagueirão', 'ZAG', 'x f'], ['Telmo Bigorna', 'ZAG', 'D:3 f'], ['Xerife', 'ZAG', 'D:3'],
+    ['Tubarão', 'ZAG/VOL', 'f'], ['Walmir Capitão', 'ZAG', 'T:lider x'], ['Schneider', 'ZAG', 'x'], ['Pé de Chumbo', 'ZAG/VOL', 'D:4'], ['Orlando Pedreira', 'ZAG/LIB', 'x'],
+    ['Adão Cavalinho', 'LD', 'f v'], ['Esquerdinha', 'LE', 'e'], ['Zoboli', 'LD', 'f'], ['Rogerinho Canhão', 'LE', 'e b'], ['Sandrinho Foguetinho', 'LE', 'v e'], ['Neguinho do Vale', 'LD', 'v'],
+    ['Nei Batatais', 'LE/ALA', 'e v'], ['Cléber Gaivota', 'LD/ALA', 'v'], ['Jonas Bicão', 'LD', 'f'],
+    ['Cleiton Vaqueiro', 'VOL', 'f x'], ['Zinho Tatu', 'VOL', 'x D:3'], ['Sérgio Mala', 'VOL', 'x'], ['Neto Pescador', 'VOL', 'x f'], ['Tomasi', 'VOL', 'x'], ['Marreco', 'VOL', 'D:4'],
+    ['Chico Bola', 'MC', 'p'], ['Sandro Maestrino', 'MEI/MC', 'T:maestro p'], ['Pelezinho de Caicó', 'MEI', 'd'], ['Vanderlei Pé-de-Ouro', POS_MEIA, 'b p'], ['Fujita', POS_MEIA, 'p'],
+    ['Lelê', POS_MEIA, 'p d'], ['Dedé Maluco', POS_MEIA, 'd'], ['Haddad', POS_MEIA, 'p'], ['Rui Sanfona', 'MC', 'p'], ['Betinho Sorriso', 'MEI', 'd'], ['Cuca Mineiro', 'MC/VOL', 'x'],
+    ['Neném Bala', POS_PTA, 'v'], ['Gil Mosquito', POS_PTA, 'v d'], ['Edinho Gazela', POS_PTA, 'v'], ['Marlon Bicicleta', 'PE', 'd'], ['Dodô Canhoto', 'PE', 'e d'], ['Jaílson Bacurau', 'PE/PD', 'v'],
+    ['Dagoberto Lagartixa', POS_PTA, 'v'], ['Cebolinha', POS_PTA, 'v d'], ['Canhotinha', 'PE/MEI', 'e b'],
+    ['Tião Gavião', 'CA', 'c'], ['Naldo Bicudo', 'CA', 'c'], ['Mazinho Trovão', 'CA/SA', 'c f'], ['Careca Mossoró', 'CA', 'c'], ['Fabão Torpedo', 'CA', 'c f'], ['Ivan Carcará', 'CA/SA', 'c'],
+    ['Kowalski', 'CA', 'f c'], ['Tonho da Lua', 'SA', 'd'], ['Zequinha Raio', 'SA/PD', 'v'], ['Gavião', 'CA/SA', 'c'], ['Mosquito', 'SA/PD/PE', 'v d'], ['Pardal', 'SA/PD/PE', 'v'],
+  ];
+  // peças para nomes montados na hora
+  const DIMIN = ['Nelsinho', 'Toninho', 'Zequinha', 'Marquinhos', 'Jorginho', 'Betinho', 'Dedé', 'Tiãozinho', 'Juninho', 'Paulinho', 'Edinho', 'Carlinhos', 'Vanderlei', 'Zé', 'Chico', 'Naldo', 'Neto', 'Tadeu', 'Cléber', 'Gilmar', 'Marcão', 'Binho', 'Lelo', 'Pedrinho', 'Aldair', 'Rominho', 'Cacá', 'Mazinho', 'Nando', 'Dudu', 'Toninho', 'Fabinho', 'Ivanildo', 'Gersinho', 'Edivaldo', 'Rivaldo', 'Léo', 'Wando', 'Cleiton'];
+  const APELIDOS = ['Farinha', 'Batata', 'Foguete', 'Pimpim', 'Minhoca', 'Carrapeta', 'Sucuri', 'Bocão', 'Pardal', 'Biloca', 'Testinha', 'Camarão', 'Cachorrão', 'Taxista', 'Belezinha', 'Bigode', 'Barba', 'Bombado', 'Gigante', 'Cabeção',
+    'Tatu', 'Peixe', 'Sapo', 'Pantera', 'Tamanduá', 'Gavião', 'Mosquito', 'Trovão', 'Torpedo', 'Carcará', 'Lagartixa', 'Gazela', 'Bicicleta', 'Canhão', 'Muralha', 'Pedreira', 'Bicudo', 'Tijolo', 'Vaqueiro', 'Pescador',
+    'Maluco', 'Sorriso', 'Sanfona', 'Mala', 'Cuca', 'Raio', 'Cobra', 'Jacaré', 'Macaco', 'Tigre', 'Leão', 'Urso', 'Pinguim', 'Tapioca', 'Cuscuz', 'Pamonha', 'Rapadura', 'Pão de Queijo', 'Cajuína', 'Mandioca', 'Fubá', 'Jabuticaba',
+    'Pitu', 'Piaba', 'Traíra', 'Tucunaré', 'Pirarucu', 'Baleia', 'Dragão', 'Guerreiro', 'Xerife', 'Capitão', 'Comandante', 'Professor', 'Doutor', 'Careca', 'Gordo', 'Magrelo', 'Churrasco', 'Cabeleira', 'Ligeirinho', 'Furacão', 'Bala', 'Pimenta'];
+  const LUGARES = ['Paraíba', 'Paraná', 'Canindé', 'Petrolina', 'Formosa', 'Uberaba', 'Maranhão', 'Cearense', 'Goiano', 'Baiano', 'Pernambucano', 'Mineiro', 'Gaúcho', 'Potiguar', 'Capixaba', 'Catarinense', 'Sergipano', 'Alagoano', 'Mossoró', 'Caruaru',
+    'Crato', 'Juazeiro', 'Itabuna', 'Ilhéus', 'Caicó', 'Ourinhos', 'Bauru', 'Marília', 'Franca', 'Garanhuns', 'Sobral', 'Palmas', 'Pará', 'Piauí', 'Tocantins', 'Acreano', 'Mato Grosso', 'Sertão', 'Recife', 'Natal', 'Vitória', 'Campina', 'Bagé', 'Pelotas',
+    'Londrina', 'Cascavel', 'Anápolis', 'Itumbiara', 'Dourados', 'Corumbá', 'Macapá', 'Parintins', 'Teresina', 'Feira', 'Mococa', 'Americana', 'Jaú', 'Colatina', 'Linhares', 'Campos', 'Macaé', 'Friburgo', 'do Interior', 'da Roça', 'do Vale', 'da Serra'];
+  const SOBRE_IMIGR = ['Schwenck', 'Gralak', 'Finazzi', 'Zanella', 'Kowalski', 'Brandt', 'Tomasi', 'Sbardelotto', 'Ferrazzo', 'Lazzarotto', 'Zoboli', 'Nakamura', 'Fujita', 'Haddad', 'Salomão', 'Mourão', 'Schneider', 'Weber', 'Hoffmann', 'Kunz',
+    'Zimmermann', 'Pereira Lemos', 'Bortolotto', 'Dallagnol', 'Piovesan', 'Zambelli', 'Marchetti', 'Bonfim', 'Pagliarini', 'Cattani', 'Pinheiro', 'Rossetto', 'Moraes', 'Bernardi', 'Ortolan', 'Szymanski', 'Wagner', 'Stefanello', 'Orlandini', 'Sanchez', 'Yamamoto', 'Takahashi', 'Karam', 'Nassif'];
+  const NOME_SO = ['Zequinha', 'Tonhão', 'Magrão', 'Gaúcho', 'Neguinho', 'Pelezinho', 'Dedé', 'Xuxa', 'Biro', 'Baianinho', 'Cabeça', 'Rato', 'Pitbull', 'Tuta', 'Jajá', 'Naninho', 'Lica', 'Bil', 'Tuco', 'Zizo', 'Mimi', 'Peu', 'Cacau', 'Dida', 'Fininho', 'Gordinho', 'Paraíba', 'Mineirinho', 'Catarina', 'Neco', 'Tico', 'Bochecha', 'Rapadura', 'Jegue', 'Cupim', 'Beiço', 'Pinduca', 'Teco', 'Bibi'];
+  const DICAS = { v: ['RIT', 10], f: ['FIS', 10], d: ['DRI', 10], c: ['CHU', 9], p: ['PAS', 9], x: ['DEF', 10] };
+  const curadosUsados = new Set();
+  let nomeSeed = 1, nomeN = 0;
+  const resetNomes = (seed) => { usadosGlobal = new Set(); curadosUsados.clear(); nomeSeed = (seed >>> 0) || 1; nomeN = 0; };
+  // devolve { nome, dicas } ou null (mantém o nome clássico já sorteado)
+  function sortearNomeVariado(pos, usados) {
+    const r = bf.RNG.create((nomeSeed ^ Math.imul(++nomeN, 0x9e3779b1)) >>> 0), livre = (n) => !usados.has(n) && !curadosUsados.has(n);
+    if (r.chance(0.28)) {
+      const c = NOMES_CURADOS.filter((e) => livre(e[0]) && (e[1] === POS_ANY || e[1].split('/').includes(pos)));
+      if (c.length) { const e = r.pick(c); curadosUsados.add(e[0]); usados.add(e[0]); return { nome: e[0], dicas: e[2] }; }
+    }
+    const t = r.next();
+    for (let k = 0; k < 20; k++) {
+      let n;
+      if (t < 0.12) return null;                                                                 // continua nome + sobrenome clássico
+      else if (t < 0.45) n = r.pick(DIMIN) + ' ' + r.pick(APELIDOS);                            // Nelsinho Farinha
+      else if (t < 0.72) n = r.pick(NOMES) + ' ' + r.pick(LUGARES);                             // Diones Paraíba
+      else if (t < 0.84) n = r.pick(NOME_SO);                                                   // Tuto
+      else n = r.pick(NOMES) + ' ' + r.pick(SOBRE_IMIGR);                                        // Marcos Zanella
+      if (livre(n)) { usados.add(n); return { nome: n, dicas: '' }; }
+    }
+    return null;
+  }
+  function aplicarDicas(p, alvo, dicas) {
+    if (!dicas) return;
+    let mudou = false;
+    for (const d of dicas.split(' ')) {
+      if (DICAS[d]) { p.attr[DICAS[d][0]] = clamp(p.attr[DICAS[d][0]] + DICAS[d][1], 5, 97); mudou = true; }
+      else if (d === 'b') { p.cobr = clamp(Math.max(p.cobr, 78 + (p.id.length % 5)), 5, 97); p.attr.CHU = clamp(p.attr.CHU + 4, 5, 97); p.attr.PAS = clamp(p.attr.PAS + 4, 5, 97); mudou = true; }
+      else if (d === 'e') p.pe = 'E';
+      else if (d.startsWith('T:')) { p.trait = d.slice(2); p.fixoTrait = true; }
+      else if (d.startsWith('D:')) p.disciplina = +d.slice(2);
+      else if (d.startsWith('N:')) p.nac = d.slice(2);
+    }
+    if (mudou) { const diff = alvo - overall(p); ATTRS.forEach((a) => { p.attr[a] = clamp(Math.round(p.attr[a] + diff), 5, 97); }); }
+  }
+  function gerarJogador(rng, pos, alvo, idade, usados = usadosGlobal, nac = 'BRA', variado = false) {
     const attr = {};
     ATTRS.forEach((a, i) => { attr[a] = clamp(Math.round(alvo + PERFIL[pos][i] + rng.gauss() * 5.5), 5, 97); });
     // especialidades fora do padrão da posição: o zagueiro driblador, o atacante que desarma, o goleiro que chuta bem
@@ -1234,6 +1318,9 @@ window.ESCUDOS_REAIS = {};
     ATTRS.forEach((a) => { p.attr[a] = clamp(Math.round(p.attr[a] + diff), 5, 97); });
     p.alt = sortearAlt(rng, p);
     p.trait = rng.chance(0.04) ? sortearTrait(rng, p, true) : null;
+    if (variado && nac === 'BRA') {   // v44: nome mais variado (sorteio à parte, sem mexer na sequência do sorteio principal)
+      const v = sortearNomeVariado(pos, usados); if (v) { p.nome = v.nome; aplicarDicas(p, alvo, v.dicas); }
+    }
     return p;
   }
 
@@ -1320,7 +1407,7 @@ window.ESCUDOS_REAIS = {};
       const titular = v.tit ? 3 + rng.next() * 5 : -(2 + rng.next() * 6);
       const idade = clamp(Math.round(26 + rng.gauss() * 4.2), 17, 37);
       const bonusIdade = idade <= 20 ? -3 : 0; // garotos ainda verdes
-      const alvo = base + titular + bonusIdade, p = gerarJogador(rng, v.pos, alvo, idade, usados, sortearNac(rng, clube.div));
+      const alvo = base + titular + bonusIdade, p = gerarJogador(rng, v.pos, alvo, idade, usados, sortearNac(rng, clube.div), clube.div === 'D');
       if (v.pos !== 'GOL' && Object.keys(tilt).length) {   // o jeito dos jogadores do perfil, sem mudar a média
         const o0 = overall(p); ATTRS.forEach((a) => { p.attr[a] = clamp(p.attr[a] + (tilt[a] || 0), 5, 97); });
         const d = o0 - overall(p); ATTRS.forEach((a) => { p.attr[a] = clamp(Math.round(p.attr[a] + d), 5, 97); });
@@ -1337,7 +1424,7 @@ window.ESCUDOS_REAIS = {};
       ATTRS.forEach((a) => { p.attr[a] = clamp(p.attr[a] + 8, 5, 97); });
       p.idade = clamp(p.idade, 24, 31); p.estrela = true; p.moral = Math.min(100, p.moral + 6);
     }
-    el.forEach((p) => { p.trait = null; }); ajustarTraits(rng, el, rng.int(2, 4));   // 2 a 4 jogadores com trait por time
+    el.forEach((p) => { p.trait = p.fixoTrait ? p.trait : null; }); ajustarTraits(rng, el, rng.int(2, 4));   // 2 a 4 jogadores com trait por time
     return el;
   }
 
@@ -2741,7 +2828,7 @@ window.ESCUDOS_REAIS = {};
   }
   // opts: { seed, humanos:[{id,nome,clubId}], config:{maxSubs} }
   function novo(opts) {
-    PL().resetNomes();
+    PL().resetNomes(opts.seed);
     const rng = bf.RNG.create(opts.seed);
     // v42: os técnicos são definidos antes dos elencos, porque cada estilo de técnico monta o elenco do seu jeito (perfil de elenco)
     const humIds0 = new Set(opts.humanos.map((h) => h.clubId));
@@ -3675,7 +3762,7 @@ window.ESCUDOS_REAIS = {};
   const POS_BASE = ['GOL', 'ZAG', 'ZAG', 'LD', 'LE', 'VOL', 'MC', 'MC', 'MEI', 'PD', 'PE', 'CA', 'CA', 'SA'];
   // c: clube que revela o garoto (a base de um clube grande revela garotos de maior potencial); sem clube, o potencial é de mercado
   function novoDaBase(g, pos, c) {
-    const rng = g.rng, p = PL().gerarJogador(rng, pos || POS_BASE[rng.int(0, POS_BASE.length - 1)], rng.int(20, 30), rng.int(15, 19), undefined, 'BRA');
+    const rng = g.rng, p = PL().gerarJogador(rng, pos || POS_BASE[rng.int(0, POS_BASE.length - 1)], rng.int(20, 30), rng.int(15, 19), undefined, 'BRA', true);
     p.pot = clamp(Math.round(c ? PL().nivelSerie(c.div, c.prestigio) + 3 + Math.min(3, (c.investimento || 0) / 4e6) + rng.gauss() * 7 : 55 + rng.gauss() * 12), 35, 90);   // potencial escondido: até onde o garoto cresce (por volta dos 22 anos)
     p.base = true; p.baseAno = true; p.baseDesde = g.ano; p.estrela = false; p.promTr = 0;
     p.trait = rng.chance(0.3) ? 'promessa' : rng.chance(0.1) ? PL().sortearTrait(rng, p, true) : null;
@@ -3788,7 +3875,7 @@ window.ESCUDOS_REAIS = {};
     g.livres = g.livres.filter((p) => p.idade < 36); limitarLivres(g);
     while (g.livres.filter((p) => !p.base).length < ate) {
       const pos = need[g.rng.int(0, need.length - 1)], nivel = g.rng.int(36, 56), idade = g.rng.int(21, 34);
-      const p = PL().gerarJogador(g.rng, pos, nivel, idade, undefined, 'BRA'); p.contratoAte = g.data; p.salario = E().salarioBase(p); p.avisos = 0; p.stamina = 100; p.moral = 65; g.livres.push(p);
+      const p = PL().gerarJogador(g.rng, pos, nivel, idade, undefined, 'BRA', true); p.contratoAte = g.data; p.salario = E().salarioBase(p); p.avisos = 0; p.stamina = 100; p.moral = 65; g.livres.push(p);
     }
   }
 
@@ -3853,7 +3940,7 @@ window.ESCUDOS_REAIS = {};
     const need = ['GOL', 'ZAG', 'LD', 'LE', 'VOL', 'MC', 'MEI', 'PD', 'PE', 'CA', 'SA'];
     for (let i = 0; i < n; i++) {
       const pos = need.slice().sort((a, b) => have(a) - have(b))[0];
-      const p = PL().gerarJogador(g.rng, pos, PL().nivelSerie(c.div, c.prestigio) - 5 + Math.min(3, (c.investimento || 0) / 4e6), g.rng.int(17, 19), undefined, 'BRA');
+      const p = PL().gerarJogador(g.rng, pos, PL().nivelSerie(c.div, c.prestigio) - 5 + Math.min(3, (c.investimento || 0) / 4e6), g.rng.int(17, 19), undefined, 'BRA', c.div === 'D');
       p.contratoAte = GM().addMeses(g.data, g.rng.int(12, 18)); p.salario = E().salarioBase(p); p.num = numeroLivre(c); p.stamina = 100; p.moral = 70;
       c.elenco.push(p);
     }
@@ -4174,6 +4261,7 @@ window.ESCUDOS_REAIS = {};
   const H = (cs) => cs.map(([c, y, hgt]) => '<rect x="0" y="' + y + '" width="24" height="' + hgt + '" fill="' + c + '"/>').join('');
   const V = (cs) => cs.map(([c, x, w]) => '<rect y="0" x="' + x + '" width="' + w + '" height="16" fill="' + c + '"/>').join('');
   const FLAGS = {
+    MOZ: F(H([['#007168', 0, 5.3], ['#000', 5.3, 5.4], ['#fce100', 10.7, 5.3]]) + '<path d="M0 0 9 8 0 16z" fill="#d21034"/>'),
     BRA: F('<rect width="24" height="16" fill="#009c3b"/><path d="M12 2.2 21.4 8 12 13.8 2.6 8z" fill="#ffdf00"/><circle cx="12" cy="8" r="3.4" fill="#002776"/>'),
     ARG: F(H([['#74acdf', 0, 5.4], ['#fff', 5.4, 5.3], ['#74acdf', 10.7, 5.3]]) + '<circle cx="12" cy="8" r="1.5" fill="#f6b40e"/>'),
     URU: F(H([['#fff', 0, 16]]) + [1, 3, 5].map((i) => '<rect y="' + (i * 1.78 - 0.9) + '" width="24" height="1.8" fill="#0038a8"/>').join('') + [7, 9].map((i) => '<rect y="' + (i * 1.78 - 0.9) + '" width="24" height="1.8" fill="#0038a8"/>').join('') + '<rect width="9" height="8.9" fill="#fff"/><circle cx="4.5" cy="4.4" r="2" fill="#fcd116"/>'),

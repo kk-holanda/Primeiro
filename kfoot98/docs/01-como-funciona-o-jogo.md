@@ -1,4 +1,4 @@
-# Kfoot 98: documentação do jogo (versão 43)
+# Kfoot 98: documentação do jogo (versão 44)
 
 Documento vivo: cresce junto com a implementação. Cada rodada de melhorias atualiza as seções que mudaram. Valores vêm do código da branch `claude/melhorias-5-xt6u1f` (pasta `kfoot98`). Quando algo ainda não está documentado, a seção diz "a detalhar".
 
@@ -457,3 +457,7 @@ Testes e números no relatório 26 (`relatorios-kfoot/26-v42-evolucao-dinamica-p
 - Em cada grupo, de 1 a 2 opções; o "Não sei" não pode ser marcado junto com as outras (marcá-lo desmarca as demais; marcar outra desmarca o "Não sei"). Uma 3ª escolha mostra o aviso para desmarcar uma. O botão só libera com pelo menos 1 escolha em cada grupo. Com 2 ou mais técnicos humanos, a tela aparece para cada um, em sequência.
 - **Elenco do humano:** montado como os do computador, pelo perfil escolhido (seção 18). Posições: média dos perfis dos estilos de técnico escolhidos, arredondada para 24 jogadores e 14 titulares. Jeito dos jogadores: o dos estilos de técnico somado aos atributos que os estilos de jogo pedem (até ±4 por atributo), sem mudar a média. O nível do elenco não muda (média dos 11 ~47 em qualquer escolha). O mundo é gerado de novo com a mesma semente na confirmação.
 - A tela do clube (antes de ver o plantel) mostra "Seu estilo".
+
+## 20. Nomes variados (v44)
+
+Só Série D, livres e base (brasileiros). 28% dos jogadores recebem um nome da lista curada (as listas do KK mais sugestões, com posição, jeito e característica; ver `nomes-serie-d-livres-base.md`); os outros vêm de apelidos, nome + cidade, nome só ou sobrenome de imigrante, ou ficam com nome + sobrenome. Séries A, B e C não mudaram. O sorteio dos nomes usa uma sequência à parte, então o resto do mundo gerado é igual ao da v43. Nova nacionalidade: Moçambique (Chiquinho Conde).
