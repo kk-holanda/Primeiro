@@ -1,4 +1,4 @@
-# Kfoot 98: documentação do jogo (versão 42)
+# Kfoot 98: documentação do jogo (versão 43)
 
 Documento vivo: cresce junto com a implementação. Cada rodada de melhorias atualiza as seções que mudaram. Valores vêm do código da branch `claude/melhorias-5-xt6u1f` (pasta `kfoot98`). Quando algo ainda não está documentado, a seção diz "a detalhar".
 
@@ -448,3 +448,12 @@ Testes e números no relatório 26 (`relatorios-kfoot/26-v42-evolucao-dinamica-p
 - **Estilos.** Saída curta perde a bola com metade da chance (e menos ainda no campo de defesa). Retranca: defesa +1,5%, +1,2% por defensor acima de 4 e um bônus quando os defensores são melhores em defesa e físico que o resto do time. Gegenpressing: controle e defesa +2,5% e um bônus de controle, defesa e ataque quando o time tem ritmo, marcação e físico acima da própria média.
 - **Tela do jogo.** O campinho animado saiu. Os lances ficam abaixo da barra de posse, numa caixa de 5 linhas com rolagem. As estatísticas continuam.
 - **Bônus da Paula Oliver (correção).** Os 3 treinos instantâneos são escolhidos uma única vez: depois de "Treinar agora" as escolhas travam, o botão some e o bônus não volta na mesma temporada.
+
+## 19. Boas-vindas do técnico humano (v43)
+
+- Depois do sorteio, ao apertar **Continuar**, aparece a tela de boas-vindas: "Seja bem-vindo, [nome]! O [clube] está muito feliz por ter você como técnico e quer conhecer você melhor."
+- **1. Estilo de técnico:** os 7 estilos dos técnicos do computador (Equilibrado, Futebol arte, Domínio de bola, Ofensivista, Retranqueiro, Camaleão, Imprevisível) e "Não sei, ainda quero desenvolver meu estilo de técnico" (neutro, igual ao Equilibrado).
+- **2. Estilo de jogo:** os 10 estilos de jogo, cada um com um campinho (formação típica, setas e marcações do estilo) e a explicação, e "Não sei, ainda quero desenvolver meu estilo de jogo" (neutro).
+- Em cada grupo, de 1 a 2 opções; o "Não sei" não pode ser marcado junto com as outras (marcá-lo desmarca as demais; marcar outra desmarca o "Não sei"). Uma 3ª escolha mostra o aviso para desmarcar uma. O botão só libera com pelo menos 1 escolha em cada grupo. Com 2 ou mais técnicos humanos, a tela aparece para cada um, em sequência.
+- **Elenco do humano:** montado como os do computador, pelo perfil escolhido (seção 18). Posições: média dos perfis dos estilos de técnico escolhidos, arredondada para 24 jogadores e 14 titulares. Jeito dos jogadores: o dos estilos de técnico somado aos atributos que os estilos de jogo pedem (até ±4 por atributo), sem mudar a média. O nível do elenco não muda (média dos 11 ~47 em qualquer escolha). O mundo é gerado de novo com a mesma semente na confirmação.
+- A tela do clube (antes de ver o plantel) mostra "Seu estilo".

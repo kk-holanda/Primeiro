@@ -817,6 +817,19 @@ td.evo { white-space: nowrap; font-variant-numeric: tabular-nums; }
 .evo-svg.mini .linha { stroke-width: 1.6; } .evo-mini { margin: 6px 0; } .evo-log { list-style: none; margin: 4px 0 0; padding: 0; font-size: 12px; } .evo-log li { margin: 2px 0; }
 /* v42: os campos de formulário (label.campo) herdavam o fundo e a proporção do campinho da escalação (.campo) */
 label.campo { aspect-ratio: auto !important; max-height: none !important; background: none !important; color: inherit !important; border: 0 !important; width: auto; }
+/* v43: boas-vindas do técnico */
+.boas .bv-clube { display: flex; gap: 12px; align-items: center; margin-top: 6px; }
+.boas .bv-clube svg, .boas .bv-clube .escudo { width: 48px; height: 48px; flex: none; }
+.boas .bv-sec { margin-top: 14px; }
+.boas .bv-sec h3 { margin: 0 0 4px; }
+.boas .bv-cont { display: inline-block; margin-left: 6px; font-weight: 700; color: #2d6a4f; }
+.boas .bv-grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); margin-top: 8px; }
+.boas .bv-op { display: flex; flex-direction: column; gap: 4px; text-align: left; padding: 10px 12px; border: 2px solid #cfdccf; border-radius: 10px; background: #fff; color: inherit; cursor: pointer; font: inherit; }
+.boas .bv-op:hover { border-color: #7fb08a; }
+.boas .bv-op.on { border-color: #2d6a4f; background: #eaf5ec; box-shadow: 0 0 0 2px #2d6a4f33; }
+.boas .bv-op.naosei { border-style: dashed; }
+.boas .bv-op > span { font-size: 13px; color: #4a5a4a; line-height: 1.35; }
+.boas .bv-op .minicampo { width: 100%; max-width: 200px; height: 200px; margin: 0 auto 4px; }
 
 .sublinha[data-tip], tr[data-tip] { text-decoration: none; }
 .dis-wrap { display: inline-flex; }
@@ -1242,12 +1255,41 @@ window.ESCUDOS_REAIS = {};
     imprevisivel: { pos: null, tilt: null },
   };
   // lista das 24 posições do elenco (com quem é titular) do perfil; o Imprevisível parte do equilibrado e troca 4 vagas de posição por sorteio
+  // v43: perfil misto do técnico humano: média das posições dos estilos de técnico escolhidos (24 jogadores, 14 titulares)
+  // e o "jeito" dos jogadores somando o dos estilos de técnico e o dos estilos de jogo (atributos que o estilo de jogo pede)
+  function perfilMisto(tecs, fits) {
+    tecs = (tecs || []).filter((k) => PERFIL_ELENCO[k]); if (!tecs.length) tecs = ['equilibrado'];
+    const cnt = {}, tit = {};
+    for (const k of tecs) for (const [pos, n, t] of (PERFIL_ELENCO[k].pos || PERFIL_ELENCO.equilibrado.pos)) { cnt[pos] = (cnt[pos] || 0) + n / tecs.length; tit[pos] = (tit[pos] || 0) + t / tecs.length; }
+    const arred = (obj, total) => {   // arredonda mantendo o total (maiores restos)
+      const r = Object.fromEntries(Object.entries(obj).map(([k, v]) => [k, Math.floor(v)])); let falta = total - Object.values(r).reduce((a, b) => a + b, 0);
+      Object.keys(obj).sort((a, b) => (obj[b] - Math.floor(obj[b])) - (obj[a] - Math.floor(obj[a]))).forEach((k) => { if (falta > 0) { r[k]++; falta--; } });
+      return r;
+    };
+    const n = arred(cnt, 24); let t = arred(tit, 14);
+    Object.keys(t).forEach((k) => { if (t[k] > n[k]) t[k] = n[k]; }); t.GOL = 1;
+    let sobra = 14 - Object.values(t).reduce((a, b) => a + b, 0);
+    for (const k of Object.keys(n).sort((a, b) => (n[b] - t[b]) - (n[a] - t[a]))) { while (sobra > 0 && t[k] < n[k] && k !== 'GOL') { t[k]++; sobra--; } }
+    for (const k of Object.keys(t)) { while (sobra < 0 && t[k] > 1 && k !== 'GOL') { t[k]--; sobra++; } }
+    const pos = Object.keys(n).filter((k) => n[k] > 0).map((k) => [k, n[k], t[k] || 0]);
+    const tilt = {};
+    tecs.forEach((k) => Object.entries(PERFIL_ELENCO[k].tilt || {}).forEach(([a, v]) => { tilt[a] = (tilt[a] || 0) + v / tecs.length; }));
+    if (fits && fits.length) {
+      const w = {}; fits.forEach((f) => f.forEach(([, at, , pw]) => at.forEach((a) => { w[a] = (w[a] || 0) + pw / at.length / fits.length; })));
+      const mx = Math.max(...ATTRS.map((a) => w[a] || 0)), md = ATTRS.reduce((s, a) => s + (w[a] || 0), 0) / ATTRS.length;
+      if (mx > 0) ATTRS.forEach((a) => { tilt[a] = (tilt[a] || 0) + 3 * ((w[a] || 0) - md) / (mx - md || 1); });
+    }
+    ATTRS.forEach((a) => { if (tilt[a] != null) tilt[a] = clamp(Math.round(tilt[a]), -4, 4); });
+    return { pos, tilt, alt: tecs.includes('camaleao') ? 8 / tecs.length : 0, imp: tecs.includes('imprevisivel') ? (tecs.length > 1 ? 2 : 4) : 0, misto: true };
+  }
   function vagasDoPerfil(rng, perfil) {
-    const pe = PERFIL_ELENCO[perfil] || PERFIL_ELENCO.equilibrado, out = [];
+    const obj = perfil && typeof perfil === 'object' ? perfil : null;
+    const pe = obj || PERFIL_ELENCO[perfil] || PERFIL_ELENCO.equilibrado, out = [];
     for (const [pos, n, t] of (pe.pos || PERFIL_ELENCO.equilibrado.pos)) for (let i = 0; i < n; i++) out.push({ pos, tit: i < t });
-    if (perfil === 'imprevisivel') {
+    if (obj ? obj.imp : perfil === 'imprevisivel') {
       const POS = ['ZAG', 'LIB', 'LD', 'LE', 'VOL', 'MC', 'MEI', 'ALA', 'PD', 'PE', 'CA', 'SA'];
-      for (let k = 0; k < 4; k++) { const v = out.filter((x) => !x.tit && x.pos !== 'GOL'); const x = v[rng.int(0, v.length - 1)]; if (x) x.pos = POS[rng.int(0, POS.length - 1)]; }
+      const nucleo = new Set(['ZAG', 'LD', 'LE', 'VOL', 'CA']), reservas = (pos) => out.filter((y) => y.pos === pos && !y.tit).length;   // v43: não tira o último reserva das posições básicas
+      for (let k = 0; k < (obj ? obj.imp : 4); k++) { const v = out.filter((x) => !x.tit && x.pos !== 'GOL' && !(nucleo.has(x.pos) && reservas(x.pos) <= 1)); const x = v[rng.int(0, v.length - 1)]; if (x) x.pos = POS[rng.int(0, POS.length - 1)]; }
     }
     return out;
   }
@@ -1270,7 +1312,10 @@ window.ESCUDOS_REAIS = {};
       if (clube.fatorForca) base += clube.fatorForca;
     }
     // elenco "pirâmide": em cada posição, os titulares são melhores que os reservas (v42: antes os 14 primeiros da lista eram goleiros e defensores)
-    const pe = PERFIL_ELENCO[clube.perfilElenco] || PERFIL_ELENCO.equilibrado, tilt = pe.tilt || (clube.perfilElenco === 'imprevisivel' ? Object.fromEntries(ATTRS.map((a) => [a, rng.int(-2, 2)])) : {});
+    const obj = clube.perfilElenco && typeof clube.perfilElenco === 'object' ? clube.perfilElenco : null;
+    const pe = obj || PERFIL_ELENCO[clube.perfilElenco] || PERFIL_ELENCO.equilibrado;
+    let tilt = pe.tilt || (clube.perfilElenco === 'imprevisivel' ? Object.fromEntries(ATTRS.map((a) => [a, rng.int(-2, 2)])) : {});
+    if (obj && obj.imp) tilt = Object.fromEntries(ATTRS.map((a) => [a, (tilt[a] || 0) + rng.int(-1, 1)]));
     return vagasDoPerfil(rng, clube.perfilElenco).map((v) => {
       const titular = v.tit ? 3 + rng.next() * 5 : -(2 + rng.next() * 6);
       const idade = clamp(Math.round(26 + rng.gauss() * 4.2), 17, 37);
@@ -1300,7 +1345,7 @@ window.ESCUDOS_REAIS = {};
   const fatorRecup = (i) => clamp(1 - (i - 27) * 0.02, 0.75, 1.08);    // veterano recupera mais devagar
   const fatorLesao = (i) => clamp(1 - (i - 27) * 0.025, 0.7, 1);       // veterano demora mais para se curar de lesão
   const cobrDe = (p) => (p.cobr != null ? p.cobr : (p.attr.CHU + p.attr.PAS) / 2);
-  bf.Players = { TRAITS, sortearTrait, ajustarTraits, cobrDe, fatorGasto, fatorRecup, fatorLesao, ATTRS, PESOS, GRUPO, DISCIPLINAS, DISC_FALTA, DISC_CARTAO, afinidade, afinP, SEC, sortearAlt, overall, overallEm, ovrNoSlot, gerarElenco: gerarElencoComEstrelas, gerarJogador, FAIXA_PREST, NIVEL_SERIE, posFaixa, nivelSerie, PERFIL_ELENCO, vagasDoPerfil, resetNomes, NAC_NOME, nomeTecnico, perfilFisico, nivelDoClube, clamp };
+  bf.Players = { TRAITS, sortearTrait, ajustarTraits, cobrDe, fatorGasto, fatorRecup, fatorLesao, ATTRS, PESOS, GRUPO, DISCIPLINAS, DISC_FALTA, DISC_CARTAO, afinidade, afinP, SEC, sortearAlt, overall, overallEm, ovrNoSlot, gerarElenco: gerarElencoComEstrelas, gerarJogador, FAIXA_PREST, NIVEL_SERIE, posFaixa, nivelSerie, PERFIL_ELENCO, vagasDoPerfil, perfilMisto, resetNomes, NAC_NOME, nomeTecnico, perfilFisico, nivelDoClube, clamp };
 })(typeof globalThis !== 'undefined' ? globalThis : this);
 
 ;
@@ -2724,9 +2769,10 @@ window.ESCUDOS_REAIS = {};
       c.nivelBase = PL().nivelSerie(c.div, c.prestigio) + rng.gauss() * 1.2;
       c.demanda = bf.Economy.demandaDe(c); c.caixa = bf.Economy.caixaInicial(c);
       const t = tecDe[c.id]; if (t && !humIds0.has(c.id)) { c.tecnico = t.nome; c.tecNac = t.nac || 'BRA'; c.tecPerfil = t.perfil; }
-      c.perfilElenco = humIds0.has(c.id) ? null : c.tecPerfil || null;
+      const hu0 = opts.humanos.find((x) => x.clubId === c.id), est = hu0 && hu0.estilo;
+      c.perfilElenco = hu0 ? (est ? PL().perfilMisto(est.tec, (est.jogo || []).map((k) => bf.Match.ESTILOS[k] && bf.Match.ESTILOS[k].fit).filter(Boolean)) : null) : c.tecPerfil || null;
       const cl = { ...c, estadio: { ...c.estadio }, patrocinadores: [], elenco: PL().gerarElenco(rng, c) };
-      delete cl.nivelBase;
+      delete cl.nivelBase; delete cl.perfilElenco; if (est) cl.estiloHumano = { tec: (est.tec || []).slice(), jogo: (est.jogo || []).slice() };
       numerar(cl.elenco); nomesReais(cl); return cl;
     });
     const E = bf.Economy, hoje = '1998-01-31';
@@ -6473,7 +6519,7 @@ window.ESCUDOS_REAIS = {};
   function ir(t) { G.tela = t; G.erro = ''; render(); window.scrollTo(0, 0); }
   function render() {
     if (K.jogoParar) K.jogoParar();
-    const f = { 1: tela1, 2: tela2, 3: tela3, 4: tela4, 5: casa, jogo: () => K.telas.jogo(), resumo: () => K.telas.resumo(), fim: () => K.telas.fim() }[G.tela];
+    const f = { 1: tela1, 2: tela2, 3: tela3, boas: telaBoas, 4: tela4, 5: casa, jogo: () => K.telas.jogo(), resumo: () => K.telas.resumo(), fim: () => K.telas.fim() }[G.tela];
     app.replaceChildren(topo(), f());
     if (G.g && G.g.avisos && G.g.avisos.length && G.tela !== 'jogo' && K.avisosDiretoria) K.avisosDiretoria();
   }
@@ -6559,7 +6605,7 @@ window.ESCUDOS_REAIS = {};
       h('div', { class: 'actions' }, h('button', { class: 'btn alt', disabled: G.sorteando, onclick: () => ir(2) }, 'Voltar'),
         h('button', { class: 'btn alt', id: 'som', 'aria-pressed': G.mudo ? 'false' : 'true', onclick: (e) => { G.mudo = !G.mudo; if (G.mudo) Som.parar(); else Som.preparar(); e.currentTarget.textContent = G.mudo ? 'Som: desligado' : 'Som: ligado'; e.currentTarget.setAttribute('aria-pressed', G.mudo ? 'false' : 'true'); } }, G.mudo ? 'Som: desligado' : 'Som: ligado'),
         G.sorteando ? h('button', { class: 'btn alt', id: 'pularbingo', onclick: () => { G.pularBingo = true; Som.parar(); } }, 'Pular animação') : null,
-        depois && !G.sorteando ? [h('button', { class: 'btn alt', id: 'sortearde', onclick: () => { G.humanos = []; G.g = null; render(); } }, 'Sortear de novo'), h('button', { class: 'btn hot', id: 'seguir3', onclick: () => ir(4) }, 'Continuar')]
+        depois && !G.sorteando ? [h('button', { class: 'btn alt', id: 'sortearde', onclick: () => { G.humanos = []; G.g = null; render(); } }, 'Sortear de novo'), h('button', { class: 'btn hot', id: 'seguir3', onclick: () => { G.bvI = 0; ir('boas'); } }, 'Continuar')]
           : !G.sorteando ? h('button', { class: 'btn', id: 'sortear', onclick: sortear }, n > 1 ? 'Sortear os clubes' : 'Sortear meu clube') : null));
   }
 
@@ -6796,6 +6842,52 @@ window.ESCUDOS_REAIS = {};
     G.sorteando = false; render();
   }
 
+  // ---------- v43: boas-vindas: o clube quer conhecer o técnico (estilo de técnico e estilo de jogo, de 1 a 2 cada) ----------
+  const NAOSEI = 'naosei';
+  const CAMPO_ESTILO = { posicao: '4-3-3', gegen: '4-3-3', reativo: '4-4-2', direto: '4-4-2', relac: '4-2-3-1', retranca: '5-4-1', linhaalta: '4-4-2', corredores: '4-4-2', vertical: '4-2-3-1', saida: '4-3-3' };
+  K.estiloTecNome = (k) => (k === NAOSEI ? 'Ainda desenvolvendo' : (BF.Mercado.TEC_PERFIS[k] || {}).nome || k);
+  K.estiloHumanoTxt = (e) => (!e ? '' : 'Técnico: ' + e.tec.map(K.estiloTecNome).join(' + ') + ' · Jogo: ' + e.jogo.map((k) => (k === NAOSEI ? 'Ainda desenvolvendo' : K.estiloNome(k))).join(' + '));
+  function telaBoas() {
+    const i = G.bvI || 0, hu = G.humanos[i], c = BF.CLUBS.find((x) => x.id === hu.clubId);
+    const sel = (hu.estilo = hu.estilo || { tec: [], jogo: [] });
+    const msg = h('p', { class: 'err', id: 'bv-msg', role: 'alert' }, G.erro || '');
+    const marcar = (lista, k) => {
+      G.erro = '';
+      if (lista.includes(k)) lista.splice(lista.indexOf(k), 1);
+      else if (k === NAOSEI) lista.splice(0, lista.length, NAOSEI);
+      else { if (lista.includes(NAOSEI)) lista.splice(lista.indexOf(NAOSEI), 1); if (lista.length >= 2) G.erro = 'Você pode escolher no máximo 2 opções. Desmarque uma para trocar.'; else lista.push(k); }
+      render();
+    };
+    const opc = (lista, k, conteudo, id) => h('button', { type: 'button', class: 'bv-op' + (k === NAOSEI ? ' naosei' : '') + (lista.includes(k) ? ' on' : ''), id, 'aria-pressed': lista.includes(k) ? 'true' : 'false', onclick: () => marcar(lista, k) }, conteudo);
+    const TP = BF.Mercado.TEC_PERFIS, ES = BF.Match.ESTILOS;
+    const tecs = Object.keys(TP).map((k) => opc(sel.tec, k, [h('b', null, TP[k].nome), h('span', null, TP[k].desc)], 'bv-tec-' + k))
+      .concat(opc(sel.tec, NAOSEI, [h('b', null, 'Não sei, ainda quero desenvolver meu estilo de técnico'), h('span', null, 'Começa com um elenco equilibrado, sem puxar para nenhum lado.')], 'bv-tec-naosei'));
+    const jogos = Object.keys(ES).map((k) => opc(sel.jogo, k, [K.miniCampo(CAMPO_ESTILO[k] || '4-4-2', k), h('b', null, ES[k].nome), h('span', null, ES[k].uso)], 'bv-jogo-' + k))
+      .concat(opc(sel.jogo, NAOSEI, [h('b', null, 'Não sei, ainda quero desenvolver meu estilo de jogo'), h('span', null, 'Os jogadores vêm sem preferência de estilo.')], 'bv-jogo-naosei'));
+    const ok = sel.tec.length > 0 && sel.jogo.length > 0, ultimo = i >= G.humanos.length - 1;
+    const confirmar = () => {
+      if (!ok) { G.erro = 'Escolha pelo menos 1 estilo de técnico e 1 estilo de jogo.'; render(); return; }
+      G.erro = '';
+      if (!ultimo) { G.bvI = i + 1; render(); window.scrollTo(0, 0); return; }
+      // o mundo é gerado de novo com a mesma semente, agora com o elenco de cada humano montado pelo perfil escolhido
+      G.g = GM.novo({ seed: G.seed, humanos: G.humanos, config: G.config });
+      G.ativo = 0; G.prontos = new Set(); G.sel = null; G.selX = null; G.escSlot = null; G.aba = 'plantel';
+      ir(4);
+    };
+    const cont = (l) => h('small', { class: 'bv-cont' }, l.length ? (l.includes(NAOSEI) ? 'Ainda desenvolvendo' : l.length + ' de 2 escolhida' + (l.length > 1 ? 's' : '')) : 'nenhuma escolhida');
+    return h('main', { class: 'wrap page boas' },
+      h('div', { class: 'head' }, h('span', { class: 'eyebrow' }, G.humanos.length > 1 ? 'Técnico ' + (i + 1) + ' de ' + G.humanos.length : 'Bem-vindo'),
+        h('h2', null, 'Seja bem-vindo, ' + hu.nome + '!'),
+        h('div', { class: 'bv-clube' }, K.escudo(c), h('p', null, 'O ', h('b', null, c.nome), ' está muito feliz por ter você como técnico e quer conhecer você melhor. Conte qual é o seu jeito de comandar e de jogar: a diretoria vai montar o elenco de acordo com o seu perfil.'))),
+      h('section', { class: 'card bv-sec' }, h('h3', null, '1. Qual estilo de técnico combina mais com você?'), h('p', { class: 'muted' }, 'Você pode escolher de 1 a 2 opções. A opção "Não sei" não pode ser marcada junto com as outras. ', cont(sel.tec)),
+        h('div', { class: 'bv-grid tec' }, tecs)),
+      h('section', { class: 'card bv-sec' }, h('h3', null, '2. E o seu estilo de jogo?'), h('p', { class: 'muted' }, 'Você pode escolher de 1 a 2 opções. A opção "Não sei" não pode ser marcada junto com as outras. ', cont(sel.jogo)),
+        h('div', { class: 'bv-grid jogo' }, jogos)),
+      msg,
+      h('div', { class: 'actions' }, h('button', { class: 'btn alt', id: 'bv-voltar', onclick: () => { G.erro = ''; if (i > 0) { G.bvI = i - 1; render(); } else ir(3); } }, 'Voltar'),
+        h('button', { class: 'btn hot', id: 'bv-ok', disabled: !ok, onclick: confirmar }, ultimo ? 'Confirmar e montar o elenco' : 'Confirmar e ir para o próximo técnico')));
+  }
+
   // ---------- tela 4 ----------
   function tela4() {
     return h('main', { class: 'wrap page' },
@@ -6810,6 +6902,7 @@ window.ESCUDOS_REAIS = {};
             h('dt', null, 'Estádio'), h('dd', null, c.estadio.nome + ' · ' + nf.format(c.estadio.capacidade)),
             h('dt', null, 'Caixa'), h('dd', null, reais(c.caixa)), h('dt', null, 'Folha mensal'), h('dd', null, reais(folha)),
             h('dt', null, 'Elenco'), h('dd', null, c.elenco.length + ' jogadores'),
+            c.estiloHumano ? [h('dt', null, 'Seu estilo'), h('dd', null, K.estiloHumanoTxt(c.estiloHumano))] : null,
             pj ? [h('dt', null, 'Estreia'), h('dd', null, GM.fmtDataCurta(pj.data) + ' · ' + K.nomeClube(pj.adversario))] : null),
           h('p', { class: 'muted' }, 'Meta: fugir da lanterna e subir para a Série C.'));
       })),
