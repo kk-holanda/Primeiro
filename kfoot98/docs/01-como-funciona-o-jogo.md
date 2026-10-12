@@ -1,4 +1,4 @@
-# Kfoot 98: documentação do jogo (versão 44)
+# Kfoot 98: documentação do jogo (versão 45)
 
 Documento vivo: cresce junto com a implementação. Cada rodada de melhorias atualiza as seções que mudaram. Valores vêm do código da branch `claude/melhorias-5-xt6u1f` (pasta `kfoot98`). Quando algo ainda não está documentado, a seção diz "a detalhar".
 
@@ -461,3 +461,14 @@ Testes e números no relatório 26 (`relatorios-kfoot/26-v42-evolucao-dinamica-p
 ## 20. Nomes variados (v44)
 
 Só Série D, livres e base (brasileiros). 28% dos jogadores recebem um nome da lista curada (as listas do KK mais sugestões, com posição, jeito e característica; ver `nomes-serie-d-livres-base.md`); os outros vêm de apelidos, nome + cidade, nome só ou sobrenome de imigrante, ou ficam com nome + sobrenome. Séries A, B e C não mudaram. O sorteio dos nomes usa uma sequência à parte, então o resto do mundo gerado é igual ao da v43. Nova nacionalidade: Moçambique (Chiquinho Conde).
+
+## 21. Salvar e carregar jogo (v45)
+
+- **Onde fica:** botão **Salvar / carregar** no topo da tela do clube (entre uma rodada e outra, e na tela de fim de temporada). Na tela inicial aparecem **Continuar (clube)**, que abre o jogo salvo mais recente, e **Carregar jogo**.
+- **Espaços no navegador:** 5 espaços manuais (Jogo 1 a 5) e 1 **Automático**, que grava sozinho toda vez que o técnico volta para a tela do clube depois de uma rodada (e no fim da temporada). Cada espaço mostra clube, técnico, série, posição, temporada, data no jogo e quando foi salvo. Substituir, carregar por cima de um jogo aberto e apagar pedem um segundo clique de confirmação. Começar um jogo novo substitui só o Automático.
+- **Arquivo:** **Baixar arquivo do jogo** gera um `.json` (ex.: `kfoot98-colatina-1998-02-18.json`, cerca de 0,5 a 2 MB) e **Abrir arquivo salvo** abre esse arquivo em qualquer navegador ou aparelho. Dentro do Claude o download passa pela confirmação do próprio Claude.
+- **Onde os dados ficam:** no armazenamento do navegador (IndexedDB; se não houver, localStorage), comprimidos. Não são cookies. Somem se os dados do site forem apagados ou numa aba anônima, por isso o arquivo é o backup.
+- **O que é salvo:** o mundo inteiro (clubes, jogadores, tabelas, Copa, finanças, estádios, mercado, histórico, VIPs, notícias), os técnicos humanos (hot seat incluído, com quem já marcou "pronto") e o ponto exato do sorteio. Um jogo carregado continua exatamente como continuaria sem salvar: as mesmas decisões dão os mesmos resultados.
+- **Não dá para salvar** no meio de uma partida; salva-se antes ou depois dela.
+- **Versões:** o arquivo guarda a versão do jogo. Um save de versão anterior abre com um aviso de que regras novas só valem dali em diante.
+

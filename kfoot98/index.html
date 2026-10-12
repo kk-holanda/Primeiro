@@ -831,6 +831,22 @@ label.campo { aspect-ratio: auto !important; max-height: none !important; backgr
 .boas .bv-op > span { font-size: 13px; color: #4a5a4a; line-height: 1.35; }
 .boas .bv-op .minicampo { width: 100%; max-width: 200px; height: 200px; margin: 0 auto 4px; }
 
+/* v45: jogos salvos */
+.top .sv-topo { margin-left: auto; }
+.sv .sv-lista { list-style: none; margin: 8px 0; padding: 0; display: grid; gap: 8px; }
+.sv .sv-slot { display: flex; gap: 8px 14px; align-items: center; justify-content: space-between; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+.sv .sv-slot.auto { border-style: dashed; }
+.sv .sv-info { display: grid; gap: 3px; min-width: 0; flex: 1; }
+.sv .sv-slot.vazio .sv-meta { opacity: .7; }
+.sv .sv-meta { display: grid; gap: 2px; }
+.sv .sv-clubes { display: flex; flex-wrap: wrap; gap: 4px 12px; }
+.sv .sv-clube { display: inline-flex; align-items: center; gap: 6px; }
+.sv .sv-clube svg, .sv .sv-clube img { width: 20px; height: 20px; }
+.sv .sv-botoes { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; flex: none; }
+.sv .sv-arq { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.sv .sv-msg { margin-top: 10px; font-weight: 600; }
+@media (max-width: 640px) { .sv .sv-slot { flex-direction: column; align-items: stretch; } .sv .sv-botoes { justify-content: flex-start; } }
+
 .sublinha[data-tip], tr[data-tip] { text-decoration: none; }
 .dis-wrap { display: inline-flex; }
 .dis-wrap .btn:disabled { pointer-events: none; }
@@ -852,6 +868,7 @@ label.campo { aspect-ratio: auto !important; max-height: none !important; backgr
     };
     return {
       next,
+      estado: () => a, definir: (v) => { a = v >>> 0; },   // v45: salvar/carregar
       int: (lo, hi) => lo + Math.floor(next() * (hi - lo + 1)),
       gauss: () => { let s = 0; for (let i = 0; i < 6; i++) s += next(); return (s - 3) / 0.7071; },
       pick: (arr) => arr[Math.floor(next() * arr.length)],
@@ -866,6 +883,98 @@ label.campo { aspect-ratio: auto !important; max-height: none !important; backgr
     };
   }
   (root.BF98 = root.BF98 || {}).RNG = { create };
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+
+;
+// v45: salvar e carregar. Converte o estado do jogo em texto (JSON) e volta, sem perder Maps, Sets, o gerador aleatório
+// nem objetos que aparecem em mais de um lugar (o mesmo clube em g.clubes e em g.porId, por exemplo).
+// Um jogo carregado continua exatamente como continuaria se não tivesse sido salvo (mesmos sorteios dali em diante).
+(function (root) {
+  const bf = (root.BF98 = root.BF98 || {});
+  bf.VERSAO = 'v45';
+  const FORMATO = 1;
+  const TAGS = ['$M', '$S', '$R', '$i', '$r', '$N', '$O', '$U', '$D'];
+  const ehRng = (x) => typeof x.next === 'function' && typeof x.estado === 'function';
+  const ehObj = (x) => x !== null && typeof x === 'object';
+
+  // 1ª passada: conta quantas vezes cada objeto aparece (os repetidos viram referência)
+  function contar(raiz) {
+    const n = new Map(), pilha = [raiz];
+    while (pilha.length) {
+      const x = pilha.pop();
+      if (!ehObj(x)) continue;
+      const k = n.get(x) || 0; n.set(x, k + 1); if (k || ehRng(x)) continue;
+      if (x instanceof Map) x.forEach((v, kk) => { pilha.push(v); pilha.push(kk); });
+      else if (x instanceof Set || Array.isArray(x)) x.forEach((v) => pilha.push(v));
+      else if (!(x instanceof Date)) for (const kk in x) if (Object.prototype.hasOwnProperty.call(x, kk)) pilha.push(x[kk]);
+    }
+    return n;
+  }
+
+  function serializar(raiz) {
+    const n = contar(raiz), ids = new Map();
+    let prox = 0;
+    const enc = (x, emLista) => {
+      if (x === undefined) return emLista ? { $U: 1 } : undefined;
+      if (typeof x === 'number') return Number.isFinite(x) ? x : { $N: String(x) };
+      if (typeof x === 'function' || typeof x === 'symbol') return emLista ? { $U: 1 } : undefined;
+      if (!ehObj(x)) return x;
+      if (ehRng(x)) return { $R: x.estado() };
+      if (x instanceof Date) return { $D: x.toISOString() };
+      if (ids.has(x)) return { $r: ids.get(x) };
+      let id = null; if (n.get(x) > 1) { id = prox++; ids.set(x, id); }
+      let v;
+      if (x instanceof Map) v = { $M: Array.from(x, ([k, y]) => [enc(k, true), enc(y, true)]) };
+      else if (x instanceof Set) v = { $S: Array.from(x, (y) => enc(y, true)) };
+      else if (Array.isArray(x)) v = x.map((y) => enc(y, true));
+      else {
+        const o = {}; let tag = false;
+        for (const k in x) { if (!Object.prototype.hasOwnProperty.call(x, k)) continue; const e = enc(x[k], false); if (e !== undefined) { o[k] = e; if (TAGS.includes(k)) tag = true; } }
+        v = tag ? { $O: o } : o;
+      }
+      return id === null ? v : { $i: id, $v: v };
+    };
+    return JSON.stringify({ fmt: FORMATO, d: enc(raiz, false) });
+  }
+
+  function desserializar(texto) {
+    const pac = typeof texto === 'string' ? JSON.parse(texto) : texto;
+    if (!pac || pac.fmt !== FORMATO) throw new Error('formato de save desconhecido');
+    const tab = [];
+    const casca = (v) => (Array.isArray(v) ? [] : v && v.$M ? new Map() : v && v.$S ? new Set() : {});
+    const encher = (alvo, v) => {
+      if (Array.isArray(v)) { v.forEach((y) => alvo.push(dec(y))); return alvo; }
+      if (v.$M) { v.$M.forEach(([k, y]) => alvo.set(dec(k), dec(y))); return alvo; }
+      if (v.$S) { v.$S.forEach((y) => alvo.add(dec(y))); return alvo; }
+      const o = v.$O || v; for (const k in o) alvo[k] = dec(o[k]); return alvo;
+    };
+    const dec = (v) => {
+      if (!ehObj(v)) return v;
+      if (Array.isArray(v)) return encher([], v);
+      if ('$U' in v) return undefined;
+      if ('$N' in v) return Number(v.$N);
+      if ('$R' in v) { const r = bf.RNG.create(0); r.definir(v.$R); return r; }
+      if ('$D' in v) return new Date(v.$D);
+      if ('$r' in v) return tab[v.$r];
+      if ('$i' in v) { const c = casca(v.$v); tab[v.$i] = c; return encher(c, v.$v); }
+      return encher(casca(v), v);
+    };
+    return dec(pac.d);
+  }
+
+  // pacote completo de um jogo: estado do mundo + estado da tela + sorteio dos nomes
+  function salvarJogo(g, ui, meta) {
+    const PL = bf.Players;
+    return serializar({ app: 'kfoot98', versao: bf.VERSAO, meta: meta || {}, nomes: PL.estadoNomes ? PL.estadoNomes() : null, g, ui: ui || {} });
+  }
+  function lerJogo(texto) {
+    const p = desserializar(texto);
+    if (!p || p.app !== 'kfoot98' || !p.g) throw new Error('não é um jogo salvo do Kfoot 98');
+    if (p.nomes && bf.Players.restaurarNomes) bf.Players.restaurarNomes(p.nomes);
+    return p;
+  }
+
+  bf.Save = { FORMATO, serializar, desserializar, salvarJogo, lerJogo };
 })(typeof globalThis !== 'undefined' ? globalThis : this);
 
 ;
@@ -1265,6 +1374,8 @@ window.ESCUDOS_REAIS = {};
   const DICAS = { v: ['RIT', 10], f: ['FIS', 10], d: ['DRI', 10], c: ['CHU', 9], p: ['PAS', 9], x: ['DEF', 10] };
   const curadosUsados = new Set();
   let nomeSeed = 1, nomeN = 0;
+  const estadoNomes = () => ({ usados: Array.from(usadosGlobal), curados: Array.from(curadosUsados), seed: nomeSeed, n: nomeN });
+  const restaurarNomes = (st) => { usadosGlobal = new Set(st.usados || []); curadosUsados.clear(); (st.curados || []).forEach((x) => curadosUsados.add(x)); nomeSeed = st.seed || 1; nomeN = st.n || 0; };
   const resetNomes = (seed) => { usadosGlobal = new Set(); curadosUsados.clear(); nomeSeed = (seed >>> 0) || 1; nomeN = 0; };
   // devolve { nome, dicas } ou null (mantém o nome clássico já sorteado)
   function sortearNomeVariado(pos, usados) {
@@ -1407,7 +1518,7 @@ window.ESCUDOS_REAIS = {};
       const titular = v.tit ? 3 + rng.next() * 5 : -(2 + rng.next() * 6);
       const idade = clamp(Math.round(26 + rng.gauss() * 4.2), 17, 37);
       const bonusIdade = idade <= 20 ? -3 : 0; // garotos ainda verdes
-      const alvo = base + titular + bonusIdade, p = gerarJogador(rng, v.pos, alvo, idade, usados, sortearNac(rng, clube.div), clube.div === 'D');
+      const alvo = base + titular + bonusIdade, p = gerarJogador(rng, v.pos, alvo, idade, usados, sortearNac(rng, clube.div), clube.div === 'D' && !clube.semNomes);
       if (v.pos !== 'GOL' && Object.keys(tilt).length) {   // o jeito dos jogadores do perfil, sem mudar a média
         const o0 = overall(p); ATTRS.forEach((a) => { p.attr[a] = clamp(p.attr[a] + (tilt[a] || 0), 5, 97); });
         const d = o0 - overall(p); ATTRS.forEach((a) => { p.attr[a] = clamp(Math.round(p.attr[a] + d), 5, 97); });
@@ -1432,7 +1543,7 @@ window.ESCUDOS_REAIS = {};
   const fatorRecup = (i) => clamp(1 - (i - 27) * 0.02, 0.75, 1.08);    // veterano recupera mais devagar
   const fatorLesao = (i) => clamp(1 - (i - 27) * 0.025, 0.7, 1);       // veterano demora mais para se curar de lesão
   const cobrDe = (p) => (p.cobr != null ? p.cobr : (p.attr.CHU + p.attr.PAS) / 2);
-  bf.Players = { TRAITS, sortearTrait, ajustarTraits, cobrDe, fatorGasto, fatorRecup, fatorLesao, ATTRS, PESOS, GRUPO, DISCIPLINAS, DISC_FALTA, DISC_CARTAO, afinidade, afinP, SEC, sortearAlt, overall, overallEm, ovrNoSlot, gerarElenco: gerarElencoComEstrelas, gerarJogador, FAIXA_PREST, NIVEL_SERIE, posFaixa, nivelSerie, PERFIL_ELENCO, vagasDoPerfil, perfilMisto, resetNomes, NAC_NOME, nomeTecnico, perfilFisico, nivelDoClube, clamp };
+  bf.Players = { TRAITS, sortearTrait, ajustarTraits, cobrDe, fatorGasto, fatorRecup, fatorLesao, ATTRS, PESOS, GRUPO, DISCIPLINAS, DISC_FALTA, DISC_CARTAO, afinidade, afinP, SEC, sortearAlt, overall, overallEm, ovrNoSlot, gerarElenco: gerarElencoComEstrelas, gerarJogador, FAIXA_PREST, NIVEL_SERIE, posFaixa, nivelSerie, PERFIL_ELENCO, vagasDoPerfil, perfilMisto, resetNomes, estadoNomes, restaurarNomes, NAC_NOME, nomeTecnico, perfilFisico, nivelDoClube, clamp };
 })(typeof globalThis !== 'undefined' ? globalThis : this);
 
 ;
@@ -1643,7 +1754,7 @@ window.ESCUDOS_REAIS = {};
   const SIN_BASE = {}; let SIN_CLUBES = null;
   function sinBase(tatica, formacao) {
     const k = idEstilo(tatica) + '|' + fid(formacao); if (SIN_BASE[k]) return SIN_BASE[k];
-    if (!SIN_CLUBES) { const rng = bf.RNG.create(424242), usados = new Set(); SIN_CLUBES = Array.from({ length: 24 }, (_, i) => ({ id: 'sb' + i, elenco: P().gerarElenco(rng, { prestigio: 60, div: 'D', id: 'sb' + i }, usados) })); }
+    if (!SIN_CLUBES) { const rng = bf.RNG.create(424242), usados = new Set(); SIN_CLUBES = Array.from({ length: 24 }, (_, i) => ({ id: 'sb' + i, elenco: P().gerarElenco(rng, { prestigio: 60, div: 'D', id: 'sb' + i, semNomes: true }, usados) })); }
     const acc = { atk: 0, def: 0, ctl: 0, ex: 0 }, N = SIN_CLUBES.length;
     for (const c of SIN_CLUBES) {   // elencos reais gerados pelo jogo, escalados pela escalação automática: é isso que o computador e o técnico "médio" colocam em campo
       const t = bf.Season.escalarAuto(c, fid(formacao), idEstilo(tatica), 3), s = montar(t, bf.RNG.create(1)), o = sinergiaBruta(s);
@@ -4298,6 +4409,193 @@ window.ESCUDOS_REAIS = {};
 })();
 
 ;
+// v45: jogos salvos. 5 espaços no navegador + 1 automático (grava a cada rodada) e um arquivo .json para baixar e abrir depois.
+(function () {
+  const K = window.K, BF = window.BF98, G = K.G, h = K.h;
+  const DB = 'kfoot98', ST = 'saves', LS = 'kfoot98:save:', SLOTS = ['auto', 's1', 's2', 's3', 's4', 's5'];
+  const NOME_SLOT = { auto: 'Automático', s1: 'Jogo 1', s2: 'Jogo 2', s3: 'Jogo 3', s4: 'Jogo 4', s5: 'Jogo 5' };
+  const S = (K.saves = { lista: {}, pronto: false, erroAuto: '', ocupado: false });
+
+  // ---------- compressão (gzip do navegador; sem ele, guarda o texto puro) ----------
+  const temGz = typeof CompressionStream !== 'undefined' && typeof DecompressionStream !== 'undefined';
+  async function comprimir(txt) { const st = new Blob([txt]).stream().pipeThrough(new CompressionStream('gzip')); return new Uint8Array(await new Response(st).arrayBuffer()); }
+  async function descomprimir(bytes) { const st = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip')); return await new Response(st).text(); }
+  function paraB64(bytes) { let s = ''; for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000)); return btoa(s); }
+  function deB64(b64) { const s = atob(b64), u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return u; }
+
+  // ---------- armazenamento: IndexedDB (cabe vários MB); se não houver, localStorage ----------
+  let dbP = null;
+  function abrirDB() {
+    if (dbP) return dbP;
+    dbP = new Promise((ok, erro) => {
+      try { const r = indexedDB.open(DB, 1); r.onupgradeneeded = () => r.result.createObjectStore(ST, { keyPath: 'slot' }); r.onsuccess = () => ok(r.result); r.onerror = () => erro(r.error); r.onblocked = () => erro(new Error('bloqueado')); }
+      catch (e) { erro(e); }
+    });
+    dbP.catch(() => { dbP = null; });
+    return dbP;
+  }
+  const tx = (modo, fn) => abrirDB().then((db) => new Promise((ok, erro) => {
+    const t = db.transaction(ST, modo), req = fn(t.objectStore(ST));
+    t.oncomplete = () => ok(req && req.result); t.onerror = () => erro(t.error); t.onabort = () => erro(t.error || new Error('abortado'));
+  }));
+  const lsGet = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+  async function gravar(slot, meta, texto) {
+    const dado = temGz ? { gz: await comprimir(texto) } : { texto };
+    try { await tx('readwrite', (st) => st.put({ slot, meta, ...dado })); return; }
+    catch (e) {
+      // sem IndexedDB: tenta o localStorage (menor; um jogo longo pode não caber)
+      const v = JSON.stringify({ meta, gz: dado.gz ? paraB64(dado.gz) : null, texto: dado.texto || null });
+      try { localStorage.setItem(LS + slot, v); } catch (e2) { throw new Error('sem espaço no navegador'); }
+    }
+  }
+  async function ler(slot) {
+    let r = null;
+    try { r = await tx('readonly', (st) => st.get(slot)); } catch (e) { r = null; }
+    if (!r) { const v = lsGet(LS + slot); if (v) { const o = JSON.parse(v); r = { meta: o.meta, gz: o.gz ? deB64(o.gz) : null, texto: o.texto }; } }
+    if (!r) return null;
+    return r.gz ? descomprimir(r.gz) : r.texto;
+  }
+  async function apagar(slot) {
+    try { await tx('readwrite', (st) => st.delete(slot)); } catch (e) { /* sem IndexedDB */ }
+    try { localStorage.removeItem(LS + slot); } catch (e) { /* sem localStorage */ }
+  }
+  async function listar() {
+    const out = {};
+    try { const todos = await tx('readonly', (st) => st.getAll()); (todos || []).forEach((r) => { out[r.slot] = r.meta; }); } catch (e) { /* sem IndexedDB */ }
+    SLOTS.forEach((sl) => { if (!out[sl]) { const v = lsGet(LS + sl); if (v) try { out[sl] = JSON.parse(v).meta; } catch (e) { /* ignorado */ } } });
+    S.lista = out; S.pronto = true; return out;
+  }
+
+  // ---------- montar e abrir um jogo ----------
+  const podeSalvar = () => !!(G.g && !G.g.live && (G.tela === 5 || G.tela === 'fim'));
+  function metaAtual() {
+    const g = G.g, hs = G.humanos.map((hu) => { const c = g.porId.get(hu.clubId), pos = K.linhasOrdenadas ? K.linhasOrdenadas(g, c.div).findIndex((r) => r.id === c.id) + 1 : 0; return { tec: hu.nome, id: c.id, clube: c.nome, div: c.div, pos }; });
+    return { hs, ano: g.ano, data: g.data, fim: !!g.fim, rodada: g.idx || 0, salvoEm: new Date().toISOString(), versao: BF.VERSAO };
+  }
+  function textoAtual() {
+    const ui = { humanos: G.humanos, seed: G.seed, config: G.config, ativo: G.ativo, prontos: G.prontos, nTec: G.nTec, nomes: G.nomes };
+    return BF.Save.salvarJogo(G.g, ui, metaAtual());
+  }
+  function abrirTexto(texto) {
+    const p = BF.Save.lerJogo(texto);
+    Object.assign(G, { humanos: p.ui.humanos || p.g.humanos, seed: p.ui.seed || p.g.seed, config: p.ui.config || G.config, ativo: Math.min(p.ui.ativo || 0, (p.ui.humanos || p.g.humanos).length - 1),
+      prontos: p.ui.prontos || new Set(), nTec: p.ui.nTec || 1, nomes: p.ui.nomes || [''] });
+    Object.assign(G, { g: p.g, aba: 'plantel', sel: null, selX: null, escSlot: null, resumos: null, resumoSel: null, posTab: null, resTab: null, tabDiv: null, sorteando: false, erro: '' });
+    S.ultimoAviso = p.versao && p.versao !== BF.VERSAO ? 'Este jogo foi salvo na versão ' + p.versao + ' (a atual é a ' + BF.VERSAO + '). Ele abre, mas algumas regras novas só valem dali em diante.' : '';
+    K.ir(p.g.fim ? 'fim' : 5);
+    return p;
+  }
+
+  // salvamento automático: ao voltar para a tela do clube depois de cada rodada (e no fim da temporada)
+  let fila = null;
+  S.auto = function () {
+    if (!podeSalvar() || S.ocupado) return;
+    clearTimeout(fila);
+    fila = setTimeout(async () => {
+      if (!podeSalvar()) return;
+      try { const t = textoAtual(), m = metaAtual(); await gravar('auto', m, t); S.lista.auto = m; S.erroAuto = ''; }
+      catch (e) { S.erroAuto = 'O salvamento automático falhou (' + (e && e.message || e) + '). Baixe o arquivo do jogo para não perder o progresso.'; }
+    }, 120);
+  };
+
+  // ---------- telas ----------
+  const DIV = (d) => (K.DIV_NOME ? K.DIV_NOME[d] : 'Série ' + d);
+  const dataBR = (iso) => { const d = new Date(iso); return isNaN(d) ? '' : d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); };
+  const fmtJogo = (m) => (BF.Game && BF.Game.fmtData ? BF.Game.fmtData(m.data) : m.data);
+  function resumoMeta(m) {
+    const clube = (x) => { const c = BF.CLUBS.find((y) => y.id === x.id); return h('span', { class: 'sv-clube' }, c && K.escudo ? K.escudo(c) : null, h('b', null, x.clube), h('small', { class: 'muted' }, ' ' + x.tec + ' · ' + DIV(x.div) + (x.pos ? ' · ' + x.pos + 'º' : ''))); };
+    return h('div', { class: 'sv-meta' }, h('div', { class: 'sv-clubes' }, (m.hs || []).map(clube)),
+      h('small', { class: 'muted' }, 'Temporada ' + m.ano + ' · ' + fmtJogo(m) + (m.fim ? ' · fim da temporada' : '') + ' · salvo em ' + dataBR(m.salvoEm) + (m.versao && m.versao !== BF.VERSAO ? ' · versão ' + m.versao : '')));
+  }
+
+  S.janela = function () {
+    let confirma = null, msg = S.erroAuto || '', fileIn;
+    const corpo = h('div', { class: 'sv' });
+    const m = K.modal('Jogos salvos', corpo);
+    const aviso = (t, bom) => { msg = t; msgBom = !!bom; desenha(); };
+    let msgBom = false;
+    async function acao(tipo, slot) {
+      if (S.ocupado) return;
+      const chave = tipo + ':' + slot, ocupadoSlot = !!S.lista[slot];
+      if ((tipo === 'salvar' && ocupadoSlot) || (tipo === 'carregar' && G.g) || tipo === 'apagar') { if (confirma !== chave) { confirma = chave; desenha(); return; } }
+      confirma = null; S.ocupado = true; aviso(tipo === 'salvar' ? 'Salvando…' : tipo === 'carregar' ? 'Abrindo o jogo…' : 'Apagando…', true);
+      try {
+        if (tipo === 'salvar') { const t = textoAtual(), me = metaAtual(); await gravar(slot, me, t); S.lista[slot] = me; S.ocupado = false; aviso('Jogo salvo em "' + NOME_SLOT[slot] + '".', true); }
+        else if (tipo === 'apagar') { await apagar(slot); delete S.lista[slot]; S.ocupado = false; aviso('"' + NOME_SLOT[slot] + '" apagado.', true); }
+        else { const t = await ler(slot); if (!t) throw new Error('espaço vazio'); S.ocupado = false; m.fechar(); abrirTexto(t); if (S.ultimoAviso) K.modal('Jogo carregado', h('p', null, S.ultimoAviso)); }
+      } catch (e) { S.ocupado = false; aviso('Não deu certo: ' + (e && e.message || e) + '.'); }
+    }
+    async function baixar() {
+      if (!podeSalvar() || S.ocupado) return;
+      S.ocupado = true; aviso('Preparando o arquivo…', true);
+      try {
+        const t = textoAtual(), me = metaAtual(), c0 = me.hs[0] || {};
+        const conteudo = JSON.stringify(temGz ? { app: 'kfoot98', tipo: 'jogo-salvo', versao: BF.VERSAO, meta: me, gz: paraB64(await comprimir(t)) } : { app: 'kfoot98', tipo: 'jogo-salvo', versao: BF.VERSAO, meta: me, texto: t });
+        const slug = String(c0.clube || 'jogo').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '').toLowerCase();
+        const nome = 'kfoot98-' + slug + '-' + me.data + '.json', blob = new Blob([conteudo], { type: 'application/json' });
+        const dl = await S.dlP;
+        if (dl) { await dl.save({ filename: nome, data: blob }); S.ocupado = false; aviso('Arquivo "' + nome + '" baixado. Guarde-o para abrir o jogo em qualquer navegador.', true); }
+        else { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nome; document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 30000); S.ocupado = false; aviso('Arquivo "' + nome + '" baixado.', true); }
+      } catch (e) { S.ocupado = false; aviso(e && e.code === 'declined' ? 'Download cancelado.' : 'Não deu para baixar: ' + (e && e.message || e) + '.'); }
+    }
+    async function abrirArquivo(f) {
+      if (!f || S.ocupado) return;
+      S.ocupado = true; aviso('Abrindo "' + f.name + '"…', true);
+      try {
+        const bruto = await f.text(); let o; try { o = JSON.parse(bruto); } catch (e) { throw new Error('o arquivo não é um jogo salvo do Kfoot 98'); }
+        const t = o && o.gz ? await descomprimir(deB64(o.gz)) : o && o.texto ? o.texto : o && o.fmt ? bruto : null;
+        if (!t || (o.app && o.app !== 'kfoot98')) throw new Error('o arquivo não é um jogo salvo do Kfoot 98');
+        S.ocupado = false; m.fechar(); abrirTexto(t);
+        if (S.ultimoAviso) K.modal('Jogo carregado', h('p', null, S.ultimoAviso));
+      } catch (e) { S.ocupado = false; aviso('Não deu para abrir: ' + (e && e.message || e) + '.'); }
+    }
+    function linha(slot) {
+      const me = S.lista[slot], auto = slot === 'auto', conf = (t) => confirma === t + ':' + slot;
+      const b = (tipo, txt, dis, cls) => h('button', { class: 'btn sm ' + (cls || 'alt'), id: 'sv-' + tipo + '-' + slot, disabled: dis || S.ocupado, onclick: () => acao(tipo, slot) }, conf(tipo) ? 'Confirmar' : txt);
+      return h('li', { class: 'sv-slot' + (me ? '' : ' vazio') + (auto ? ' auto' : '') }, h('div', { class: 'sv-info' },
+        h('div', { class: 'sv-nome' }, h('b', null, NOME_SLOT[slot]), auto ? h('small', { class: 'muted' }, ' · grava sozinho a cada rodada') : null),
+        me ? resumoMeta(me) : h('div', { class: 'sv-meta muted' }, 'Vazio'),
+        conf('salvar') ? h('small', { class: 'warn sv-conf' }, 'Substituir o jogo deste espaço?') : conf('carregar') ? h('small', { class: 'warn sv-conf' }, 'O jogo atual sai da tela. O que não foi salvo se perde.') : conf('apagar') ? h('small', { class: 'warn sv-conf' }, 'Apagar este jogo salvo?') : null),
+        h('div', { class: 'sv-botoes' },
+          auto ? null : b('salvar', 'Salvar aqui', !podeSalvar(), 'hot'),
+          b('carregar', 'Carregar', !me),
+          me ? b('apagar', 'Apagar', false) : null));
+    }
+    function desenha() {
+      fileIn = h('input', { type: 'file', id: 'sv-arquivo', accept: '.json,application/json', style: 'display:none', onchange: (e) => abrirArquivo(e.target.files && e.target.files[0]) });
+      corpo.replaceChildren(...[
+        h('p', { class: 'footnote' }, 'Os jogos ficam guardados neste navegador, neste aparelho. Se os dados do site forem apagados (ou numa aba anônima), eles somem. Para guardar de verdade ou levar para outro aparelho, baixe o arquivo do jogo.'),
+        !podeSalvar() && G.g ? h('p', { class: 'footnote warn' }, 'Dá para salvar na tela do clube, entre uma rodada e outra.') : null,
+        h('ul', { class: 'sv-lista' }, SLOTS.map(linha)),
+        h('div', { class: 'sv-arq' },
+          h('button', { class: 'btn alt', id: 'sv-baixar', disabled: !podeSalvar() || S.ocupado, onclick: baixar }, 'Baixar arquivo do jogo'),
+          h('button', { class: 'btn alt', id: 'sv-abrir', disabled: S.ocupado, onclick: () => fileIn.click() }, 'Abrir arquivo salvo'), fileIn),
+        msg ? h('p', { class: 'sv-msg ' + (msgBom ? 'hi' : 'bad'), role: 'status' }, msg) : null].filter(Boolean));
+    }
+    desenha();
+    listar().then(() => { if (corpo.isConnected) desenha(); });
+    return m;
+  };
+
+  // botões da tela inicial e do topo
+  S.botoesInicio = function () {
+    const ult = SLOTS.map((sl) => S.lista[sl]).filter(Boolean).sort((a, b) => String(b.salvoEm).localeCompare(String(a.salvoEm)))[0];
+    const slotUlt = ult && SLOTS.find((sl) => S.lista[sl] === ult);
+    const cont = ult ? h('button', { class: 'btn hot', id: 'continuar-jogo', 'data-tip': ((ult.hs && ult.hs[0]) ? ult.hs[0].clube + ' · ' : '') + 'temporada ' + ult.ano + ' · ' + fmtJogo(ult), onclick: async (e) => {
+      const bt = e.currentTarget; bt.disabled = true;
+      try { const t = await ler(slotUlt); if (!t) throw new Error('vazio'); abrirTexto(t); if (S.ultimoAviso) K.modal('Jogo carregado', h('p', null, S.ultimoAviso)); }
+      catch (er) { bt.disabled = false; K.modal('Não deu para continuar', h('p', null, 'O jogo salvo não abriu (' + (er && er.message || er) + '). Tente pelo botão Carregar jogo.')); }
+    } }, 'Continuar ' + ((ult.hs && ult.hs[0]) ? ult.hs[0].clube : 'jogo')) : null;
+    return [cont, h('button', { class: 'btn' + (ult ? ' alt' : ''), id: 'carregar', onclick: () => S.janela() }, 'Carregar jogo')];
+  };
+  S.botaoTopo = () => (G.g && (G.tela === 5 || G.tela === 'fim') ? h('button', { class: 'btn alt sm sv-topo', id: 'salvar-topo', onclick: () => S.janela() }, 'Salvar / carregar') : null);
+
+  // o download dentro do Claude passa pelo pedido de permissão do próprio Claude; fora dele, usa o download normal do navegador
+  S.dlP = (window.claude && typeof window.claude.use === 'function') ? Promise.resolve(window.claude.use('downloads')).catch(() => null) : Promise.resolve(null);
+  listar().then(() => { if (G.tela === 1 && K.render) K.render(); }).catch(() => { S.pronto = true; });
+})();
+
+;
 // Emblemas dos clubes em SVG (originais): forma + padrão nas cores do clube + símbolo + sigla. Combinação única por clube.
 // Os brasões oficiais são marcas registradas e não estão incluídos. Escudos reais, se existirem, têm prioridade.
 (function () {
@@ -6602,9 +6900,10 @@ window.ESCUDOS_REAIS = {};
     const emJogo = typeof G.tela === 'string';
     return h('header', { class: 'top' }, h('div', { class: 'wrap' },
       h('div', { class: 'brand' }, 'Kfoot', h('b', null, '98')),
-      emJogo ? h('span', { class: 'muted' }, GM.fmtData(G.g.data) + ' · ' + clubeHumano().nome) : null));
+      emJogo ? h('span', { class: 'muted' }, GM.fmtData(G.g.data) + ' · ' + clubeHumano().nome) : null,
+      K.saves ? K.saves.botaoTopo() : null));
   }
-  function ir(t) { G.tela = t; G.erro = ''; render(); window.scrollTo(0, 0); }
+  function ir(t) { G.tela = t; G.erro = ''; render(); window.scrollTo(0, 0); if ((t === 5 || t === 'fim') && K.saves) K.saves.auto(); }   // v45: salva sozinho entre as rodadas
   function render() {
     if (K.jogoParar) K.jogoParar();
     const f = { 1: tela1, 2: tela2, 3: tela3, boas: telaBoas, 4: tela4, 5: casa, jogo: () => K.telas.jogo(), resumo: () => K.telas.resumo(), fim: () => K.telas.fim() }[G.tela];
@@ -6627,7 +6926,7 @@ window.ESCUDOS_REAIS = {};
       h('section', { class: 'hero' }, pitch.firstChild, h('div', { class: 'wrap' },
         h('div', { class: 'logo', 'aria-label': 'Kfoot 98' }, h('span', { class: 'k' }, 'Kfoot'), h('span', { class: 'y' }, '98')),
         h('p', { class: 'lead' }, 'Brasil, 1998. Você assume um time na lanterna da Série D e tenta chegar à Libertadores.'),
-        h('div', { class: 'actions' }, h('button', { class: 'btn', id: 'novo', onclick: () => ir(2) }, 'Novo jogo')),
+        h('div', { class: 'actions' }, K.saves && K.saves.lista && Object.keys(K.saves.lista).length ? K.saves.botoesInicio()[0] : null, h('button', { class: 'btn' + (K.saves && Object.keys(K.saves.lista).length ? ' alt' : ''), id: 'novo', onclick: () => ir(2) }, 'Novo jogo'), K.saves ? K.saves.botoesInicio()[1] : null),
         h('small', null, 'Gerenciamento de futebol · 4 divisões · 80 clubes'))),
       h('div', { class: 'ticker' }, h('div', { class: 'wrap' },
         h('span', null, h('b', null, '4'), 'divisões do Brasileirão'), h('span', null, h('b', null, '64'), 'clubes na Copa do Brasil'),
