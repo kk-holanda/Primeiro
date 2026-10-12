@@ -1,11 +1,11 @@
-# Kfoot 98: documentação do jogo (versão 41)
+# Kfoot 98: documentação do jogo (versão 42)
 
 Documento vivo: cresce junto com a implementação. Cada rodada de melhorias atualiza as seções que mudaram. Valores vêm do código da branch `claude/melhorias-5-xt6u1f` (pasta `kfoot98`). Quando algo ainda não está documentado, a seção diz "a detalhar".
 
 Arquivos de dados desta pasta:
-- `times.csv`: os 80 clubes com divisão, prestígio, estádio, caixa, ingresso e se o jogador pode iniciar com ele.
+- `times.csv`: os 80 clubes com divisão, prestígio, estádio, caixa, ingresso e se o jogador pode iniciar com ele (🔶 v42: prestígio, capacidade, caixa e demanda são sorteados a cada jogo; os valores são os da semente 1998).
 - `jogadores-exemplo-semente-1998.csv`: os 1.920 jogadores de um jogo de exemplo (semente 1998), com todos os atributos. Os jogadores são gerados por sorteio a cada jogo novo; esta lista é um exemplo, não um cadastro fixo.
-- `base-mercado-semente-1998.csv`: os 28 garotos das categorias de base que estão no mercado no início do mesmo jogo de exemplo, com o potencial escondido.
+- `base-mercado-semente-1998.csv`: os 30 garotos das categorias de base que estão no mercado no início do mesmo jogo de exemplo, com o potencial escondido.
 
 ## 1. Visão geral
 
@@ -22,9 +22,9 @@ Arquivos de dados desta pasta:
 | Item | Valor |
 |---|---|
 | Clubes | 80 (20 por divisão) |
-| Elenco inicial | 24 jogadores por clube (3 goleiros, 4 zagueiros, 2 laterais direitos, 2 esquerdos, 3 volantes, 2 meias centrais, 2 meios ofensivos, 1 ponta direita, 1 esquerda, 3 centroavantes, 1 segundo atacante) |
+| Elenco inicial | 24 jogadores por clube (🔶 v42: a divisão por posição depende do perfil de elenco do técnico, seção 18; o Equilibrado e o humano: 3 goleiros, 4 zagueiros, 2 laterais direitos, 2 esquerdos, 3 volantes, 2 meias centrais, 2 meios ofensivos, 1 ponta direita, 1 esquerda, 3 centroavantes, 1 segundo atacante) |
 | Limite de elenco | 30 |
-| Jogadores iniciais no mundo | 1.920 (mais 40 jogadores livres gerados a cada ano, e as categorias de base: 28 garotos de 15 a 19 anos no início do jogo e, a cada fim de ano, no mínimo 24 ou 80% do número de aposentados, o que for maior) |
+| Jogadores iniciais no mundo | 1.920 (🔶 v42: no máximo 50 livres e 30 garotos da base por temporada, seção 18; antes: 40 jogadores livres gerados a cada ano, e as categorias de base: 28 garotos de 15 a 19 anos no início do jogo e, a cada fim de ano, no mínimo 24 ou 80% do número de aposentados, o que for maior) |
 | Subem e descem por divisão | 4 |
 | Copa do Brasil | 64 clubes, fase preliminar com 32 clubes, ida e volta, sem gol fora dobrado, pênaltis |
 | Posições | GOL, ZAG, LIB, LD, LE, VOL, MC, MEI, ALA, PD, PE, CA, SA |
@@ -47,6 +47,7 @@ Por divisão (arquivo `times.csv` tem cada clube):
 | C | R$ 1,3 mi | R$ 6 | 0,75 | R$ 0,25 mi | R$ 0,15 mi |
 | D | R$ 0,8 mi | R$ 4 | 1,00 | R$ 0,08 mi | R$ 0,03 mi |
 
+- 🔶 **v42: prestígio de 10 a 50**, sorteado a cada jogo novo na faixa da série (A 40–50, B 30–40, C 20–30, D 10–20), junto com a média do elenco; caixa inicial A R$ 4,6 mi, B 2,2 mi, C 1,05 mi, D 0,5 mi (×0,8 a ×1,2 pelo prestígio). Detalhes na seção 18. O texto abaixo descreve a escala antiga.
 - **Prestígio** (5 a 99) é a força e a torcida do clube. Move devagar a cada temporada: campanha na liga (−1,5 a +1,5), título (+2), acesso (+2), descenso (−2), título da Copa (+3), fases finais da Copa (+0,5 a +1).
 - **Sorteio de força**: a cada jogo novo, os 10 clubes iniciáveis embaralham o prestígio entre si, e os outros 10 da Série D também; os iniciáveis continuam sendo os 10 mais fracos da D, mas o jogador não sabe qual é o mais forte. Caixa e demanda são recalculados.
 - **Público** = demanda × forma recente × rivalidade × elasticidade do preço do ingresso, limitado pela capacidade. Rivalidade sobe 25% em clássico da mesma cidade. Receita de bilheteria = público × ingresso × 0,85 (15% de custos e impostos de jogo). O estádio pode ser ampliado (custo por lugar = 25 × ingresso padrão da divisão, até 5 obras). Desde a v35 o jogador escolhe o preço do ingresso.
@@ -95,9 +96,9 @@ Média no slot = média da posição do slot × afinidade. Natural: 1,00; posiç
 ### 4.4 Estados do jogador
 - **Stamina** (0–100): cai no jogo (≈ 33 − 0,22 × FIS por 90 min), recupera com o descanso (taxa 0,085 + 0,001 × FIS ao dia, menor para veteranos). O efeito na força do jogador é 0,55 + 0,45 × (stamina/100)^1,25 (na v22 o expoente era 2): quem está com 80 de stamina rende ≈ 89% da força, com 70 ≈ 84%.
 - **Moral** (0–100): nota boa sobe, nota ruim desce (±5 por ponto de nota diferente de 6,3). Reserva que entra ganha confiança; moral de quem não joga tende a 50. Moral do computador se recupera 12% da distância até 55 por jogo, com piso de 30.
-- **Lesão**: risco por minuto 0,000062 × fator (1,85 − FIS/65, entre 0,5 e 1,6).
+- **Lesão** (🔶 v42: o lesionado perde atributos, seção 18): risco por minuto 0,000062 × fator (1,85 − FIS/65, entre 0,5 e 1,6).
 - **Cartões**: 3 amarelos = 1 jogo de suspensão. 🔶 v33 **Vermelho**: o 2º amarelo no mesmo jogo rende 1 jogo de suspensão; o vermelho direto rende de 1 a 3 jogos conforme a gravidade da falta (sorteio: 20% 1 jogo, 50% 2 jogos, 30% 3 jogos; jogador de disciplina muito ruim: 10%, 40%, 50%; de disciplina boa: 35%, 50%, 15%). O lance mostra "suspenso por N jogos" e a situação do jogador mostra "SUSP N" (jogos que faltam), valendo para liga e Copa.
-- **Evolução**: pelo desempenho em campo (nota), idade e moral; retorno decrescente em atributos altos. Treinos e prêmios de fim de ano somam pontos (nada acima de 87 nos prêmios).
+- **Evolução** (🔶 v42: mais a evolução dinâmica pelo momento do time, seção 18): pelo desempenho em campo (nota), idade e moral; retorno decrescente em atributos altos. Treinos e prêmios de fim de ano somam pontos (nada acima de 87 nos prêmios).
 - **Contrato**: salário = valor de mercado × 0,0117 (mínimo R$ 500/mês); renovação nos últimos 3 meses. Garotos das categorias de base ganham R$ 400/mês.
 
 ### 4.5 Valor de mercado
@@ -339,6 +340,8 @@ Treino: o atributo é sorteado com peso (preferência do técnico) × (fraqueza 
 
 ## 8. Mercado
 
+🔶 v42: sem preço pedido nem contraproposta. Comprar custa o valor do jogador + a multa; livres, metade do valor ao empresário; base, R$ 10 a 25 mil sem multa. Compras do computador novas. Ver seção 18.
+
 - Compra de jogadores de outros clubes: preço pedido = **preço de mercado (4.5)** × (1 + 10% se titular + 25% se estrela). Aceita se cobrir o pedido; até 12% abaixo, contraproposta. Quem tem contrato exige também a multa rescisória.
 - **Compras do computador (v24)**: a cada rodada de liga, cada clube do computador tem 4% de chance de tentar uma contratação. Procura, nas posições em que um reforço melhora o time em 3 pontos ou mais sobre o titular atual da posição (quantidade de vagas por posição: 2 ZAG, 2 MC e 1 nas outras), entre os jogadores de clubes **do mesmo nível ou de série abaixo** (nunca de série acima) e entre os livres que não são da base. O preço é o pedido normal mais a multa (livres: luvas), e o clube só compra se o custo for no máximo 60% do caixa e deixar pelo menos uma folha mensal em caixa. Escolhe o melhor (melhora no time menos 4 × custo/caixa). Computador nunca compra de jogadores de técnicos humanos (esses só vão por proposta aos que estão à venda). Medido: 94 a 121 compras por temporada (a maioria dentro da mesma série; poucas passam da D para a C, da C para a B e da B para a A).
 - Jogadores livres: 40 novos por ano. 🔶 v39: sem luvas; o empresário recebe metade do valor de mercado (garotos da base: R$ 10 mil a R$ 25 mil) e o técnico escolhe o contrato (6 meses, 1 ano, 1 ano e meio ou 2 anos).
@@ -426,4 +429,22 @@ Todos gerados no próprio navegador (nada de gravações). Quando o técnico hum
   - Zandy e Xunior: 50% de desconto na próxima compra de jogador (de outro clube ou livre); o vendedor recebe o valor cheio.
 - **Cartas.** A carta do bônus tem uma imagem própria de cada celebridade com o presente (enviadas pelo KK, logomarcas cobertas).
 - **Computador.** Vale igual: o clube do computador que aceitar a visita recebe o mesmo bônus; os 3 treinos da Paula vão para os jogadores com maior ganho esperado.
+
+## 18. Melhorias #36 (v42): evolução dinâmica, prestígio, mercado e perfil de elenco
+
+Testes e números no relatório 26 (`relatorios-kfoot/26-v42-evolucao-dinamica-prestigio-mercado.md`).
+
+- **Prestígio de 10 a 50.** A cada jogo novo o prestígio de cada clube é sorteado na faixa da série: A 40 a 50, B 30 a 40, C 20 a 30, D 10 a 20 (na D, os 10 clubes que o humano pode receber ficam entre 10 e 15,5 e os outros entre 14,5 e 20). A média do elenco é sorteada junto: nível da série conforme a posição do clube na faixa (A 66 a 70,7; B 54 a 61,5; C 48,2 a 52,6; D 38,9 a 46,8) mais um acaso (desvio 1,2). No fim da temporada o prestígio anda 45% do que andava antes e fica sempre dentro da faixa da série. Público: mesma procura média por série de antes. Patrocínio = valor base × fator da série (A 0,43; B 0,15; C 0,062; D 0,017) × 0,8 a 1,2 conforme a posição na faixa. Caixa inicial: A R$ 4,6 mi, B 2,2 mi, C 1,05 mi, D 0,5 mi, × 0,8 a 1,2. Rivalidade, tática do computador, moral do técnico, propostas, juniores e potencial da base usam a escala nova.
+- **Perfil de elenco por técnico.** Cada estilo de técnico do computador gera um elenco com posições e "jeito" próprios (24 jogadores, 14 titulares, os titulares melhores em cada posição): Equilibrado (3 GOL, 8 defensores, 7 meio, 6 ataque); Futebol-arte (mais meias e pontas; drible +3, passe +2, finalização +2, defesa −3, físico −2); Domínio (10 de meio; passe +3, ritmo +2); Ofensivista (8 atacantes; finalização +3, drible +2, defesa −3); Retranqueiro (9 defensores com líbero, 4 volantes; defesa +3, físico +2, drible e finalização −2); Camaleão (alas e 2 segundos atacantes, mais jogadores com posição extra); Imprevisível (Equilibrado com 4 reservas de posição sorteada e jeito sorteado). O jeito não muda a média. O humano começa com o elenco Equilibrado. Correção: antes, os 14 "titulares" de cada elenco eram os 14 primeiros da lista (goleiros e defensores) e os atacantes nasciam ~12 pontos piores; o motor foi recalibrado para manter os gols.
+- **Evolução dinâmica.** Depois de cada jogo, o elenco ganha ou perde pontos de atributo pelo momento do time. Liga: 40% resultado, 40% surpresa (resultado contra o esperado pela força dos dois times e pelo mando) e 20% posição na tabela (a partir da 6ª rodada). Copa: a surpresa pesa mais e a zebra ganha um extra (o pequeno que vence ou empata com o grande sobe bem mais; o grande cai). A moral do técnico aumenta o ganho e diminui a perda. Quem jogou sente de 40% a 100% (pelos minutos); quem não jogou, 30%. O ganho vai mais para os atributos importantes da posição. Teto por série (o ganho some perto de A 88, B 77, C 68, D 60) e piso (a perda some perto de A 62, B 52, C 45, D 36). Retorno decrescente relativo ao nível da série, igual para ganho e perda. Medido: o líder da D termina com 56 a 59 de média, igual ou acima dos 4 últimos da C.
+- **Zebra na Copa e moral.** Quando a surpresa é grande, os jogadores ganham ou perdem até 14 de moral (metade para quem não jogou) e o técnico até 18. Medido: time 2 séries abaixo que vence ganha +0,45 na média dos 11 no jogo; o grande que perde, −0,66.
+- **Lesão.** O jogador lesionado perde 0,6 + 0,3 × jogos parados pontos em cada atributo (ritmo e físico ×1,5, os outros ×0,75). Média medida: −1,2 de média por lesão.
+- **Ver a evolução.** Coluna "Evol." no elenco (variação da média na temporada); cartão "Evolução do time" com o gráfico da média dos 11 melhores jogo a jogo e linhas da média da série e dos 4 últimos da série de cima; no painel do jogador, a variação, um mini gráfico e as últimas mudanças com o motivo; no resumo do jogo, coluna "Média" antes → depois.
+- **Salário na renovação.** O computador renova pelo valor atual do jogador (1,17% do valor de mercado ao mês, mínimo R$ 500). Propostas a livres e renovações do humano usam o mesmo cálculo.
+- **Obras do computador.** Só numa área que lotou (98% ou mais) pelo menos 1 vez desde a última obra nela e que fica, em média, com 90% ou mais nos últimos 25 jogos em casa.
+- **Mercado.** Saiu a coluna Pedido. Comprar de outro clube = valor do jogador + multa (40% do valor × tempo que falta de contrato, até 1 ano); se o humano colocou à venda, vale o menor entre o valor e o preço dele. Livre: metade do valor ao empresário. Garoto da base: R$ 10 mil a R$ 25 mil ao empresário, sem multa. A janela de compra mostra "valor + multa = total" e o botão "Comprar por R$ X". Colunas: Valor, Multa, Total, Salário, Contrato.
+- **Livres e base.** No máximo 50 livres; quando passa disso, os mais velhos e piores deixam o futebol. A cada temporada nascem livres até completar 50, e 30 garotos da base.
+- **Compras do computador.** A cada rodada da liga, 4,5% de chance por clube. Orçamento = caixa − 2 folhas mensais. Procura na própria série, na de baixo e na de cima (nunca de técnicos humanos). Prefere as posições que faltam no perfil de elenco do técnico e jogadores com o jeito que ele gosta. Um jogador custa no máximo 45% do orçamento; até 2 compras na mesma janela (até 60% do orçamento) e 4 por temporada. Base: com 3 ou mais jogadores de 33 anos ou mais, compra um garoto da posição do jogador mais velho; senão, chance de 35% (Futebol-arte, Domínio, Equilibrado) ou 20% (outros) de comprar uma promessa ou prodígio. Medido: ~135 compras por temporada, ~50 da série de cima.
+- **Estilos.** Saída curta perde a bola com metade da chance (e menos ainda no campo de defesa). Retranca: defesa +1,5%, +1,2% por defensor acima de 4 e um bônus quando os defensores são melhores em defesa e físico que o resto do time. Gegenpressing: controle e defesa +2,5% e um bônus de controle, defesa e ataque quando o time tem ritmo, marcação e físico acima da própria média.
+- **Tela do jogo.** O campinho animado saiu. Os lances ficam abaixo da barra de posse, numa caixa de 5 linhas com rolagem. As estatísticas continuam.
 
