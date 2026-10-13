@@ -868,7 +868,10 @@ label.campo { aspect-ratio: auto !important; max-height: none !important; backgr
 .subnovo .subtab tr { cursor: pointer; } .subnovo .subtab tr.sel td { background: #fff6cc; } .subnovo .subtab tr.indisp { opacity: .55; cursor: default; }
 .subnovo .subtab th { cursor: default; }
 .subnovo .subdica { margin: 10px 0 4px; font-weight: 600; }
-.subnovo .subfim { border-top: 1px solid var(--line); padding-top: 10px; margin-top: 6px; }
+.subnovo .subtopl { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; flex: 1 1 100%; }
+.subnovo .subbtns { display: flex; flex-wrap: wrap; gap: 8px; margin-left: auto; }
+.subnovo .subbtns .btn { font-size: 14px; padding: 6px 12px; }
+.subnovo b.pprin { font-weight: 800; color: var(--ink); }
 @media (max-width: 760px) { .subnovo .subgrid { grid-template-columns: minmax(0, 1fr); } .subnovo .subcampo { max-height: none; } }
 .noticias h3 { display: flex; align-items: center; gap: 8px; }
 .noticias .nt-hist { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; padding: 0; border: 1px solid var(--line); background: var(--panel); color: inherit; cursor: pointer; border-radius: 6px; }
@@ -903,6 +906,21 @@ label.campo { aspect-ratio: auto !important; max-height: none !important; backgr
 .fimtemp .fh-esq .escudo { width: 112px; height: 112px; display: block; } .fimtemp .fh-esq .escudo > * { width: 100%; height: 100%; }
 .fimtemp .fcamp .escudo { width: 56px; height: 56px; display: block; } .fimtemp .fcamp .escudo > * { width: 100%; height: 100%; }
 @media (max-width: 640px) { .fimtemp .fh-esq .escudo { width: 76px; height: 76px; } }
+
+/* v47: barra do jogo ao vivo com lugares fixos e botões discretos */
+.jbar { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "info clock" "ctrl ctrl"; gap: 8px 16px; align-items: center; }
+.jbar > .jinfo { grid-area: info; min-width: 0; }
+.jbar > .clock { grid-area: clock; width: 4.4ch; min-width: 0; font-size: 44px; padding: 4px 10px; }
+.jbar > .jctrl { grid-area: ctrl; border-top: 1px solid var(--line); padding-top: 8px; gap: 6px 8px; }
+.jctrl .btn, .jctrl .seg button { font-size: 13px; padding: 5px 10px; border-width: 1px; letter-spacing: .04em; }
+.jctrl .btn:hover, .jctrl .btn:active { transform: none; }
+.jctrl .jplay { min-width: 13.5em; text-align: center; }
+.jctrl .jsom { min-width: 9.5em; } .jctrl .jpular { min-width: 13em; }
+.jctrl .oculto { visibility: hidden; }
+@media (max-width: 560px) { .jbar > .clock { font-size: 34px; } .jctrl .jplay { min-width: 0; flex: 1 1 100%; } .jctrl .jsom, .jctrl .jpular { min-width: 0; } }
+.subnovo .subform .seg { flex-wrap: wrap; } .subnovo .subform .seg button { white-space: nowrap; }
+@media (max-width: 560px) { .subnovo .subbtns { margin-left: 0; width: 100%; } .subnovo .subbtns .btn { flex: 1 1 auto; } }
+@media (max-width: 560px) { .subnovo .segE { flex-wrap: wrap; } .subnovo .segE button { flex: 1 1 30%; } }
 
 .sublinha[data-tip], tr[data-tip] { text-decoration: none; }
 .dis-wrap { display: inline-flex; }
@@ -5667,14 +5685,14 @@ window.ESCUDOS_REAIS = {};
     if (P) { P.m.eventos.slice().reverse().forEach((e) => REFS.feed.append(eventoLinha(e, P))); jg.evtN = P.m.eventos.length; }
 
     const fim = fimJogo();
-    const ctrl = h('div', { class: 'jctrl' },
-      fim ? h('button', { class: 'btn hot', id: 'verresumo', onclick: () => { K.jogoParar(); G.resumos = GM.finalizarDia(G.g); G.resumoSel = null; G.prontos.clear(); K.ir('resumo'); } }, jg.observar ? 'Ver resultados' : 'Ver resumo do jogo')
-        : jg.pausado ? h('button', { class: 'btn', id: 'play', disabled: temVaga(P), 'data-tip': temVaga(P) ? 'Preencha a vaga (ou siga com um a menos) para continuar.' : false, onclick: retomar }, live.min === 0 ? 'Iniciar o jogo' : rotuloRetomada(P) || 'Continuar')
-          : h('button', { class: 'btn alt', id: 'pause', onclick: () => pausar('Jogo pausado') }, 'Pausar'),
+    const ctrl = h('div', { class: 'jctrl' },   // v47: todos os botões ficam sempre no mesmo lugar (só muda o texto ou ficam apagados)
+      fim ? h('button', { class: 'btn hot jplay', id: 'verresumo', onclick: () => { K.jogoParar(); G.resumos = GM.finalizarDia(G.g); G.resumoSel = null; G.prontos.clear(); K.ir('resumo'); } }, jg.observar ? 'Ver resultados' : 'Ver resumo do jogo')
+        : jg.pausado ? h('button', { class: 'btn jplay', id: 'play', disabled: temVaga(P), 'data-tip': temVaga(P) ? 'Preencha a vaga (ou siga com um a menos) para continuar.' : false, onclick: retomar }, live.min === 0 ? 'Iniciar o jogo' : rotuloRetomada(P) || 'Continuar')
+          : h('button', { class: 'btn alt jplay', id: 'pause', onclick: () => pausar('Jogo pausado') }, 'Pausar'),
       !fim ? h('div', { class: 'seg', role: 'group', 'aria-label': 'Velocidade' }, VELS.map(([t, v]) => h('button', { type: 'button', 'aria-pressed': jg.vel === v ? 'true' : 'false', onclick: () => { jg.vel = v; if (!jg.observar) jg.velPref = v; if (!jg.pausado) iniciarTimer(); K.render(); } }, t))) : null,
-      !fim ? h('button', { class: 'btn alt sm', id: 'somjogo', 'aria-pressed': G.mudo ? 'false' : 'true', onclick: (e) => { G.mudo = !G.mudo; e.currentTarget.textContent = G.mudo ? 'Som: desligado' : 'Som: ligado'; e.currentTarget.setAttribute('aria-pressed', G.mudo ? 'false' : 'true'); } }, G.mudo ? 'Som: desligado' : 'Som: ligado') : null,
-      !fim ? h('button', { class: 'btn alt sm', id: 'pular', onclick: () => { K.jogoParar(); GM.completarDia(G.g); jg.pausado = true; jg.aviso = 'Fim de jogo'; K.render(); } }, jg.observar ? 'Pular para os resultados' : 'Pular para o fim') : null,
-      !fim && jg.pausado && P && live.min > 0 ? h('button', { class: 'btn alt sm', id: 'subs', onclick: () => { jg.painel = true; K.render(); } }, 'Substituições e estilo') : null);
+      !fim ? h('button', { class: 'btn alt sm jsom', id: 'somjogo', 'aria-pressed': G.mudo ? 'false' : 'true', onclick: (e) => { G.mudo = !G.mudo; e.currentTarget.textContent = G.mudo ? 'Som: desligado' : 'Som: ligado'; e.currentTarget.setAttribute('aria-pressed', G.mudo ? 'false' : 'true'); } }, G.mudo ? 'Som: desligado' : 'Som: ligado') : null,
+      !fim ? h('button', { class: 'btn alt sm jpular', id: 'pular', onclick: () => { K.jogoParar(); GM.completarDia(G.g); jg.pausado = true; jg.aviso = 'Fim de jogo'; K.render(); } }, jg.observar ? 'Pular para os resultados' : 'Pular para o fim') : null,
+      !fim && P ? h('button', { class: 'btn alt sm', id: 'subs', disabled: !(jg.pausado && live.min > 0), 'data-tip': jg.pausado && live.min > 0 ? false : 'Pause o jogo para fazer substituições ou mudar formação e estilo.', onclick: () => { jg.painel = true; K.render(); } }, 'Substituições e estilo') : null);
 
     const campo = P ? h('section', { class: 'jmain' },
       h('div', { class: 'placar' }, h('span', { class: 'tn' + (lado === 0 ? ' eu' : '') }, nome(P.jogo.casa), K.escudo(P.jogo.casa, true)), h('span', { class: 'sc' }, REFS.pl0, h('i', null, '×'), REFS.pl1), h('span', { class: 'tn r' + (lado === 1 ? ' eu' : '') }, K.escudo(P.jogo.fora, true), nome(P.jogo.fora))),
@@ -5687,7 +5705,7 @@ window.ESCUDOS_REAIS = {};
 
     const el = h('main', { class: 'wrap page jogo' },
       K.tecnicosBar(),
-      h('div', { class: 'jbar' }, h('div', null, h('span', { class: 'eyebrow' }, GM.fmtData(live.dia.data)), h('div', { class: 'jrot' }, P ? P.jogo.rotulo : live.partidas.length ? live.partidas[0].jogo.rotulo : '')), clockEl, ctrl),
+      h('div', { class: 'jbar' }, h('div', { class: 'jinfo' }, h('span', { class: 'eyebrow' }, GM.fmtData(live.dia.data)), h('div', { class: 'jrot' }, P ? P.jogo.rotulo : live.partidas.length ? live.partidas[0].jogo.rotulo : '')), clockEl, ctrl),
       h('div', { class: 'jgrid' }, campo, h('div', { class: 'joutros' }, h('h3', { class: 'jtit' }, 'Todos os jogos agora'), outros)));
     if (P) pintarStats(P);
     setTimeout(iniciarTimer, 0); setTimeout(feed5, 0);
@@ -5722,7 +5740,7 @@ window.ESCUDOS_REAIS = {};
     if ((side.vagas || []).some((v) => v.motivo !== 'vermelho')) return painelVaga(P, lado);
     const exp = (side.vagas || []).find((v) => v.motivo === 'vermelho');
     const slots = M.FORMACOES[t.formacao] || [], pts = K.posicoesF(t.formacao, t.tatica, t.tatica2);
-    const posicoesTxt = (p) => [p.pos].concat(p.alt || []).join(' / ');
+    const posicoesTxt = (p) => [h('b', { class: 'pprin' }, p.pos), p.alt && p.alt.length ? ' / ' + p.alt.join(' / ') : null];   // posição principal em negrito
     // seleção: 1 em campo + 1 reserva = substituição; 2 em campo = troca de posição (não conta como substituição)
     const clicaCampo = (id) => {
       jg.msgSub = '';
@@ -5764,9 +5782,11 @@ window.ESCUDOS_REAIS = {};
       exp ? h('p', { class: 'expaviso' }, h('b', null, exp.nome + ' (' + exp.pos + ')'), ' foi expulso e seu time segue com um a menos. Você pode trocar alguém do banco por quem ficou em campo ou mudar as posições de quem está jogando',
         exp.slot === 'GOL' && side.banco.some((p) => p.pos === 'GOL') ? ' (como foi o goleiro: tire um jogador de linha e escolha o goleiro reserva, que assume o gol).' : '.') : null,
       h('div', { class: 'subtop' },
-        h('span', { class: 'subinfo' }, h('b', null, 'Substituições: ' + side.subs + ' de ' + max), ' · Formação ', h('b', null, t.formacao || '4-4-2'), ' · Estilo ', h('b', null, K.estiloNome ? K.estiloNome(t.tatica) + (t.tatica2 ? ' + ' + K.estiloNome(t.tatica2) : '') : t.tatica)),
+        h('div', { class: 'subtopl' }, h('span', { class: 'subinfo' }, h('b', null, 'Substituições: ' + side.subs + ' de ' + max), ' · Formação ', h('b', null, t.formacao || '4-4-2'), ' · Estilo ', h('b', null, K.estiloNome ? K.estiloNome(t.tatica) + (t.tatica2 ? ' + ' + K.estiloNome(t.tatica2) : '') : t.tatica)),
+        h('div', { class: 'subbtns' }, h('button', { class: 'btn hot sm', id: 'subs-retomar', disabled: temVaga(P), onclick: () => { jg.selOut = jg.selOut2 = jg.selIn = null; retomar(); } }, P.m.min === 0 ? 'Iniciar o jogo' : 'Fechar e continuar o jogo'),
+          h('button', { class: 'btn alt sm', id: 'subs-fechar', onclick: () => K.subsFechar(true) }, 'Fechar (jogo pausado)'))),
         K.seletorEstilo(t, () => { M.recalcular(P.m); K.render(); }, 'Estilo de jogo')),
-      P.m.min === P.m.meio ? h('div', { class: 'subform' }, h('b', null, 'Formação'), h('div', { class: 'seg', role: 'group', 'aria-label': 'Formação' }, Object.keys(M.FORMACOES).map((f) => h('button', { type: 'button', 'aria-pressed': (t.formacao || '4-4-2') === f ? 'true' : 'false', 'data-tip': K.FORM_INFO[f].estr + '. Forte: ' + K.FORM_INFO[f].forte + ' Fraco: ' + K.FORM_INFO[f].fraco, onclick: () => { const r = M.mudarFormacao(P.m, lado, f); jg.msgSub = r.ok ? '' : r.motivo; jg.selOut = jg.selOut2 = jg.selIn = null; K.render(); } }, f))), h('small', { class: 'muted' }, 'A formação só pode mudar no intervalo.')) : null,
+      h('div', { class: 'subform' }, h('b', null, 'Formação'), h('div', { class: 'seg', role: 'group', 'aria-label': 'Formação' }, Object.keys(M.FORMACOES).map((f) => h('button', { type: 'button', 'aria-pressed': (t.formacao || '4-4-2') === f ? 'true' : 'false', 'data-tip': K.FORM_INFO[f].estr + '. Forte: ' + K.FORM_INFO[f].forte + ' Fraco: ' + K.FORM_INFO[f].fraco, onclick: () => { const r = M.mudarFormacao(P.m, lado, f); jg.msgSub = r.ok ? '' : r.motivo; jg.selOut = jg.selOut2 = jg.selIn = null; K.render(); } }, f))), h('small', { class: 'muted' }, 'Pode mudar a qualquer pausa. Os jogadores em campo são reorganizados nas novas posições, sem gastar substituição.')),
       P.m.min === P.m.meio ? leituraBox(P, lado) : null,
       h('div', { class: 'subgrid' }, campo,
         h('div', { class: 'sublistas' },
@@ -5779,9 +5799,7 @@ window.ESCUDOS_REAIS = {};
         h('button', { class: 'btn', id: 'trocapos', disabled: !podeTroca, onclick: () => { const r = M.trocarPosicoes(P.m, lado, jg.selOut, jg.selOut2); jg.msgSub = r.ok ? '' : r.motivo; if (r.ok) { jg.selOut = jg.selOut2 = null; if (exp) M.ignorarVagas(P.m, lado); } K.render(); } }, 'Trocar posições'),
         (jg.selOut || jg.selIn) ? h('button', { class: 'btn alt sm', id: 'limpasel', onclick: () => { jg.selOut = jg.selOut2 = jg.selIn = null; jg.msgSub = ''; K.render(); } }, 'Limpar seleção') : null,
         exp ? h('button', { class: 'btn alt', id: 'comdez', onclick: () => { M.ignorarVagas(P.m, lado); jg.selOut = jg.selOut2 = jg.selIn = null; K.render(); } }, 'Seguir com um a menos') : null,
-        h('span', { class: 'err' }, msg)),
-      h('div', { class: 'actions subfim' }, h('button', { class: 'btn hot', id: 'subs-retomar', disabled: temVaga(P), onclick: () => { jg.selOut = jg.selOut2 = jg.selIn = null; retomar(); } }, P.m.min === 0 ? 'Iniciar o jogo' : 'Fechar e continuar o jogo'),
-        h('button', { class: 'btn alt', id: 'subs-fechar', onclick: () => K.subsFechar(true) }, 'Fechar (jogo pausado)')));
+        h('span', { class: 'err' }, msg)));
   }
   // v46: substituições numa janela por cima do jogo
   let subsM = null, fechandoSubs = false;

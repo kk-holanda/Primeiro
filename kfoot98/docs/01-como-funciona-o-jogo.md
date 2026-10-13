@@ -1,4 +1,4 @@
-# Kfoot 98: documentação do jogo (versão 46)
+# Kfoot 98: documentação do jogo (versão 47)
 
 Documento vivo: cresce junto com a implementação. Cada rodada de melhorias atualiza as seções que mudaram. Valores vêm do código da branch `claude/melhorias-5-xt6u1f` (pasta `kfoot98`). Quando algo ainda não está documentado, a seção diz "a detalhar".
 
@@ -483,3 +483,7 @@ Só Série D, livres e base (brasileiros). 28% dos jogadores recebem um nome da 
 - **Notícias:** o painel mostra as 5 mais recentes. O botão com caderninho e relógio ao lado do título abre todas as notícias guardadas (até 400), com filtro das do seu clube e barra de rolagem.
 - **Fim de temporada:** tela nova com a campanha do seu clube em destaque (posição, situação, pontos, V-E-D, gols, Copa, artilheiro do time, evolução, moral do técnico, caixa), campeões com escudos, acesso e descenso com escudos e posições, e as premiações.
 
+## 23. Ajustes da substituição e da tela do jogo (v47)
+- **Formação em qualquer pausa:** a formação pode mudar sempre que o jogo estiver pausado, não só no intervalo. Os jogadores em campo são reorganizados nas novas posições sem gastar substituição. O efeito de "boa resposta" ao adversário (+2% / −1,5%) continua valendo só para a troca feita no intervalo.
+- **Janela de substituições:** a posição principal de cada jogador aparece em negrito (no campinho e nas tabelas), e os botões "Fechar e continuar o jogo" e "Fechar (jogo pausado)" ficam na linha de cima, junto do resumo de substituições, formação e estilo.
+- **Barra do jogo ao vivo:** relógio e botões ficam sempre no mesmo lugar ao pausar e continuar. Os botões são menores e discretos; o de pausar/continuar tem largura fixa e o de substituições aparece sempre, apagado enquanto a bola rola.
