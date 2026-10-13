@@ -4702,11 +4702,11 @@ window.ESCUDOS_REAIS = {};
   const W = 330, H = 150, L = 30, R = 16, T = 14, B = 40;
 
   K.moralTreinadorMini = function () {
-    const g = G.g, c = K.clubeHumano(), mt = g.moralTreinador[c.id], jogos = mt.hist.slice(1).slice(-5), pts = jogos.length ? jogos : mt.hist.slice(0, 1);
+    const g = G.g, c = K.clubeHumano(), mt = g.moralTreinador[c.id], jogos = mt.hist.slice(1).slice(-5), pts = jogos.length ? jogos : mt.hist.slice(0, 1);   // v46: pontos sem adversário (prêmio/acesso no fim do ano) não quebram mais
     const ult = mt.hist[mt.hist.length - 1], pen = mt.hist.length > 1 ? mt.hist[mt.hist.length - 2] : null, delta = pen ? ult.v - pen.v : 0;
     const Wm = 84, Hm = 26, x = (i) => (pts.length === 1 ? Wm / 2 : 4 + (i * (Wm - 8)) / (pts.length - 1)), y = (v) => 4 + (1 - v / 100) * (Hm - 8);
     const svg = '<svg viewBox="0 0 ' + Wm + ' ' + Hm + '" aria-hidden="true">' + (pts.length > 1 ? '<polyline points="' + pts.map((p, i) => x(i) + ',' + y(p.v)).join(' ') + '"/>' : '') + pts.map((p, i) => '<circle cx="' + x(i) + '" cy="' + y(p.v) + '" r="3.2" style="fill:' + cor(p.v) + '"/>').join('') + '</svg>';
-    const dica = (jogos.length ? 'Últimos jogos: ' + jogos.map((p) => p.res + ' ' + p.gp + '×' + p.gc + ' ' + g.porId.get(p.adv).nome + ' (' + p.v + ')').join(' · ') + '. ' : 'Ainda sem jogos. ') + 'Vitórias (principalmente contra times maiores) sobem a moral do técnico; derrotas descem. Ela influencia o clima do vestiário.';
+    const dica = (jogos.length ? 'Últimos jogos: ' + jogos.map((p) => (p.adv && g.porId.get(p.adv) ? p.res + ' ' + p.gp + '×' + p.gc + ' ' + g.porId.get(p.adv).nome : 'fim da temporada') + ' (' + p.v + ')').join(' · ') + '. ' : 'Ainda sem jogos. ') + 'Vitórias (principalmente contra times maiores) sobem a moral do técnico; derrotas descem. Ela influencia o clima do vestiário.';
     return h('div', { class: 'mt-mini dica', tabindex: 0, 'data-tip': dica }, h('small', null, 'Moral do técnico'),
       h('b', null, h('span', { class: 'num' }, mt.v), delta ? h('span', { class: 'delta ' + (delta > 0 ? 'hi' : 'bad') }, (delta > 0 ? '▲ +' : '▼ −') + Math.abs(delta)) : null, h('span', { class: 'spark', html: svg })));
   };
@@ -5770,7 +5770,7 @@ window.ESCUDOS_REAIS = {};
       h('div', { class: 'rules' }, ['A', 'B', 'C', 'D'].map((d) => h('div', { class: 'rule' }, h('b', null, 'Campeão ' + K.DIV_NOME[d]), h('span', null, nm(cl[d][0])))), h('div', { class: 'rule' }, h('b', null, 'Copa do Brasil'), h('span', null, g.copa.campeao ? nm(g.copa.campeao) : '—'))),
       h('h3', null, 'Acesso e descenso'), h('div', { class: 'rules' }, mov), K.premiosBox(),
       h('div', { class: 'actions' }, h('button', { class: 'btn alt', onclick: () => { G.aba = 'tabela'; G.tabDiv = c.div; K.ir(5); } }, 'Ver a tabela final'),
-        h('button', { class: 'btn hot', id: 'nova', onclick: () => { GM.virarTemporada(g); G.tabDiv = null; G.aba = 'plantel'; G.sel = null; K.ir(5); } }, 'Começar a temporada ' + (g.ano + 1))));
+        h('button', { class: 'btn hot', id: 'nova', onclick: (e) => { e.currentTarget.disabled = true; if (g.fim) GM.virarTemporada(g); G.tabDiv = null; G.aba = 'plantel'; G.sel = null; K.ir(5); } }, 'Começar a temporada ' + (g.ano + 1))));
   };
 })();
 
