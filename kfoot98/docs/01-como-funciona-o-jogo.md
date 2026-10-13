@@ -1,4 +1,4 @@
-# Kfoot 98: documentação do jogo (versão 45)
+# Kfoot 98: documentação do jogo (versão 46)
 
 Documento vivo: cresce junto com a implementação. Cada rodada de melhorias atualiza as seções que mudaram. Valores vêm do código da branch `claude/melhorias-5-xt6u1f` (pasta `kfoot98`). Quando algo ainda não está documentado, a seção diz "a detalhar".
 
@@ -471,4 +471,15 @@ Só Série D, livres e base (brasileiros). 28% dos jogadores recebem um nome da 
 - **O que é salvo:** o mundo inteiro (clubes, jogadores, tabelas, Copa, finanças, estádios, mercado, histórico, VIPs, notícias), os técnicos humanos (hot seat incluído, com quem já marcou "pronto") e o ponto exato do sorteio. Um jogo carregado continua exatamente como continuaria sem salvar: as mesmas decisões dão os mesmos resultados.
 - **Não dá para salvar** no meio de uma partida; salva-se antes ou depois dela.
 - **Versões:** o arquivo guarda a versão do jogo. Um save de versão anterior abre com um aviso de que regras novas só valem dali em diante.
+
+## 22. Pacote de melhorias (v46)
+
+- **Bug corrigido (v45.1):** começar a temporada seguinte travava quando o clube do humano tinha ganho o prêmio de melhor técnico ou subido/caído (a moral do técnico lia um ponto de fim de ano sem adversário). Cada clique pulava mais um ano. Agora o botão vira a temporada uma vez só.
+- **Mercado:** botão **Negociações do ano** abre a lista de todos os jogadores negociados (compras entre clubes, leilões, livres e base), com data, jogador, posição, idade, média, clube de origem e de destino, preço (com a multa) e salário. Tem seletor de temporada (anos anteriores), busca e filtro "Só o meu clube". Jogos salvos antes da v46 começam o registro a partir de quando forem abertos.
+- **Depois do jogo:** o resumo não mostra mais a tabela das divisões. Ao apertar Continuar abre a tela de **Classificação** (Séries A a D e Copa) com o botão **Ver a artilharia** e o botão **Ir ao clube**. Avisos da diretoria, evolução de jogadores (promessas, base), cartas e bônus dos VIPs só aparecem depois que a tela do clube abre.
+- **Moral do técnico:** derrota tira 4 (era 6), goleada no máximo 1 a mais, e na metade de cima da tabela a perda é um terço menor. A posição na liga entra em 30% do alvo da moral (1º = 78, último = 30) a partir da 4ª rodada. Medido numa temporada: quem está entre 5º e 8º fica com moral média 68 (era 59) e quase nunca abaixo de 58.
+- **Stamina na Copa:** num dia de Copa do Brasil, quem já foi eliminado recupera só metade da stamina até o próximo jogo.
+- **Substituições:** abrem numa janela com o campinho (formação, número, posição, média na posição, posições secundárias e stamina de cada um), a tabela de quem está em campo e dos reservas (com as posições secundárias), formação e estilo. Um jogador em campo + um reserva = substituição. Dois jogadores em campo = **trocar posições**, que não conta como substituição (útil depois de expulsão ou lesão).
+- **Notícias:** o painel mostra as 5 mais recentes. O botão com caderninho e relógio ao lado do título abre todas as notícias guardadas (até 400), com filtro das do seu clube e barra de rolagem.
+- **Fim de temporada:** tela nova com a campanha do seu clube em destaque (posição, situação, pontos, V-E-D, gols, Copa, artilheiro do time, evolução, moral do técnico, caixa), campeões com escudos, acesso e descenso com escudos e posições, e as premiações.
 
