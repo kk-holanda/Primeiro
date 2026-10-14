@@ -980,8 +980,8 @@ label.campo { aspect-ratio: auto !important; max-height: none !important; backgr
 /* mouseover rico */
 .nv-tip { display: none; position: absolute; top: calc(100% + 6px); left: 0; width: 400px; max-width: 86vw; z-index: 60; background: #13241a; color: #eaf3ea; text-align: left; padding: 12px 14px; font-size: 13px; line-height: 1.35; box-shadow: 0 6px 18px rgba(0,0,0,.35); font-weight: 400; cursor: default; text-transform: none; letter-spacing: 0; font-family: var(--body); }
 .nv-fcard:hover .nv-tip, .nv-scard:hover .nv-tip, .nv-fcard:focus-visible .nv-tip, .nv-scard:focus-visible .nv-tip { display: block; }
-.nv-scard:nth-child(n+4) .nv-tip { left: auto; right: 0; }
-.nv-fcard:nth-child(n+5) .nv-tip { left: auto; right: 0; }
+.nv-scard:nth-child(5n+4) .nv-tip, .nv-scard:nth-child(5n+5) .nv-tip { left: auto; right: 0; }   /* 4ª e 5ª colunas abrem para a esquerda */
+.nv-fcard:nth-child(6n+5) .nv-tip, .nv-fcard:nth-child(6n+6) .nv-tip { left: auto; right: 0; }   /* 5ª e 6ª colunas abrem para a esquerda */
 .nv-tip .tt { font-family: var(--display); font-weight: 400; font-size: 18px; letter-spacing: .03em; text-transform: uppercase; display: block; color: #fff; }
 .nv-tip .ts { color: #e8ab00; font-weight: 700; margin-bottom: 6px; } .nv-tip p { margin: 0 0 6px; } .nv-tip .mu { color: #b8cdbd; }
 .nv-tip .hi { color: #7be39a; } .nv-tip .bad { color: #ff8a7d; } .nv-tip small { color: #b8cdbd; display: block; margin-top: 4px; }
