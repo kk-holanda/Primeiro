@@ -931,6 +931,16 @@ label.campo { aspect-ratio: auto !important; max-height: none !important; backgr
 .subnovo .subacoes .subdica { margin: 8px 0 2px; font-size: 13px; }
 @media (max-width: 760px) { .subnovo .submeio { grid-template-columns: minmax(0, 1fr); } .subnovo .subformesq .seg { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 .subnovo .subformesq .seg { width: 100%; max-width: 640px; }
+/* v48: placar dentro da janela de substituições */
+.subnovo .subplacar { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto; gap: 10px; align-items: center; background: var(--panel); border: 1px solid var(--line); padding: 6px 12px; margin-bottom: 10px; }
+.subnovo .subplacar .tn { display: flex; align-items: center; justify-content: flex-end; gap: 8px; font-family: var(--display); font-size: clamp(15px, 2.6vw, 22px); text-transform: uppercase; line-height: 1.05; overflow-wrap: anywhere; text-align: right; }
+.subnovo .subplacar .tn.r { justify-content: flex-start; text-align: left; }
+.subnovo .subplacar .tn.eu { color: var(--accent); }
+.subnovo .subplacar .sc { display: flex; align-items: center; gap: 8px; background: #0f2f1c; color: #fff; padding: 2px 14px; font-family: var(--display); font-size: clamp(26px, 5vw, 38px); line-height: 1.1; }
+.subnovo .subplacar .sc i { font-style: normal; color: var(--hot); font-size: .6em; }
+.subnovo .subplacar .subminuto { font-family: var(--display); font-size: 22px; background: #0f2f1c; color: var(--hot); padding: 2px 10px; }
+.subnovo .subplacar .escudo { width: 28px; height: 28px; }
+@media (max-width: 560px) { .subnovo .subplacar { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); } .subnovo .subplacar .subminuto { grid-column: 1 / -1; justify-self: center; } }
 
 .sublinha[data-tip], tr[data-tip] { text-decoration: none; }
 .dis-wrap { display: inline-flex; }
@@ -5788,7 +5798,14 @@ window.ESCUDOS_REAIS = {};
     const dica = podeTroca ? 'Trocar ' + nomeDe(jg.selOut) + ' de posição com ' + nomeDe(jg.selOut2) + '.' : podeSub ? 'Sai ' + nomeDe(jg.selOut) + ', entra ' + nomeDe(jg.selIn) + '.'
       : 'Clique em um jogador em campo e em um reserva para substituir. Clique em dois jogadores em campo para trocar as posições deles (não conta como substituição).';
     const msg = side.subs >= max && !podeTroca ? 'Limite de substituições atingido (ainda dá para trocar posições).' : (jg.msgSub || '');
+    const plc = M.placarDe(P.m);
+    const placarTopo = h('div', { class: 'subplacar', role: 'status', 'aria-label': 'Placar do jogo' },
+      h('span', { class: 'tn' + (lado === 0 ? ' eu' : '') }, nome(P.jogo.casa), K.escudo(P.jogo.casa, true)),
+      h('span', { class: 'sc' }, h('b', { class: 'num' }, plc[0]), h('i', null, '×'), h('b', { class: 'num' }, plc[1])),
+      h('span', { class: 'tn r' + (lado === 1 ? ' eu' : '') }, K.escudo(P.jogo.fora, true), nome(P.jogo.fora)),
+      h('span', { class: 'subminuto num' }, M.minTxt(P.m, Math.max(P.m.min, 0))));
     return h('div', { class: 'subpanel subnovo' },
+      placarTopo,
       exp ? h('p', { class: 'expaviso' }, h('b', null, exp.nome + ' (' + exp.pos + ')'), ' foi expulso e seu time segue com um a menos. Você pode trocar alguém do banco por quem ficou em campo ou mudar as posições de quem está jogando',
         exp.slot === 'GOL' && side.banco.some((p) => p.pos === 'GOL') ? ' (como foi o goleiro: tire um jogador de linha e escolha o goleiro reserva, que assume o gol).' : '.') : null,
       h('div', { class: 'subtop' },
