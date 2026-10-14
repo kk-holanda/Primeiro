@@ -1,4 +1,4 @@
-# Kfoot 98: documentação do jogo (versão 47)
+# Kfoot 98: documentação do jogo (versão 48)
 
 Documento vivo: cresce junto com a implementação. Cada rodada de melhorias atualiza as seções que mudaram. Valores vêm do código da branch `claude/melhorias-5-xt6u1f` (pasta `kfoot98`). Quando algo ainda não está documentado, a seção diz "a detalhar".
 
@@ -488,3 +488,11 @@ Só Série D, livres e base (brasileiros). 28% dos jogadores recebem um nome da 
 - **Janela de substituições:** a posição principal de cada jogador aparece em negrito (no campinho e nas tabelas), e os botões "Fechar e continuar o jogo" e "Fechar (jogo pausado)" ficam na linha de cima, junto do resumo de substituições, formação e estilo. Logo abaixo dos estilos, as formações ficam à esquerda (em 2 linhas no PC, 3 no celular) com a explicação embaixo, e à direita ficam os botões menores "Confirmar substituição", "Trocar posições" e "Limpar seleção", com a dica do que vai acontecer.
 - **Barra do jogo ao vivo:** relógio e botões ficam sempre no mesmo lugar ao pausar e continuar. Os botões são menores e discretos; o de pausar/continuar tem largura fixa e o de substituições aparece sempre, apagado enquanto a bola rola.
 - **Placar na janela (v48):** a janela de substituições mostra no topo o placar do jogo (escudos, nomes, gols e minuto), porque o placar da tela de trás fica escondido.
+
+## 24. Nova tela de escalação (v48)
+A parte de cima da aba Escalação foi refeita. O campo e a tabela de jogadores ficam como antes, lado a lado, logo abaixo. A versão antiga da tela (v48 antes desta mudança) está guardada em `design/backup-interface-atual/kfoot98-index-escalacao-antiga-v48-33287f1.html` e no commit 33287f1.
+- **1 Formação e 2 Estilo de jogo em cartões.** Cada formação tem um desenhinho, a compatibilidade com o estilo escolhido (5 bolinhas) e um selo colorido com o **encaixe do elenco** (Ótimo ≥ +10%, Bom ≥ +3%, Neutro, Fraco, Ruim ≤ −10%). Cada estilo mostra a compatibilidade com a formação escolhida e o mesmo selo. Uma estrela marca a formação ou o estilo de melhor encaixe (só entre os de compatibilidade 3 ou mais). O encaixe dos cartões que não estão em uso é calculado com a escalação automática naquela combinação; o da combinação em uso é o da escalação que você montou.
+- **Mouseover** em cada cartão, com os textos de antes: formação (nome e estrutura, elenco ideal, Forte, Fraco, efeito da estrutura) e estilo (nomes alternativos, descrição, Bônus, Risco, Condição, efeitos no jogo, compatibilidade e o campinho com as setas do estilo). No celular o mouseover aparece ao tocar e segurar o cartão.
+- **Resumo da combinação**, com a compatibilidade, uma frase sobre o encaixe e os 3 estilos que mais combinam com o elenco na formação atual.
+- **Linha de baixo:** Encaixe do elenco (número, nível e barras de ataque, defesa e controle), Pontos de atenção (até 3 titulares que perdem 3 pontos ou mais jogando fora da posição natural, e se algum reserva rende mais ali) e Papéis (capitão, faltas e pênaltis, escanteios, substituições, escalação automática, saída de bola e ritmo).
+- **Nomes:** "Gegenpressing" passou a se chamar **Contra-pressão** (também chamado Gegenpressing) e "Construção desde Trás" passou a se chamar **Saída Curta** (também chamado Construção desde Trás).

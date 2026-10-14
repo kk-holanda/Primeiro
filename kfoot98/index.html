@@ -941,6 +941,54 @@ label.campo { aspect-ratio: auto !important; max-height: none !important; backgr
 .subnovo .subplacar .subminuto { font-family: var(--display); font-size: 22px; background: #0f2f1c; color: var(--hot); padding: 2px 10px; }
 .subnovo .subplacar .escudo { width: 28px; height: 28px; }
 @media (max-width: 560px) { .subnovo .subplacar { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); } .subnovo .subplacar .subminuto { grid-column: 1 / -1; justify-self: center; } }
+/* v48: nova parte de cima da escalação */
+.nv-topo { display: flex; flex-direction: column; gap: 10px; }
+.nv-row { display: grid; grid-template-columns: 480px minmax(0, 1fr); gap: 20px; background: var(--panel); border: 1px solid var(--line); padding: 14px 16px; }
+.nv-h { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.nv-h i { background: var(--ink); color: var(--bg); font-family: var(--display); font-style: normal; width: 22px; height: 22px; display: grid; place-items: center; font-size: 13px; }
+.nv-h b { font-family: var(--display); font-weight: 400; text-transform: uppercase; letter-spacing: .03em; font-size: 17px; }
+.nv-h small { margin-left: auto; color: var(--muted); font-size: 12px; }
+.nv-fgrid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; }
+.nv-sgrid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+.nv-fcard, .nv-scard { position: relative; background: var(--panel); color: var(--ink); border: 2px solid var(--line); padding: 5px 3px; display: flex; flex-direction: column; align-items: center; gap: 3px; font: inherit; cursor: pointer; }
+.nv-fcard.sel, .nv-scard.sel { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--panel)); box-shadow: 0 0 0 2px var(--accent) inset; }
+.nv-fcard:hover, .nv-scard:hover, .nv-fcard:focus-visible, .nv-scard:focus-visible { border-color: var(--accent); }
+.nv-mini svg { display: block; } .nv-mini .mp { fill: #2f8f4e; stroke: #fff; stroke-width: 1.5; } .nv-mini .ml { stroke: #fff; stroke-width: 1; } .nv-mini .md { fill: #fff; }
+.nv-fcard .fn { font-family: var(--display); font-weight: 400; font-size: 14px; letter-spacing: .03em; }
+.nv-scard .sn { font-family: var(--display); font-weight: 400; font-size: 13px; line-height: 1.1; text-align: center; min-height: 30px; display: flex; align-items: center; text-transform: uppercase; letter-spacing: .02em; }
+.nv-srow { display: flex; gap: 5px; align-items: center; justify-content: center; flex-wrap: wrap; }
+.nv-dots { display: inline-flex; gap: 2px; } .nv-dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--line); display: block; } .nv-dots i.on { background: var(--accent); }
+.nv-enc { font-weight: 800; font-size: 12px; padding: 0 5px; border-radius: 3px; color: #fff; }
+.nv-enc.otimo { background: var(--st-verde); } .nv-enc.bom { background: var(--st-vclaro); color: #1b2a0b; } .nv-enc.neutro { background: #c3cbc2; color: #26352b; } .nv-enc.fraco { background: var(--st-laranja); } .nv-enc.ruim { background: var(--st-vermelho); }
+.nv-best { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); background: var(--hot); color: var(--hot-ink); font-size: 10px; padding: 0 6px; white-space: nowrap; font-weight: 700; z-index: 1; }
+.nv-resumo { padding: 7px 12px; background: var(--panel2); border-left: 5px solid var(--accent); font-size: 14px; color: var(--ink); display: flex; gap: 6px 12px; align-items: center; flex-wrap: wrap; }
+.nv-resumo > b { font-family: var(--display); font-weight: 400; text-transform: uppercase; letter-spacing: .03em; font-size: 16px; }
+.nv-altk { display: inline-flex; gap: 5px; align-items: center; background: var(--panel); border: 1px solid var(--line); padding: 0 7px; margin-left: 6px; font-weight: 600; }
+.nv-dica { margin-left: auto; font-size: 13px; color: var(--muted); font-style: italic; }
+.nv-linha { display: grid; grid-template-columns: 300px minmax(0, 1fr) 340px; border: 1px solid var(--line); background: var(--panel); }
+.nv-col { padding: 10px 14px; border-right: 1px solid var(--line); min-width: 0; } .nv-col:last-child { border-right: 0; }
+.nv-tt { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 700; margin-bottom: 6px; }
+.nv-big { display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px; } .nv-big b { font-family: var(--display); font-weight: 400; font-size: 30px; line-height: 1; } .nv-big span { font-weight: 700; }
+.nv-big.otimo b, .nv-big.bom b { color: var(--st-verde); } .nv-big.fraco b { color: var(--st-laranja); } .nv-big.ruim b { color: var(--st-vermelho); }
+.nv-b { display: grid; grid-template-columns: 62px 1fr 52px; gap: 8px; align-items: center; font-size: 12.5px; } .nv-b span { color: var(--muted); } .nv-b em { font-style: normal; font-weight: 700; text-align: right; }
+.nv-t { height: 7px; background: var(--line); position: relative; } .nv-t:before { content: ""; position: absolute; left: 50%; top: -2px; bottom: -2px; border-left: 1px solid var(--muted); } .nv-t i { position: absolute; top: 0; bottom: 0; display: block; }
+.nv-col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; } .nv-col li { display: grid; grid-template-columns: 38px 1fr; gap: 8px; align-items: start; font-size: 13px; line-height: 1.25; }
+.nv-chip { background: var(--panel); border: 1px solid var(--st-laranja); color: var(--st-laranja); font-family: var(--display); text-align: center; font-size: 12px; padding: 1px 0; } .nv-chip.ok { border-color: var(--st-verde); color: var(--st-verde); }
+.nv-col li small { display: block; color: var(--muted); font-size: 11.5px; } .nv-col .neg { color: var(--st-vermelho); }
+.nv-pap { display: grid; gap: 5px; } .nv-papel { display: grid; grid-template-columns: 96px 1fr; align-items: center; font-size: 13px; } .nv-papel small { color: var(--muted); } .nv-papel select { min-width: 0; width: 100%; }
+.nv-auto { margin-top: 6px; font-size: 12px; color: var(--muted); } .nv-link { background: none; border: 0; padding: 0; font: inherit; color: var(--accent); text-decoration: underline; cursor: pointer; }
+/* mouseover rico */
+.nv-tip { display: none; position: absolute; top: calc(100% + 6px); left: 0; width: 400px; max-width: 86vw; z-index: 60; background: #13241a; color: #eaf3ea; text-align: left; padding: 12px 14px; font-size: 13px; line-height: 1.35; box-shadow: 0 6px 18px rgba(0,0,0,.35); font-weight: 400; cursor: default; text-transform: none; letter-spacing: 0; font-family: var(--body); }
+.nv-fcard:hover .nv-tip, .nv-scard:hover .nv-tip, .nv-fcard:focus-visible .nv-tip, .nv-scard:focus-visible .nv-tip { display: block; }
+.nv-scard:nth-child(n+4) .nv-tip { left: auto; right: 0; }
+.nv-fcard:nth-child(n+5) .nv-tip { left: auto; right: 0; }
+.nv-tip .tt { font-family: var(--display); font-weight: 400; font-size: 18px; letter-spacing: .03em; text-transform: uppercase; display: block; color: #fff; }
+.nv-tip .ts { color: #e8ab00; font-weight: 700; margin-bottom: 6px; } .nv-tip p { margin: 0 0 6px; } .nv-tip .mu { color: #b8cdbd; }
+.nv-tip .hi { color: #7be39a; } .nv-tip .bad { color: #ff8a7d; } .nv-tip small { color: #b8cdbd; display: block; margin-top: 4px; }
+.nv-tip .tefs { display: flex; flex-wrap: wrap; gap: 4px; margin: 4px 0; } .nv-tip .tef { font-size: 11.5px; padding: 1px 6px; background: #24402e; border-radius: 2px; } .nv-tip .tef.hi { color: #7be39a; } .nv-tip .tef.bad { color: #ff8a7d; }
+.nv-tip .nv-mc { float: right; width: 112px; margin: 0 0 6px 10px; } .nv-tip .nv-mc .minicampo { width: 112px; }
+@media (max-width: 1100px) { .nv-row { grid-template-columns: minmax(0, 1fr); } .nv-linha { grid-template-columns: minmax(0, 1fr); } .nv-col { border-right: 0; border-bottom: 1px solid var(--line); } .nv-col:last-child { border-bottom: 0; } }
+@media (max-width: 640px) { .nv-fgrid { grid-template-columns: repeat(4, minmax(0, 1fr)); } .nv-sgrid { grid-template-columns: repeat(3, minmax(0, 1fr)); } .nv-dica { margin-left: 0; } .nv-fcard .nv-tip, .nv-scard .nv-tip { left: 0 !important; right: auto !important; width: min(400px, 86vw); position: fixed; top: auto; bottom: 8px; left: 7vw !important; } }
 
 .sublinha[data-tip], tr[data-tip] { text-decoration: none; }
 .dis-wrap { display: inline-flex; }
@@ -1696,7 +1744,7 @@ window.ESCUDOS_REAIS = {};
       { build: 0.8, dir: 0.1, wide: 0.3, press: 0.4, linha: 0.55, bloco: 0.3, cont: 0 },
       { ctl: 0.05, chute: 0.010, qual: 1.0 }, { tempo: -0.07, atk: -0.015 }, { abertura: 0.1, atk: -0.024, def: -0.024 }, 0.1,
       [['M', ['PAS', 'DRI'], 'ctl', 1], ['D', ['PAS'], 'ctl', 0.4], ['A', ['CHU'], 'atk', 0.3]]),
-    gegen: mkE('Gegenpressing / Contra-pressão', 'Gegenpressing', 'Pressiona após perder a bola: recupera mais e corta ataques rivais. Gasta bem mais energia e deixa espaço nas costas.',
+    gegen: mkE('Contra-pressão / Gegenpressing', 'Contra-pressão', 'Pressiona após perder a bola: recupera mais e corta ataques rivais. Gasta bem mais energia e deixa espaço nas costas.',
       { build: 0.3, dir: 0.3, wide: 0.3, press: 1, linha: 0.8, bloco: 0, cont: 0 },
       { ctl: 0.025, fecha: 0.025, atk: 0.015 }, { fad: 0.5, def: -0.03, costas: 0.7, faltas: 0.18 }, { abertura: 0.5, atk: 0.059, def: 0.059 }, 1,
       [['M', ['FIS', 'DEF'], 'def', 0.6], ['M', ['FIS', 'RIT'], 'ctl', 0.3], ['A', ['FIS', 'RIT'], 'atk', 0.5]]),
@@ -1728,7 +1776,7 @@ window.ESCUDOS_REAIS = {};
       { build: 0.1, dir: 1, wide: 0.4, press: 0.3, linha: 0.45, bloco: 0.2, cont: 0.5 },
       { tempo: 0.06, atk: 0.025, chute: 0.012 }, { ctl: -0.035, qual: -0.8 }, { abertura: 0.5, atk: -0.034, def: -0.034 }, 0.5,
       [['A', ['RIT', 'CHU'], 'atk', 0.9], ['M', ['PAS', 'RIT'], 'ctl', 0.5]]),
-    saida: mkE('Construção desde Trás / Saída Curta', 'Saída Curta', 'Goleiro e zagueiros tocam curto para achar o meio livre: mais controle, mas perda perto da própria área custa caro contra quem pressiona.',
+    saida: mkE('Saída Curta / Construção desde Trás', 'Saída Curta', 'Goleiro e zagueiros tocam curto para achar o meio livre: mais controle, mas perda perto da própria área custa caro contra quem pressiona.',
       { build: 1, dir: 0, wide: 0.3, press: 0.2, linha: 0.5, bloco: 0.2, cont: 0 },
       { ctl: 0.025, def: 0.01 }, { tempo: -0.03, perda: 0.4 }, { abertura: 0, atk: 0.032, def: 0.032 }, 0.1,
       [['D', ['PAS'], 'ctl', 0.7], ['M', ['PAS', 'DEF'], 'ctl', 0.4]]),
@@ -5305,6 +5353,94 @@ window.ESCUDOS_REAIS = {};
   }
   K.cfgEscalacao = cfgDe;
 
+  // v48: nova parte de cima da escalação. Formação e estilo em cartões com mouseover (descrição, forte, fraco, bônus, risco),
+  // resumo da combinação e uma linha com o encaixe do elenco, os pontos de atenção e os papéis.
+  const pctE = (v) => (Math.round(v * 100) === 0 ? '0' : (v > 0 ? '+' : '−') + Math.abs(Math.round(v * 100))) + '%';
+  const pct1E = (v) => (v >= 0 ? '+' : '−') + Math.abs(v * 100).toFixed(1).replace('.', ',') + '%';
+  const nivelEncaixe = (ex) => (ex >= 0.10 ? ['otimo', 'Ótimo'] : ex >= 0.03 ? ['bom', 'Bom'] : ex > -0.03 ? ['neutro', 'Neutro'] : ex > -0.10 ? ['fraco', 'Fraco'] : ['ruim', 'Ruim']);
+  const FRASE_ENC = { otimo: 'O elenco foi feito para este estilo.', bom: 'O elenco se encaixa bem neste estilo.', neutro: 'O elenco serve para este estilo, sem brilho.', fraco: 'O elenco encaixa pouco neste estilo: o bônus cai e o custo sobe.', ruim: 'O elenco não tem o perfil que este estilo pede: o bônus e o custo ficam piores.' };
+  const NOMES_OUTROS = { gegen: ['Gegenpressing'], saida: ['Construção desde Trás'] };
+  const nomesOutros = (k) => NOMES_OUTROS[k] || M.ESTILOS[k].nome.split(' / ').filter((x) => x !== M.ESTILOS[k].curto && x !== K.estiloNome(k));
+  const pontosDots = (c) => h('span', { class: 'nv-dots', 'aria-label': 'compatibilidade ' + c + ' de 5' }, [1, 2, 3, 4, 5].map((i) => h('i', { class: i <= c ? 'on' : '' })));
+  const miniCampo = (f, e1, e2) => {
+    const pts = K.posicoesF(f, e1, e2), ns = 'http://www.w3.org/2000/svg';
+    return h('span', { class: 'nv-mini', 'aria-hidden': 'true', html: '<svg viewBox="0 0 60 72" width="34" height="40"><rect x="1" y="1" width="58" height="70" rx="2" class="mp"/><line x1="1" y1="36" x2="59" y2="36" class="ml"/>' + pts.map((p) => '<circle cx="' + (p.x * 0.56 + 2).toFixed(1) + '" cy="' + (p.y * 0.68 + 2).toFixed(1) + '" r="3.1" class="md"/>').join('') + '</svg>' });
+  };
+  const tipFormacao = (f) => {
+    const i = FORM_INFO[f];
+    return h('div', { class: 'nv-tip', role: 'tooltip' }, h('b', { class: 'tt' }, i.nome), h('div', { class: 'ts' }, i.estr),
+      i.car ? h('p', null, i.car) : null, h('p', null, h('b', { class: 'hi' }, 'Forte: '), i.forte), h('p', null, h('b', { class: 'bad' }, 'Fraco: '), i.fraco),
+      h('small', null, 'Efeito da estrutura no jogo: ' + FORM_INFO.efeito(f) + '.'));
+  };
+  const tipEstilo = (k, f) => {
+    const E = M.ESTILOS[k], cp = M.compat(f, k), efs = K.efeitosEstilo(f, k, null, 0), outros = nomesOutros(k);
+    return h('div', { class: 'nv-tip', role: 'tooltip' }, K.miniCampo ? h('div', { class: 'nv-mc' }, K.miniCampo(f, k)) : null, h('b', { class: 'tt' }, E.curto),
+      outros.length ? h('div', { class: 'ts' }, 'Também chamado: ' + outros.join(' / ')) : null,
+      h('p', null, E.uso), h('p', { class: 'mu' }, M.TATD.estilos[k].desc),
+      h('p', null, h('b', { class: 'hi' }, 'Bônus: '), cp.btxt), h('p', null, h('b', { class: 'bad' }, 'Risco: '), cp.ptxt),
+      h('p', null, h('b', null, 'Condição: '), cp.cond),
+      efs.length ? h('div', { class: 'tefs' }, efs.map(([t, c]) => h('span', { class: 'tef ' + c }, t))) : null,
+      h('small', null, 'Compatibilidade com o ' + f + ': ' + cp.c + ' de 5 (' + COMPAT_ROT[cp.c] + ').'));
+  };
+
+  // encaixe (-1..1) de cada formação e de cada estilo se o time for escalado no automático (a combinação em uso vale a escalação real)
+  function encaixes(c, cfg, exAtual) {
+    const ex = (f, e) => { if (f === cfg.formacao && e === cfg.tatica && exAtual != null) return exAtual; const t = S.escalarAuto(c, f, e, 3); return M.analise(t).sin.ex; };
+    return { forms: Object.keys(M.FORMACOES).map((f) => ({ f, c: M.compat(f, cfg.tatica).c, ex: ex(f, cfg.tatica) })),
+      estilos: Object.keys(M.ESTILOS).map((k) => ({ k, c: M.compat(cfg.formacao, k).c, ex: ex(cfg.formacao, k) })) };
+  }
+
+  K.escNovaTopo = function (c, cfg, esc, an, porId, salvar) {
+    const slots = M.FORMACOES[cfg.formacao], enc = encaixes(c, cfg, an.sin.ex);
+    const atual = enc.estilos.find((r) => r.k === cfg.tatica), melhorK = enc.estilos.filter((r) => r.k !== cfg.tatica && r.c >= 3).sort((a, b) => b.ex - a.ex);   // só sugere estilo e formação com compatibilidade 3 ou mais
+    const melhorF = enc.forms.filter((r) => r.f !== cfg.formacao && r.c >= 3).sort((a, b) => (b.ex + 0.02 * b.c) - (a.ex + 0.02 * a.c))[0];
+    const [nv, nvTxt] = nivelEncaixe(atual.ex), cpAtual = M.compat(cfg.formacao, cfg.tatica);
+    const selo = (ex) => { const [cl] = nivelEncaixe(ex); return h('span', { class: 'nv-enc ' + cl, 'aria-label': 'encaixe do elenco ' + pctE(ex) }, pctE(ex)); };
+
+    const cartaoF = (r) => h('button', { type: 'button', class: 'nv-fcard' + (r.f === cfg.formacao ? ' sel' : ''), 'aria-pressed': r.f === cfg.formacao ? 'true' : 'false', 'data-id': r.f,
+      onclick: () => { if (r.f === cfg.formacao) return; cfg.formacao = r.f; cfg.titulares = []; G.escSlot = null; salvar(); } },
+      melhorF && melhorF.f === r.f && melhorF.ex > atual.ex ? h('b', { class: 'nv-best' }, '★ melhor encaixe') : null,
+      miniCampo(r.f, cfg.tatica, cfg.tatica2), h('b', { class: 'fn' }, r.f === '4-4-2L' ? '4-4-2 ◇' : r.f), pontosDots(r.c), selo(r.ex), tipFormacao(r.f));
+    const cartaoE = (r) => h('button', { type: 'button', class: 'nv-scard' + (r.k === cfg.tatica ? ' sel' : ''), 'aria-pressed': r.k === cfg.tatica ? 'true' : 'false', 'data-id': r.k, 'data-campo': cfg.formacao + '|' + r.k,
+      onclick: () => { if (r.k === cfg.tatica) return; cfg.tatica = r.k; if (cfg.tatica2 && M.idEstilo(cfg.tatica2) === r.k) cfg.tatica2 = null; salvar(); } },
+      melhorK[0] && melhorK[0].k === r.k && melhorK[0].ex > atual.ex ? h('b', { class: 'nv-best' }, '★ melhor encaixe') : null,
+      h('b', { class: 'sn' }, M.ESTILOS[r.k].curto), h('span', { class: 'nv-srow' }, pontosDots(r.c), selo(r.ex)), tipEstilo(r.k, cfg.formacao));
+
+    // pontos de atenção: titulares que rendem bem menos fora da posição natural (e se algum reserva resolve)
+    const banco = c.elenco.filter((p) => !cfg.titulares.includes(p.id) && S.disponivel(p));
+    const atencao = cfg.titulares.map((id, i) => ({ p: porId.get(id), slot: slots[i] })).filter((x) => x.p)
+      .map((x) => ({ ...x, perda: Math.round(PL.ovrNoSlot(x.p, x.slot)) - Math.round(PL.overall(x.p)) })).filter((x) => x.p.pos !== x.slot && x.perda <= -3)
+      .sort((a, b) => a.perda - b.perda).slice(0, 3).map((x) => {
+        const m = banco.map((q) => [PL.ovrNoSlot(q, x.slot), q]).sort((a, b) => b[0] - a[0])[0], atualV = Math.round(PL.ovrNoSlot(x.p, x.slot));
+        const dica = m && Math.round(m[0]) > atualV ? h('small', null, 'Trocar por ', h('b', null, m[1].nome), ' (' + m[1].pos + ') rende ' + Math.round(m[0]) + ' aí.') : h('small', null, 'Nenhum reserva joga melhor aí' + (m ? ' (o melhor, ' + m[1].nome + ', rende ' + Math.round(m[0]) + ').' : '.'));
+        return h('li', null, h('span', { class: 'nv-chip' }, x.slot), h('div', null, h('b', null, x.p.nome), ' é ' + x.p.pos + ' e joga de ' + x.slot + ': ', h('b', { class: 'neg' }, Math.round(PL.overall(x.p)) + ' → ' + Math.round(PL.ovrNoSlot(x.p, x.slot))), ' (' + x.perda + ' na média).', dica));
+      });
+    const barra = (rot, v) => { const w = Math.max(3, Math.min(48, Math.abs(v) * 1400)); return h('div', { class: 'nv-b' }, h('span', null, rot), h('div', { class: 'nv-t' }, h('i', { style: (v >= 0 ? 'left:50%;width:' + w + '%;background:var(--st-verde)' : 'left:' + (50 - w) + '%;width:' + w + '%;background:var(--st-vermelho)') })), h('em', null, pct1E(v))); };
+    const sel = (campo, rot, tip, auto, txt) => h('label', { class: 'nv-papel', 'data-tip': tip }, h('small', null, rot),
+      h('select', { id: 'papel-' + campo, onchange: (e) => { cfg[campo] = e.target.value || null; salvar(); } },
+        h('option', { value: '' }, 'Automático (' + (porId.get(auto) ? porId.get(auto).nome : '—') + ')'),
+        cfg.titulares.map((id) => porId.get(id)).filter(Boolean).map((p) => h('option', { value: p.id, selected: cfg[campo] === p.id ? 'selected' : null }, p.nome + ' · ' + txt(p)))));
+
+    return h('div', { class: 'nv-topo' },
+      h('div', { class: 'nv-row' },
+        h('div', null, h('div', { class: 'nv-h' }, h('i', null, '1'), h('b', null, 'Formação'), h('small', null, '● compatibilidade com o estilo')), h('div', { class: 'nv-fgrid', role: 'group', 'aria-label': 'Formação' }, enc.forms.map(cartaoF))),
+        h('div', null, h('div', { class: 'nv-h' }, h('i', null, '2'), h('b', null, 'Estilo de jogo'), h('small', null, '● compatibilidade com a formação · selo = encaixe do elenco')), h('div', { class: 'nv-sgrid', role: 'group', 'aria-label': 'Estilo de jogo' }, enc.estilos.map(cartaoE)))),
+      h('div', { class: 'nv-resumo' }, h('b', null, cfg.formacao + ' + ' + M.ESTILOS[cfg.tatica].curto), ' compatibilidade ' + cpAtual.c + '/5 · ', h('span', null, FRASE_ENC[nv]),
+        h('span', { class: 'nv-alt' }, 'Que mais combinam com este elenco: ', melhorK.slice(0, 3).map((r) => h('span', { class: 'nv-altk' }, h('b', null, M.ESTILOS[r.k].curto), selo(r.ex)))),
+        h('span', { class: 'nv-dica' }, 'passe o mouse em cada formação ou estilo para ver a descrição')),
+      h('div', { class: 'nv-linha' },
+        h('div', { class: 'nv-col' }, h('div', { class: 'nv-tt', 'data-tip': 'Mede se os jogadores certos (passe, fôlego, velocidade, finalização...) estão nas posições que a formação e o estilo pedem, comparado a um time comum. Bom encaixe aumenta o bônus e reduz o custo do estilo.' }, 'Encaixe do elenco'),
+          h('div', { class: 'nv-big ' + nv }, h('b', null, pctE(atual.ex)), h('span', null, nvTxt)), barra('Ataque', an.sin.atk), barra('Defesa', an.sin.def), barra('Controle', an.sin.ctl)),
+        h('div', { class: 'nv-col' }, h('div', { class: 'nv-tt' }, 'Pontos de atenção'), h('ul', null, atencao.length ? atencao : [h('li', { class: 'ok' }, h('span', { class: 'nv-chip ok' }, 'OK'), h('div', null, 'Todos os titulares estão bem posicionados.'))])),
+        h('div', { class: 'nv-col' }, h('div', { class: 'nv-tt' }, 'Papéis'),
+          h('div', { class: 'nv-pap' },
+            sel('capitao', 'Capitão', 'O capitão acalma o time (menos cartões) e, com moral alta, dá um empurrão em todos os setores.', an.capitao, (p) => p.idade + ' anos · moral ' + Math.round(p.moral)),
+            sel('batedor', 'Faltas e pênaltis', 'Quem cobra as faltas diretas perto da área e os pênaltis. Vale quem tem a melhor "bola parada" (pode ser até o goleiro).', an.cobrador, (p) => 'bola parada ' + Math.round(PL.cobrDe(p))),
+            sel('batedorEsc', 'Escanteios', 'Quem bate escanteios e faltas laterais. Bom passe cria mais cabeçadas e gols de cabeça.', an.escanteio, (p) => 'passe ' + p.attr.PAS)),
+          h('div', { class: 'nv-auto' }, 'Substituições: até ' + G.config.maxSubs + ' por jogo · ', h('button', { type: 'button', class: 'nv-link', onclick: () => { cfg.titulares = []; G.escSlot = null; salvar(); } }, 'Escalação automática')),
+          h('div', { class: 'nv-auto' }, 'Saída de bola (passe) ' + Math.round(an.pas) + ' · ritmo ' + Math.round(an.rit)))));
+  };
+
   K.telas.escalacao = function () {
     const c = K.clubeHumano(), cfg = cfgDe(c), msg = G.escMsg || ''; G.escMsg = '';
     const esc = S.escalarAuto(c, cfg.formacao, cfg.tatica, G.config.maxSubs, cfg.titulares, cfg.tatica2);
@@ -5361,18 +5497,9 @@ window.ESCUDOS_REAIS = {};
     const media = cfg.titulares.map((id, i) => PL.ovrNoSlot(porId.get(id), slots[i])).reduce((a, b) => a + b, 0) / 11;
     const fora = cfg.titulares.filter((id, i) => PL.afinP(porId.get(id), slots[i]) < 0.93).length;
 
-    const segF = h('div', { class: 'seg segF', role: 'group', 'aria-label': 'Formação' }, Object.keys(M.FORMACOES).map((f) => h('button', { type: 'button', 'aria-pressed': cfg.formacao === f ? 'true' : 'false', 'data-id': f, 'data-tip': FORM_INFO[f].nome + ' · ' + FORM_INFO[f].estr + '. Pontos fortes: ' + FORM_INFO[f].forte + ' Pontos fracos: ' + FORM_INFO[f].fraco, onclick: () => { cfg.formacao = f; cfg.titulares = []; G.escSlot = null; salvar(); } }, f === '4-4-2L' ? '4-4-2 ◇' : f)));
     const an = M.analise(esc);
     return h('div', { class: 'escwrap' },
-      h('div', { class: 'esccontrols' },
-        h('div', null, h('small', { class: 'eyebrow' }, 'Formação'), segF),
-        h('div', null, h('small', { class: 'eyebrow' }, 'Estilo de jogo (número = compatibilidade 1 a 5 com a formação)'), K.seletorEstilo(cfg, salvar)),
-        h('div', null, h('small', { class: 'eyebrow' }, 'Substituições'), h('b', null, 'até ' + G.config.maxSubs + ' por jogo')),
-        h('button', { class: 'btn alt sm', onclick: () => { cfg.titulares = []; G.escSlot = null; salvar(); } }, 'Escalação automática')),
-      h('div', { class: 'formdesc' }, h('b', null, FORM_INFO[cfg.formacao].nome + ' · ' + FORM_INFO[cfg.formacao].estr), h('p', null, FORM_INFO[cfg.formacao].car),
-        h('p', null, h('b', { class: 'hi' }, 'Forte: '), FORM_INFO[cfg.formacao].forte + ' ', h('b', { class: 'bad' }, 'Fraco: '), FORM_INFO[cfg.formacao].fraco), h('small', { class: 'muted' }, 'Efeito da estrutura no jogo: ' + FORM_INFO.efeito(cfg.formacao) + '.')),
-      K.painelEstilo(cfg, an.sin.ex),
-      K.papeisBox(c, cfg, esc, porId, salvar),
+      K.escNovaTopo(c, cfg, esc, an, porId, salvar),
       cfg.deJogo ? h('p', { class: 'footnote' }, 'Escalação padrão: a do último jogo (contra ' + K.nomeClube(cfg.deJogo.adv) + ', ' + GM.fmtDataCurta(cfg.deJogo.data) + '). Jogadores lesionados, suspensos ou em treino são trocados automaticamente.') : null,
       h('p', { class: 'escmsg', role: 'status' }, msg || (sel != null ? 'Posição ' + slotSel + ' escolhida. Clique em um jogador da lista para colocá-lo.' : 'Clique em uma posição no campo e depois em um jogador da lista. Qualquer jogador pode jogar em qualquer posição, mas rende menos fora da sua.')),
       h('div', { class: 'escgrid' },
