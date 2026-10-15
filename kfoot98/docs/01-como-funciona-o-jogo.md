@@ -528,3 +528,12 @@ Cada técnico joga no seu próprio computador, pela internet, numa sala. Funcion
 - **Fim da rodada:** o anfitrião clica em "Ver resumo"; o jogo vai para a sala e todos recebem o resumo. Começa a vez do primeiro técnico de novo. A nova temporada também é começada pelo anfitrião.
 - **O anfitrião precisa estar com o jogo aberto** para iniciar e rodar as rodadas. Os outros podem fechar e voltar depois: "Voltar à sala" baixa o jogo atual.
 - **Salvar:** o jogo fica guardado na sala. Os espaços de salvar e o automático não são usados no modo online. A opção de jogo automático fica desligada.
+
+## 27. Sala online por link, sem conta (v51)
+No site do jogo no GitHub (https://kk-holanda.github.io/Primeiro/kfoot98/), o "Jogar online" funciona sem conta e sem convite por e-mail.
+- **Criar:** "Jogar online", escreva seu nome, o nome da sala e o número de técnicos, e clique em "Criar sala". A sala ganha um código de 5 letras e um link (…/kfoot98/?sala=CÓDIGO) com o botão "Copiar link". Mande o link para os amigos (WhatsApp, por exemplo).
+- **Entrar:** quem abre o link vai direto para a sala; escreve o nome e clica em "Entrar". Depois disso tudo é igual à seção 26 (sorteio, boas-vindas, turnos e partida ao vivo).
+- **O navegador do anfitrião é a sala:** o jogo da sala fica guardado no navegador de quem criou. O anfitrião precisa estar com a aba aberta para os outros jogarem, e precisa voltar pelo mesmo navegador (abrindo o mesmo link) para continuar a liga. Se a aba fechar, os outros veem "O anfitrião não está com o jogo aberto agora. Tentando de novo…" e voltam sozinhos quando ele reabrir.
+- **Voltar depois:** cada navegador lembra quem é o técnico. Abrir o link de novo leva direto de volta à sala.
+- **Conexão:** os navegadores se conectam direto um ao outro (PeerJS, com o servidor gratuito do PeerJS só para se encontrarem). Em redes muito fechadas (empresa, alguns Wi-Fi públicos) a conexão pode falhar.
+- O link do jogo no claude.ai continua igual; a versão online no claude.ai (seção 26) também segue funcionando, com conta e convite.

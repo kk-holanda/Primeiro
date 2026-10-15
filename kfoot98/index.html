@@ -1014,6 +1014,7 @@ body.ro main.page .tabs::after { content: 'Só olhando: você mexe no clube na s
 .onsalas td, .onsalas th { padding: 6px 8px; border-bottom: 1px solid var(--line, #ddd); }
 .onvagas li { padding: 4px 0; } .onvagas li.livre { color: var(--muted, #778); } .onvagas li.ok { font-weight: 600; }
 .onmsg { font-weight: 600; }
+.onlink .onlinkrow { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 6px 0; } .onlink input { flex: 1 1 260px; min-width: 0; font: inherit; padding: 6px 8px; }
 
 .sublinha[data-tip], tr[data-tip] { text-decoration: none; }
 .dis-wrap { display: inline-flex; }
@@ -8100,6 +8101,154 @@ window.ESCUDOS_REAIS = {};
 })();
 
 ;
+// v51: sala online fora do claude.ai, por link. Conexão direta entre os navegadores (PeerJS, arquivo peerjs.min.js ao lado do jogo).
+// O navegador do anfitrião guarda o banco da sala (o mesmo formato de documentos do modo claude.ai) e responde aos outros;
+// os outros leem e escrevem nesse banco pela conexão. Um banco e uma sala ao vivo "de mentira" com a mesma cara do claude.ai.
+window.KFootP2P = function () {
+  const PREF = 'kfoot98-sala-', esperar = (ms) => new Promise((r) => setTimeout(r, ms));
+  const ls = { get: (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } }, del: (k) => { try { localStorage.removeItem(k); } catch (e) { /* sem armazenamento */ } } };
+  let uid = ls.get('kfoot98-uid'); if (!uid) { uid = 'u' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8); ls.set('kfoot98-uid', uid); }
+  const P = { uid, estado: 'off', codigo: null, host: false, aoMudar: null, erro: '' };
+  const muda = (e, erro) => { P.estado = e; if (erro !== undefined) P.erro = erro; if (P.aoMudar) P.aoMudar(); };
+
+  // ---------- banco em memória (no anfitrião) ----------
+  function criarStore(chave) {
+    const st = new Map(), subs = new Set(); let ver = 0, tSalvar = null;
+    try { const j = chave && JSON.parse(ls.get(chave) || 'null'); if (j) { ver = j.ver || 0; j.docs.forEach(([p, d]) => st.set(p, d)); } } catch (e) { /* banco salvo estragado: começa vazio */ }
+    const merge = (a, b) => { for (const k in b) { if (b[k] && typeof b[k] === 'object' && !Array.isArray(b[k]) && a[k] && typeof a[k] === 'object' && !Array.isArray(a[k])) merge(a[k], b[k]); else a[k] = b[k]; } return a; };
+    const copia = (x) => JSON.parse(JSON.stringify(x));
+    const lista = (path) => { const n = path.split('/').length + 1, out = []; for (const [p, d] of st) if (p.startsWith(path + '/') && p.split('/').length === n) out.push({ id: p.split('/').pop(), v: d.v, data: d.data }); return out.sort((a, b) => a.id.localeCompare(b.id)); };
+    const ler = (s) => (s.kind === 'doc' ? st.get(s.path) || null : lista(s.path));
+    const chaveDe = (s, r) => (s.kind === 'doc' ? String(r ? r.v : 0) : r.map((d) => d.id + ':' + d.v).join(','));
+    function avisar() { for (const s of subs) { const r = ler(s), k = chaveDe(s, r); if (k !== s.last) { s.last = k; try { s.cb(r); } catch (e) { console.error(e); } } } }
+    function salvar() { if (!chave) return; clearTimeout(tSalvar); tSalvar = setTimeout(() => { if (!ls.set(chave, JSON.stringify({ ver, docs: [...st] }))) console.warn('Kfoot: não deu para guardar a sala neste navegador'); }, 1200); }
+    return {
+      op(o) {
+        const { tipo, path, data } = o;
+        if (tipo === 'get') return st.get(path) || null;
+        if (tipo === 'list') return lista(path);
+        if (typeof path !== 'string' || !/^online\//.test(path)) throw new Error('caminho inválido');
+        if (tipo === 'set') st.set(path, { v: ++ver, data: copia(data) });
+        else if (tipo === 'update') { const d = st.get(path); if (!d) throw new Error('documento não existe'); st.set(path, { v: ++ver, data: merge(copia(d.data), copia(data)) }); }
+        else throw new Error('operação desconhecida');
+        salvar(); setTimeout(avisar, 0); return true;
+      },
+      sub(path, kind, cb) { const s = { path, kind, cb, last: null }; subs.add(s); setTimeout(() => { if (subs.has(s)) { const r = ler(s); s.last = chaveDe(s, r); cb(r); } }, 0); return () => subs.delete(s); },
+      temDados: () => st.size > 0,
+    };
+  }
+
+  // ---------- quem atende (o banco do anfitrião ou a conexão com ele) ----------
+  let back = { op: async (o) => (o.tipo === 'get' ? null : o.tipo === 'list' ? [] : Promise.reject(new Error('sem sala'))), sub: (p, k, cb) => { setTimeout(() => cb(k === 'doc' ? null : []), 0); return () => {}; } };
+  const ativos = new Set();   // inscrições abertas: mudam de lugar quando a conexão muda
+  function trocarBack(b) { back = b; for (const a of ativos) { try { a.un(); } catch (e) { /* já parado */ } a.un = back.sub(a.path, a.kind, a.cb); } }
+  const snap = (id, r) => ({ id, exists: !!r, data: () => (r ? r.data : undefined), metadata: { fromCache: false, hasPendingWrites: false } });
+  const qsnap = (l) => { const docs = l.map((d) => snap(d.id, d)); return { docs, size: docs.length, empty: !docs.length, docChanges: () => [], metadata: {} }; };
+  function inscrever(path, kind, next) {
+    const a = { path, kind, cb: (r) => next(kind === 'doc' ? snap(path.split('/').pop(), r) : qsnap(r)) };
+    a.un = back.sub(path, kind, a.cb); ativos.add(a);
+    return () => { ativos.delete(a); try { a.un(); } catch (e) { /* já parado */ } };
+  }
+  const doc = (path) => ({ id: path.split('/').pop(), path,
+    get: async () => snap(path.split('/').pop(), await back.op({ tipo: 'get', path })),
+    set: async (data) => { await back.op({ tipo: 'set', path, data }); },
+    update: async (data) => { await back.op({ tipo: 'update', path, data }); },
+    onSnapshot: (next) => inscrever(path, 'doc', next),
+    collection: (p) => col(path + '/' + p) });
+  const col = (path) => ({ path, doc: (id) => doc(path + '/' + (id || Math.random().toString(36).slice(2))),
+    get: async () => qsnap(await back.op({ tipo: 'list', path })),
+    onSnapshot: (next) => inscrever(path, 'col', next) });
+  P.db = { doc, collection: col };
+
+  // ---------- sala ao vivo (minutos da partida) ----------
+  const ouvintes = {};
+  const entregar = (topic, data) => (ouvintes[topic] || []).forEach((f) => { try { f({ topic, data }); } catch (e) { console.error(e); } });
+  let espalhar = () => {};
+  P.room = { on: (t, fn) => { (ouvintes[t] = ouvintes[t] || []).push(fn); return () => { ouvintes[t] = (ouvintes[t] || []).filter((x) => x !== fn); }; }, emit: async (t, d) => { espalhar(t, d); } };
+
+  // ---------- PeerJS ----------
+  let peer = null, carregou = null;
+  function carregarPeer() {
+    if (window.Peer) return Promise.resolve();
+    if (!carregou) carregou = new Promise((ok, falha) => { const s = document.createElement('script'); s.src = 'peerjs.min.js'; s.onload = ok; s.onerror = () => { carregou = null; falha(new Error('não carregou a conexão (peerjs.min.js)')); }; document.head.append(s); });
+    return carregou;
+  }
+  const opcoes = () => Object.assign({ debug: 0 }, window.KFOOT_PEER || {});
+  function fecharPeer() { if (peer) { try { peer.destroy(); } catch (e) { /* já fechado */ } peer = null; } }
+  P.temSalaGuardada = (codigo) => !!ls.get(PREF + codigo);
+  P.esquecer = (codigo) => ls.del(PREF + codigo);
+  P.link = (codigo) => { const u = new URL(location.href); u.search = ''; u.hash = ''; u.searchParams.set('sala', codigo); return u.toString(); };
+
+  // anfitrião: abre a sala com o código; os outros entram pelo link
+  P.hospedar = async (codigo) => {
+    await carregarPeer(); fecharPeer();
+    const store = criarStore(PREF + codigo), conns = new Set();
+    P.codigo = codigo; P.host = true; muda('abrindo', '');
+    espalhar = (t, d) => { entregar(t, d); for (const c of conns) if (c.open) c.send({ t: 'ev', topic: t, data: d }); };
+    trocarBack({ op: async (o) => store.op(o), sub: (p, k, cb) => store.sub(p, k, cb) });
+    for (let tent = 0; ; tent++) {
+      const ok = await new Promise((res) => {
+        const pr = (peer = new window.Peer(PREF + codigo, opcoes()));
+        pr.on('open', () => res(true));
+        pr.on('error', (e) => { if (P.estado === 'abrindo') res(e.type === 'unavailable-id' ? 'ocupado' : String(e.type || e)); else muda('host', 'Conexão: ' + (e.type || e)); });
+        pr.on('disconnected', () => { if (peer === pr && !pr.destroyed) setTimeout(() => { try { pr.reconnect(); } catch (e) { /* tenta na próxima */ } }, 2000); });
+        pr.on('connection', (c) => {
+          const meus = {}; conns.add(c);
+          c.on('data', (m) => {
+            if (!m || typeof m !== 'object') return;
+            if (m.t === 'op') { let r; try { r = { t: 'r', id: m.id, ok: true, v: store.op(m.o) }; } catch (e) { r = { t: 'r', id: m.id, ok: false, err: String(e.message || e) }; } c.send(r); }
+            else if (m.t === 'sub') { if (meus[m.sid]) meus[m.sid](); meus[m.sid] = store.sub(m.path, m.kind, (r) => { if (c.open) c.send({ t: 'snap', sid: m.sid, r }); }); }
+            else if (m.t === 'unsub') { if (meus[m.sid]) { meus[m.sid](); delete meus[m.sid]; } }
+            else if (m.t === 'emit') espalhar(m.topic, m.data);
+          });
+          c.on('close', () => { conns.delete(c); Object.values(meus).forEach((u) => u()); });
+          c.on('error', () => { /* o close limpa */ });
+        });
+      });
+      if (ok === true) { muda('host', ''); return true; }
+      fecharPeer();
+      if (ok === 'ocupado' && tent < 15) { muda('abrindo', 'A sala ainda está aberta em outra aba ou acabou de fechar. Tentando de novo…'); await esperar(3000); continue; }
+      muda('erro', ok === 'ocupado' ? 'Esta sala está aberta em outra aba ou outro computador.' : 'Não deu para abrir a sala (' + ok + ').');
+      return false;
+    }
+  };
+
+  // convidado: conecta ao anfitrião e usa o banco dele
+  P.conectar = async (codigo) => {
+    await carregarPeer(); fecharPeer();
+    P.codigo = codigo; P.host = false; muda('conectando', '');
+    let conn = null, nOp = 0, nSub = 0; const pend = new Map(), subsRem = new Map();
+    const enviar = (m) => { if (conn && conn.open) { conn.send(m); return true; } return false; };
+    espalhar = (t, d) => { enviar({ t: 'emit', topic: t, data: d }); };
+    const remoto = {
+      op: (o) => new Promise((ok, falha) => { const id = ++nOp; pend.set(id, { ok, falha }); if (!enviar({ t: 'op', id, o })) { pend.delete(id); falha(new Error('sem conexão com o anfitrião')); } }),
+      sub: (path, kind, cb) => { const sid = ++nSub; subsRem.set(sid, { path, kind, cb }); enviar({ t: 'sub', sid, path, kind }); return () => { subsRem.delete(sid); enviar({ t: 'unsub', sid }); }; },
+    };
+    trocarBack(remoto);
+    const pr = (peer = new window.Peer(opcoes()));
+    let tLigar = null;
+    const agendar = (ms) => { if (!tLigar) tLigar = setTimeout(() => { tLigar = null; ligar(); }, ms); };
+    const ligar = () => {
+      if (peer !== pr || pr.destroyed || (conn && conn.open)) return;
+      const c = pr.connect(PREF + codigo, { reliable: true }); conn = c;
+      c.on('open', () => { muda('cliente', ''); for (const [sid, s] of subsRem) c.send({ t: 'sub', sid, path: s.path, kind: s.kind }); });
+      c.on('data', (m) => {
+        if (!m || typeof m !== 'object') return;
+        if (m.t === 'r') { const p = pend.get(m.id); if (p) { pend.delete(m.id); if (m.ok) p.ok(m.v); else p.falha(new Error(m.err)); } }
+        else if (m.t === 'snap') { const s = subsRem.get(m.sid); if (s) s.cb(m.r); }
+        else if (m.t === 'ev') entregar(m.topic, m.data);
+      });
+      c.on('close', () => { if (conn !== c) return; conn = null; for (const p of pend.values()) p.falha(new Error('a conexão com o anfitrião caiu')); pend.clear(); muda('semhost', 'A conexão com o anfitrião caiu. Tentando de novo…'); agendar(2500); });
+    };
+    pr.on('open', ligar);
+    pr.on('disconnected', () => { if (peer === pr && !pr.destroyed) setTimeout(() => { try { pr.reconnect(); } catch (e) { /* tenta na próxima */ } }, 2000); });
+    pr.on('error', (e) => { if (e.type === 'peer-unavailable') { muda('semhost', 'O anfitrião não está com o jogo aberto agora. Tentando de novo…'); conn = null; agendar(4000); } else if (P.estado !== 'cliente') muda('semhost', 'Conexão: ' + (e.type || e)); });
+    return true;
+  };
+  return P;
+};
+
+;
 // v50: multiplayer online por turnos. Só aparece quando a página tem o banco compartilhado (db) e o usuário (user) do claude.ai.
 // Cada técnico joga no seu computador. A vez segue a ordem dos técnicos (do clube mais fraco ao mais forte): quem está na vez mexe no
 // jogo e, ao terminar, envia o estado inteiro para a sala. Depois do último, o anfitrião (quem criou a sala) roda a rodada e envia o resultado.
@@ -8112,16 +8261,42 @@ window.ESCUDOS_REAIS = {};
   // ---------- capacidades ----------
   (async () => {
     try {
-      if (!window.claude || !window.claude.use) { ON.ok = false; return; }
+      if (!window.claude || !window.claude.use) { iniciarP2P(); return; }
       const [db, user] = await Promise.all([window.claude.use('db'), window.claude.use('user')]);
       if (!db || !user) { ON.ok = false; return; }
       ON.db = db; ON.user = user; ON.uid = await user.id();
       try { ON.podeEscrever = await user.can('data.write'); } catch (e) { ON.podeEscrever = null; }
       ON.ok = !!ON.uid;
-      try { ON.room = await window.claude.use('room'); if (ON.room) ON.room.on('tick', (msg) => { const d = msg.data || {}; if (G.on && G.on.live && d.id === G.on.live.id && !ehHost()) { G.on.alvo = Math.max(G.on.alvo || 0, d.n || 0); K.jogoAlcancar(); } }, () => { /* sem sala ao vivo: os minutos chegam pelo banco */ }); } catch (e) { ON.room = null; }
+      try { ON.room = await window.claude.use('room'); if (ON.room) ON.room.on('tick', aoTick, () => { /* sem sala ao vivo: os minutos chegam pelo banco */ }); } catch (e) { ON.room = null; }
     } catch (e) { ON.ok = false; }
     if (G.tela === 1 || G.tela === 'online') K.render();
   })();
+  function aoTick(msg) { const d = msg.data || {}; if (G.on && G.on.live && d.id === G.on.live.id && !ehHost()) { G.on.alvo = Math.max(G.on.alvo || 0, d.n || 0); K.jogoAlcancar(); } }
+  // v51: fora do claude.ai (site do jogo), a sala é aberta pelo navegador do anfitrião e os amigos entram pelo link ?sala=CÓDIGO
+  function iniciarP2P() {
+    if (!window.KFootP2P || !/^https?:$/.test(location.protocol)) { ON.ok = false; return; }
+    const P = (ON.p2p = window.KFootP2P());
+    Object.assign(ON, { db: P.db, room: P.room, uid: P.uid, podeEscrever: true, ok: true });
+    ON.room.on('tick', aoTick);
+    P.aoMudar = () => { if (G.tela === 'online') K.render(); else if (G.tela === 5 || G.tela === 'fim') K.renderKeep(); };
+    const cod = (new URLSearchParams(location.search).get('sala') || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
+    if (cod) {
+      ON.autoEntrar = cod; ON.p2pTentou = cod;
+      (P.temSalaGuardada(cod) ? P.hospedar(cod) : P.conectar(cod)).catch((e) => { P.erro = msgErro(e); P.estado = 'erro'; if (G.tela === 'online') K.render(); });
+      setTimeout(() => { if (G.tela === 1) K.abrirOnline(); }, 0);
+    }
+  }
+  const novoCodigo = () => Array.from({ length: 5 }, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(Math.random() * 32)]).join('');
+  function caixaLink() {
+    if (!ON.p2p || !ON.p2p.codigo) return null;
+    const P = ON.p2p, link = P.link(P.codigo);
+    const st = { host: 'Sala aberta neste navegador. Deixe esta aba aberta para os amigos jogarem.', cliente: 'Conectado ao anfitrião.', conectando: 'Conectando ao anfitrião…', abrindo: 'Abrindo a sala…' }[P.estado];
+    return h('section', { class: 'card onlink' }, h('h3', null, 'Link da sala ' + P.codigo),
+      h('div', { class: 'onlinkrow' }, h('input', { id: 'on-link', readonly: true, value: link, onclick: (e) => e.target.select() }),
+        h('button', { class: 'btn sm', id: 'on-copiar', onclick: async (e) => { try { await navigator.clipboard.writeText(link); e.target.textContent = 'Copiado!'; } catch (er) { document.getElementById('on-link').select(); e.target.textContent = 'Copie o texto ao lado'; } } }, 'Copiar link')),
+      h('small', { class: P.erro ? 'err' : 'muted' }, P.erro || st || ''));
+  }
+  K.onlineLinkBox = caixaLink;
 
   // ---------- compressão (igual ao salvar jogo) ----------
   async function comprimir(txt) { const st = new Blob([txt]).stream().pipeThrough(new CompressionStream('gzip')); return new Uint8Array(await new Response(st).arrayBuffer()); }
@@ -8287,7 +8462,9 @@ window.ESCUDOS_REAIS = {};
       : s.fase === 'aovivo' ? 'A rodada está sendo jogada.' : s.fase === 'partida' ? (ehHost() ? 'Todos terminaram. Você é o anfitrião: inicie a rodada.' : 'Todos terminaram. O anfitrião vai rodar a rodada; o resultado chega aqui sozinho.')
         : ehHost() ? 'Fim da temporada: você começa a próxima.' : 'Fim da temporada: o anfitrião começa a próxima.';
     return h('aside', { class: 'prontos onbox', 'aria-label': 'Sala online' }, h('h3', null, 'Sala online · ' + s.nome),
-      h('table', null, h('tbody', null, linhas)), h('small', { class: 'muted' }, txt), G.on.msgVez ? h('p', { class: 'err' }, G.on.msgVez) : null);
+      h('table', null, h('tbody', null, linhas)), h('small', { class: 'muted' }, txt), G.on.msgVez ? h('p', { class: 'err' }, G.on.msgVez) : null,
+      ON.p2p && ON.p2p.erro ? h('p', { class: 'err' }, ON.p2p.erro) : null,
+      ON.p2p && ehHost() ? h('button', { class: 'btn sm alt', id: 'on-copiar2', onclick: async (e) => { try { await navigator.clipboard.writeText(ON.p2p.link(ON.p2p.codigo)); e.target.textContent = 'Link copiado!'; } catch (er) { e.target.textContent = ON.p2p.link(ON.p2p.codigo); } } }, 'Copiar link da sala') : null);
   };
   K.onlineBotoes = () => {
     const s = G.on.sala, minha = K.onlineMinhaVez();
@@ -8365,15 +8542,19 @@ window.ESCUDOS_REAIS = {};
   // ---------- tela das salas ----------
   function ouvirSalas() {
     if (ON.unsubSalas || !ON.db) return;
-    ON.unsubSalas = ON.db.collection('online').onSnapshot((q) => { ON.salas = q.docs.map((d) => ({ id: d.id, ...d.data() })).sort((a, b) => (b.criadoEm || '').localeCompare(a.criadoEm || '')); if (G.tela === 'online' && !G.on) K.render(); }, (e) => { ON.salas = []; ON.erroSalas = msgErro(e); if (G.tela === 'online') K.render(); });
+    ON.unsubSalas = ON.db.collection('online').onSnapshot((q) => { ON.salas = q.docs.map((d) => ({ id: d.id, ...d.data() })).sort((a, b) => (b.criadoEm || '').localeCompare(a.criadoEm || ''));
+      if (ON.autoEntrar && !G.on) { const sl = ON.salas.find((x) => x.id === ON.autoEntrar); if (sl) { ON.autoEntrar = null; if (souDaSala(sl)) { entrarSala(sl.id); return; } } }
+      if (G.tela === 'online' && !G.on) K.render(); }, (e) => { ON.salas = []; ON.erroSalas = msgErro(e); if (G.tela === 'online') K.render(); });
   }
+  const souDaSala = (sl) => (sl.vagas || []).some((v) => v.uid === ON.uid) || (sl.ordem || []).some((v) => v.uid === ON.uid);
   K.abrirOnline = () => { G.tela = 'online'; ouvirSalas(); K.render(); window.scrollTo(0, 0); };
   async function criarSala() {
     const nome = (document.getElementById('on-sala').value || '').trim() || 'Sala de ' + meuNome(), n = +document.getElementById('on-ntec').value, eu = meuNome();
     if (eu.length < 2) { ON.erro = 'Digite seu nome de técnico (pelo menos 2 letras).'; K.render(); return; }
-    const id = 's' + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
+    const id = ON.p2p ? novoCodigo() : 's' + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
     ON.erro = ''; ON.ocupado = true; K.render();
     try {
+      if (ON.p2p) { if (!(await ON.p2p.hospedar(id))) throw new Error(ON.p2p.erro || 'a conexão não abriu'); try { history.replaceState(null, '', ON.p2p.link(id)); } catch (e) { /* endereço fica como está */ } }
       await salaRef(id).set({ nome: nome.slice(0, 40), host: ON.uid, hostNome: eu, nTec: n, status: 'lobby', vagas: [{ nome: eu, uid: ON.uid }], criadoEm: new Date().toISOString(), versao: BF.VERSAO });
       await minhaEntrada(id).set({ nome: eu, ts: Date.now() });
       ON.ocupado = false; entrarSala(id);
@@ -8394,8 +8575,10 @@ window.ESCUDOS_REAIS = {};
     const vol = h('button', { class: 'btn alt', onclick: () => { G.tela = 1; K.render(); } }, 'Voltar');
     if (ON.ok === null) return h('main', { class: 'wrap page' }, h('p', null, 'Conectando…'));
     if (!ON.ok) return h('main', { class: 'wrap page' }, h('h2', null, 'Jogar online'), h('p', null, 'O modo online só funciona dentro do claude.ai, com a sua conta, no link da versão online do jogo.'), vol);
-    const salas = ON.salas;
-    const lista = salas == null ? h('p', { class: 'muted' }, 'Procurando salas…') : !salas.length ? h('p', { class: 'muted' }, 'Nenhuma sala ainda. Crie a primeira abaixo.')
+    const salas = ON.salas, P = ON.p2p;
+    const lista = P && !P.codigo ? h('p', { class: 'muted' }, 'Para entrar na sala de um amigo, abra o link que ele mandou. Para jogar com amigos, crie uma sala abaixo e mande o link para eles.')
+      : P && P.estado !== 'host' && P.estado !== 'cliente' ? h('p', { class: P.estado === 'erro' ? 'err' : 'muted' }, P.erro || 'Conectando à sala ' + P.codigo + '…')
+      : salas == null ? h('p', { class: 'muted' }, 'Procurando salas…') : !salas.length ? h('p', { class: 'muted' }, 'Nenhuma sala ainda. Crie a primeira abaixo.')
       : h('table', { class: 'onsalas' }, h('thead', null, h('tr', null, h('th', { class: 'l' }, 'Sala'), h('th', { class: 'l' }, 'Anfitrião'), h('th', null, 'Técnicos'), h('th', { class: 'l' }, 'Situação'), h('th', null, ''))),
         h('tbody', null, salas.map((sl) => {
           const ja = (sl.vagas || []).some((v) => v.uid === ON.uid) || (sl.estado && (sl.ordem || []).some((v) => v.uid === ON.uid)), cheia = (sl.vagas || []).length >= sl.nTec;
@@ -8405,7 +8588,7 @@ window.ESCUDOS_REAIS = {};
         })));
     return h('main', { class: 'wrap page online' },
       h('div', { class: 'head' }, h('span', { class: 'eyebrow' }, 'Multiplayer online'), h('h2', null, 'Jogar online'),
-        h('p', null, 'Cada técnico joga no seu computador. A vez vai do clube mais fraco ao mais forte. Quem está na vez mexe no seu clube e termina a vez; depois do último, o anfitrião (quem criou a sala) roda a rodada e o resultado chega para todos.')),
+        h('p', null, (P ? 'Sem conta e sem cadastro: quem cria a sala recebe um link para mandar aos amigos. ' : '') + 'Cada técnico joga no seu computador. A vez vai do clube mais fraco ao mais forte. Quem está na vez mexe no seu clube e termina a vez; depois do último, o anfitrião (quem criou a sala) roda a rodada e o resultado chega para todos.')),
       ON.podeEscrever === false ? h('p', { class: 'err' }, 'Sua conta só pode olhar este jogo. Peça ao dono do link para te convidar como Editor.') : null,
       h('label', { class: 'onlab' }, 'Seu nome de técnico ', h('input', { id: 'on-nome', maxlength: 24, value: ON.nome || '', placeholder: 'Ex.: KK', oninput: (e) => { ON.nome = e.target.value.trim().replace(/\s+/g, ' '); } })),
       h('section', { class: 'card' }, h('h3', null, 'Salas'), lista),
@@ -8423,7 +8606,7 @@ window.ESCUDOS_REAIS = {};
       const vagas = s.vagas || [], cheia = vagas.length >= s.nTec;
       return h('main', { class: 'wrap page online' },
         h('div', { class: 'head' }, h('span', { class: 'eyebrow' }, 'Sala online'), h('h2', null, s.nome), h('p', null, 'Anfitrião: ' + (s.hostNome || '') + '. Faltam ' + (s.nTec - vagas.length) + ' técnico(s).')),
-        h('section', { class: 'card' }, h('h3', null, 'Técnicos'), h('ol', { class: 'onvagas' }, Array.from({ length: s.nTec }, (_, i) => h('li', { class: vagas[i] ? 'ok' : 'livre' }, vagas[i] ? vagas[i].nome + (vagas[i].uid === s.host ? ' (anfitrião)' : '') + (vagas[i].uid === ON.uid ? ' · você' : '') : 'Vaga livre')))),
+        caixaLink(), h('section', { class: 'card' }, h('h3', null, 'Técnicos'), h('ol', { class: 'onvagas' }, Array.from({ length: s.nTec }, (_, i) => h('li', { class: vagas[i] ? 'ok' : 'livre' }, vagas[i] ? vagas[i].nome + (vagas[i].uid === s.host ? ' (anfitrião)' : '') + (vagas[i].uid === ON.uid ? ' · você' : '') : 'Vaga livre')))),
         ehHost() ? h('div', { class: 'actions' }, h('button', { class: 'btn hot', id: 'on-sortear', disabled: !cheia, onclick: () => { G.nTec = s.nTec; G.nomes = vagas.map((v) => v.nome); G.humanos = []; G.g = null; G.tela = 3; K.render(); } }, cheia ? 'Ir para o sorteio dos clubes' : 'Esperando todos entrarem'))
           : h('p', { class: 'muted' }, cheia ? 'Sala completa. O anfitrião vai sortear os clubes.' : 'Mande o link para os amigos e peça para entrarem nesta sala.'),
         msg, h('div', { class: 'actions' }, sair));
