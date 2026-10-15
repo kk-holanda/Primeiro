@@ -1000,6 +1000,20 @@ p.vezde { margin: 0 0 6px; font-size: 13px; }
 .tecjogos .tjr { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 3px; color: #fff; font-size: 11px; }
 .tecjogos .tjV { background: #1e8a4c; } .tecjogos .tjE { background: #8a8a8a; } .tecjogos .tjD { background: #c0392b; }
 .tecjogos .semjogo { cursor: default; opacity: .7; }
+/* v50 online */
+body.ro main.page .tabs ~ * { pointer-events: none; }
+body.ro main.page .tabs ~ * { opacity: .9; }
+body.ro main.page .tabs::after { content: 'Só olhando: você mexe no clube na sua vez.'; margin-left: auto; align-self: center; font-size: 12px; color: var(--muted, #667); padding: 0 8px; }
+.onbox .vezagora { font-weight: 700; }
+.online .onlab { display: flex; gap: 8px; align-items: center; margin: 8px 0 14px; font-weight: 600; }
+.online input, .online select { font: inherit; padding: 6px 8px; border: 1px solid var(--line, #ccc); background: var(--panel, #fff); color: inherit; }
+.online .card { margin: 12px 0; }
+.oncriar { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
+.oncriar label { display: flex; gap: 6px; align-items: center; }
+.onsalas { width: 100%; border-collapse: collapse; }
+.onsalas td, .onsalas th { padding: 6px 8px; border-bottom: 1px solid var(--line, #ddd); }
+.onvagas li { padding: 4px 0; } .onvagas li.livre { color: var(--muted, #778); } .onvagas li.ok { font-weight: 600; }
+.onmsg { font-weight: 600; }
 
 .sublinha[data-tip], tr[data-tip] { text-decoration: none; }
 .dis-wrap { display: inline-flex; }
@@ -4664,6 +4678,7 @@ window.ESCUDOS_REAIS = {};
   // salvamento automático: ao voltar para a tela do clube depois de cada rodada (e no fim da temporada)
   let fila = null;
   S.auto = function () {
+    if (G.on) return;   // v50: jogo online fica na sala, não nos espaços deste computador
     if (!podeSalvar() || S.ocupado) return;
     clearTimeout(fila);
     fila = setTimeout(async () => {
@@ -4763,7 +4778,7 @@ window.ESCUDOS_REAIS = {};
     } }, 'Continuar ' + ((ult.hs && ult.hs[0]) ? ult.hs[0].clube : 'jogo')) : null;
     return [cont, h('button', { class: 'btn' + (ult ? ' alt' : ''), id: 'carregar', onclick: () => S.janela() }, 'Carregar jogo')];
   };
-  S.botaoTopo = () => (G.g && (G.tela === 5 || G.tela === 'fim') ? h('button', { class: 'btn alt sm sv-topo', id: 'salvar-topo', onclick: () => S.janela() }, 'Salvar / carregar') : null);
+  S.botaoTopo = () => (G.g && !G.on && (G.tela === 5 || G.tela === 'fim') ? h('button', { class: 'btn alt sm sv-topo', id: 'salvar-topo', onclick: () => S.janela() }, 'Salvar / carregar') : null);
 
   // o download dentro do Claude passa pelo pedido de permissão do próprio Claude; fora dele, usa o download normal do navegador
   S.dlP = (window.claude && typeof window.claude.use === 'function') ? Promise.resolve(window.claude.use('downloads')).catch(() => null) : Promise.resolve(null);
@@ -5557,6 +5572,7 @@ window.ESCUDOS_REAIS = {};
     return null;
   }
   function checarEventos() {
+    if (aoVivo()) { const v = vezOnline(); return v ? eventoOnline(v) : false; }
     const i = vezDe(); if (i == null) return false;
     G.jg.popup = true; passarVez(i);
     const esp = eventoEspecial(partidaHumana()); if (!esp) G.jg.popup = false;
@@ -5565,14 +5581,91 @@ window.ESCUDOS_REAIS = {};
   // intervalo: cada técnico tem a sua vez (as partidas podem ter acréscimos diferentes)
   function pausaPendente() {
     if (G.jg.observar) return -1;
-    for (const Q of [partidaHumana()].concat(humanas())) {
+    for (const Q of (aoVivo() ? humanas() : [partidaHumana()].concat(humanas()))) {
       if (!Q || !naPausa(Q)) continue;
       for (const l of [0, 1]) { const i = Q.humano[l] ? donoDe(Q, l) : -1; if (i >= 0 && !G.jg.pv.has(i + '|' + Q.m.min)) return i; }
     }
     return -1;
   }
-  function darIntervalo(i) { G.jg.pv.add(i + '|' + partidaDe(i).m.min); passarVez(i); G.jg.painel = true; pausar(textoPausa(partidaHumana()) + (varios() ? ' · vez de ' + quemTxt() : '')); }
+  function darIntervalo(i) { G.jg.pv.add(i + '|' + partidaDe(i).m.min); if (aoVivo()) { G.jg.vez = i; G.jg.painel = i === euIdx(); pausar(textoPausa(partidaDe(i))); return; } passarVez(i); G.jg.painel = true; pausar(textoPausa(partidaHumana()) + (varios() ? ' · vez de ' + quemTxt() : '')); }
   const partidaDe = (i) => humanas().find((p) => p.jogo.casa === G.humanos[i].clubId || p.jogo.fora === G.humanos[i].clubId);
+
+  // ---------- v50: partida ao vivo online ----------
+  // Cada computador roda a mesma partida (mesmo estado e mesma sorte). O anfitrião dá o ritmo (minutos) e toda decisão passa por ele,
+  // que a registra na sala; todos aplicam as decisões na mesma ordem e no mesmo minuto, então as partidas ficam iguais em todos.
+  const aoVivo = () => !!(G.on && G.on.live);
+  const hostVivo = () => aoVivo() && K.onlineHost();
+  const euIdx = () => (G.on ? G.on.eu : G.ativo);
+  const quemI = (i) => { const hu = G.humanos[i]; return hu ? hu.nome + ' (' + nome(hu.clubId) + ')' : ''; };
+  // quem pode agir agora: na vez de um técnico, só ele; numa pausa sem dono, qualquer técnico
+  const podeAgir = () => !aoVivo() || (!G.on.pedPend && (G.jg.vez == null || G.jg.vez === euIdx()));
+  function acao(fn, m, ...args) {
+    if (!aoVivo() || G.on.aplicando) {
+      if (fn === 'estilo') { const t = m.S[args[0]].time; t.tatica = args[1]; t.tatica2 = args[2] || null; M.recalcular(m); return { ok: true }; }
+      return M[fn](m, ...args);
+    }
+    return K.onlineCmd({ op: 'm', fn, pi: L().partidas.findIndex((p) => p.m === m), args });
+  }
+  const A = {};
+  ['substituirM', 'trocarPosicoes', 'mudarFormacao', 'ignorarVagas', 'preencherVaga', 'cobrarPenalti', 'estilo'].forEach((fn) => { A[fn] = (...a) => acao(fn, ...a); });
+  // eventos na ordem fixa das partidas (igual em todos os computadores)
+  function vezOnline() {
+    for (const Q of humanas()) {
+      const m = Q.m;
+      if (m.penPend && Q.humano[m.penPend.lado]) return { i: donoDe(Q, m.penPend.lado), Q, l: m.penPend.lado, tipo: 'penPend' };
+      const pen = (m.penLog || []).find((x) => x.pop && !x.visto && !x.mostrando);
+      if (pen) return { i: -1, Q, pen, tipo: 'pen' };
+      for (const l of [0, 1]) { const s = m.S[l]; if (!Q.humano[l] || !(s.vagas || []).length) continue; if (s.subs >= s.maxSubs) { M.ignorarVagas(m, l); continue; } return { i: donoDe(Q, l), Q, l, tipo: 'vaga' }; }
+    }
+    return null;
+  }
+  function espera(txt) { G.jg.aviso = txt; K.render(); }   // popup segue marcado: ninguém avança até a decisão chegar
+  function eventoOnline(v) {
+    G.jg.popup = true; K.jogoParar();
+    if (v.tipo === 'pen') { v.pen.mostrando = true; sequenciaPenalti(v.Q, v.pen); return 'pen'; }
+    G.jg.vez = v.i;
+    const meu = v.i === euIdx(), quem = quemI(v.i);
+    if (v.tipo === 'penPend') { if (meu) escolherBatedor(v.Q); else espera('Pênalti a favor do ' + nome(v.l === 0 ? v.Q.jogo.casa : v.Q.jogo.fora) + ': ' + quem + ' escolhe o batedor.'); return 'pen'; }
+    const vg = v.Q.m.S[v.l].vagas[0];
+    if (vg.motivo === 'lesao') { G.jg.painel = meu; pausar(quem + ': ' + vg.nome + ' (' + vg.pos + ') se lesionou. ' + (meu ? 'Escolha quem entra.' : 'Aguardando a troca.')); }
+    else if (meu) avisoExpulsao(v.Q, v.l, vg);
+    else espera(quem + ': ' + vg.nome + ' (' + vg.pos + ') foi expulso. Aguardando a decisão.');
+    return 'vaga';
+  }
+  function fecharEspera() { document.querySelectorAll('.overlay .penpop[aria-label="Pênalti a favor"], .overlay .penpop[aria-label="Expulsão"]').forEach((x) => x.closest('.overlay').remove()); }
+  // aplica uma decisão registrada pelo anfitrião (no anfitrião, na hora; nos outros, ao ler a sala)
+  K.jogoAplicar = (c) => {
+    G.on.aplicando = true; let r;
+    try {
+      let n = 0;
+      while (L().min < c.min && !fimJogo() && n++ < 400) { G.jg.pausado = false; G.jg.popup = false; tickCore(); }
+      if (c.op === 'm') {
+        const Q = L().partidas[c.pi]; if (!Q) return { ok: false };
+        r = acao(c.fn, Q.m, ...c.args);
+        if (c.fn === 'cobrarPenalti') { G.jg.vez = null; G.jg.aviso = ''; G.jg.popup = true; K.render(); sequenciaPenalti(Q, r); }
+        else if (G.tela === 'jogo') K.render();
+      } else if (c.op === 'retomar') { G.jg.vez = null; retomarCore(); }
+      else if (c.op === 'pausa') { G.jg.vez = null; G.jg.painel = false; pausar('Jogo pausado'); }
+      else if (c.op === 'pular') { K.jogoParar(); G.jg.popup = false; GM.completarDia(G.g); G.jg.pausado = true; G.jg.vez = null; G.jg.aviso = 'Fim de jogo'; K.render(); }
+      else if (c.op === 'expsim' || c.op === 'expnao') {
+        const Q = L().partidas[c.pi]; fecharEspera();
+        if (c.op === 'expnao') { M.ignorarVagas(Q.m, c.lado); G.jg.vez = null; G.jg.aviso = ''; retomarDepois(Q); }
+        else { G.jg.painel = c.i === euIdx(); pausar('Expulsão: ' + quemI(c.i) + (G.jg.painel ? ', escolha quem sai (em campo) e quem entra (banco).' : ' está reorganizando o time.')); }
+      } else if (c.op === 'auto') {
+        const v = vezOnline(); fecharEspera(); G.jg.vez = null; G.jg.aviso = '';
+        if (v && v.tipo === 'penPend') { const e = M.cobrarPenalti(v.Q.m, v.l, null); G.jg.popup = true; K.render(); sequenciaPenalti(v.Q, e); }
+        else { if (v && v.tipo === 'vaga') M.resolverVagasAuto(v.Q.m); G.jg.painel = false; G.jg.popup = false; G.jg.pausado = true; retomarCore(); }
+      }
+    } finally { G.on.aplicando = false; }
+    return r;
+  };
+  // os outros computadores andam até o minuto do anfitrião
+  K.jogoAlcancar = () => {
+    if (!aoVivo() || hostVivo() || G.tela !== 'jogo') return;
+    G.on.aplicando = true;
+    try { let n = 0; while (L().min < (G.on.alvo || 0) && !G.jg.pausado && !G.jg.popup && !fimJogo() && n++ < 400) tickCore(); }
+    finally { G.on.aplicando = false; }
+  };
 
   // ---------- ao vivo ----------
   // fim do jogo = fim da partida do técnico humano (ou de todas, se não houver humano)
@@ -5582,8 +5675,15 @@ window.ESCUDOS_REAIS = {};
   const textoPausa = (P) => P.m.min === P.m.meio ? 'FIM DO PRIMEIRO TEMPO' : P.m.prorr && P.m.min === P.m.etIni ? 'FIM DO TEMPO NORMAL · PRORROGAÇÃO' : 'INTERVALO DA PRORROGAÇÃO';
   const rotuloRetomada = (P) => !naPausa(P) ? null : P.m.min === P.m.meio ? 'Começar o 2º tempo' : P.m.min === P.m.etIni ? 'Começar a prorrogação' : 'Começar o 2º tempo da prorrogação';
   function pausar(aviso) { K.jogoParar(); G.jg.popup = false; G.jg.pausado = true; if (aviso) G.jg.aviso = aviso; K.render(); }
-  function retomar() { const ip = pausaPendente(); if (ip >= 0) { darIntervalo(ip); return; } G.jg.pausado = false; G.jg.aviso = ''; G.jg.painel = false; K.render(); }
+  function retomar() { if (aoVivo() && !G.on.aplicando) { if (podeAgir()) K.onlineCmd({ op: 'retomar' }); return; } retomarCore(); }
+  function retomarCore() { const ip = pausaPendente(); if (ip >= 0) { darIntervalo(ip); return; } G.jg.pausado = false; G.jg.aviso = ''; G.jg.painel = false; K.render(); }
   function tick() {
+    if (aoVivo() && !hostVivo()) return;
+    if (aoVivo()) G.on.aplicando = true;
+    try { tickCore(); } finally { if (aoVivo()) G.on.aplicando = false; }
+    if (hostVivo()) K.onlineTick(L().min);
+  }
+  function tickCore() {
     const live = L(); if (fimJogo()) { K.jogoParar(); return; }
     GM.passoDia(G.g);
     const esp = checarEventos(); atualizar(esp === 'pen');
@@ -5596,7 +5696,7 @@ window.ESCUDOS_REAIS = {};
     if (G.jg.observar) return;
     const ip = pausaPendente(); if (ip >= 0) { darIntervalo(ip); return; }
     // a partida do técnico da vez acabou e outra com humano continua: a tela passa para ela
-    if (P && M.acabou(P.m)) { const Q = humanas().find((p) => !M.acabou(p.m)); if (Q) { G.jg.aviso = 'Fim de jogo para ' + quemTxt() + '. Agora: ' + nome(Q.jogo.casa) + ' × ' + nome(Q.jogo.fora); passarVez(donoDe(Q, Q.humano[0] ? 0 : 1)); } }
+    if (P && M.acabou(P.m) && !G.on) { const Q = humanas().find((p) => !M.acabou(p.m)); if (Q) { G.jg.aviso = 'Fim de jogo para ' + quemTxt() + '. Agora: ' + nome(Q.jogo.casa) + ' × ' + nome(Q.jogo.fora); passarVez(donoDe(Q, Q.humano[0] ? 0 : 1)); } }
   }
   const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
   const temVaga = (P) => !!P && (P.m.S[ladoHumano(P)].vagas || []).length > 0;
@@ -5627,8 +5727,8 @@ window.ESCUDOS_REAIS = {};
     caixa.replaceChildren(h('header', null, h('h3', null, 'Expulsão!')),
       h('div', { class: 'penbody' }, varios() ? h('p', { class: 'vezde' }, 'Vez de ', h('b', null, quemTxt())) : null, h('p', null, h('b', null, vg.nome), ' (' + vg.pos + ') foi expulso e seu time segue com um a menos.'), h('p', null, 'Você pode trocar um dos jogadores que ficaram em campo por alguém do banco para reorganizar o time' + (vg.slot === 'GOL' ? ' (como foi o goleiro, dá para tirar um jogador de linha e pôr o goleiro reserva no gol)' : '') + '. Quer fazer uma substituição?'), h('p', { class: 'muted' }, 'Substituições usadas: ' + P.m.S[lado].subs + ' de ' + P.m.S[lado].maxSubs + '.'),
         h('div', { class: 'actions' },
-          h('button', { class: 'btn', id: 'exp-sim', onclick: () => { fechar(); G.jg.painel = true; pausar('Expulsão de ' + vg.nome + ': escolha quem sai (em campo) e quem entra (banco).'); } }, 'Substituir'),
-          h('button', { class: 'btn alt', id: 'exp-nao', onclick: () => { fechar(); M.ignorarVagas(P.m, lado); retomarDepois(P); } }, 'Seguir com um a menos'))));
+          h('button', { class: 'btn', id: 'exp-sim', onclick: () => { fechar(); if (aoVivo()) { K.onlineCmd({ op: 'expsim', pi: L().partidas.indexOf(P), lado, i: euIdx() }); return; } G.jg.painel = true; pausar('Expulsão de ' + vg.nome + ': escolha quem sai (em campo) e quem entra (banco).'); } }, 'Substituir'),
+          h('button', { class: 'btn alt', id: 'exp-nao', onclick: () => { fechar(); if (aoVivo()) { K.onlineCmd({ op: 'expnao', pi: L().partidas.indexOf(P), lado }); return; } M.ignorarVagas(P.m, lado); retomarDepois(P); } }, 'Seguir com um a menos'))));
   }
   // tabela de atributos para escolher o batedor ou o substituto
   const colunasJog = () => [h('th', null, 'Pos'), h('th', { class: 'l' }, 'Jogador'), h('th', { 'data-tip': K.TIPS.media }, 'Méd'), ...K.ATTRS.map((a) => h('th', { 'data-tip': K.TIPS[a] }, K.ATTR_SIGLA[a])), h('th', null, 'Stam'), h('th', null, 'Moral')];
@@ -5642,7 +5742,7 @@ window.ESCUDOS_REAIS = {};
       h('div', { class: 'penbody' }, varios() ? h('p', { class: 'vezde' }, 'Vez de ', h('b', null, quemTxt()), ' escolher o batedor') : null, h('p', null, h('b', null, m.penPend.faltoso), ' derrubou na área aos ' + M.minTxt(m, m.min) + ". Escolha quem vai bater. A finalização e a moral pesam mais."),
         h('div', { class: 'tablewrap' }, h('table', { class: 'penlista' }, h('thead', null, h('tr', null, colunasJog())),
           h('tbody', null, cands.map((j) => h('tr', { class: sel === j.p.id ? 'sel' : '', tabindex: 0, 'data-id': j.p.id, onclick: () => { sel = j.p.id; desenha(); }, onkeydown: (e) => { if (e.key === 'Enter') { sel = j.p.id; desenha(); } } }, celulasJog(j.p, j.slot, 'CHU')))))),
-        h('div', { class: 'actions' }, h('button', { class: 'btn', id: 'bater', disabled: !sel, onclick: () => { const e = M.cobrarPenalti(m, lado, sel); fechar(); sequenciaPenalti(P, e); } }, sel ? 'Confirmar batedor' : 'Escolha o batedor'))));
+        h('div', { class: 'actions' }, h('button', { class: 'btn', id: 'bater', disabled: !sel, onclick: () => { const e = A.cobrarPenalti(m, lado, sel); fechar(); if (aoVivo()) { G.jg.aviso = 'Batedor escolhido.'; return; } sequenciaPenalti(P, e); } }, sel ? 'Confirmar batedor' : 'Escolha o batedor'))));
     desenha();
   }
   async function sequenciaPenalti(P, e) {
@@ -5665,10 +5765,10 @@ window.ESCUDOS_REAIS = {};
     return h('div', { class: 'subpanel vaga' },
       h('p', null, h('b', null, vg.nome + ' (' + vg.pos + ')'), vg.motivo === 'lesao' ? ' se lesionou.' : ' foi expulso.', ' Escolha quem entra. Substituições: ' + side.subs + ' de ' + side.maxSubs + '.'),
       h('div', { class: 'tablewrap' }, h('table', { class: 'penlista' }, h('thead', null, h('tr', null, colunasJog())), h('tbody', null, linhas))),
-      h('div', { class: 'actions' }, h('button', { class: 'btn', id: 'confvaga', disabled: !jg.selIn, onclick: () => { const r = M.preencherVaga(P.m, lado, jg.selIn); jg.msgSub = r.ok ? '' : r.motivo; if (r.ok) jg.selIn = null; K.render(); } }, 'Confirmar substituição'),
-        h('button', { class: 'btn alt', id: 'comdez', onclick: () => { M.ignorarVagas(P.m, lado); jg.selIn = null; K.render(); } }, 'Seguir com um a menos'), h('span', { class: 'err' }, jg.msgSub || '')));
+      h('div', { class: 'actions' }, h('button', { class: 'btn', id: 'confvaga', disabled: !jg.selIn, onclick: () => { const r = A.preencherVaga(P.m, lado, jg.selIn); jg.msgSub = r.ok ? '' : r.motivo; if (r.ok) jg.selIn = null; K.render(); } }, 'Confirmar substituição'),
+        h('button', { class: 'btn alt', id: 'comdez', onclick: () => { A.ignorarVagas(P.m, lado); jg.selIn = null; K.render(); } }, 'Seguir com um a menos'), h('span', { class: 'err' }, jg.msgSub || '')));
   }
-  function iniciarTimer() { K.jogoParar(); if (!G.jg.pausado && !G.jg.popup && !fimJogo()) G.jg.timer = setInterval(tick, G.jg.vel); }
+  function iniciarTimer() { K.jogoParar(); if (aoVivo() && !hostVivo()) { setTimeout(() => K.jogoAlcancar(), 0); return; } if (!G.jg.pausado && !G.jg.popup && !fimJogo()) G.jg.timer = setInterval(tick, G.jg.vel); }
 
   // local da falta contado por quem a cometeu: zona (vista por quem sofreu) e faixa espelhada
   const FX_TXT = ['pela lateral esquerda', 'pelo meio-espaço esquerdo', 'pelo meio', 'pelo meio-espaço direito', 'pela lateral direita'];
@@ -5881,18 +5981,19 @@ window.ESCUDOS_REAIS = {};
 
     const fim = fimJogo();
     const ctrl = h('div', { class: 'jctrl' },   // v47: todos os botões ficam sempre no mesmo lugar (só muda o texto ou ficam apagados)
-      fim ? h('button', { class: 'btn hot jplay', id: 'verresumo', onclick: () => { K.jogoParar(); G.resumos = GM.finalizarDia(G.g); G.resumoSel = null; G.prontos.clear(); K.ir('resumo'); } }, jg.observar ? 'Ver resultados' : 'Ver resumo do jogo')
-        : jg.pausado ? h('button', { class: 'btn jplay', id: 'play', disabled: temVaga(P), 'data-tip': temVaga(P) ? 'Preencha a vaga (ou siga com um a menos) para continuar.' : false, onclick: retomar }, live.min === 0 ? 'Iniciar o jogo' : rotuloRetomada(P) || 'Continuar')
-          : h('button', { class: 'btn alt jplay', id: 'pause', onclick: () => pausar('Jogo pausado') }, 'Pausar'),
-      !fim ? h('div', { class: 'seg', role: 'group', 'aria-label': 'Velocidade' }, VELS.map(([t, v]) => h('button', { type: 'button', 'aria-pressed': jg.vel === v ? 'true' : 'false', onclick: () => { jg.vel = v; if (!jg.observar) jg.velPref = v; if (!jg.pausado) iniciarTimer(); K.render(); } }, t))) : null,
+      fim ? (aoVivo() && !hostVivo() ? h('span', { class: 'jplay jesp' }, 'Fim de jogo. O resumo chega quando o anfitrião fechar a rodada.') : h('button', { class: 'btn hot jplay', id: 'verresumo', onclick: () => { K.jogoParar(); G.resumos = GM.finalizarDia(G.g); G.resumoSel = null; G.prontos.clear(); K.ir('resumo'); if (G.on) K.onlinePosRodada(); } }, jg.observar ? 'Ver resultados' : 'Ver resumo do jogo'))
+        : jg.pausado ? h('button', { class: 'btn jplay', id: 'play', disabled: temVaga(P) || !podeAgir(), 'data-tip': temVaga(P) ? 'Preencha a vaga (ou siga com um a menos) para continuar.' : false, onclick: retomar }, live.min === 0 ? 'Iniciar o jogo' : rotuloRetomada(P) || 'Continuar')
+          : h('button', { class: 'btn alt jplay', id: 'pause', onclick: () => { if (aoVivo()) K.onlineCmd({ op: 'pausa' }); else pausar('Jogo pausado'); } }, 'Pausar'),
+      !fim && !(aoVivo() && !hostVivo()) ? h('div', { class: 'seg', role: 'group', 'aria-label': 'Velocidade' }, VELS.map(([t, v]) => h('button', { type: 'button', 'aria-pressed': jg.vel === v ? 'true' : 'false', onclick: () => { jg.vel = v; if (!jg.observar) jg.velPref = v; if (!jg.pausado) iniciarTimer(); K.render(); } }, t))) : null,
       !fim ? h('button', { class: 'btn alt sm jsom', id: 'somjogo', 'aria-pressed': G.mudo ? 'false' : 'true', onclick: (e) => { G.mudo = !G.mudo; e.currentTarget.textContent = G.mudo ? 'Som: desligado' : 'Som: ligado'; e.currentTarget.setAttribute('aria-pressed', G.mudo ? 'false' : 'true'); } }, G.mudo ? 'Som: desligado' : 'Som: ligado') : null,
-      !fim ? h('button', { class: 'btn alt sm jpular', id: 'pular', onclick: () => { K.jogoParar(); GM.completarDia(G.g); jg.pausado = true; jg.aviso = 'Fim de jogo'; K.render(); } }, jg.observar ? 'Pular para os resultados' : 'Pular para o fim') : null,
-      !fim && P ? h('button', { class: 'btn alt sm', id: 'subs', disabled: !(jg.pausado && live.min > 0), 'data-tip': jg.pausado && live.min > 0 ? false : 'Pause o jogo para fazer substituições ou mudar formação e estilo.', onclick: () => { jg.painel = true; K.render(); } }, 'Substituições e estilo') : null);
+      !fim && !(aoVivo() && !hostVivo()) ? h('button', { class: 'btn alt sm jpular', id: 'pular', onclick: () => { if (aoVivo()) { K.onlineCmd({ op: 'pular' }); return; } K.jogoParar(); GM.completarDia(G.g); jg.pausado = true; jg.aviso = 'Fim de jogo'; K.render(); } }, jg.observar ? 'Pular para os resultados' : 'Pular para o fim') : null,
+      !fim && P ? h('button', { class: 'btn alt sm', id: 'subs', disabled: !(jg.pausado && live.min > 0) || !podeAgir(), 'data-tip': jg.pausado && live.min > 0 ? false : 'Pause o jogo para fazer substituições ou mudar formação e estilo.', onclick: () => { jg.painel = true; K.render(); } }, 'Substituições e estilo') : null,
+      hostVivo() && jg.vez != null && jg.vez !== euIdx() && !fim ? h('button', { class: 'btn alt sm', id: 'decidir-auto', 'data-tip': 'Use se ' + G.humanos[jg.vez].nome + ' não estiver no jogo: o computador decide por ele.', onclick: () => K.onlineCmd({ op: 'auto' }) }, 'Decidir por ' + G.humanos[jg.vez].nome) : null);
 
     const campo = P ? h('section', { class: 'jmain' },
       h('div', { class: 'placar' }, h('span', { class: 'tn' + (lado === 0 ? ' eu' : '') }, nome(P.jogo.casa), K.escudo(P.jogo.casa, true)), h('span', { class: 'sc' }, REFS.pl0, h('i', null, '×'), REFS.pl1), h('span', { class: 'tn r' + (lado === 1 ? ' eu' : '') }, K.escudo(P.jogo.fora, true), nome(P.jogo.fora))),
       idaBox(P),
-      h('div', { class: 'javiso' + (naPausa(P) && jg.pausado ? ' intervalo' : ''), role: 'status' }, varios() && jg.pausado && live.min > 0 && !fim ? h('span', { class: 'vezde' }, 'Na vez: ', h('b', null, quemTxt()), ' · ') : null, jg.aviso || (jg.pausado ? '' : 'Bola rolando'), live.min === 0 ? h('small', { class: 'muted' }, ' Tática e escalação já definidas na aba Escalação. Depois do apito inicial você pode pausar para mexer.') : null, null),
+      h('div', { class: 'javiso' + (naPausa(P) && jg.pausado ? ' intervalo' : ''), role: 'status' }, varios() && jg.pausado && live.min > 0 && !fim ? h('span', { class: 'vezde' }, 'Na vez: ', h('b', null, aoVivo() ? (jg.vez != null ? quemI(jg.vez) : 'qualquer técnico') : quemTxt()), ' · ') : null, jg.aviso || (jg.pausado ? '' : 'Bola rolando'), live.min === 0 ? h('small', { class: 'muted' }, ' Tática e escalação já definidas na aba Escalação. Depois do apito inicial você pode pausar para mexer.') : null, null),
       h('div', { class: 'publico', 'data-tip': 'Pessoas no estádio neste jogo.' }, h('b', { class: 'num' }, nf(P.publico)), ' pessoas · ' + nome(P.jogo.casa) + ' · ' + G.g.porId.get(P.jogo.casa).estadio.nome + ' (' + nf(G.g.porId.get(P.jogo.casa).estadio.capacidade) + ' lugares)'),
       posseBar(P), h('section', { class: 'lances-box' }, h('h3', null, 'Lances'), REFS.feed), h('div', { class: 'stats' }, stat('Chutes', 'chutes'), stat('No gol', 'no_gol'), stat('Escanteios', 'escanteios'), stat('Impedimentos', 'imp'), stat('Faltas', 'faltas'), stat('Laterais', 'laterais'), stat('Tiros de meta', 'tirosMeta'), stat('Amarelos', 'amarelos'), stat('Vermelhos', 'vermelhos')),
       jg.painel ? K.subsModal(P, lado) : K.subsFechar(),
@@ -5986,18 +6087,18 @@ window.ESCUDOS_REAIS = {};
         exp.slot === 'GOL' && side.banco.some((p) => p.pos === 'GOL') ? ' (como foi o goleiro: tire um jogador de linha e escolha o goleiro reserva, que assume o gol).' : '.') : null,
       h('div', { class: 'subtop' },
         h('div', { class: 'subtopl' }, h('span', { class: 'subinfo' }, h('b', null, 'Substituições: ' + side.subs + ' de ' + max), ' · Formação ', h('b', null, t.formacao || '4-4-2'), ' · Estilo ', h('b', null, K.estiloNome ? K.estiloNome(t.tatica) + (t.tatica2 ? ' + ' + K.estiloNome(t.tatica2) : '') : t.tatica)),
-        h('div', { class: 'subbtns' }, h('button', { class: 'btn hot sm', id: 'subs-retomar', disabled: temVaga(P), onclick: () => { jg.selOut = jg.selOut2 = jg.selIn = null; retomar(); } }, P.m.min === 0 ? 'Iniciar o jogo' : 'Fechar e continuar o jogo'),
+        h('div', { class: 'subbtns' }, h('button', { class: 'btn hot sm', id: 'subs-retomar', disabled: temVaga(P) || !podeAgir(), onclick: () => { jg.selOut = jg.selOut2 = jg.selIn = null; retomar(); } }, P.m.min === 0 ? 'Iniciar o jogo' : 'Fechar e continuar o jogo'),
           h('button', { class: 'btn alt sm', id: 'subs-fechar', onclick: () => K.subsFechar(true) }, 'Fechar (jogo pausado)'))),
-        K.seletorEstilo(t, () => { M.recalcular(P.m); K.render(); }, 'Estilo de jogo')),
+        K.seletorEstilo(t, () => { A.estilo(P.m, lado, t.tatica, t.tatica2); K.render(); }, 'Estilo de jogo')),
       h('div', { class: 'subform submeio' },
-        h('div', { class: 'subformesq' }, h('b', null, 'Formação'), h('div', { class: 'seg', role: 'group', 'aria-label': 'Formação' }, Object.keys(M.FORMACOES).map((f) => h('button', { type: 'button', 'aria-pressed': (t.formacao || '4-4-2') === f ? 'true' : 'false', 'data-tip': K.FORM_INFO[f].estr + '. Forte: ' + K.FORM_INFO[f].forte + ' Fraco: ' + K.FORM_INFO[f].fraco, onclick: () => { const r = M.mudarFormacao(P.m, lado, f); jg.msgSub = r.ok ? '' : r.motivo; jg.selOut = jg.selOut2 = jg.selIn = null; K.render(); } }, f))),
+        h('div', { class: 'subformesq' }, h('b', null, 'Formação'), h('div', { class: 'seg', role: 'group', 'aria-label': 'Formação' }, Object.keys(M.FORMACOES).map((f) => h('button', { type: 'button', 'aria-pressed': (t.formacao || '4-4-2') === f ? 'true' : 'false', 'data-tip': K.FORM_INFO[f].estr + '. Forte: ' + K.FORM_INFO[f].forte + ' Fraco: ' + K.FORM_INFO[f].fraco, onclick: () => { const r = A.mudarFormacao(P.m, lado, f); jg.msgSub = r.ok ? '' : r.motivo; jg.selOut = jg.selOut2 = jg.selIn = null; K.render(); } }, f))),
           h('small', { class: 'muted' }, 'Pode mudar a qualquer pausa. Os jogadores em campo são reorganizados nas novas posições, sem gastar substituição.')),
         h('div', { class: 'subacoes' },
           h('div', { class: 'actions' },
-            h('button', { class: 'btn sm', id: 'confsub', disabled: !podeSub, onclick: () => { const r = M.substituirM(P.m, lado, jg.selOut, jg.selIn); jg.msgSub = r.ok ? '' : r.motivo; if (r.ok) { jg.selOut = jg.selOut2 = jg.selIn = null; if (exp) M.ignorarVagas(P.m, lado); } K.render(); } }, 'Confirmar substituição'),
-            h('button', { class: 'btn sm', id: 'trocapos', disabled: !podeTroca, onclick: () => { const r = M.trocarPosicoes(P.m, lado, jg.selOut, jg.selOut2); jg.msgSub = r.ok ? '' : r.motivo; if (r.ok) { jg.selOut = jg.selOut2 = null; if (exp) M.ignorarVagas(P.m, lado); } K.render(); } }, 'Trocar posições'),
+            h('button', { class: 'btn sm', id: 'confsub', disabled: !podeSub, onclick: () => { const r = A.substituirM(P.m, lado, jg.selOut, jg.selIn); jg.msgSub = r.ok ? '' : r.motivo; if (r.ok) { jg.selOut = jg.selOut2 = jg.selIn = null; if (exp) A.ignorarVagas(P.m, lado); } K.render(); } }, 'Confirmar substituição'),
+            h('button', { class: 'btn sm', id: 'trocapos', disabled: !podeTroca, onclick: () => { const r = A.trocarPosicoes(P.m, lado, jg.selOut, jg.selOut2); jg.msgSub = r.ok ? '' : r.motivo; if (r.ok) { jg.selOut = jg.selOut2 = null; if (exp) A.ignorarVagas(P.m, lado); } K.render(); } }, 'Trocar posições'),
             (jg.selOut || jg.selIn) ? h('button', { class: 'btn alt sm', id: 'limpasel', onclick: () => { jg.selOut = jg.selOut2 = jg.selIn = null; jg.msgSub = ''; K.render(); } }, 'Limpar seleção') : null,
-            exp ? h('button', { class: 'btn alt sm', id: 'comdez', onclick: () => { M.ignorarVagas(P.m, lado); jg.selOut = jg.selOut2 = jg.selIn = null; K.render(); } }, 'Seguir com um a menos') : null),
+            exp ? h('button', { class: 'btn alt sm', id: 'comdez', onclick: () => { A.ignorarVagas(P.m, lado); jg.selOut = jg.selOut2 = jg.selIn = null; K.render(); } }, 'Seguir com um a menos') : null),
           h('p', { class: 'subdica', role: 'status' }, dica),
           h('span', { class: 'err' }, msg))),
       P.m.min === P.m.meio ? leituraBox(P, lado) : null,
@@ -6161,7 +6262,7 @@ window.ESCUDOS_REAIS = {};
       h('div', { class: 'fmov2' },
         h('div', null, h('span', { class: 'eyebrow sobe' }, '▲ Sobem'), h('ol', { class: 'fclubes' }, cl[i].slice(0, 4).map((id, k) => clubeLinha(id, (k + 1) + 'º')))),
         h('div', null, h('span', { class: 'eyebrow cai' }, '▼ Descem'), h('ol', { class: 'fclubes' }, cl[s].slice(-4).map((id, k) => clubeLinha(id, (17 + k) + 'º')))))));
-    const nova = h('button', { class: 'btn hot', id: 'nova', onclick: (e) => { e.currentTarget.disabled = true; if (g.fim) GM.virarTemporada(g); K.ordenarTecnicos(); G.tabDiv = null; G.aba = 'plantel'; G.sel = null; K.ir(5); } }, 'Começar a temporada ' + (g.ano + 1));
+    const nova = h('button', { class: 'btn hot', id: 'nova', disabled: !!(G.on && !K.onlineHost()), onclick: (e) => { if (G.on && !K.onlineHost()) return; e.currentTarget.disabled = true; if (g.fim) GM.virarTemporada(g); K.ordenarTecnicos(); if (G.on) K.onlineSincronizar(); G.tabDiv = null; G.aba = 'plantel'; G.sel = null; K.ir(5); if (G.on) K.onlineFimTemporada(true); } }, G.on && !K.onlineHost() ? 'O anfitrião começa a temporada ' + (g.ano + 1) : 'Começar a temporada ' + (g.ano + 1));
     const verTab = h('button', { class: 'btn alt', id: 'vertabfinal', onclick: () => { G.aba = 'tabela'; G.tabDiv = c.div; K.ir(5); } }, 'Ver a tabela final');
     return h('main', { class: 'wrap page fimtemp' }, K.tecnicosBar(),
       h('section', { class: 'fimhero ' + status[1], style: K.coresClube(c) },
@@ -7345,7 +7446,7 @@ window.ESCUDOS_REAIS = {};
   // ---------- esqueleto ----------
   const PASSOS = ['Início', 'Campeonato', 'Técnico', 'Clubes', 'Plantel'];
   function topo() {
-    const emJogo = typeof G.tela === 'string';
+    const emJogo = typeof G.tela === 'string' && G.tela !== 'online' && !!G.g && !!G.humanos.length;
     return h('header', { class: 'top' }, h('div', { class: 'wrap' },
       h('div', { class: 'brand' }, 'Kfoot', h('b', null, '98')),
       emJogo ? h('span', { class: 'muted' }, GM.fmtData(G.g.data) + ' · ' + clubeHumano().nome) : null,
@@ -7354,10 +7455,11 @@ window.ESCUDOS_REAIS = {};
   function ir(t) { G.tela = t; G.erro = ''; render(); window.scrollTo(0, 0); if ((t === 5 || t === 'fim') && K.saves) K.saves.auto(); }   // v45: salva sozinho entre as rodadas
   function render() {
     if (K.jogoParar) K.jogoParar();
-    const f = { 1: tela1, 2: tela2, 3: tela3, boas: telaBoas, 4: tela4, 5: casa, jogo: () => K.telas.jogo(), resumo: () => K.telas.resumo(), fim: () => K.telas.fim(), tabelas: () => K.telas.posRodada() }[G.tela];
+    const f = { 1: tela1, 2: tela2, 3: tela3, boas: telaBoas, 4: tela4, 5: casa, jogo: () => K.telas.jogo(), resumo: () => K.telas.resumo(), fim: () => K.telas.fim(), tabelas: () => K.telas.posRodada(), online: () => K.telas.online() }[G.tela];
     app.replaceChildren(topo(), f());
+    document.body.classList.toggle('ro', !!(G.on && G.tela === 5 && K.onlineSoLeitura()));
     // v46: avisos, evolução de jogadores e cartas dos VIPs aparecem só na tela do clube, depois que ela já está na tela
-    if (G.g && G.g.avisos && G.g.avisos.length && G.tela === 5 && K.avisosDiretoria && (G.humanos.length < 2 || G.g.avisos.some((a) => { const c = a.tipo === 'demissao' ? a.para : a.clube != null ? a.clube : a.clubId; return c == null || c === K.clubeHumano().id; }))) setTimeout(() => { if (G.tela === 5 && G.g.avisos.length && !document.querySelector('.overlay')) K.avisosDiretoria(); }, 450);
+    if (G.g && G.g.avisos && G.g.avisos.length && G.tela === 5 && K.avisosDiretoria && !(G.on && K.onlineSoLeitura()) && (G.humanos.length < 2 || G.g.avisos.some((a) => { const c = a.tipo === 'demissao' ? a.para : a.clube != null ? a.clube : a.clubId; return c == null || c === K.clubeHumano().id; }))) setTimeout(() => { if (G.tela === 5 && G.g.avisos.length && !document.querySelector('.overlay')) K.avisosDiretoria(); }, 450);
   }
   // redesenha mantendo a rolagem da página e da lista de jogadores (a escalação não "sobe" a cada clique)
   function renderKeep() {
@@ -7375,7 +7477,7 @@ window.ESCUDOS_REAIS = {};
       h('section', { class: 'hero' }, pitch.firstChild, h('div', { class: 'wrap' },
         h('div', { class: 'logo', 'aria-label': 'Kfoot 98' }, h('span', { class: 'k' }, 'Kfoot'), h('span', { class: 'y' }, '98')),
         h('p', { class: 'lead' }, 'Brasil, 1998. Você assume um time na lanterna da Série D e tenta chegar à Libertadores.'),
-        h('div', { class: 'actions' }, K.saves && K.saves.lista && Object.keys(K.saves.lista).length ? K.saves.botoesInicio()[0] : null, h('button', { class: 'btn' + (K.saves && Object.keys(K.saves.lista).length ? ' alt' : ''), id: 'novo', onclick: () => ir(2) }, 'Novo jogo'), K.saves ? K.saves.botoesInicio()[1] : null),
+        h('div', { class: 'actions' }, K.saves && K.saves.lista && Object.keys(K.saves.lista).length ? K.saves.botoesInicio()[0] : null, h('button', { class: 'btn' + (K.saves && Object.keys(K.saves.lista).length ? ' alt' : ''), id: 'novo', onclick: () => ir(2) }, 'Novo jogo'), K.saves ? K.saves.botoesInicio()[1] : null, K.online && K.online.ok ? h('button', { class: 'btn alt', id: 'jogar-online', onclick: () => K.abrirOnline() }, 'Jogar online') : null),
         h('small', null, 'Gerenciamento de futebol · 4 divisões · 80 clubes'))),
       h('div', { class: 'ticker' }, h('div', { class: 'wrap' },
         h('span', null, h('b', null, '4'), 'divisões do Brasileirão'), h('span', null, h('b', null, '64'), 'clubes na Copa do Brasil'),
@@ -7441,7 +7543,7 @@ window.ESCUDOS_REAIS = {};
       h('div', { class: 'actions' }, h('button', { class: 'btn alt', disabled: G.sorteando, onclick: () => ir(2) }, 'Voltar'),
         h('button', { class: 'btn alt', id: 'som', 'aria-pressed': G.mudo ? 'false' : 'true', onclick: (e) => { G.mudo = !G.mudo; if (G.mudo) Som.parar(); else Som.preparar(); e.currentTarget.textContent = G.mudo ? 'Som: desligado' : 'Som: ligado'; e.currentTarget.setAttribute('aria-pressed', G.mudo ? 'false' : 'true'); } }, G.mudo ? 'Som: desligado' : 'Som: ligado'),
         G.sorteando ? h('button', { class: 'btn alt', id: 'pularbingo', onclick: () => { G.pularBingo = true; Som.parar(); } }, 'Pular animação') : null,
-        depois && !G.sorteando ? [h('button', { class: 'btn alt', id: 'sortearde', onclick: () => { G.humanos = []; G.g = null; render(); } }, 'Sortear de novo'), h('button', { class: 'btn hot', id: 'seguir3', onclick: () => { G.bvI = 0; ir('boas'); } }, 'Continuar')]
+        depois && !G.sorteando ? [h('button', { class: 'btn alt', id: 'sortearde', onclick: () => { G.humanos = []; G.g = null; render(); } }, 'Sortear de novo'), h('button', { class: 'btn hot', id: 'seguir3', onclick: () => { if (G.on) { K.onlinePosSorteio(); return; } G.bvI = 0; ir('boas'); } }, 'Continuar')]
           : !G.sorteando ? h('button', { class: 'btn', id: 'sortear', onclick: sortear }, n > 1 ? 'Sortear os clubes' : 'Sortear meu clube') : null));
   }
 
@@ -7704,6 +7806,7 @@ window.ESCUDOS_REAIS = {};
     const confirmar = () => {
       if (!ok) { G.erro = 'Escolha pelo menos 1 estilo de técnico e 1 estilo de jogo.'; render(); return; }
       G.erro = '';
+      if (G.on) { K.onlineEstilo(sel); return; }
       if (!ultimo) { G.bvI = i + 1; render(); window.scrollTo(0, 0); return; }
       // o mundo é gerado de novo com a mesma semente, agora com o elenco de cada humano montado pelo perfil escolhido
       G.g = GM.novo({ seed: G.seed, humanos: G.humanos, config: G.config });
@@ -7721,7 +7824,7 @@ window.ESCUDOS_REAIS = {};
       h('section', { class: 'card bv-sec' }, h('h3', null, '2. E o seu estilo de jogo?'), h('p', { class: 'muted' }, 'Você pode escolher de 1 a 2 opções. A opção "Não sei" não pode ser marcada junto com as outras. ', cont(sel.jogo)),
         h('div', { class: 'bv-grid jogo' }, jogos)),
       msg,
-      h('div', { class: 'actions' }, h('button', { class: 'btn alt', id: 'bv-voltar', onclick: () => { G.erro = ''; if (i > 0) { G.bvI = i - 1; render(); } else ir(3); } }, 'Voltar'),
+      h('div', { class: 'actions' }, h('button', { class: 'btn alt', id: 'bv-voltar', hidden: !!G.on, onclick: () => { G.erro = ''; if (i > 0) { G.bvI = i - 1; render(); } else ir(3); } }, 'Voltar'),
         h('button', { class: 'btn hot', id: 'bv-ok', disabled: !ok, onclick: confirmar }, ultimo ? 'Confirmar e montar o elenco' : 'Confirmar e ir para o próximo técnico')));
   }
 
@@ -7766,8 +7869,9 @@ window.ESCUDOS_REAIS = {};
   };
   K.advLink = (id) => { const el = K.comEscudo(id, null, { link: true }); el.setAttribute('data-tip', K.dicaEsc(id) || 'Ver o plantel de ' + G.g.porId.get(id).nome + ' (ainda sem escalação anterior)'); return el; };
   const todosProntos = () => G.humanos.every((hu) => G.prontos.has(hu.clubId));
-  function trocarTecnico(i) { G.ativo = i; G.resumoSel = null; G.sel = null; G.escSlot = null; G.clubeVisto = null; G.finPreco = null; G.finMsg = ''; G.finMsgPat = ''; if (G.jg) { G.jg.selOut = G.jg.selIn = null; G.jg.msgSub = ''; } render(); }
+  function trocarTecnico(i) { if (G.on) { if (G.tela === 'resumo' && G.resumos) { const id = G.humanos[i].clubId, k = G.resumos.findIndex((r) => r.jogo.casa === id || r.jogo.fora === id); G.resumoSel = k >= 0 ? k : null; render(); } return; } G.ativo = i; G.resumoSel = null; G.sel = null; G.escSlot = null; G.clubeVisto = null; G.finPreco = null; G.finMsg = ''; G.finMsgPat = ''; if (G.jg) { G.jg.selOut = G.jg.selIn = null; G.jg.msgSub = ''; } render(); }
   K.trocarTecnico = (i) => trocarTecnico(i);
+  K.jogarProximo = () => jogarProximo();
   // força do clube = média dos 11 melhores jogadores (desempate: menor prestígio primeiro)
   K.forcaClube = (c) => { const o = c.elenco.map((p) => BF.Players.overall(p)).sort((a, b) => b - a).slice(0, 11); return o.reduce((a, b) => a + b, 0) / Math.max(1, o.length); };
   K.ordenarTecnicos = () => {
@@ -7777,12 +7881,13 @@ window.ESCUDOS_REAIS = {};
     G.ativo = 0;
   };
   // barra para alternar entre os técnicos (só aparece com 2 ou mais)
-  K.tecnicosBar = () => (G.humanos.length < 2 ? null : h('div', { class: 'tecbar', role: 'tablist', 'aria-label': 'Técnicos' }, G.humanos.map((hu, i) => {
+  K.tecnicosBar = () => (G.humanos.length < 2 || G.on ? null : h('div', { class: 'tecbar', role: 'tablist', 'aria-label': 'Técnicos' }, G.humanos.map((hu, i) => {
     const cl = G.g.porId.get(hu.clubId);
     return h('button', { class: 'tabbtn' + (G.ativo === i ? ' on' : ''), role: 'tab', 'aria-selected': G.ativo === i ? 'true' : 'false', onclick: () => trocarTecnico(i) }, K.escudo(cl), h('span', null, hu.nome + ' · ' + cl.nome), G.prontos.has(hu.clubId) ? h('b', { class: 'okmark', 'aria-label': 'pronto' }, '✔') : null);
   })));
   // tabelinha de quem já está pronto para a rodada
   K.prontosBox = () => {
+    if (G.on) return K.onlineBox();
     if (G.humanos.length < 2) return null;
     const falta = G.humanos.filter((hu) => !G.prontos.has(hu.clubId)).length;
     return h('aside', { class: 'prontos', 'aria-label': 'Quem está pronto' }, h('h3', null, 'Prontos para a rodada'),
@@ -7797,7 +7902,7 @@ window.ESCUDOS_REAIS = {};
     const prox = g.fim ? h('span', null, 'Temporada encerrada')
       : pj ? h('span', null, h('span', { class: 'prox1' }, GM.fmtDataCurta(pj.data) + ' - ' + pj.rotulo.replace(/ · /g, ' - ') + (pj.emCasa ? ' - casa' : ' - fora')), h('span', { class: 'confronto' }, pj.emCasa ? [K.comEscudo(c), '×', K.advLink(pj.adversario), posAdv(pj.adversario)] : [K.advLink(pj.adversario), posAdv(pj.adversario), '×', K.comEscudo(c)]), pj.comp === 'copa' && pj.perna === 'volta' && pj.confronto.ida ? h('small', { class: 'muted' }, 'Jogo de ida: ' + g.porId.get(pj.confronto.a).nome + ' ' + pj.confronto.ida[0] + ' × ' + pj.confronto.ida[1] + ' ' + g.porId.get(pj.confronto.b).nome) : null)
         : h('span', null, 'Sem jogo marcado');
-    const botoes = g.fim ? h('button', { class: 'btn hot', id: 'jogar', onclick: () => ir('fim') }, 'Fim da temporada')
+    const botoes = G.on ? K.onlineBotoes() : g.fim ? h('button', { class: 'btn hot', id: 'jogar', onclick: () => ir('fim') }, 'Fim da temporada')
       : !multi ? h('button', { class: 'btn hot', id: 'jogar', onclick: jogarProximo }, (() => { const dia = GM.proximoDia(g), js = dia ? GM.jogosDoDia(g, dia) : []; return dia && dia.tipo === 'copa' && js.length && !js.some((x) => G.humanos.some((hu) => x.casa === hu.clubId || x.fora === hu.clubId)) ? 'Ver jogos da Copa do Brasil' : 'Jogar próximo jogo'; })())
         : h('div', { class: 'actions' },
           h('button', { class: 'btn' + (pronto ? ' alt' : ' hot'), id: 'pronto', 'aria-pressed': pronto ? 'true' : 'false', onclick: () => { if (pronto) { G.prontos.delete(c.id); render(); return; } G.prontos.add(c.id); const n = G.humanos.length, prox = [...Array(n).keys()].map((k) => (G.ativo + 1 + k) % n).find((i) => !G.prontos.has(G.humanos[i].clubId)); if (prox != null && prox !== G.ativo) { trocarTecnico(prox); window.scrollTo(0, 0); } else render(); } }, pronto ? 'Desmarcar pronto' : (G.humanos.some((hu) => hu.clubId !== c.id && !G.prontos.has(hu.clubId)) ? 'Estou pronto (passar a vez)' : 'Estou pronto')),
@@ -7811,9 +7916,9 @@ window.ESCUDOS_REAIS = {};
       botoes);
   }
   function jogarProximo() {
-    if (G.humanos.length > 1 && !todosProntos()) return;
+    if (!G.on && G.humanos.length > 1 && !todosProntos()) return;
     const r = GM.avancar(G.g);
-    if (r.fim) { ir('fim'); return; }
+    if (r.fim) { ir('fim'); if (G.on) K.onlineFimTemporada(false); return; }
     G.resumoSel = null; GM.iniciarDia(G.g); K.jogoIniciar(); ir('jogo');
   }
     const ABAS = [['plantel', 'Plantel'], ['escalacao', 'Escalação'], ['tabela', 'Tabela'], ['calendario', 'Calendário'], ['mercado', 'Mercado'], ['financas', 'Finanças'], ['tecnicos', 'Técnicos'], ['relatorios', 'Relatórios de testes']];
@@ -7992,6 +8097,349 @@ window.ESCUDOS_REAIS = {};
   }
 
   render();
+})();
+
+;
+// v50: multiplayer online por turnos. Só aparece quando a página tem o banco compartilhado (db) e o usuário (user) do claude.ai.
+// Cada técnico joga no seu computador. A vez segue a ordem dos técnicos (do clube mais fraco ao mais forte): quem está na vez mexe no
+// jogo e, ao terminar, envia o estado inteiro para a sala. Depois do último, o anfitrião (quem criou a sala) roda a rodada e envia o resultado.
+(function () {
+  const K = window.K, BF = window.BF98, h = K.h, G = K.G, GM = BF.Game;
+  const ON = (K.online = { ok: null, db: null, user: null, uid: null, podeEscrever: null, salas: null, unsubSalas: null, unsub: [] });
+  const CH = 240000;   // caracteres por pedaço do jogo salvo (cada documento do banco aceita até 256 KB)
+  const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
+
+  // ---------- capacidades ----------
+  (async () => {
+    try {
+      if (!window.claude || !window.claude.use) { ON.ok = false; return; }
+      const [db, user] = await Promise.all([window.claude.use('db'), window.claude.use('user')]);
+      if (!db || !user) { ON.ok = false; return; }
+      ON.db = db; ON.user = user; ON.uid = await user.id();
+      try { ON.podeEscrever = await user.can('data.write'); } catch (e) { ON.podeEscrever = null; }
+      ON.ok = !!ON.uid;
+      try { ON.room = await window.claude.use('room'); if (ON.room) ON.room.on('tick', (msg) => { const d = msg.data || {}; if (G.on && G.on.live && d.id === G.on.live.id && !ehHost()) { G.on.alvo = Math.max(G.on.alvo || 0, d.n || 0); K.jogoAlcancar(); } }, () => { /* sem sala ao vivo: os minutos chegam pelo banco */ }); } catch (e) { ON.room = null; }
+    } catch (e) { ON.ok = false; }
+    if (G.tela === 1 || G.tela === 'online') K.render();
+  })();
+
+  // ---------- compressão (igual ao salvar jogo) ----------
+  async function comprimir(txt) { const st = new Blob([txt]).stream().pipeThrough(new CompressionStream('gzip')); return new Uint8Array(await new Response(st).arrayBuffer()); }
+  async function descomprimir(bytes) { const st = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip')); return await new Response(st).text(); }
+  function paraB64(bytes) { let s = ''; for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000)); return btoa(s); }
+  function deB64(b64) { const s = atob(b64), u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return u; }
+
+  // ---------- referências ----------
+  const salaRef = (id) => ON.db.doc('online/' + id);
+  const entradas = (id) => ON.db.collection('online/' + id + '/entradas');
+  const minhaEntrada = (id) => ON.db.doc('online/' + id + '/entradas/' + ON.uid);
+  const pedaco = (id, slot, i) => ON.db.doc('online/' + id + '/' + slot + '/' + String(i).padStart(3, '0'));
+  const ehHost = () => !!(G.on && G.on.sala && G.on.sala.host === ON.uid);
+  K.onlineHost = ehHost;
+  const msgErro = (e) => (e && (e.message || e.code)) || String(e);
+
+  function pararSala() { ON.unsub.forEach((u) => { try { u(); } catch (e) { /* já parado */ } }); ON.unsub = []; }
+  function sincronizar() { if (!G.on) return; const i = G.humanos.findIndex((hu) => hu.uid === ON.uid); G.on.eu = i; G.ativo = Math.max(0, i); }
+  K.onlineSincronizar = sincronizar;
+
+  // quem pode mexer agora: o técnico da vez; o anfitrião quando é a hora de rodar a rodada ou de começar a temporada
+  K.onlineMinhaVez = () => {
+    const s = G.on && G.on.sala; if (!s || s.status !== 'jogo') return false;
+    if (s.fase === 'turno') return s.vez === G.on.eu;
+    return ehHost();
+  };
+  K.onlineSoLeitura = () => !!(G.on && G.on.sala && G.on.sala.status === 'jogo' && !K.onlineMinhaVez());
+
+  // ---------- enviar e receber o jogo ----------
+  async function enviarEstado(extra) {
+    const s = G.on.sala, slot = s.estado && s.estado.slot === 'a' ? 'b' : 'a', ver = (s.estado ? s.estado.ver : 0) + 1;
+    const ui = { humanos: G.humanos, seed: G.seed, config: G.config, ativo: 0, prontos: new Set(), nTec: G.humanos.length, nomes: G.humanos.map((hu) => hu.nome), resumos: extra.resumos || null };
+    const txt = BF.Save.salvarJogo(G.g, ui, { online: G.on.id, ver });
+    const b64 = paraB64(await comprimir(txt)), n = Math.ceil(b64.length / CH);
+    for (let i = 0; i < n; i++) await pedaco(G.on.id, slot, i).set({ i, ver, n, s: b64.slice(i * CH, (i + 1) * CH) });
+    const patch = { estado: { slot, n, ver, por: ON.uid, em: new Date().toISOString() }, fase: extra.fase, vez: extra.vez, ano: G.g.ano, data: G.g.data,
+      ordem: G.humanos.map((hu) => ({ nome: hu.nome, uid: hu.uid, clubId: hu.clubId })), rodadaVer: extra.resumos ? ver : (s.rodadaVer || 0) };
+    if (extra.status) patch.status = extra.status;
+    G.on.ver = ver;   // este computador já tem esse estado
+    await salaRef(G.on.id).update(patch);
+  }
+  async function baixarEstado(est) {
+    for (let t = 0; t < 4; t++) {
+      const snap = await ON.db.collection('online/' + G.on.id + '/' + est.slot).get();
+      const docs = snap.docs.map((d) => d.data()).filter((d) => d.ver === est.ver).sort((a, b) => a.i - b.i);
+      if (docs.length === est.n) return descomprimir(deB64(docs.map((d) => d.s).join('')));
+      await esperar(1500);
+    }
+    throw new Error('não consegui baixar o jogo da sala');
+  }
+  async function aplicarEstado(est) {
+    if (G.on.carregando) { G.on.pend = est; return; }
+    G.on.carregando = true; G.on.msg = 'Baixando o jogo da sala…'; if (G.tela === 'online') K.render();
+    try {
+      const txt = await baixarEstado(est), p = BF.Save.lerJogo(txt);
+      if (!G.on || est.ver <= G.on.ver) return;
+      if (K.jogoParar) K.jogoParar();
+      document.querySelectorAll('.overlay').forEach((o) => o.remove());
+      const primeira = G.on.ver === 0;
+      Object.assign(G, { humanos: p.ui.humanos, seed: p.ui.seed, config: p.ui.config || G.config, prontos: new Set(), nTec: p.ui.humanos.length, nomes: p.ui.humanos.map((hu) => hu.nome) });
+      Object.assign(G, { g: p.g, sel: null, selX: null, escSlot: null, resumoSel: null, posTab: null, resTab: null, tabDiv: null, sorteando: false, erro: '' });
+      G.on.ver = est.ver; G.on.msg = ''; G.on.live = null; sincronizar();
+      const s = G.on.sala;
+      if (primeira && !p.ui.resumos && !p.g.idx) { G.aba = 'plantel'; K.ir(4); }
+      else if (p.ui.resumos && s.rodadaVer === est.ver && est.por !== ON.uid) { G.resumos = p.ui.resumos; G.resumoSel = null; K.ir('resumo'); }
+      else if (p.g.fim || s.fase === 'fimtemp') K.ir('fim');
+      else if ([1, 'online', 'boas', 3, 4, 'jogo'].includes(G.tela)) { G.aba = 'plantel'; K.ir(5); }
+      else K.renderKeep();
+    } catch (e) { if (G.on) { G.on.msg = 'Erro ao baixar o jogo: ' + msgErro(e); K.render(); } }
+    finally { if (G.on) { G.on.carregando = false; const pd = G.on.pend; G.on.pend = null; if (pd && pd.ver > G.on.ver) aplicarEstado(pd); else verAoVivo(); } }
+  }
+
+  // ---------- sala ----------
+  function entrarSala(id) {
+    pararSala();
+    G.on = { id, sala: null, ents: {}, ver: 0, eu: -1, msg: '', bvFeito: false, escrevendo: false, construindo: false };
+    G.tela = 'online'; K.render();
+    ON.unsub.push(salaRef(id).onSnapshot((snap) => { if (!G.on || G.on.id !== id || !snap.exists) return; G.on.sala = snap.data(); aoMudarSala(); }, (e) => { if (G.on) { G.on.msg = 'A conexão com a sala caiu (' + msgErro(e) + '). Recarregue a página.'; K.render(); } }));
+    ON.unsub.push(entradas(id).onSnapshot((q) => { if (!G.on || G.on.id !== id) return; const ents = {}; q.docs.forEach((d) => { ents[d.id] = d.data(); }); G.on.ents = ents; hostProcessa(); if (G.tela === 'online') K.render(); }, () => { /* a sala avisa */ }));
+  }
+  function sairSala() { pararSala(); G.on = null; G.humanos = []; G.g = null; G.tela = 1; document.body.classList.remove('ro'); K.render(); }
+
+  function aoMudarSala() {
+    const s = G.on.sala;
+    hostProcessa();
+    if (s.status === 'boas' && s.sorteio) {
+      const minha = (G.on.ents[ON.uid] || {}).estilo;
+      if (!minha && !G.on.bvFeito && G.tela !== 'boas' && !(ehHost() && G.tela === 3)) {
+        const i = s.sorteio.humanos.findIndex((hu) => hu.uid === ON.uid);
+        if (i >= 0) { G.humanos = s.sorteio.humanos.map((hu) => ({ ...hu })); G.seed = s.sorteio.seed; G.nTec = G.humanos.length; G.bvI = i; G.ativo = i; K.ir('boas'); return; }
+      }
+    }
+    if (s.status === 'jogo' && s.estado && s.estado.ver > G.on.ver) { aplicarEstado(s.estado); return; }
+    if (s.fase === 'aovivo') { verAoVivo(); return; }
+    if (G.tela === 'online') K.render(); else if (G.tela === 5 || G.tela === 'fim') K.renderKeep();
+  }
+
+  // o anfitrião é quem organiza a sala: põe quem entra nas vagas e monta o mundo quando todos escolheram seus estilos
+  async function hostProcessa() {
+    if (!ehHost() || G.on.escrevendo) return;
+    const s = G.on.sala, ents = G.on.ents;
+    if (s.status === 'lobby') {
+      const vagas = (s.vagas || []).slice(), tem = new Set(vagas.map((v) => v.uid));
+      Object.entries(ents).filter(([u]) => !tem.has(u)).sort((a, b) => (a[1].ts || 0) - (b[1].ts || 0)).forEach(([u, e]) => { if (vagas.length < s.nTec) { vagas.push({ nome: e.nome, uid: u }); tem.add(u); } });
+      if (vagas.length !== (s.vagas || []).length) { G.on.escrevendo = true; try { await salaRef(G.on.id).update({ vagas }); } finally { G.on.escrevendo = false; } }
+    } else if (s.status === 'boas' && s.sorteio && !G.on.construindo && s.sorteio.humanos.every((hu) => ents[hu.uid] && ents[hu.uid].estilo)) {
+      G.on.construindo = true; G.on.escrevendo = true; G.on.msg = 'Montando o mundo e enviando para a sala…'; if (G.tela === 'online') K.render();
+      try {
+        G.humanos = s.sorteio.humanos.map((hu) => ({ id: hu.id, nome: hu.nome, clubId: hu.clubId, uid: hu.uid, estilo: ents[hu.uid].estilo }));
+        G.seed = s.sorteio.seed; G.nTec = G.humanos.length;
+        G.g = GM.novo({ seed: G.seed, humanos: G.humanos, config: G.config });
+        G.prontos = new Set(); G.sel = null; G.selX = null; G.escSlot = null; G.aba = 'plantel';
+        K.ordenarTecnicos(); sincronizar();
+        await enviarEstado({ fase: 'turno', vez: 0, status: 'jogo' });
+        G.on.msg = ''; K.ir(4);
+      } catch (e) { G.on.construindo = false; G.on.msg = 'Não deu para montar o jogo: ' + msgErro(e); K.render(); }
+      finally { G.on.escrevendo = false; }
+    }
+  }
+
+  // ---------- ganchos chamados pelo resto do jogo ----------
+  // depois do sorteio (só o anfitrião): grava os clubes e cada técnico escolhe os seus estilos
+  K.onlinePosSorteio = async () => {
+    const s = G.on.sala, vagas = s.vagas || [];
+    G.humanos.forEach((hu, i) => { hu.uid = vagas[i] && vagas[i].uid; });
+    await salaRef(G.on.id).update({ status: 'boas', sorteio: { seed: G.seed, humanos: G.humanos.map((hu) => ({ id: hu.id, nome: hu.nome, clubId: hu.clubId, uid: hu.uid })) } });
+    const i = G.humanos.findIndex((hu) => hu.uid === ON.uid); G.bvI = Math.max(0, i); K.ir('boas');
+  };
+  K.onlineEstilo = async (sel) => {
+    G.on.bvFeito = true; G.on.msg = 'Enviando suas escolhas…'; K.ir('online');
+    try { await minhaEntrada(G.on.id).update({ estilo: { tec: sel.tec.slice(), jogo: sel.jogo.slice() } }); G.on.msg = ''; }
+    catch (e) { G.on.bvFeito = false; G.on.msg = 'Não deu para enviar: ' + msgErro(e); }
+    K.render();
+  };
+  async function terminarVez() {
+    const s = G.on.sala, n = G.humanos.length, prox = s.vez + 1;
+    G.on.enviando = true; K.render();
+    try { await enviarEstado(prox < n ? { fase: 'turno', vez: prox } : { fase: 'partida', vez: -1 }); G.on.msgVez = ''; }
+    catch (e) { G.on.msgVez = 'Não deu para enviar: ' + msgErro(e) + '. Tente de novo.'; }
+    G.on.enviando = false; window.scrollTo(0, 0); K.render();
+  }
+  // o anfitrião rodou a rodada (chamado ao abrir o resumo) ou chegou ao fim da temporada
+  K.onlinePosRodada = async () => {
+    G.on.live = null; G.on.enviando = true;
+    try { await enviarEstado({ fase: 'turno', vez: 0, resumos: G.resumos }); } catch (e) { K.modal('Sala online', h('p', null, 'Não deu para enviar a rodada para a sala: ' + msgErro(e) + '. Recarregue a página e rode a rodada de novo.')); }
+    G.on.enviando = false;
+  };
+  K.onlineFimTemporada = async (comecou) => {
+    G.on.enviando = true;
+    try { await enviarEstado(comecou ? { fase: 'turno', vez: 0 } : { fase: 'fimtemp', vez: -1 }); } catch (e) { K.modal('Sala online', h('p', null, 'Não deu para enviar para a sala: ' + msgErro(e) + '.')); }
+    G.on.enviando = false; K.render();
+  };
+
+  // ---------- caixas da tela do clube ----------
+  const nomeVez = (i) => { const hu = G.humanos[i]; return hu ? hu.nome + ' (' + K.nomeClube(hu.clubId) + ')' : '?'; };
+  K.onlineBox = () => {
+    const s = G.on && G.on.sala; if (!s) return null;
+    const linhas = G.humanos.map((hu, i) => {
+      const st = s.fase !== 'turno' ? ['hi', '✔ Terminou'] : i < s.vez ? ['hi', '✔ Terminou'] : i === s.vez ? ['warn vezagora', '▶ Na vez'] : ['muted', '… Aguardando'];
+      return h('tr', { class: i === G.on.eu ? 'ativo' : '' }, h('td', { class: 'num' }, (i + 1) + 'º'), h('td', { class: 'l' }, hu.nome + (hu.uid === s.host ? ' ★' : '')), h('td', { class: 'l' }, K.comEscudo(G.g.porId.get(hu.clubId))), h('td', { class: st[0] }, st[1]));
+    });
+    const txt = s.fase === 'turno' ? (s.vez === G.on.eu ? 'É a sua vez. O que você mudar só chega aos outros quando terminar a vez.' : 'Vez de ' + nomeVez(s.vez) + '. Você pode olhar o seu clube, mas só mexe na sua vez.')
+      : s.fase === 'aovivo' ? 'A rodada está sendo jogada.' : s.fase === 'partida' ? (ehHost() ? 'Todos terminaram. Você é o anfitrião: inicie a rodada.' : 'Todos terminaram. O anfitrião vai rodar a rodada; o resultado chega aqui sozinho.')
+        : ehHost() ? 'Fim da temporada: você começa a próxima.' : 'Fim da temporada: o anfitrião começa a próxima.';
+    return h('aside', { class: 'prontos onbox', 'aria-label': 'Sala online' }, h('h3', null, 'Sala online · ' + s.nome),
+      h('table', null, h('tbody', null, linhas)), h('small', { class: 'muted' }, txt), G.on.msgVez ? h('p', { class: 'err' }, G.on.msgVez) : null);
+  };
+  K.onlineBotoes = () => {
+    const s = G.on.sala, minha = K.onlineMinhaVez();
+    if (G.on.enviando) return h('button', { class: 'btn', disabled: true }, 'Enviando para a sala…');
+    if (s.fase === 'turno') return minha ? h('button', { class: 'btn hot', id: 'fimvez', onclick: terminarVez }, 'Terminar minha vez') : h('button', { class: 'btn alt', disabled: true }, 'Vez de ' + nomeVez(s.vez));
+    if (s.fase === 'partida') return ehHost() ? h('button', { class: 'btn hot', id: 'jogar', onclick: iniciarAoVivo }, 'Iniciar a rodada') : h('button', { class: 'btn alt', disabled: true }, 'O anfitrião vai rodar a rodada');
+    if (s.fase === 'aovivo') return h('button', { class: 'btn alt', disabled: true }, 'Rodada em andamento');
+    return h('button', { class: 'btn hot', id: 'jogar', onclick: () => K.ir('fim') }, 'Fim da temporada');
+  };
+
+  // ---------- partida ao vivo ----------
+  async function iniciarAoVivo() {
+    const id = 'r' + Date.now().toString(36);
+    G.on.live = { id, cmds: [] }; G.on.alvo = 0; G.on.pedFeitos = {};
+    try { await salaRef(G.on.id).update({ fase: 'aovivo', live: { id, base: G.on.ver, cmds: [], n: 0 } }); }
+    catch (e) { G.on.live = null; K.modal('Sala online', h('p', null, 'Não deu para iniciar a rodada: ' + msgErro(e) + '.')); return; }
+    ouvirPedidos(); K.jogarProximo();
+  }
+  // os outros computadores começam a mesma rodada, refazem as decisões já tomadas e seguem o relógio do anfitrião
+  function verAoVivo() {
+    const s = G.on && G.on.sala; if (!s || s.fase !== 'aovivo' || !s.live || G.on.carregando || G.on.ver !== s.live.base) return;
+    const cmds = s.live.cmds || [];
+    if (!G.on.live || G.on.live.id !== s.live.id) {
+      G.on.live = { id: s.live.id, cmds: ehHost() ? cmds.slice() : [] }; G.on.aplicados = 0; G.on.alvo = 0; G.on.pedPend = 0; G.on.pedFeitos = G.on.pedFeitos || {};
+      document.querySelectorAll('.overlay').forEach((o) => o.remove());
+      K.jogarProximo();
+      if (ehHost()) { G.on.aplicados = cmds.length; cmds.forEach((c) => K.jogoAplicar(c)); G.on.alvo = s.live.n || 0; ouvirPedidos(); return; }
+    }
+    if (ehHost()) return;
+    while (G.on.aplicados < cmds.length) { const c = cmds[G.on.aplicados]; G.on.aplicados++; if (c.de === ON.uid && c.pn >= (G.on.pedPend || 0)) G.on.pedPend = 0; K.jogoAplicar(c); }
+    if ((s.live.n || 0) > (G.on.alvo || 0)) { G.on.alvo = s.live.n; K.jogoAlcancar(); }
+  }
+  // decisões: o anfitrião aplica na hora e registra; os outros pedem ao anfitrião
+  K.onlineCmd = (c) => {
+    if (!G.on || !G.on.live) return { ok: false };
+    if (ehHost()) {
+      const L = G.g.live; c = { ...c, min: L ? L.min : 0, k: G.on.live.cmds.length };
+      G.on.live.cmds.push(c); const r = K.jogoAplicar(c); escreverLive(); return r;
+    }
+    if (G.on.pedPend) return { ok: false, pendente: true };
+    G.on.pedN = (G.on.pedN || 0) + 1; G.on.pedPend = G.on.pedN; const pn = G.on.pedN;
+    setTimeout(() => { if (G.on && G.on.pedPend === pn) { G.on.pedPend = 0; G.jg.aviso = 'O anfitrião não respondeu. Tente de novo.'; K.render(); } }, 20000); G.on.pedLista = (G.on.pedLista || []).concat([{ n: G.on.pedN, live: G.on.live.id, c }]).slice(-30);
+    G.jg.aviso = 'Enviando a decisão para o anfitrião…'; K.render();
+    const lista = G.on.pedLista;
+    G.on.pedFila = (G.on.pedFila || Promise.resolve()).then(() => ON.db.doc('online/' + G.on.id + '/pedidos/' + ON.uid).set({ lista })).catch((e) => { G.jg.aviso = 'Não deu para enviar a decisão: ' + msgErro(e); K.render(); });
+    return { ok: true, pendente: true };
+  };
+  function ouvirPedidos() {
+    if (G.on.ouvePed) return; G.on.ouvePed = true;
+    ON.unsub.push(ON.db.collection('online/' + G.on.id + '/pedidos').onSnapshot((q) => {
+      if (!G.on || !G.on.live || !ehHost()) return;
+      const feitos = (G.on.pedFeitos = G.on.pedFeitos || {});
+      q.docs.forEach((d) => { const u = d.id; (d.data().lista || []).forEach((p) => { if (p.live === G.on.live.id && p.n > (feitos[u] || 0)) { feitos[u] = p.n; if (G.tela === 'jogo') K.onlineCmd({ ...p.c, de: u, pn: p.n }); } }); });
+    }, () => { /* a sala avisa */ }));
+  }
+  // o registro de decisões e o minuto vão para a sala (uma escrita por vez)
+  function escreverLive() {
+    if (!G.on || !G.on.live) return;
+    G.on.liveSujo = true; if (G.on.liveEscrevendo) return;
+    G.on.liveEscrevendo = true;
+    (async () => {
+      while (G.on && G.on.live && G.on.liveSujo) {
+        G.on.liveSujo = false; const L = G.g.live;
+        try { await salaRef(G.on.id).update({ live: { id: G.on.live.id, base: G.on.sala.live ? G.on.sala.live.base : G.on.ver, cmds: G.on.live.cmds.slice(), n: L ? L.min : 0 } }); } catch (e) { await esperar(800); G.on.liveSujo = true; }
+      }
+      if (G.on) G.on.liveEscrevendo = false;
+    })();
+  }
+  // minuto a minuto pela sala ao vivo; de 10 em 10 minutos também pelo banco (para quem entrou depois ou está sem a sala ao vivo)
+  K.onlineTick = (n) => {
+    if (ON.room) ON.room.emit('tick', { id: G.on.live.id, n }).catch(() => { /* perdeu um minuto: o próximo alcança */ });
+    if (n % 10 === 0) escreverLive();
+  };
+
+  // ---------- tela das salas ----------
+  function ouvirSalas() {
+    if (ON.unsubSalas || !ON.db) return;
+    ON.unsubSalas = ON.db.collection('online').onSnapshot((q) => { ON.salas = q.docs.map((d) => ({ id: d.id, ...d.data() })).sort((a, b) => (b.criadoEm || '').localeCompare(a.criadoEm || '')); if (G.tela === 'online' && !G.on) K.render(); }, (e) => { ON.salas = []; ON.erroSalas = msgErro(e); if (G.tela === 'online') K.render(); });
+  }
+  K.abrirOnline = () => { G.tela = 'online'; ouvirSalas(); K.render(); window.scrollTo(0, 0); };
+  async function criarSala() {
+    const nome = (document.getElementById('on-sala').value || '').trim() || 'Sala de ' + meuNome(), n = +document.getElementById('on-ntec').value, eu = meuNome();
+    if (eu.length < 2) { ON.erro = 'Digite seu nome de técnico (pelo menos 2 letras).'; K.render(); return; }
+    const id = 's' + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
+    ON.erro = ''; ON.ocupado = true; K.render();
+    try {
+      await salaRef(id).set({ nome: nome.slice(0, 40), host: ON.uid, hostNome: eu, nTec: n, status: 'lobby', vagas: [{ nome: eu, uid: ON.uid }], criadoEm: new Date().toISOString(), versao: BF.VERSAO });
+      await minhaEntrada(id).set({ nome: eu, ts: Date.now() });
+      ON.ocupado = false; entrarSala(id);
+    } catch (e) { ON.ocupado = false; ON.erro = 'Não deu para criar a sala: ' + msgErro(e); K.render(); }
+  }
+  async function entrar(sl) {
+    const eu = meuNome(), ja = (sl.vagas || []).some((v) => v.uid === ON.uid);
+    if (!ja && eu.length < 2) { ON.erro = 'Digite seu nome de técnico (pelo menos 2 letras) antes de entrar.'; K.render(); return; }
+    if (!ja && (sl.vagas || []).some((v) => v.nome.toLowerCase() === eu.toLowerCase())) { ON.erro = 'Já tem um técnico com esse nome na sala. Escolha outro.'; K.render(); return; }
+    ON.erro = '';
+    try { if (!ja) await minhaEntrada(sl.id).set({ nome: eu, ts: Date.now() }); entrarSala(sl.id); }
+    catch (e) { ON.erro = 'Não deu para entrar: ' + msgErro(e); K.render(); }
+  }
+  const meuNome = () => { const el = document.getElementById('on-nome'); if (el) ON.nome = el.value.trim().replace(/\s+/g, ' '); return ON.nome || ''; };
+  const STATUS = { lobby: 'Esperando técnicos', boas: 'Escolhendo estilos', jogo: 'Em andamento' };
+
+  function telaSalas() {
+    const vol = h('button', { class: 'btn alt', onclick: () => { G.tela = 1; K.render(); } }, 'Voltar');
+    if (ON.ok === null) return h('main', { class: 'wrap page' }, h('p', null, 'Conectando…'));
+    if (!ON.ok) return h('main', { class: 'wrap page' }, h('h2', null, 'Jogar online'), h('p', null, 'O modo online só funciona dentro do claude.ai, com a sua conta, no link da versão online do jogo.'), vol);
+    const salas = ON.salas;
+    const lista = salas == null ? h('p', { class: 'muted' }, 'Procurando salas…') : !salas.length ? h('p', { class: 'muted' }, 'Nenhuma sala ainda. Crie a primeira abaixo.')
+      : h('table', { class: 'onsalas' }, h('thead', null, h('tr', null, h('th', { class: 'l' }, 'Sala'), h('th', { class: 'l' }, 'Anfitrião'), h('th', null, 'Técnicos'), h('th', { class: 'l' }, 'Situação'), h('th', null, ''))),
+        h('tbody', null, salas.map((sl) => {
+          const ja = (sl.vagas || []).some((v) => v.uid === ON.uid) || (sl.estado && (sl.ordem || []).some((v) => v.uid === ON.uid)), cheia = (sl.vagas || []).length >= sl.nTec;
+          const bt = ja ? h('button', { class: 'btn sm hot', id: 'on-voltar-' + sl.id, onclick: () => entrarSala(sl.id) }, 'Voltar à sala')
+            : sl.status === 'lobby' && !cheia ? h('button', { class: 'btn sm', id: 'on-entrar-' + sl.id, onclick: () => entrar(sl) }, 'Entrar') : h('span', { class: 'muted' }, cheia ? 'Lotada' : '');
+          return h('tr', null, h('td', { class: 'l' }, h('b', null, sl.nome)), h('td', { class: 'l' }, sl.hostNome || ''), h('td', { class: 'num' }, (sl.vagas || []).length + ' de ' + sl.nTec), h('td', { class: 'l' }, STATUS[sl.status] || sl.status), h('td', null, bt));
+        })));
+    return h('main', { class: 'wrap page online' },
+      h('div', { class: 'head' }, h('span', { class: 'eyebrow' }, 'Multiplayer online'), h('h2', null, 'Jogar online'),
+        h('p', null, 'Cada técnico joga no seu computador. A vez vai do clube mais fraco ao mais forte. Quem está na vez mexe no seu clube e termina a vez; depois do último, o anfitrião (quem criou a sala) roda a rodada e o resultado chega para todos.')),
+      ON.podeEscrever === false ? h('p', { class: 'err' }, 'Sua conta só pode olhar este jogo. Peça ao dono do link para te convidar como Editor.') : null,
+      h('label', { class: 'onlab' }, 'Seu nome de técnico ', h('input', { id: 'on-nome', maxlength: 24, value: ON.nome || '', placeholder: 'Ex.: KK', oninput: (e) => { ON.nome = e.target.value.trim().replace(/\s+/g, ' '); } })),
+      h('section', { class: 'card' }, h('h3', null, 'Salas'), lista),
+      h('section', { class: 'card' }, h('h3', null, 'Criar uma sala'),
+        h('div', { class: 'oncriar' }, h('label', null, 'Nome da sala ', h('input', { id: 'on-sala', maxlength: 40, value: ON.salaNome || '', placeholder: 'Ex.: Liga dos amigos', oninput: (e) => { ON.salaNome = e.target.value; } })),
+          h('label', null, 'Técnicos ', h('select', { id: 'on-ntec', onchange: (e) => { ON.nTec = +e.target.value; } }, [2, 3, 4, 5, 6].map((n) => h('option', { value: n, selected: (ON.nTec || 2) === n }, String(n))))),
+          h('button', { class: 'btn hot', id: 'on-criar', disabled: !!ON.ocupado, onclick: criarSala }, 'Criar sala'))),
+      ON.erro ? h('p', { class: 'err', role: 'alert' }, ON.erro) : null, h('div', { class: 'actions' }, vol));
+  }
+  function telaSala() {
+    const s = G.on.sala, sair = h('button', { class: 'btn alt', id: 'on-sair', onclick: sairSala }, 'Sair da sala');
+    if (!s) return h('main', { class: 'wrap page online' }, h('p', null, 'Abrindo a sala…'), sair);
+    const ents = G.on.ents || {}, msg = G.on.msg ? h('p', { class: 'onmsg', role: 'status' }, G.on.msg) : null;
+    if (s.status === 'lobby') {
+      const vagas = s.vagas || [], cheia = vagas.length >= s.nTec;
+      return h('main', { class: 'wrap page online' },
+        h('div', { class: 'head' }, h('span', { class: 'eyebrow' }, 'Sala online'), h('h2', null, s.nome), h('p', null, 'Anfitrião: ' + (s.hostNome || '') + '. Faltam ' + (s.nTec - vagas.length) + ' técnico(s).')),
+        h('section', { class: 'card' }, h('h3', null, 'Técnicos'), h('ol', { class: 'onvagas' }, Array.from({ length: s.nTec }, (_, i) => h('li', { class: vagas[i] ? 'ok' : 'livre' }, vagas[i] ? vagas[i].nome + (vagas[i].uid === s.host ? ' (anfitrião)' : '') + (vagas[i].uid === ON.uid ? ' · você' : '') : 'Vaga livre')))),
+        ehHost() ? h('div', { class: 'actions' }, h('button', { class: 'btn hot', id: 'on-sortear', disabled: !cheia, onclick: () => { G.nTec = s.nTec; G.nomes = vagas.map((v) => v.nome); G.humanos = []; G.g = null; G.tela = 3; K.render(); } }, cheia ? 'Ir para o sorteio dos clubes' : 'Esperando todos entrarem'))
+          : h('p', { class: 'muted' }, cheia ? 'Sala completa. O anfitrião vai sortear os clubes.' : 'Mande o link para os amigos e peça para entrarem nesta sala.'),
+        msg, h('div', { class: 'actions' }, sair));
+    }
+    if (s.status === 'boas') {
+      const hs = (s.sorteio && s.sorteio.humanos) || [];
+      return h('main', { class: 'wrap page online' },
+        h('div', { class: 'head' }, h('span', { class: 'eyebrow' }, 'Sala online · ' + s.nome), h('h2', null, 'Cada técnico escolhe seus estilos'), h('p', null, 'O jogo começa quando todos escolherem. O anfitrião monta o mundo e envia para a sala.')),
+        h('section', { class: 'card' }, h('ol', { class: 'onvagas' }, hs.map((hu) => h('li', { class: ents[hu.uid] && ents[hu.uid].estilo ? 'ok' : 'livre' }, hu.nome + ' · ' + K.nomeClubeBase(hu.clubId) + (ents[hu.uid] && ents[hu.uid].estilo ? ' ✔' : ' … escolhendo'))))),
+        msg, h('div', { class: 'actions' }, sair));
+    }
+    return h('main', { class: 'wrap page online' }, h('div', { class: 'head' }, h('span', { class: 'eyebrow' }, 'Sala online · ' + s.nome), h('h2', null, 'Carregando o jogo')), msg || h('p', null, 'Baixando o jogo da sala…'), h('div', { class: 'actions' }, sair));
+  }
+  K.nomeClubeBase = (id) => { const c = BF.CLUBS.find((x) => x.id === id); return c ? c.nome : id; };
+  K.telas = K.telas || {};
+  K.telas.online = () => (G.on ? telaSala() : telaSalas());
 })();
 
 </script>

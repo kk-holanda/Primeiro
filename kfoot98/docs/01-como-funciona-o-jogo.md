@@ -513,3 +513,18 @@ O jogo aceita de 1 a 6 técnicos humanos jogando no mesmo computador, um de cada
 - **Resumo da rodada (v49):** no resumo, a linha "Jogos dos técnicos" mostra o resultado de cada técnico (V, E ou D e o placar). Clicar num deles abre o resumo do jogo daquele técnico. A barra de técnicos faz o mesmo.
 - **Notícias (v49):** na tela do clube, as notícias que citam o clube da vez aparecem em negrito. O histórico de notícias já tinha o filtro "Só as do" clube da vez.
 - **Salvar:** o jogo salvo guarda todos os técnicos e quem já marcou pronto (seção 21).
+
+## 26. Jogar online (v50, versão online do jogo)
+Cada técnico joga no seu próprio computador, pela internet, numa sala. Funciona só no link da versão online do jogo, dentro do claude.ai, e cada técnico precisa de uma conta no claude.ai.
+- **Quem pode entrar:** o dono do link (o anfitrião) convida cada amigo pelo e-mail como Editor no menu Compartilhar. O compartilhamento por link público precisa ficar desligado, senão os convidados só conseguem olhar.
+- **Sala:** na tela inicial, "Jogar online". Cada técnico escreve o nome. O anfitrião cria a sala (nome e número de técnicos, 2 a 6) e os outros clicam em "Entrar". Quando a sala enche, o anfitrião faz o sorteio dos clubes; cada técnico escolhe os seus estilos na tela de boas-vindas, no próprio computador. Quando todos escolhem, o anfitrião monta o mundo e envia para a sala.
+- **Entre os jogos (por turnos):** a vez vai do clube mais fraco para o mais forte (como no mesmo computador). Quem está na vez mexe no seu clube (escalação, mercado, finanças, treino) e clica em "Terminar minha vez"; o jogo é enviado para a sala e passa para o próximo. Quem não está na vez vê o jogo, mas não mexe (tela só para olhar). Avisos da diretoria aparecem na vez do dono do clube.
+- **Partida ao vivo:** depois do último técnico, o anfitrião clica em "Iniciar a rodada". Todos assistem à rodada ao mesmo tempo, cada um no seu computador; o relógio é do anfitrião (só ele muda a velocidade e pode pular para o fim).
+  - Pênalti a favor, lesão e expulsão param o jogo para todos, e só o técnico daquele time decide (batedor, quem entra, seguir com um a menos). Os outros veem "Aguardando a decisão".
+  - Intervalo: cada técnico tem a sua vez de fazer substituições e mudar formação e estilo, na ordem das partidas. Quem está na vez clica em "Começar o 2º tempo" para passar.
+  - Numa pausa sem dono (início do jogo ou pausa do anfitrião), qualquer técnico pode continuar.
+  - Se um técnico sumiu, o anfitrião tem o botão "Decidir por Nome": o computador decide por ele naquela parada.
+  - Todos os computadores rodam a mesma partida com a mesma sorte, e as decisões chegam a todos na mesma ordem e no mesmo minuto, então o placar é igual em todos.
+- **Fim da rodada:** o anfitrião clica em "Ver resumo"; o jogo vai para a sala e todos recebem o resumo. Começa a vez do primeiro técnico de novo. A nova temporada também é começada pelo anfitrião.
+- **O anfitrião precisa estar com o jogo aberto** para iniciar e rodar as rodadas. Os outros podem fechar e voltar depois: "Voltar à sala" baixa o jogo atual.
+- **Salvar:** o jogo fica guardado na sala. Os espaços de salvar e o automático não são usados no modo online. A opção de jogo automático fica desligada.
