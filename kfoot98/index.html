@@ -7536,15 +7536,16 @@ window.ESCUDOS_REAIS = {};
     return h('main', { class: 'wrap page' },
       h('div', { class: 'head' }, h('span', { class: 'eyebrow' }, 'Quem é você?'), h('h2', null, n > 1 ? 'Seus nomes, seus clubes' : 'Seu nome, seu clube'),
         h('p', null, 'Cada técnico começa treinando um dos 10 piores clubes da Série D. Os clubes saem de um sorteio com globo, em ordem, sem repetir: ' + pool.map((c) => c.nome).join(', ') + '.')),
-      h('div', { class: 'card' }, h('div', { class: 'ntec' }, h('span', { class: 'eyebrow' }, 'Quantos técnicos?'), segN, n > 1 ? h('small', { class: 'muted' }, 'No mesmo aparelho: cada um alterna pela barra de técnicos e marca "Estou pronto" antes da rodada.') : null),
+      h('div', { class: 'card' }, h('div', { class: 'ntec' }, h('span', { class: 'eyebrow' }, 'Quantos técnicos?'), segN, n > 1 && !G.on ? h('small', { class: 'muted' }, 'No mesmo aparelho: cada um alterna pela barra de técnicos e marca "Estou pronto" antes da rodada.') : null),
         h('div', { class: 'slots' }, slots), h('p', { class: 'err', id: 'erro', role: 'alert' }, G.erro)),
       h('div', { class: 'bingo', 'aria-live': 'polite' },
         h('div', null, h('span', { class: 'eyebrow', style: 'color:#b9ccb9' }, 'Sorteio dos clubes'), bandeja, h('div', { class: 'globowrap', id: 'globowrap' }, globo, h('i', { class: 'manivela', 'aria-hidden': 'true' }), h('i', { class: 'globobase', 'aria-hidden': 'true' })), h('p', { class: 'bingo-msg', id: 'bingomsg' }, depois ? 'Sorteio concluído.' : 'Estas são as 10 bolas. Elas vão para o globo.'), h('p', { class: 'giratxt', id: 'giratxt', 'aria-hidden': 'true' })),
         h('div', { class: 'sorteados' }, linhas)),
-      h('div', { class: 'actions' }, h('button', { class: 'btn alt', disabled: G.sorteando, onclick: () => ir(2) }, 'Voltar'),
+      G.on && !K.onlineHost() ? h('p', { class: 'muted onassiste', role: 'status' }, G.sorteando ? 'Sorteio ao vivo, feito pelo anfitrião.' : depois ? 'Sorteio concluído. O anfitrião vai continuar e cada técnico escolhe os seus estilos.' : 'Aguardando o anfitrião sortear os clubes.') : null,
+      h('div', { class: 'actions' }, G.on ? null : h('button', { class: 'btn alt', disabled: G.sorteando, onclick: () => ir(2) }, 'Voltar'),
         h('button', { class: 'btn alt', id: 'som', 'aria-pressed': G.mudo ? 'false' : 'true', onclick: (e) => { G.mudo = !G.mudo; if (G.mudo) Som.parar(); else Som.preparar(); e.currentTarget.textContent = G.mudo ? 'Som: desligado' : 'Som: ligado'; e.currentTarget.setAttribute('aria-pressed', G.mudo ? 'false' : 'true'); } }, G.mudo ? 'Som: desligado' : 'Som: ligado'),
         G.sorteando ? h('button', { class: 'btn alt', id: 'pularbingo', onclick: () => { G.pularBingo = true; Som.parar(); } }, 'Pular animação') : null,
-        depois && !G.sorteando ? [h('button', { class: 'btn alt', id: 'sortearde', onclick: () => { G.humanos = []; G.g = null; render(); } }, 'Sortear de novo'), h('button', { class: 'btn hot', id: 'seguir3', onclick: () => { if (G.on) { K.onlinePosSorteio(); return; } G.bvI = 0; ir('boas'); } }, 'Continuar')]
+        G.on && !K.onlineHost() ? null : depois && !G.sorteando ? [G.on ? null : h('button', { class: 'btn alt', id: 'sortearde', onclick: () => { G.humanos = []; G.g = null; render(); } }, 'Sortear de novo'), h('button', { class: 'btn hot', id: 'seguir3', onclick: () => { if (G.on) { K.onlinePosSorteio(); return; } G.bvI = 0; ir('boas'); } }, 'Continuar')]
           : !G.sorteando ? h('button', { class: 'btn', id: 'sortear', onclick: sortear }, n > 1 ? 'Sortear os clubes' : 'Sortear meu clube') : null));
   }
 
@@ -7772,6 +7773,7 @@ window.ESCUDOS_REAIS = {};
     G.seed = (Math.random() * 2 ** 31) >>> 0;          // semente única do mundo: base do multiplayer determinístico
     const rng = BF.RNG.create(G.seed ^ 0x5eed);
     const escolhidos = S.embaralhar(rng, poolSorteio()).slice(0, n);   // um clube por técnico, na ordem, sem repetir
+    if (G.on && K.onlineSorteioIni) K.onlineSorteioIni(G.seed, nomes);   // os outros técnicos assistem ao mesmo sorteio
     Som.preparar(); render();
     await bingo(escolhidos, nomes);
     Som.parar();
@@ -7780,6 +7782,19 @@ window.ESCUDOS_REAIS = {};
     G.ativo = 0; G.prontos = new Set(); G.sel = null; G.selX = null; G.escSlot = null; G.aba = 'plantel';
     G.sorteando = false; render();
   }
+
+  // online: quem não é o anfitrião assiste ao mesmo sorteio (mesma semente, mesma ordem) na sua tela
+  K.assistirSorteio = async (seed, nomes) => {
+    if (G.sorteando) return;
+    Object.assign(G, { nTec: nomes.length, nomes: nomes.slice(), humanos: [], g: null, seed, erro: '', sorteando: true, pularBingo: false, tela: 3 });
+    const escolhidos = S.embaralhar(BF.RNG.create(seed ^ 0x5eed), poolSorteio()).slice(0, nomes.length);
+    Som.preparar(); render(); window.scrollTo(0, 0);
+    try { await bingo(escolhidos, nomes); } catch (e) { /* a tela mudou no meio */ }
+    Som.parar();
+    G.humanos = nomes.map((nome, i) => ({ id: i + 1, nome, clubId: escolhidos[i].id }));
+    G.sorteando = false; if (G.tela === 3) render();
+    if (K.onlineReavaliar) K.onlineReavaliar();
+  };
 
   // ---------- v43: boas-vindas: o clube quer conhecer o técnico (estilo de técnico e estilo de jogo, de 1 a 2 cada) ----------
   const NAOSEI = 'naosei';
@@ -8382,9 +8397,12 @@ window.KFootP2P = function () {
   function aoMudarSala() {
     const s = G.on.sala;
     hostProcessa();
+    if (s.status === 'lobby' && s.sorteioVivo && !ehHost() && G.on.sorteioVisto !== s.sorteioVivo.seed) {
+      G.on.sorteioVisto = s.sorteioVivo.seed; K.assistirSorteio(s.sorteioVivo.seed, s.sorteioVivo.nomes); return;
+    }
     if (s.status === 'boas' && s.sorteio) {
       const minha = (G.on.ents[ON.uid] || {}).estilo;
-      if (!minha && !G.on.bvFeito && G.tela !== 'boas' && !(ehHost() && G.tela === 3)) {
+      if (!minha && !G.on.bvFeito && G.tela !== 'boas' && !G.sorteando && !(ehHost() && G.tela === 3)) {
         const i = s.sorteio.humanos.findIndex((hu) => hu.uid === ON.uid);
         if (i >= 0) { G.humanos = s.sorteio.humanos.map((hu) => ({ ...hu })); G.seed = s.sorteio.seed; G.nTec = G.humanos.length; G.bvI = i; G.ativo = i; K.ir('boas'); return; }
       }
@@ -8418,6 +8436,9 @@ window.KFootP2P = function () {
   }
 
   // ---------- ganchos chamados pelo resto do jogo ----------
+  // o anfitrião começou o sorteio: a semente vai para a sala e todos assistem ao mesmo globo
+  K.onlineSorteioIni = (seed, nomes) => { salaRef(G.on.id).update({ sorteioVivo: { seed, nomes, em: Date.now() } }).catch(() => { /* os outros só não veem a animação */ }); };
+  K.onlineReavaliar = () => { if (G.on && G.on.sala) aoMudarSala(); };
   // depois do sorteio (só o anfitrião): grava os clubes e cada técnico escolhe os seus estilos
   K.onlinePosSorteio = async () => {
     const s = G.on.sala, vagas = s.vagas || [];

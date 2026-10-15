@@ -537,3 +537,4 @@ No site do jogo no GitHub (https://kk-holanda.github.io/Primeiro/kfoot98/), o "J
 - **Voltar depois:** cada navegador lembra quem é o técnico. Abrir o link de novo leva direto de volta à sala.
 - **Conexão:** os navegadores se conectam direto um ao outro (PeerJS, com o servidor gratuito do PeerJS só para se encontrarem). Em redes muito fechadas (empresa, alguns Wi-Fi públicos) a conexão pode falhar.
 - O link do jogo no claude.ai continua igual; a versão online no claude.ai (seção 26) também segue funcionando, com conta e convite.
+- **Sorteio ao vivo (v52):** quando o anfitrião sorteia os clubes, todos os técnicos da sala veem o mesmo globo girando na sua tela, na mesma ordem. Quem não é o anfitrião vê "Sorteio ao vivo, feito pelo anfitrião" e, no fim, espera o anfitrião continuar para escolher os seus estilos. Vale para a sala por link e para a versão online do claude.ai.
