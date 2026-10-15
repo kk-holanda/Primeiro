@@ -5123,7 +5123,7 @@ window.ESCUDOS_REAIS = {};
     G.tabDiv = copa ? 'copa' : c.div; G.tabVista = 'class'; G.clubeVisto = null; K.ir('tabelas');
   };
   K.telas.posRodada = function () {
-    const g = G.g, sair = () => { G.aba = 'plantel'; G.tabDiv = null; G.tabVista = 'class'; G.clubeVisto = null; K.ir(g.fim ? 'fim' : 5); };
+    const g = G.g, sair = () => { G.aba = 'plantel'; G.tabDiv = null; G.tabVista = 'class'; G.clubeVisto = null; G.ativo = 0; K.ir(g.fim ? 'fim' : 5); };
     const art = G.tabVista === 'art';
     return h('main', { class: 'wrap page posrodada' }, K.tecnicosBar(),
       h('div', { class: 'head' }, h('span', { class: 'eyebrow' }, GM.fmtData(g.data)), h('h2', null, art ? 'Artilharia' : 'Classificação')),
@@ -6161,7 +6161,7 @@ window.ESCUDOS_REAIS = {};
       h('div', { class: 'fmov2' },
         h('div', null, h('span', { class: 'eyebrow sobe' }, '▲ Sobem'), h('ol', { class: 'fclubes' }, cl[i].slice(0, 4).map((id, k) => clubeLinha(id, (k + 1) + 'º')))),
         h('div', null, h('span', { class: 'eyebrow cai' }, '▼ Descem'), h('ol', { class: 'fclubes' }, cl[s].slice(-4).map((id, k) => clubeLinha(id, (17 + k) + 'º')))))));
-    const nova = h('button', { class: 'btn hot', id: 'nova', onclick: (e) => { e.currentTarget.disabled = true; if (g.fim) GM.virarTemporada(g); G.tabDiv = null; G.aba = 'plantel'; G.sel = null; K.ir(5); } }, 'Começar a temporada ' + (g.ano + 1));
+    const nova = h('button', { class: 'btn hot', id: 'nova', onclick: (e) => { e.currentTarget.disabled = true; if (g.fim) GM.virarTemporada(g); K.ordenarTecnicos(); G.tabDiv = null; G.aba = 'plantel'; G.sel = null; K.ir(5); } }, 'Começar a temporada ' + (g.ano + 1));
     const verTab = h('button', { class: 'btn alt', id: 'vertabfinal', onclick: () => { G.aba = 'tabela'; G.tabDiv = c.div; K.ir(5); } }, 'Ver a tabela final');
     return h('main', { class: 'wrap page fimtemp' }, K.tecnicosBar(),
       h('section', { class: 'fimhero ' + status[1], style: K.coresClube(c) },
@@ -7708,6 +7708,7 @@ window.ESCUDOS_REAIS = {};
       // o mundo é gerado de novo com a mesma semente, agora com o elenco de cada humano montado pelo perfil escolhido
       G.g = GM.novo({ seed: G.seed, humanos: G.humanos, config: G.config });
       G.ativo = 0; G.prontos = new Set(); G.sel = null; G.selX = null; G.escSlot = null; G.aba = 'plantel';
+      K.ordenarTecnicos();
       ir(4);
     };
     const cont = (l) => h('small', { class: 'bv-cont' }, l.length ? (l.includes(NAOSEI) ? 'Ainda desenvolvendo' : l.length + ' de 2 escolhida' + (l.length > 1 ? 's' : '')) : 'nenhuma escolhida');
@@ -7728,7 +7729,7 @@ window.ESCUDOS_REAIS = {};
   function tela4() {
     return h('main', { class: 'wrap page' },
       h('div', { class: 'head' }, h('span', { class: 'eyebrow' }, 'Temporada 1998'), h('h2', null, G.humanos.length > 1 ? 'Os técnicos e seus clubes' : 'Seu clube'),
-        h('p', null, 'Estes são os técnicos humanos e os clubes que vão treinar. ' + (G.humanos.length > 1 ? 'Os outros ' + (80 - G.humanos.length) + ' clubes são comandados pelo computador. Na tela do clube, a barra no topo troca de técnico.' : 'Todos os outros 79 clubes são comandados pelo computador.'))),
+        h('p', null, 'Estes são os técnicos humanos e os clubes que vão treinar. ' + (G.humanos.length > 1 ? 'Os outros ' + (80 - G.humanos.length) + ' clubes são comandados pelo computador. A vez dos técnicos vai do clube mais fraco ao mais forte (média dos 11 melhores), nesta ordem. Na tela do clube, a barra no topo troca de técnico.' : 'Todos os outros 79 clubes são comandados pelo computador.'))),
       h('div', { class: 'assign' }, G.humanos.map((hu) => {
         const c = G.g.porId.get(hu.clubId), folha = E.folhaMensal(c.elenco), pj = GM.proximoJogo(G.g, c.id);
         return h('article', { class: 'club' },
@@ -7767,6 +7768,14 @@ window.ESCUDOS_REAIS = {};
   const todosProntos = () => G.humanos.every((hu) => G.prontos.has(hu.clubId));
   function trocarTecnico(i) { G.ativo = i; G.resumoSel = null; G.sel = null; G.escSlot = null; G.clubeVisto = null; G.finPreco = null; G.finMsg = ''; G.finMsgPat = ''; if (G.jg) { G.jg.selOut = G.jg.selIn = null; G.jg.msgSub = ''; } render(); }
   K.trocarTecnico = (i) => trocarTecnico(i);
+  // força do clube = média dos 11 melhores jogadores (desempate: menor prestígio primeiro)
+  K.forcaClube = (c) => { const o = c.elenco.map((p) => BF.Players.overall(p)).sort((a, b) => b - a).slice(0, 11); return o.reduce((a, b) => a + b, 0) / Math.max(1, o.length); };
+  K.ordenarTecnicos = () => {
+    if (!G.g || G.humanos.length < 2) return;
+    const f = new Map(G.humanos.map((hu) => { const c = G.g.porId.get(hu.clubId); return [hu, [K.forcaClube(c), c.prestigio || 0]]; }));
+    G.humanos.sort((a, b) => f.get(a)[0] - f.get(b)[0] || f.get(a)[1] - f.get(b)[1]);
+    G.ativo = 0;
+  };
   // barra para alternar entre os técnicos (só aparece com 2 ou mais)
   K.tecnicosBar = () => (G.humanos.length < 2 ? null : h('div', { class: 'tecbar', role: 'tablist', 'aria-label': 'Técnicos' }, G.humanos.map((hu, i) => {
     const cl = G.g.porId.get(hu.clubId);
@@ -7791,7 +7800,7 @@ window.ESCUDOS_REAIS = {};
     const botoes = g.fim ? h('button', { class: 'btn hot', id: 'jogar', onclick: () => ir('fim') }, 'Fim da temporada')
       : !multi ? h('button', { class: 'btn hot', id: 'jogar', onclick: jogarProximo }, (() => { const dia = GM.proximoDia(g), js = dia ? GM.jogosDoDia(g, dia) : []; return dia && dia.tipo === 'copa' && js.length && !js.some((x) => G.humanos.some((hu) => x.casa === hu.clubId || x.fora === hu.clubId)) ? 'Ver jogos da Copa do Brasil' : 'Jogar próximo jogo'; })())
         : h('div', { class: 'actions' },
-          h('button', { class: 'btn' + (pronto ? ' alt' : ' hot'), id: 'pronto', 'aria-pressed': pronto ? 'true' : 'false', onclick: () => { if (pronto) G.prontos.delete(c.id); else G.prontos.add(c.id); render(); } }, pronto ? 'Desmarcar pronto' : 'Estou pronto'),
+          h('button', { class: 'btn' + (pronto ? ' alt' : ' hot'), id: 'pronto', 'aria-pressed': pronto ? 'true' : 'false', onclick: () => { if (pronto) { G.prontos.delete(c.id); render(); return; } G.prontos.add(c.id); const n = G.humanos.length, prox = [...Array(n).keys()].map((k) => (G.ativo + 1 + k) % n).find((i) => !G.prontos.has(G.humanos[i].clubId)); if (prox != null && prox !== G.ativo) { trocarTecnico(prox); window.scrollTo(0, 0); } else render(); } }, pronto ? 'Desmarcar pronto' : (G.humanos.some((hu) => hu.clubId !== c.id && !G.prontos.has(hu.clubId)) ? 'Estou pronto (passar a vez)' : 'Estou pronto')),
           h('button', { class: 'btn hot', id: 'jogar', disabled: !todosProntos(), onclick: jogarProximo }, todosProntos() ? 'Iniciar a rodada' : 'Aguardando todos'));
     return h('aside', { class: 'status', 'aria-label': 'Calendário' },
       h('div', { class: 'srow' }, h('small', null, 'Hoje'), h('b', null, GM.fmtData(g.data))),
