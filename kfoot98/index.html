@@ -993,6 +993,13 @@ label.campo { aspect-ratio: auto !important; max-height: none !important; backgr
 .vezde { color: var(--accent, #f5c542); }
 p.vezde { margin: 0 0 6px; font-size: 13px; }
 .subpanel p.subvez { margin: 0 0 8px; font-size: 15px; text-transform: none; }
+.noticias li.nt-meu span { font-weight: 700; }
+.tecjogos { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; margin: 6px 0 12px; }
+.tecjogos .tj { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border: 1px solid var(--line, #ccc); background: var(--panel, #fff); color: inherit; font: inherit; font-size: 13px; cursor: pointer; border-radius: 4px; }
+.tecjogos .tj.on { border-color: var(--accent, #0a6b3d); box-shadow: inset 0 0 0 1px var(--accent, #0a6b3d); font-weight: 700; }
+.tecjogos .tjr { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 3px; color: #fff; font-size: 11px; }
+.tecjogos .tjV { background: #1e8a4c; } .tecjogos .tjE { background: #8a8a8a; } .tecjogos .tjD { background: #c0392b; }
+.tecjogos .semjogo { cursor: default; opacity: .7; }
 
 .sublinha[data-tip], tr[data-tip] { text-decoration: none; }
 .dis-wrap { display: inline-flex; }
@@ -3360,12 +3367,12 @@ window.ESCUDOS_REAIS = {};
         const txt = !r ? 'Nenhum jogador pôde ser colocado em leilão (o elenco já está no mínimo).'
           : r.r ? r.p.nome + ' (moral ' + r.moral + ') foi a leilão por R$ 0 e foi vendido ao ' + g.porId.get(r.r.comprador).nome + ' por ' + R(r.r.preco) + '.'
             : r.p.nome + ' (moral ' + r.moral + ') foi a leilão por ' + B('R$ 0') + ', mas ninguém deu lance e ele continua no clube.';
-        (g.avisos = g.avisos || []).push({ tipo: 'caixa', n, divida: -c.caixa, img: 'jogadores', titulo: 'Leilão por salários atrasados', texto: 'Os jogadores perderam a paciência com os salários atrasados. ' + txt + ' Se o caixa continuar negativo, outro jogador irá a leilão daqui a 5 rodadas.' });
+        (g.avisos = g.avisos || []).push({ tipo: 'caixa', clube: id, n, divida: -c.caixa, img: 'jogadores', titulo: 'Leilão por salários atrasados', texto: 'Os jogadores perderam a paciência com os salários atrasados. ' + txt + ' Se o caixa continuar negativo, outro jogador irá a leilão daqui a 5 rodadas.' });
       }
     } else if (humano && n === 1) {
-      (g.avisos = g.avisos || []).push({ tipo: 'caixa', n, divida: -c.caixa, img: 'diretoria', titulo: 'Carta da diretoria', texto: 'Prezado técnico, o caixa do clube está negativo (' + B(R(c.caixa)) + '). A diretoria espera que isso seja resolvido o mais breve possível: venda jogadores, revise os preços e os gastos. Enquanto o caixa estiver no vermelho, a moral do time e a dos jogadores cai a cada rodada.' });
+      (g.avisos = g.avisos || []).push({ tipo: 'caixa', clube: id, n, divida: -c.caixa, img: 'diretoria', titulo: 'Carta da diretoria', texto: 'Prezado técnico, o caixa do clube está negativo (' + B(R(c.caixa)) + '). A diretoria espera que isso seja resolvido o mais breve possível: venda jogadores, revise os preços e os gastos. Enquanto o caixa estiver no vermelho, a moral do time e a dos jogadores cai a cada rodada.' });
     } else if (humano && n % 5 === 4) {
-      (g.avisos = g.avisos || []).push({ tipo: 'caixa', n, divida: -c.caixa, img: 'jogadores', titulo: 'Os jogadores estão furiosos', texto: 'Os jogadores estão furiosos porque não estão recebendo os salários (caixa em ' + B(R(c.caixa)) + '). Se nada mudar, na próxima rodada um deles vai a leilão, começando em ' + B('R$ 0') + '.' });
+      (g.avisos = g.avisos || []).push({ tipo: 'caixa', clube: id, n, divida: -c.caixa, img: 'jogadores', titulo: 'Os jogadores estão furiosos', texto: 'Os jogadores estão furiosos porque não estão recebendo os salários (caixa em ' + B(R(c.caixa)) + '). Se nada mudar, na próxima rodada um deles vai a leilão, começando em ' + B('R$ 0') + '.' });
     }
   }
 
@@ -6104,6 +6111,12 @@ window.ESCUDOS_REAIS = {};
       K.tecnicosBar(),
       !ehMeu || !rs.some(doHumano) ? h('div', { class: 'actions' }, h('button', { class: 'btn alt sm', id: 'voltar-resumo', onclick: () => { G.resumoSel = null; K.ir('resumo'); } }, rs.some(doHumano) ? '← Voltar ao resumo do meu jogo' : '← Voltar aos resultados')) : null,
       h('div', { class: 'head' }, h('span', { class: 'eyebrow' }, R.jogo.rotulo + ' · ' + GM.fmtData(g.data)), h('h2', null, neutro ? 'Resumo do jogo' : res + ' · fim de jogo')),
+      G.humanos.length > 1 ? h('div', { class: 'tecjogos', 'aria-label': 'Jogos dos técnicos' }, h('small', { class: 'muted' }, 'Jogos dos técnicos:'), G.humanos.map((hu, i) => {   // v49: resumo de cada técnico
+        const r = rs.find((x) => x.jogo.casa === hu.clubId || x.jogo.fora === hu.clubId);
+        if (!r) return h('span', { class: 'tj semjogo' }, hu.nome + ': sem jogo');
+        const l = r.jogo.casa === hu.clubId ? 0 : 1, a = r.placar[l], b = r.placar[1 - l], v = a > b ? 'V' : a < b ? 'D' : 'E';
+        return h('button', { class: 'tj' + (i === G.ativo && ehMeu ? ' on' : ''), id: 'tj-' + i, onclick: () => K.trocarTecnico(i) }, h('b', { class: 'tjr tj' + v }, v), hu.nome + ' · ' + r.casaNome + ' ' + r.placar[0] + ' × ' + r.placar[1] + ' ' + r.foraNome);
+      })) : null,
       h('div', { class: 'placar grande' }, h('span', { class: 'tn' + (lado === 0 ? ' eu' : '') }, R.casaNome, K.escudo(R.jogo.casa, true)), h('span', { class: 'sc' }, h('b', { class: 'num' }, gh), h('i', null, '×'), h('b', { class: 'num' }, ga)), h('span', { class: 'tn r' + (lado === 1 ? ' eu' : '') }, K.escudo(R.jogo.fora, true), R.foraNome)),
       R.prorr ? h('p', { class: 'copainfo' }, 'Jogo decidido na prorrogação (acréscimos: ' + R.acr.filter((x) => x != null).join(" + ") + " min).") : null,
       h('p', { class: 'publico', 'data-tip': 'Pessoas no estádio neste jogo.' }, h('b', { class: 'num' }, nf(R.publico)), ' pessoas no ' + donoCasa.estadio.nome + ' (capacidade ' + nf(donoCasa.estadio.capacidade) + ')'),
@@ -7170,20 +7183,23 @@ window.ESCUDOS_REAIS = {};
 
   // avisos da diretoria e demissão
   K.avisosDiretoria = function () {
-    const g = G.g, segura = G.tela === 5 ? [] : g.avisos.filter((a) => a.tipo === 'celebridade' || a.tipo === 'celebBonus'), av = g.avisos.splice(0, g.avisos.length).filter((a) => !segura.includes(a)); g.avisos.push(...segura); if (!av.length) return;   // a carta da celebridade chega na tela do clube
+    // v49: com vários técnicos, cada aviso fica guardado até a vez do técnico do clube dele
+    const meuId = K.clubeHumano().id, doAtivo = (a) => { const c = a.tipo === 'demissao' ? a.para : a.clube != null ? a.clube : a.clubId; return c == null || c === meuId; };
+    const g = G.g, segura = G.tela === 5 ? [] : g.avisos.filter((a) => a.tipo === 'celebridade' || a.tipo === 'celebBonus'), av = g.avisos.filter((a) => doAtivo(a) && !segura.includes(a)); if (!av.length) return; g.avisos = g.avisos.filter((a) => !av.includes(a));
+    const varios = G.humanos.length > 1, deQuem = varios ? ' · ' + G.humanos[G.ativo].nome + ' (' + K.clubeHumano().nome + ')' : '';   // a carta da celebridade chega na tela do clube
     const dem = av.find((a) => a.tipo === 'demissao');
     if (dem) {
       const de = g.porId.get(dem.de), para = g.porId.get(dem.para);
-      K.modal('Você foi demitido', h('div', { class: 'demissao' },
+      K.modal(varios ? dem.nome + ', você foi demitido' : 'Você foi demitido', h('div', { class: 'demissao' },
         h('p', null, 'A diretoria do ', h('b', null, de.nome), ' encerrou o seu contrato (' + dem.motivo + ').'),
         h('p', null, 'Você assume o ', h('b', null, para.nome), ' (' + K.DIV_NOME[para.div] + '), com a moral do técnico em 45. Boa sorte!'),
         h('div', { class: 'actions' }, h('button', { class: 'btn hot', id: 'dem-ok', onclick: () => { document.querySelector('.overlay').remove(); G.aba = 'plantel'; K.render(); } }, 'Começar no novo clube'))), {});
       return;
     }
     const fila = [], gerais = av.filter((a) => !a.tipo || (a.tipo !== 'caixa' && a.tipo !== 'promessa' && a.tipo !== 'celebridade' && a.tipo !== 'celebBonus'));
-    if (gerais.length) fila.push((depois) => { const m = K.modal('Diretoria', h('div', null, gerais.map((a) => h('p', null, a.texto)), h('div', { class: 'actions' }, h('button', { class: 'btn', id: 'dir-ok', onclick: () => m.fechar() }, 'Entendi'))), { aoFechar: depois }); });
+    if (gerais.length) fila.push((depois) => { const m = K.modal('Diretoria' + deQuem, h('div', null, gerais.map((a) => h('p', null, a.texto)), h('div', { class: 'actions' }, h('button', { class: 'btn', id: 'dir-ok', onclick: () => m.fechar() }, 'Entendi'))), { aoFechar: depois }); });
     av.filter((a) => a.tipo === 'caixa').forEach((a) => fila.push((depois) => {
-      const m = K.modal(a.titulo, h('div', { class: 'carta' }, h('img', { class: 'carta-img', src: K.IMG[a.img], alt: a.img === 'diretoria' ? 'Diretoria' : 'Jogadores revoltados' }), h('p', null, String(a.texto).split('**').map((t, i) => (i % 2 ? h('b', null, t) : t))),
+      const m = K.modal(a.titulo + deQuem, h('div', { class: 'carta' }, h('img', { class: 'carta-img', src: K.IMG[a.img], alt: a.img === 'diretoria' ? 'Diretoria' : 'Jogadores revoltados' }), h('p', null, String(a.texto).split('**').map((t, i) => (i % 2 ? h('b', null, t) : t))),
         a.divida != null ? h('p', { class: 'divida' }, 'Dívida atual do clube: ', h('b', null, K.reais(a.divida).replace(/ /g, '\u00a0'))) : null,
         h('div', { class: 'actions' }, h('button', { class: 'btn', id: 'carta-ok', onclick: () => m.fechar() }, 'Entendi'), h('span', { class: 'solucoes', id: 'carta-solucoes', tabindex: 0, 'data-tip': 'Possíveis soluções: 1) Venda jogadores com salário alto ou que ficam no banco (aba Plantel, pôr à venda). 2) Revise o preço dos ingressos e feche patrocínios na aba Finanças. 3) Corte gastos: não contrate, não renove contratos caros e reduza treinos e investimentos. 4) Vença jogos e avance na Copa do Brasil para aumentar a receita.' }, 'Soluções'))), { aoFechar: depois });
     }));
@@ -7341,7 +7357,7 @@ window.ESCUDOS_REAIS = {};
     const f = { 1: tela1, 2: tela2, 3: tela3, boas: telaBoas, 4: tela4, 5: casa, jogo: () => K.telas.jogo(), resumo: () => K.telas.resumo(), fim: () => K.telas.fim(), tabelas: () => K.telas.posRodada() }[G.tela];
     app.replaceChildren(topo(), f());
     // v46: avisos, evolução de jogadores e cartas dos VIPs aparecem só na tela do clube, depois que ela já está na tela
-    if (G.g && G.g.avisos && G.g.avisos.length && G.tela === 5 && K.avisosDiretoria) setTimeout(() => { if (G.tela === 5 && G.g.avisos.length && !document.querySelector('.overlay')) K.avisosDiretoria(); }, 450);
+    if (G.g && G.g.avisos && G.g.avisos.length && G.tela === 5 && K.avisosDiretoria && (G.humanos.length < 2 || G.g.avisos.some((a) => { const c = a.tipo === 'demissao' ? a.para : a.clube != null ? a.clube : a.clubId; return c == null || c === K.clubeHumano().id; }))) setTimeout(() => { if (G.tela === 5 && G.g.avisos.length && !document.querySelector('.overlay')) K.avisosDiretoria(); }, 450);
   }
   // redesenha mantendo a rolagem da página e da lista de jogadores (a escalação não "sobe" a cada clique)
   function renderKeep() {
@@ -7749,7 +7765,8 @@ window.ESCUDOS_REAIS = {};
   };
   K.advLink = (id) => { const el = K.comEscudo(id, null, { link: true }); el.setAttribute('data-tip', K.dicaEsc(id) || 'Ver o plantel de ' + G.g.porId.get(id).nome + ' (ainda sem escalação anterior)'); return el; };
   const todosProntos = () => G.humanos.every((hu) => G.prontos.has(hu.clubId));
-  function trocarTecnico(i) { G.ativo = i; G.sel = null; G.escSlot = null; G.clubeVisto = null; G.finPreco = null; G.finMsg = ''; G.finMsgPat = ''; if (G.jg) { G.jg.selOut = G.jg.selIn = null; G.jg.msgSub = ''; } render(); }
+  function trocarTecnico(i) { G.ativo = i; G.resumoSel = null; G.sel = null; G.escSlot = null; G.clubeVisto = null; G.finPreco = null; G.finMsg = ''; G.finMsgPat = ''; if (G.jg) { G.jg.selOut = G.jg.selIn = null; G.jg.msgSub = ''; } render(); }
+  K.trocarTecnico = (i) => trocarTecnico(i);
   // barra para alternar entre os técnicos (só aparece com 2 ou mais)
   K.tecnicosBar = () => (G.humanos.length < 2 ? null : h('div', { class: 'tecbar', role: 'tablist', 'aria-label': 'Técnicos' }, G.humanos.map((hu, i) => {
     const cl = G.g.porId.get(hu.clubId);
@@ -7902,7 +7919,7 @@ window.ESCUDOS_REAIS = {};
   };
   function noticias() {
     const n = G.g.noticias.slice(0, 5); if (!n.length) return null;
-    return h('section', { class: 'noticias', 'aria-label': 'Notícias' }, h('h3', null, 'Notícias', h('button', { class: 'nt-hist', id: 'nt-hist', 'aria-label': 'Ver todas as notícias antigas', 'data-tip': 'Ver todas as notícias antigas', onclick: () => K.noticiasAntigas(), html: ICONE_HIST })), h('ul', null, n.map((x) => h('li', { class: 'nt-' + x.tipo }, h('small', { class: 'num' }, GM.fmtDataCurta(x.data)), h('span', null, x.texto)))));
+    return h('section', { class: 'noticias', 'aria-label': 'Notícias' }, h('h3', null, 'Notícias', h('button', { class: 'nt-hist', id: 'nt-hist', 'aria-label': 'Ver todas as notícias antigas', 'data-tip': 'Ver todas as notícias antigas', onclick: () => K.noticiasAntigas(), html: ICONE_HIST })), h('ul', null, n.map((x) => h('li', { class: 'nt-' + x.tipo + (G.humanos.length > 1 && x.texto.includes(K.clubeHumano().nome) ? ' nt-meu' : '') }, h('small', { class: 'num' }, GM.fmtDataCurta(x.data)), h('span', null, x.texto)))));
   }
   const JOGADORINHO = '<svg viewBox="0 0 12 16" aria-hidden="true"><circle cx="6" cy="3.2" r="2.6" fill="currentColor"/><path d="M1.5 15V8.5C1.5 6.8 2.8 6 4 6h4c1.2 0 2.5.8 2.5 2.5V15H8.3v-5H3.7v5z" fill="currentColor"/></svg>';
   const info = (t, v) => h('div', null, h('small', null, t), h('b', null, v));

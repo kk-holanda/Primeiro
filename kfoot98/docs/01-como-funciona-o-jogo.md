@@ -508,4 +508,7 @@ O jogo aceita de 1 a 6 técnicos humanos jogando no mesmo computador, um de cada
   - Quando dois humanos se enfrentam, cada um decide pelo próprio time.
   - Quando a partida do técnico da tela acaba e outra partida humana ainda está rolando (acréscimos maiores), a tela passa para essa partida. O jogo do dia só termina quando todas as partidas humanas acabam.
   - A janela de substituições e os avisos mostram "Vez de Nome (Clube)". A barra de técnicos também funciona durante a partida para ver o jogo de outro técnico.
+- **Avisos da diretoria (v49):** cartas de caixa negativo, leilão, moral do técnico, promessas, celebridades e demissão ficam guardadas até a vez do técnico daquele clube. Elas aparecem quando ele abre a tela do clube pela barra de técnicos, com o nome dele no título ("Carta da diretoria · Max (Olaria)"). Antes elas apareciam para quem estivesse na tela.
+- **Resumo da rodada (v49):** no resumo, a linha "Jogos dos técnicos" mostra o resultado de cada técnico (V, E ou D e o placar). Clicar num deles abre o resumo do jogo daquele técnico. A barra de técnicos faz o mesmo.
+- **Notícias (v49):** na tela do clube, as notícias que citam o clube da vez aparecem em negrito. O histórico de notícias já tinha o filtro "Só as do" clube da vez.
 - **Salvar:** o jogo salvo guarda todos os técnicos e quem já marcou pronto (seção 21).
