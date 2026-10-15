@@ -1,4 +1,4 @@
-# Kfoot 98: documentação do jogo (versão 48)
+# Kfoot 98: documentação do jogo (versão 49)
 
 Documento vivo: cresce junto com a implementação. Cada rodada de melhorias atualiza as seções que mudaram. Valores vêm do código da branch `claude/melhorias-5-xt6u1f` (pasta `kfoot98`). Quando algo ainda não está documentado, a seção diz "a detalhar".
 
@@ -10,7 +10,7 @@ Arquivos de dados desta pasta:
 ## 1. Visão geral
 
 - Jogo de gerenciamento de futebol brasileiro em 1998, num único arquivo HTML, que roda no navegador (sem servidor), em português.
-- 1 a 8 técnicos humanos no mesmo computador (hot-seat). Os demais clubes são do computador.
+- 1 a 6 técnicos humanos no mesmo computador (hot-seat). Os demais clubes são do computador.
 - 80 clubes em 4 divisões de 20 clubes: Série A, B, C e D. Temporada de 1998 em diante, sem fim.
 - Os jogadores humanos só podem iniciar em 10 clubes da Série D (os "iniciáveis"): Bangu, Madureira, Marília, Olaria, Sertãozinho, Rio Branco-ES, Tuna Luso, Colatina, Ceilândia e Guarany de Bagé. A escolha é por sorteio de bolinhas.
 - Todo o motor é determinístico a partir de uma semente (gerador mulberry32): a mesma semente e as mesmas decisões dão o mesmo jogo.
@@ -496,3 +496,16 @@ A parte de cima da aba Escalação foi refeita. O campo e a tabela de jogadores 
 - **Resumo da combinação**, com a compatibilidade, uma frase sobre o encaixe e os 3 estilos que mais combinam com o elenco na formação atual.
 - **Linha de baixo:** Encaixe do elenco (número, nível e barras de ataque, defesa e controle), Pontos de atenção (até 3 titulares que perdem 3 pontos ou mais jogando fora da posição natural, e se algum reserva rende mais ali) e Papéis (capitão, faltas e pênaltis, escanteios, substituições, escalação automática, saída de bola e ritmo).
 - **Nomes:** "Gegenpressing" passou a se chamar **Contra-pressão** (também chamado Gegenpressing) e "Construção desde Trás" passou a se chamar **Saída Curta** (também chamado Construção desde Trás).
+
+## 25. Vários técnicos no mesmo computador (v49)
+O jogo aceita de 1 a 6 técnicos humanos jogando no mesmo computador, um de cada vez (hot seat).
+- **Como começar:** na tela do nome, escolha quantos técnicos vão jogar (botões 1 a 6) e escreva o nome de cada um. O sorteio dá um clube para cada técnico. A tela de boas-vindas (estilos de técnico e de jogo) aparece para cada um, em sequência. A tela "Os técnicos e seus clubes" diz quantos clubes ficam com o computador (80 menos o número de técnicos).
+- **Entre os jogos:** uma barra no topo troca de técnico. Cada um mexe no próprio clube (escalação, mercado, finanças, treino) e marca "Estou pronto". O botão "Iniciar a rodada" só libera quando todos estão prontos. Mexer na escalação desmarca o pronto daquele técnico.
+- **Durante a partida (novo na v49):** todas as partidas com técnico humano param para o técnico certo. Antes só a partida do técnico que estava na tela parava; nas outras o computador resolvia.
+  - Pênalti a favor: a tela passa para o técnico do time que vai bater, e ele escolhe o batedor. Os pênaltis das outras partidas humanas também aparecem na tela.
+  - Lesão ou expulsão: a tela passa para o técnico do time que perdeu o jogador, com a janela de substituição ou o aviso de expulsão.
+  - Intervalo: cada técnico tem a sua vez. Como os acréscimos são diferentes em cada partida, o intervalo de cada um pode cair num minuto diferente. Quando duas partidas param no mesmo minuto, ao fechar a janela de um técnico, a vez passa para o próximo.
+  - Quando dois humanos se enfrentam, cada um decide pelo próprio time.
+  - Quando a partida do técnico da tela acaba e outra partida humana ainda está rolando (acréscimos maiores), a tela passa para essa partida. O jogo do dia só termina quando todas as partidas humanas acabam.
+  - A janela de substituições e os avisos mostram "Vez de Nome (Clube)". A barra de técnicos também funciona durante a partida para ver o jogo de outro técnico.
+- **Salvar:** o jogo salvo guarda todos os técnicos e quem já marcou pronto (seção 21).

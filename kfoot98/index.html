@@ -989,6 +989,10 @@ label.campo { aspect-ratio: auto !important; max-height: none !important; backgr
 .nv-tip .nv-mc { float: right; width: 112px; margin: 0 0 6px 10px; } .nv-tip .nv-mc .minicampo { width: 112px; }
 @media (max-width: 1100px) { .nv-row { grid-template-columns: minmax(0, 1fr); } .nv-linha { grid-template-columns: minmax(0, 1fr); } .nv-col { border-right: 0; border-bottom: 1px solid var(--line); } .nv-col:last-child { border-bottom: 0; } }
 @media (max-width: 640px) { .nv-fgrid { grid-template-columns: repeat(4, minmax(0, 1fr)); } .nv-sgrid { grid-template-columns: repeat(3, minmax(0, 1fr)); } .nv-dica { margin-left: 0; } .nv-fcard .nv-tip, .nv-scard .nv-tip { left: 0 !important; right: auto !important; width: min(400px, 86vw); position: fixed; top: auto; bottom: 8px; left: 7vw !important; } }
+/* v49 multiplayer: de quem é a vez */
+.vezde { color: var(--accent, #f5c542); }
+p.vezde { margin: 0 0 6px; font-size: 13px; }
+.subpanel p.subvez { margin: 0 0 8px; font-size: 15px; text-transform: none; }
 
 .sublinha[data-tip], tr[data-tip] { text-decoration: none; }
 .dis-wrap { display: inline-flex; }
@@ -5519,7 +5523,7 @@ window.ESCUDOS_REAIS = {};
   const G = K.G;
   const VELS = [['Lento', 500], ['Normal', 250], ['Rápido', 70]];
 
-  K.jogoIniciar = () => { G.jg = { vel: (G.jg && (G.jg.observar ? G.jg.velPref : G.jg.vel)) || 250, velPref: (G.jg && (G.jg.observar ? G.jg.velPref : G.jg.vel)) || 250, pausado: true, painel: false, selOut: null, selIn: null, evtN: 0, aviso: 'Apito inicial' }; G.resumos = null; const P0 = partidaHumana(); if (P0) { const sd = P0.m.S[ladoHumano(P0)]; sd.manual = true; sd.banco = sd.banco.concat(sd.time.elenco.filter((p) => !sd.todos.has(p.id) && !sd.banco.includes(p) && S.disponivel(p)).sort((a, b) => K.ORDEM_POS.indexOf(a.pos) - K.ORDEM_POS.indexOf(b.pos))); }
+  K.jogoIniciar = () => { G.jg = { vel: (G.jg && (G.jg.observar ? G.jg.velPref : G.jg.vel)) || 250, velPref: (G.jg && (G.jg.observar ? G.jg.velPref : G.jg.vel)) || 250, pausado: true, painel: false, selOut: null, selIn: null, evtN: 0, aviso: 'Apito inicial' }; G.resumos = null; const P0 = partidaHumana(); if (P0) { G.jg.pv = new Set(); humanas().forEach((Q) => [0, 1].forEach((l) => { if (!Q.humano[l]) return; const sd = Q.m.S[l]; sd.manual = true; sd.banco = sd.banco.concat(sd.time.elenco.filter((p) => !sd.todos.has(p.id) && !sd.banco.includes(p) && S.disponivel(p)).sort((a, b) => K.ORDEM_POS.indexOf(a.pos) - K.ORDEM_POS.indexOf(b.pos))); })); }
     else { G.jg.observar = true; G.jg.pausado = false; G.jg.aviso = ''; G.jg.vel = 70; } };
   K.jogoParar = () => { if (G.jg && G.jg.timer) { clearInterval(G.jg.timer); G.jg.timer = null; } };
 
@@ -5527,20 +5531,55 @@ window.ESCUDOS_REAIS = {};
   const ladoHumano = (p) => { const id = K.clubeHumano().id; return p.jogo.casa === id ? 0 : p.jogo.fora === id ? 1 : p.humano[0] ? 0 : 1; };
   const nome = (id) => K.nomeClube(id);
   const L = () => G.g.live;
+  // v49 (multiplayer): partidas com técnico humano e de quem é a vez
+  const humanas = () => G.g.live.partidas.filter((p) => p.humano[0] || p.humano[1]);
+  const donoDe = (Q, l) => G.humanos.findIndex((hu) => hu.clubId === (l === 0 ? Q.jogo.casa : Q.jogo.fora));
+  const varios = () => G.humanos.length > 1;
+  const quemTxt = () => { const hu = G.humanos[G.ativo]; return hu.nome + ' (' + nome(hu.clubId) + ')'; };
+  function passarVez(i) { if (i < 0 || i === G.ativo) return; G.ativo = i; G.sel = null; G.escSlot = null; G.clubeVisto = null; G.jg.selOut = G.jg.selIn = null; G.jg.msgSub = ''; K.render(); }
+  // pênalti para escolher, pênalti para assistir ou vaga aberta, primeiro na partida do técnico da vez
+  function vezDe() {
+    const meu = partidaHumana(), ordem = [meu].concat(humanas().filter((p) => p !== meu)).filter(Boolean);
+    for (const Q of ordem) {
+      const m = Q.m;
+      if (m.penPend && Q.humano[m.penPend.lado]) return donoDe(Q, m.penPend.lado);
+      const pen = (m.penLog || []).find((x) => x.pop && !x.visto);
+      if (pen) { if (Q === meu) return G.ativo; const l = Q.humano[pen.lado] ? pen.lado : 1 - pen.lado; return donoDe(Q, l); }
+      for (const l of [0, 1]) { const s = m.S[l]; if (!Q.humano[l] || !(s.vagas || []).length) continue; if (s.subs >= s.maxSubs) { M.ignorarVagas(m, l); continue; } return donoDe(Q, l); }
+    }
+    return null;
+  }
+  function checarEventos() {
+    const i = vezDe(); if (i == null) return false;
+    G.jg.popup = true; passarVez(i);
+    const esp = eventoEspecial(partidaHumana()); if (!esp) G.jg.popup = false;
+    return esp;
+  }
+  // intervalo: cada técnico tem a sua vez (as partidas podem ter acréscimos diferentes)
+  function pausaPendente() {
+    if (G.jg.observar) return -1;
+    for (const Q of [partidaHumana()].concat(humanas())) {
+      if (!Q || !naPausa(Q)) continue;
+      for (const l of [0, 1]) { const i = Q.humano[l] ? donoDe(Q, l) : -1; if (i >= 0 && !G.jg.pv.has(i + '|' + Q.m.min)) return i; }
+    }
+    return -1;
+  }
+  function darIntervalo(i) { G.jg.pv.add(i + '|' + partidaDe(i).m.min); passarVez(i); G.jg.painel = true; pausar(textoPausa(partidaHumana()) + (varios() ? ' · vez de ' + quemTxt() : '')); }
+  const partidaDe = (i) => humanas().find((p) => p.jogo.casa === G.humanos[i].clubId || p.jogo.fora === G.humanos[i].clubId);
 
   // ---------- ao vivo ----------
   // fim do jogo = fim da partida do técnico humano (ou de todas, se não houver humano)
-  const fimJogo = () => { const P = partidaHumana(); return P ? M.acabou(P.m) : L().partidas.every((p) => M.acabou(p.m)); };
+  const fimJogo = () => { const ps = humanas(); return ps.length ? ps.every((p) => M.acabou(p.m)) : L().partidas.every((p) => M.acabou(p.m)); };
   const relogio = () => { const P = partidaHumana(); return P ? M.minTxt(P.m, Math.max(P.m.min, 0)) : L().min + "'"; };
   const naPausa = (P) => !!P && P.m.min > 0 && P.m.pausas.includes(P.m.min) && !M.acabou(P.m);
   const textoPausa = (P) => P.m.min === P.m.meio ? 'FIM DO PRIMEIRO TEMPO' : P.m.prorr && P.m.min === P.m.etIni ? 'FIM DO TEMPO NORMAL · PRORROGAÇÃO' : 'INTERVALO DA PRORROGAÇÃO';
   const rotuloRetomada = (P) => !naPausa(P) ? null : P.m.min === P.m.meio ? 'Começar o 2º tempo' : P.m.min === P.m.etIni ? 'Começar a prorrogação' : 'Começar o 2º tempo da prorrogação';
-  function pausar(aviso) { K.jogoParar(); G.jg.pausado = true; if (aviso) G.jg.aviso = aviso; K.render(); }
-  function retomar() { G.jg.pausado = false; G.jg.aviso = ''; G.jg.painel = false; K.render(); }
+  function pausar(aviso) { K.jogoParar(); G.jg.popup = false; G.jg.pausado = true; if (aviso) G.jg.aviso = aviso; K.render(); }
+  function retomar() { const ip = pausaPendente(); if (ip >= 0) { darIntervalo(ip); return; } G.jg.pausado = false; G.jg.aviso = ''; G.jg.painel = false; K.render(); }
   function tick() {
     const live = L(); if (fimJogo()) { K.jogoParar(); return; }
     GM.passoDia(G.g);
-    const esp = eventoEspecial(partidaHumana()); atualizar(esp === 'pen');
+    const esp = checarEventos(); atualizar(esp === 'pen');
     if (esp) return;
     posTick(live);
   }
@@ -5548,7 +5587,9 @@ window.ESCUDOS_REAIS = {};
     const P = partidaHumana();
     if (fimJogo()) { if (!L().partidas.every((p) => M.acabou(p.m))) GM.completarDia(G.g); pausar('Fim de jogo'); return; }
     if (G.jg.observar) return;
-    if (naPausa(P)) { G.jg.painel = true; pausar(textoPausa(P)); }
+    const ip = pausaPendente(); if (ip >= 0) { darIntervalo(ip); return; }
+    // a partida do técnico da vez acabou e outra com humano continua: a tela passa para ela
+    if (P && M.acabou(P.m)) { const Q = humanas().find((p) => !M.acabou(p.m)); if (Q) { G.jg.aviso = 'Fim de jogo para ' + quemTxt() + '. Agora: ' + nome(Q.jogo.casa) + ' × ' + nome(Q.jogo.fora); passarVez(donoDe(Q, Q.humano[0] ? 0 : 1)); } }
   }
   const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
   const temVaga = (P) => !!P && (P.m.S[ladoHumano(P)].vagas || []).length > 0;
@@ -5563,13 +5604,13 @@ window.ESCUDOS_REAIS = {};
     if (vg) {
       if (s.subs >= s.maxSubs) { M.ignorarVagas(m, lado); return false; }
       K.jogoParar();
-      if (vg.motivo === 'lesao') { G.jg.painel = true; pausar(vg.nome + ' (' + vg.pos + ') se lesionou. Escolha quem entra.'); }
+      if (vg.motivo === 'lesao') { G.jg.painel = true; pausar((varios() ? quemTxt() + ': ' : '') + vg.nome + ' (' + vg.pos + ') se lesionou. Escolha quem entra.'); }
       else avisoExpulsao(P, lado, vg);
       return 'vaga';
     }
     return false;
   }
-  function retomarDepois(P) { const live = L(); atualizar(false); if (!eventoEspecial(P)) { posTick(live); if (!G.jg.pausado && !fimJogo()) iniciarTimer(); } }
+  function retomarDepois(P) { const live = L(); G.jg.popup = false; atualizar(false); if (!checarEventos()) { posTick(live); if (!G.jg.pausado && !fimJogo()) iniciarTimer(); } }
   function overlayJogo(titulo) {
     const caixa = h('div', { class: 'modal penpop', role: 'dialog', 'aria-modal': 'true', 'aria-label': titulo }), ov = h('div', { class: 'overlay', style: 'z-index:60' }, caixa);
     document.body.append(ov); return { caixa, fechar: () => ov.remove() };
@@ -5577,7 +5618,7 @@ window.ESCUDOS_REAIS = {};
   function avisoExpulsao(P, lado, vg) {
     const { caixa, fechar } = overlayJogo('Expulsão');
     caixa.replaceChildren(h('header', null, h('h3', null, 'Expulsão!')),
-      h('div', { class: 'penbody' }, h('p', null, h('b', null, vg.nome), ' (' + vg.pos + ') foi expulso e seu time segue com um a menos.'), h('p', null, 'Você pode trocar um dos jogadores que ficaram em campo por alguém do banco para reorganizar o time' + (vg.slot === 'GOL' ? ' (como foi o goleiro, dá para tirar um jogador de linha e pôr o goleiro reserva no gol)' : '') + '. Quer fazer uma substituição?'), h('p', { class: 'muted' }, 'Substituições usadas: ' + P.m.S[lado].subs + ' de ' + P.m.S[lado].maxSubs + '.'),
+      h('div', { class: 'penbody' }, varios() ? h('p', { class: 'vezde' }, 'Vez de ', h('b', null, quemTxt())) : null, h('p', null, h('b', null, vg.nome), ' (' + vg.pos + ') foi expulso e seu time segue com um a menos.'), h('p', null, 'Você pode trocar um dos jogadores que ficaram em campo por alguém do banco para reorganizar o time' + (vg.slot === 'GOL' ? ' (como foi o goleiro, dá para tirar um jogador de linha e pôr o goleiro reserva no gol)' : '') + '. Quer fazer uma substituição?'), h('p', { class: 'muted' }, 'Substituições usadas: ' + P.m.S[lado].subs + ' de ' + P.m.S[lado].maxSubs + '.'),
         h('div', { class: 'actions' },
           h('button', { class: 'btn', id: 'exp-sim', onclick: () => { fechar(); G.jg.painel = true; pausar('Expulsão de ' + vg.nome + ': escolha quem sai (em campo) e quem entra (banco).'); } }, 'Substituir'),
           h('button', { class: 'btn alt', id: 'exp-nao', onclick: () => { fechar(); M.ignorarVagas(P.m, lado); retomarDepois(P); } }, 'Seguir com um a menos'))));
@@ -5591,7 +5632,7 @@ window.ESCUDOS_REAIS = {};
     const cands = side.campo.filter((j) => j.slot !== 'GOL').slice().sort((a, b) => b.p.attr.CHU - a.p.attr.CHU);
     let sel = null;
     const desenha = () => caixa.replaceChildren(h('header', null, h('h3', null, 'Pênalti a favor do ' + nome(lado === 0 ? P.jogo.casa : P.jogo.fora) + '!')),
-      h('div', { class: 'penbody' }, h('p', null, h('b', null, m.penPend.faltoso), ' derrubou na área aos ' + M.minTxt(m, m.min) + ". Escolha quem vai bater. A finalização e a moral pesam mais."),
+      h('div', { class: 'penbody' }, varios() ? h('p', { class: 'vezde' }, 'Vez de ', h('b', null, quemTxt()), ' escolher o batedor') : null, h('p', null, h('b', null, m.penPend.faltoso), ' derrubou na área aos ' + M.minTxt(m, m.min) + ". Escolha quem vai bater. A finalização e a moral pesam mais."),
         h('div', { class: 'tablewrap' }, h('table', { class: 'penlista' }, h('thead', null, h('tr', null, colunasJog())),
           h('tbody', null, cands.map((j) => h('tr', { class: sel === j.p.id ? 'sel' : '', tabindex: 0, 'data-id': j.p.id, onclick: () => { sel = j.p.id; desenha(); }, onkeydown: (e) => { if (e.key === 'Enter') { sel = j.p.id; desenha(); } } }, celulasJog(j.p, j.slot, 'CHU')))))),
         h('div', { class: 'actions' }, h('button', { class: 'btn', id: 'bater', disabled: !sel, onclick: () => { const e = M.cobrarPenalti(m, lado, sel); fechar(); sequenciaPenalti(P, e); } }, sel ? 'Confirmar batedor' : 'Escolha o batedor'))));
@@ -5620,7 +5661,7 @@ window.ESCUDOS_REAIS = {};
       h('div', { class: 'actions' }, h('button', { class: 'btn', id: 'confvaga', disabled: !jg.selIn, onclick: () => { const r = M.preencherVaga(P.m, lado, jg.selIn); jg.msgSub = r.ok ? '' : r.motivo; if (r.ok) jg.selIn = null; K.render(); } }, 'Confirmar substituição'),
         h('button', { class: 'btn alt', id: 'comdez', onclick: () => { M.ignorarVagas(P.m, lado); jg.selIn = null; K.render(); } }, 'Seguir com um a menos'), h('span', { class: 'err' }, jg.msgSub || '')));
   }
-  function iniciarTimer() { K.jogoParar(); if (!G.jg.pausado && !fimJogo()) G.jg.timer = setInterval(tick, G.jg.vel); }
+  function iniciarTimer() { K.jogoParar(); if (!G.jg.pausado && !G.jg.popup && !fimJogo()) G.jg.timer = setInterval(tick, G.jg.vel); }
 
   // local da falta contado por quem a cometeu: zona (vista por quem sofreu) e faixa espelhada
   const FX_TXT = ['pela lateral esquerda', 'pelo meio-espaço esquerdo', 'pelo meio', 'pelo meio-espaço direito', 'pela lateral direita'];
@@ -5844,7 +5885,7 @@ window.ESCUDOS_REAIS = {};
     const campo = P ? h('section', { class: 'jmain' },
       h('div', { class: 'placar' }, h('span', { class: 'tn' + (lado === 0 ? ' eu' : '') }, nome(P.jogo.casa), K.escudo(P.jogo.casa, true)), h('span', { class: 'sc' }, REFS.pl0, h('i', null, '×'), REFS.pl1), h('span', { class: 'tn r' + (lado === 1 ? ' eu' : '') }, K.escudo(P.jogo.fora, true), nome(P.jogo.fora))),
       idaBox(P),
-      h('div', { class: 'javiso' + (naPausa(P) && jg.pausado ? ' intervalo' : ''), role: 'status' }, jg.aviso || (jg.pausado ? '' : 'Bola rolando'), live.min === 0 ? h('small', { class: 'muted' }, ' Tática e escalação já definidas na aba Escalação. Depois do apito inicial você pode pausar para mexer.') : null, null),
+      h('div', { class: 'javiso' + (naPausa(P) && jg.pausado ? ' intervalo' : ''), role: 'status' }, varios() && jg.pausado && live.min > 0 && !fim ? h('span', { class: 'vezde' }, 'Na vez: ', h('b', null, quemTxt()), ' · ') : null, jg.aviso || (jg.pausado ? '' : 'Bola rolando'), live.min === 0 ? h('small', { class: 'muted' }, ' Tática e escalação já definidas na aba Escalação. Depois do apito inicial você pode pausar para mexer.') : null, null),
       h('div', { class: 'publico', 'data-tip': 'Pessoas no estádio neste jogo.' }, h('b', { class: 'num' }, nf(P.publico)), ' pessoas · ' + nome(P.jogo.casa) + ' · ' + G.g.porId.get(P.jogo.casa).estadio.nome + ' (' + nf(G.g.porId.get(P.jogo.casa).estadio.capacidade) + ' lugares)'),
       posseBar(P), h('section', { class: 'lances-box' }, h('h3', null, 'Lances'), REFS.feed), h('div', { class: 'stats' }, stat('Chutes', 'chutes'), stat('No gol', 'no_gol'), stat('Escanteios', 'escanteios'), stat('Impedimentos', 'imp'), stat('Faltas', 'faltas'), stat('Laterais', 'laterais'), stat('Tiros de meta', 'tirosMeta'), stat('Amarelos', 'amarelos'), stat('Vermelhos', 'vermelhos')),
       jg.painel ? K.subsModal(P, lado) : K.subsFechar(),
@@ -5931,8 +5972,9 @@ window.ESCUDOS_REAIS = {};
       h('span', { class: 'sc' }, h('b', { class: 'num' }, plc[0]), h('i', null, '×'), h('b', { class: 'num' }, plc[1])),
       h('span', { class: 'tn r' + (lado === 1 ? ' eu' : '') }, K.escudo(P.jogo.fora, true), nome(P.jogo.fora)),
       h('span', { class: 'subminuto num' }, M.minTxt(P.m, Math.max(P.m.min, 0))));
+    const vezTopo = G.humanos.length > 1 ? h('p', { class: 'vezde subvez' }, 'Vez de ', h('b', null, G.humanos[G.ativo].nome + ' (' + nome(G.humanos[G.ativo].clubId) + ')'), G.jg && G.jg.aviso ? ' · ' + G.jg.aviso.split(' · vez de')[0] : '') : null;   // v49: com vários técnicos, quem está mexendo
     return h('div', { class: 'subpanel subnovo' },
-      placarTopo,
+      vezTopo, placarTopo,
       exp ? h('p', { class: 'expaviso' }, h('b', null, exp.nome + ' (' + exp.pos + ')'), ' foi expulso e seu time segue com um a menos. Você pode trocar alguém do banco por quem ficou em campo ou mudar as posições de quem está jogando',
         exp.slot === 'GOL' && side.banco.some((p) => p.pos === 'GOL') ? ' (como foi o goleiro: tire um jogador de linha e escolha o goleiro reserva, que assume o gol).' : '.') : null,
       h('div', { class: 'subtop' },
@@ -7670,7 +7712,7 @@ window.ESCUDOS_REAIS = {};
   function tela4() {
     return h('main', { class: 'wrap page' },
       h('div', { class: 'head' }, h('span', { class: 'eyebrow' }, 'Temporada 1998'), h('h2', null, G.humanos.length > 1 ? 'Os técnicos e seus clubes' : 'Seu clube'),
-        h('p', null, 'Estes são os técnicos humanos e os clubes que vão treinar. Todos os outros 79 clubes são comandados pelo computador.')),
+        h('p', null, 'Estes são os técnicos humanos e os clubes que vão treinar. ' + (G.humanos.length > 1 ? 'Os outros ' + (80 - G.humanos.length) + ' clubes são comandados pelo computador. Na tela do clube, a barra no topo troca de técnico.' : 'Todos os outros 79 clubes são comandados pelo computador.'))),
       h('div', { class: 'assign' }, G.humanos.map((hu) => {
         const c = G.g.porId.get(hu.clubId), folha = E.folhaMensal(c.elenco), pj = GM.proximoJogo(G.g, c.id);
         return h('article', { class: 'club' },
