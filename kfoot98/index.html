@@ -1015,6 +1015,11 @@ body.ro main.page .tabs::after { content: 'Só olhando: você mexe no clube na s
 .onvagas li { padding: 4px 0; } .onvagas li.livre { color: var(--muted, #778); } .onvagas li.ok { font-weight: 600; }
 .onmsg { font-weight: 600; }
 .onlink .onlinkrow { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 6px 0; } .onlink input { flex: 1 1 260px; min-width: 0; font: inherit; padding: 6px 8px; }
+.prontos.onbox { flex: 0 1 380px; min-width: min(100%, 300px); }
+.onbox table { width: 100%; border-collapse: collapse; }
+.onbox td { padding: 5px 6px; vertical-align: middle; }
+.onbox td:last-child { white-space: nowrap; text-align: right; }
+.onbox td.l:nth-child(3) { overflow-wrap: anywhere; }
 
 .sublinha[data-tip], tr[data-tip] { text-decoration: none; }
 .dis-wrap { display: inline-flex; }
