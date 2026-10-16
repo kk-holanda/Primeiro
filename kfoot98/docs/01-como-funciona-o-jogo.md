@@ -560,3 +560,12 @@ Pedido do KK sobre o relatório 27 (propostas P2, P3, P4 e P5).
 - **Salário = 1,4% do valor ao mês** (antes 1,17%), com o piso por série, a base com 70% do piso e as curvas de idade da seção 28.
 - **Compras do computador:** um jogador de 30 a 34 anos que custa menos que um jogador no auge com a mesma média é tratado como pechincha (até 2 pontos a mais na escolha). Com isso o computador pode comprá-lo mesmo melhorando o time em só 1 ponto. O computador continua comprando muitos garotos, que estão mais baratos, e passa a levar veteranos quando o preço compensa (26% das compras, antes 22%).
 - Relatório 29 traz a comparação de 5 estilos de compra na Série D.
+
+## 30. Acabamento das telas no PC e no celular (v55)
+
+- **Placar no celular:** o escudo fica em cima e o nome do clube embaixo, sem quebrar o nome no meio da palavra (jogo ao vivo e resumo).
+- **Média do time (Plantel):** passa a ser a média dos 11 melhores, a mesma da tabela, do mercado e da ordem dos técnicos. Embaixo aparece a posição na divisão (ex.: "7ª da Série D"). A explicação mostra também titulares escalados, reservas e o elenco inteiro.
+- **Aviso de patrocínio:** enquanto o clube não tiver patrocinador, o Plantel mostra um aviso com o botão "Ver ofertas", que abre Finanças.
+- **Explicações no celular:** tocar num item sublinhado mostra a explicação (antes só aparecia com o mouse). Ela some sozinha em 5 segundos ou ao tocar em outro lugar.
+- **Aba "Relatórios de testes":** fica escondida. Para ver, marque "Mostrar a aba de relatórios de testes" na tela inicial (a escolha fica guardada no navegador).
+- **Celular:** abas mais compactas (cabem em 2 linhas) e botões da tela inicial na largura toda.

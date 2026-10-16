@@ -1025,6 +1025,18 @@ body.ro main.page .tabs::after { content: 'Só olhando: você mexe no clube na s
 .dis-wrap { display: inline-flex; }
 .dis-wrap .btn:disabled { pointer-events: none; }
 .meutec td { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+/* v55: placar no celular com escudo em cima e nome embaixo, sem quebrar palavras */
+.placar .tn { overflow-wrap: normal; word-break: normal; hyphens: auto; }
+@media (max-width: 560px) {
+  .placar .tn { flex-direction: column-reverse; align-items: flex-end; text-align: right; font-size: 15px; gap: 4px; }
+  .placar .tn.r { flex-direction: column; align-items: flex-start; text-align: left; }
+  .placar.grande .tn { font-size: 16px; }
+  .tabs > .tabbtn { padding: 7px 10px; font-size: 15px; }
+  .hero .actions .btn { flex: 1 1 100%; }
+}
+.avisopat { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; justify-content: space-between; margin: 0 0 12px; padding: 10px 14px; background: color-mix(in srgb, var(--st-amarelo, #e8b400) 25%, var(--bg)); border-left: 4px solid var(--st-amarelo, #e8b400); font-weight: 600; }
+.avisopat .btn { padding: 6px 12px; font-size: 14px; }
+.reltoggle { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 13px; opacity: .8; cursor: pointer; }
 </style>
 <div id="app"></div>
 <script>
@@ -4579,7 +4591,14 @@ window.ESCUDOS_REAIS = {};
   document.addEventListener('focusin', (e) => { const el = e.target.closest && e.target.closest('[data-tip]'); if (el) mostrar(el); });
   document.addEventListener('focusout', esconder);
   document.addEventListener('scroll', esconder, true);
-  document.addEventListener('click', esconder);
+  // v55: no toque, a explicação aparece ao tocar e some sozinha depois de alguns segundos ou ao tocar em outro lugar
+  let toque = false, tempoTip = 0;
+  document.addEventListener('pointerdown', (e) => { toque = e.pointerType === 'touch' || e.pointerType === 'pen'; }, true);
+  document.addEventListener('click', (e) => {
+    const el = toque && e.target.closest && e.target.closest('[data-tip]');
+    if (el) { mostrar(el); clearTimeout(tempoTip); tempoTip = setTimeout(esconder, 5000); }
+  }, true);
+  document.addEventListener('click', (e) => { if (toque && e.target.closest && e.target.closest('[data-tip]')) return; esconder(); });
 
   // ---------- bandeiras (SVG simples) ----------
   const F = (inner) => '<svg viewBox="0 0 24 16" width="22" height="15" aria-hidden="true">' + inner + '</svg>';
@@ -7503,7 +7522,8 @@ window.ESCUDOS_REAIS = {};
         h('div', { class: 'logo', 'aria-label': 'Kfoot 98' }, h('span', { class: 'k' }, 'Kfoot'), h('span', { class: 'y' }, '98')),
         h('p', { class: 'lead' }, 'Brasil, 1998. Você assume um time na lanterna da Série D e tenta chegar à Libertadores.'),
         h('div', { class: 'actions' }, K.saves && K.saves.lista && Object.keys(K.saves.lista).length ? K.saves.botoesInicio()[0] : null, h('button', { class: 'btn' + (K.saves && Object.keys(K.saves.lista).length ? ' alt' : ''), id: 'novo', onclick: () => ir(2) }, 'Novo jogo'), K.saves ? K.saves.botoesInicio()[1] : null, K.online && K.online.ok ? h('button', { class: 'btn alt', id: 'jogar-online', onclick: () => K.abrirOnline() }, 'Jogar online') : null),
-        h('small', null, 'Gerenciamento de futebol · 4 divisões · 80 clubes'))),
+        h('small', null, 'Gerenciamento de futebol · 4 divisões · 80 clubes'),
+        h('label', { class: 'reltoggle' }, h('input', { type: 'checkbox', id: 'mostrar-relatorios', checked: K.verRelatorios() ? true : null, onchange: (e) => K.verRelatorios(e.target.checked) }), 'Mostrar a aba de relatórios de testes'))),
       h('div', { class: 'ticker' }, h('div', { class: 'wrap' },
         h('span', null, h('b', null, '4'), 'divisões do Brasileirão'), h('span', null, h('b', null, '64'), 'clubes na Copa do Brasil'),
         h('span', null, h('b', null, '4'), 'sobem e 4 descem por ano'), h('span', null, h('b', null, '3'), 'substituições, como em 1998'))));
@@ -7962,8 +7982,11 @@ window.ESCUDOS_REAIS = {};
     G.resumoSel = null; GM.iniciarDia(G.g); K.jogoIniciar(); ir('jogo');
   }
     const ABAS = [['plantel', 'Plantel'], ['escalacao', 'Escalação'], ['tabela', 'Tabela'], ['calendario', 'Calendário'], ['mercado', 'Mercado'], ['financas', 'Finanças'], ['tecnicos', 'Técnicos'], ['relatorios', 'Relatórios de testes']];
+  // v55: relatórios de testes só para quem ligar a opção na tela inicial (fica guardado neste navegador)
+  K.verRelatorios = (v) => { try { if (v !== undefined) localStorage.setItem('kfoot98-relatorios', v ? '1' : '0'); return localStorage.getItem('kfoot98-relatorios') === '1'; } catch (e) { return !!v; } };
   function casa() {
     const c = clubeHumano(), hu = G.humanos[G.ativo], [c1, c2] = c.cores;
+    if (G.aba === 'relatorios' && !K.verRelatorios()) G.aba = 'plantel';
     const conteudo = G.aba === 'escalacao' ? K.telas.escalacao() : G.aba === 'tabela' ? K.telas.tabela() : G.aba === 'financas' ? K.telas.financas() : G.aba === 'mercado' ? K.telas.mercado() : G.aba === 'calendario' ? K.telas.calendario() : G.aba === 'relatorios' ? K.telas.relatorios() : G.aba === 'tecnicos' ? K.telas.tecnicos() : plantel(c);
     return h('main', { class: 'wrap page', style: K.coresClube(c) },
       K.tecnicosBar(),
@@ -7974,7 +7997,7 @@ window.ESCUDOS_REAIS = {};
           h('span', { class: 'faixa', style: 'background:linear-gradient(90deg,' + c1 + ' 50%,' + c2 + ' 50%)' }),
           h('span', { class: 'eyebrow' }, 'Técnico ' + hu.nome + ' · ' + G.g.ano + ' · ' + c.cidade + '/' + c.uf)),
         statusBox(c), K.prontosBox()),
-      h('div', { class: 'tabs', role: 'tablist' }, ABAS.map(([k, t]) => h('button', { class: 'tabbtn' + (G.aba === k ? ' on' : ''), role: 'tab', 'aria-selected': G.aba === k ? 'true' : 'false', onclick: () => { G.aba = k; render(); } }, t))),
+      h('div', { class: 'tabs', role: 'tablist' }, ABAS.filter(([k]) => k !== 'relatorios' || K.verRelatorios()).map(([k, t]) => h('button', { class: 'tabbtn' + (G.aba === k ? ' on' : ''), role: 'tab', 'aria-selected': G.aba === k ? 'true' : 'false', onclick: () => { G.aba = k; render(); } }, t))),
       conteudo);
   }
   K.telas.casa = casa;
@@ -8044,6 +8067,7 @@ window.ESCUDOS_REAIS = {};
     });
     return h('div', { class: 'plantelwrap', style: K.coresClube(c) },
       ro ? null : noticias(),
+      ro ? null : K.avisoPatrocinio(c),
       h('div', { class: 'strip' },
         info('Divisão', K.DIV_NOME[c.div]), estadioInfo(c), info('Caixa', reais(c.caixa)),
         info('Folha mensal', reais(E.folhaMensal(c.elenco))), mediaInfo(c, media, tits), ro ? info('Técnico', K.tecnicoInfo(c)) : [info('Substituições', G.config.maxSubs + ' por jogo'), info('Seu estilo', K.estiloMeu(c)), K.moralTreinadorMini()]),
@@ -8087,10 +8111,17 @@ window.ESCUDOS_REAIS = {};
   function mediaInfo(c, mediaTit, tits) {
     const reservas = c.elenco.filter((p) => !tits.has(p.id)), mr = reservas.length ? reservas.reduce((a, p) => a + PL.overall(p), 0) / reservas.length : 0;
     const geral = c.elenco.reduce((a, p) => a + PL.overall(p), 0) / c.elenco.length;
-    return h('div', { class: 'dica', tabindex: 0, 'data-tip': 'Média do time titular: ' + mediaTit.toFixed(1) + ' · Média dos reservas: ' + mr.toFixed(1) + ' (' + reservas.length + ' jogadores).' }, h('small', null, 'Média do time'), h('b', null, geral.toFixed(1)));
+    // v55: a média do time é a dos 11 melhores, a mesma usada na tabela, no mercado e na ordem dos técnicos
+    const m11 = (x) => { const l = x.elenco.map((p) => PL.overall(p)).sort((a, b) => b - a).slice(0, 11); return l.length ? l.reduce((a, v) => a + v, 0) / l.length : 0; };
+    const meu = m11(c), pares = G.g.clubes.filter((x) => x.div === c.div), pos = 1 + pares.filter((x) => x !== c && m11(x) > meu).length;
+    return h('div', { class: 'dica', tabindex: 0, 'data-tip': 'Média dos 11 melhores jogadores: ' + meu.toFixed(1) + ' (' + pos + 'ª de ' + pares.length + ' na ' + K.DIV_NOME[c.div] + ') · Titulares escalados: ' + mediaTit.toFixed(1) + ' · Reservas: ' + mr.toFixed(1) + ' (' + reservas.length + ' jogadores) · Elenco inteiro: ' + geral.toFixed(1) + '.' }, h('small', null, 'Média do time'), h('b', null, meu.toFixed(1)), h('small', null, pos + 'ª da ' + K.DIV_NOME[c.div]));
   }
   function selecionar(id, key = 'sel') { G[key] = id; const q = () => document.querySelector('.plantel .tablewrap'), w = q(), x = w ? w.scrollLeft : 0, t = w ? w.scrollTop : 0, y = window.scrollY; render(); const w2 = q(); if (w2) { w2.scrollLeft = x; w2.scrollTop = t; } window.scrollTo(0, y); }
   K.plantelGenerico = plantel;
+  // v55: o clube começa sem patrocinador; aviso no Plantel até fechar o primeiro contrato
+  K.avisoPatrocinio = (c) => (c.patrocinadores || []).some((x) => !x.extra) ? null : h('div', { class: 'avisopat', role: 'status' },
+    h('span', null, 'Seu clube ainda não tem patrocinador. Há ofertas esperando em Finanças.'),
+    h('button', { class: 'btn', id: 'ver-patrocinio', onclick: () => { G.aba = 'financas'; render(); window.scrollTo(0, 0); } }, 'Ver ofertas'));
   function painel(c, p, ro) {
     const encaixes = K.ORDEM_POS.map((pos) => [pos, Math.round(PL.ovrNoSlot(p, pos))]).sort((a, b) => b[1] - a[1]).slice(0, 4);
     const renova = MK.podeRenovar(G.g, p), [st] = situacao(p);
