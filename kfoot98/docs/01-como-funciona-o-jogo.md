@@ -99,7 +99,7 @@ Média no slot = média da posição do slot × afinidade. Natural: 1,00; posiç
 - **Lesão** (🔶 v42: o lesionado perde atributos, seção 18): risco por minuto 0,000062 × fator (1,85 − FIS/65, entre 0,5 e 1,6).
 - **Cartões**: 3 amarelos = 1 jogo de suspensão. 🔶 v33 **Vermelho**: o 2º amarelo no mesmo jogo rende 1 jogo de suspensão; o vermelho direto rende de 1 a 3 jogos conforme a gravidade da falta (sorteio: 20% 1 jogo, 50% 2 jogos, 30% 3 jogos; jogador de disciplina muito ruim: 10%, 40%, 50%; de disciplina boa: 35%, 50%, 15%). O lance mostra "suspenso por N jogos" e a situação do jogador mostra "SUSP N" (jogos que faltam), valendo para liga e Copa.
 - **Evolução** (🔶 v42: mais a evolução dinâmica pelo momento do time, seção 18): pelo desempenho em campo (nota), idade e moral; retorno decrescente em atributos altos. Treinos e prêmios de fim de ano somam pontos (nada acima de 87 nos prêmios).
-- **Contrato** (🔶 v53, seção 28): salário = valor sem idade × curva de idade do salário × 0,0117, com piso por série (D R$ 700; C, B e A R$ 900) e subida suave perto do piso; renovação nos últimos 3 meses. Garotos das categorias de base ganham 70% do piso da série do clube (D R$ 490, demais R$ 630).
+- **Contrato** (🔶 v53, seção 28): salário = valor sem idade × curva de idade do salário × 0,014 (🔶 v54; antes 0,0117), com piso por série (D R$ 700; C, B e A R$ 900) e subida suave perto do piso; renovação nos últimos 3 meses. Garotos das categorias de base ganham 70% do piso da série do clube (D R$ 490, demais R$ 630).
 
 ### 4.5 Valor de mercado
 **Valor base**: 17.000 × e^((média − 40) × 0,14) × fator de idade (🔶 v53: curva com auge de 25 a 30 anos, seção 28) × fator da posição, arredondado a R$ 1.000. Exemplo para o mesmo jogador: média 60 ≈ R$ 294 mil; 70 ≈ R$ 1,2 mi; 80 ≈ R$ 4,8 mi. O salário (0,0117 do valor) continua saindo deste valor base.
@@ -542,7 +542,7 @@ No site do jogo no GitHub (https://kk-holanda.github.io/Primeiro/kfoot98/), o "J
 ## 28. Salários e valores com auge de 25 a 30 anos (v53)
 Pedido do KK sobre o relatório 27 (propostas P2, P3, P4 e P5).
 - **Folha de 12 meses (P2):** todos os clubes pagam salário todos os dias, jogando ou não. Antes só pagava quem jogava no dia, e o ano cobrava de 9 a 11 meses de folha.
-- **Piso por série (P3):** Série D R$ 700/mês; C, B e A R$ 900/mês. Perto do piso o salário sobe aos poucos: salário = o maior entre o piso, 1,17% do valor e (80% do piso + 40% de 1,17% do valor), arredondado a R$ 50. Assim um jogador de média 44 ganha mais que um de média 35, mesmo os dois perto do piso.
+- **Piso por série (P3):** Série D R$ 700/mês; C, B e A R$ 900/mês. Perto do piso o salário sobe aos poucos: salário = o maior entre o piso, 1,4% do valor (v54; na v53 era 1,17%) e (80% do piso + 40% de 1,4% do valor), arredondado a R$ 50. Assim um jogador de média 44 ganha mais que um de média 35, mesmo os dois perto do piso.
 - **Base ligada ao piso (P4):** garoto da base ganha 70% do piso da série do clube que o contrata (D R$ 490, demais R$ 630), contrato de 24 meses.
 - **Auge de 25 a 30 anos (P5):** o valor e o salário ficam no máximo de 25 a 30 anos. Fora dessa faixa caem aos poucos, e a queda do salário é mais suave que a do valor.
 
@@ -555,3 +555,8 @@ Pedido do KK sobre o relatório 27 (propostas P2, P3, P4 e P5).
 - **Características continuam no preço:** estrela +15%, Promessa +10%, outras características +8%, cada artilharia +8% (até +24%).
 - **Desempenho no preço:** além da nota de desempenho da temporada passada (seção 4.5), quem jogou 8 jogos ou mais na temporada passada ganha até +25% pelos gols e assistências por jogo (0,35 × gols por jogo + 0,30 × assistências por jogo; goleiro não entra). Na temporada atual, com 3 jogos ou mais, as assistências somam +1,2% cada (até +15%), além da nota e dos gols de antes.
 - O salário pedido por livres, base e nas renovações usa o piso da série do clube que está contratando ou renovando.
+
+## 29. Salário a 1,4% e veterano pechincha (v54)
+- **Salário = 1,4% do valor ao mês** (antes 1,17%), com o piso por série, a base com 70% do piso e as curvas de idade da seção 28.
+- **Compras do computador:** um jogador de 30 a 34 anos que custa menos que um jogador no auge com a mesma média é tratado como pechincha (até 2 pontos a mais na escolha). Com isso o computador pode comprá-lo mesmo melhorando o time em só 1 ponto. O computador continua comprando muitos garotos, que estão mais baratos, e passa a levar veteranos quando o preço compensa (26% das compras, antes 22%).
+- Relatório 29 traz a comparação de 5 estilos de compra na Série D.
