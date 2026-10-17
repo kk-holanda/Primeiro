@@ -569,3 +569,12 @@ Pedido do KK sobre o relatório 27 (propostas P2, P3, P4 e P5).
 - **Explicações no celular:** tocar num item sublinhado mostra a explicação (antes só aparecia com o mouse). Ela some sozinha em 5 segundos ou ao tocar em outro lugar.
 - **Aba "Relatórios de testes":** fica escondida. Para ver, marque "Mostrar a aba de relatórios de testes" na tela inicial (a escolha fica guardada no navegador).
 - **Celular:** abas mais compactas (cabem em 2 linhas) e botões da tela inicial na largura toda.
+
+## 31. Piso de perda na Série D (v56)
+
+- Na Série D não há para onde cair, então o fundo da tabela não pode virar um buraco sem fim.
+- Depois da 3ª rodada, **os 4 últimos da Série D não perdem atributos por resultado** (derrota não tira nada). Do **5º ao 8º de baixo para cima, a perda cai pela metade**.
+- O ganho continua igual: vitória, empate contra time mais forte e zebra na Copa dão atributos normalmente, então dá para reagir.
+- A idade continua valendo: o veterano segue caindo com o tempo.
+- Vale para o computador e para o humano, nos jogos de liga e de Copa, pela posição na tabela da Série D.
+- Medido no relatório 32 (seção 4): em 4 mundos × 4 anos, o pior time da D terminou o 4º ano com 49,5 de média (antes 43,2), o lanterna fez 23,5 pontos (antes 20,8) e os 4 últimos passaram a subir 1 ponto de média por ano (antes caíam 0,65).

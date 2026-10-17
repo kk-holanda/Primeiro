@@ -47,3 +47,20 @@ A média da D sobe de 51,8 para 55,3 e o melhor de 57,7 para 61,8, mas o pior fi
 5. **Técnico novo no lanterna.** O computador troca o técnico do clube que está muito mal, com um "efeito técnico novo" na moral. Depende da demissão de técnicos, que você tinha adiado.
 
 Minha sugestão: 1 e 2 juntas (mexem só na evolução, sem dinheiro), e depois medir de novo com 8 mundos × 8 anos.
+
+## 4. Medição da v56 (piso de perda, pedido do KK em 2026-10-17)
+
+Regra: só na Série D, depois da 3ª rodada; 4 últimos sem perda por resultado, 5º ao 8º de baixo com metade da perda; ganho e idade iguais.
+Teste curto: mundos 1 a 4, 4 temporadas, mesmos mundos da v54, sem os clubes do técnico de teste (`scripts-32/cmp56.py`).
+
+| | v54 | v56 |
+|---|---|---|
+| Pior média da D no fim do 4º ano | 43,2 | 49,5 |
+| Pontos do lanterna (4º ano) | 20,8 | 23,5 |
+| Média dos 4 últimos no ano | −0,65 | +1,01 |
+| Jogadores no auge / veteranos dos 4 últimos | −0,8 / −1,3 | +0,5 / −0,1 |
+| 3 últimos que seguem entre os 4 últimos no ano seguinte | 46% | 32% |
+| Média da D no fim do 4º ano | 54,2 | 55,0 |
+| Média da Série A | 75,5 | 75,6 |
+
+O fundo deixa de afundar e passa a se recuperar devagar. O topo da D não muda. A média da D sobe 0,8, sem efeito nas outras séries.
