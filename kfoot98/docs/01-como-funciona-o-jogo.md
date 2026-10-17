@@ -578,3 +578,9 @@ Pedido do KK sobre o relatório 27 (propostas P2, P3, P4 e P5).
 - A idade continua valendo: o veterano segue caindo com o tempo.
 - Vale para o computador e para o humano, nos jogos de liga e de Copa, pela posição na tabela da Série D.
 - Medido no relatório 32 (seção 4): em 4 mundos × 4 anos, o pior time da D terminou o 4º ano com 49,5 de média (antes 43,2), o lanterna fez 23,5 pontos (antes 20,8) e os 4 últimos passaram a subir 1 ponto de média por ano (antes caíam 0,65).
+
+## 32. Celular mais enxuto e vírgula nos números (v57)
+
+- **Topo do clube no celular:** o quadro do lado do nome mostra só o próximo jogo e o botão de jogar (a data de hoje e os últimos jogos continuam no PC). O nome do clube ficou um pouco menor.
+- **Abas presas no alto:** no celular, ao rolar a tela, as abas (Plantel, Escalação, Tabela...) ficam fixas no topo.
+- **Vírgula decimal:** médias, notas dos jogadores e demais números com casa decimal aparecem com vírgula (ex.: 43,8), em todas as telas.

@@ -1037,6 +1037,17 @@ body.ro main.page .tabs::after { content: 'Só olhando: você mexe no clube na s
 .avisopat { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; justify-content: space-between; margin: 0 0 12px; padding: 10px 14px; background: color-mix(in srgb, var(--st-amarelo, #e8b400) 25%, var(--bg)); border-left: 4px solid var(--st-amarelo, #e8b400); font-weight: 600; }
 .avisopat .btn { padding: 6px 12px; font-size: 14px; }
 .reltoggle { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 13px; opacity: .8; cursor: pointer; }
+/* v57: celular: topo do clube compacto (só próximo jogo + botão) e abas presas no alto ao rolar */
+@media (max-width: 560px) {
+  .clubhead .clubtitle h2 { font-size: 24px; }
+  .clubhead .eyebrow { font-size: 11px; }
+  .gamehead { gap: 8px; }
+  .gamehead .status { padding: 8px 12px; gap: 6px; flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+  .gamehead .status .srow:first-child, .gamehead .status .srow:nth-child(3) { display: none; }
+  .gamehead .status .srow { grid-template-columns: minmax(0, 1fr); gap: 2px; flex: 1 1 200px; font-size: 14px; }
+  .gamehead .status .btn { padding: 8px 14px; font-size: 15px; }
+  .page > .tabs { position: sticky; top: 0; z-index: 20; background: var(--bg); margin-left: -16px; margin-right: -16px; padding: 0 16px; }
+}
 </style>
 <div id="app"></div>
 <script>
@@ -5384,7 +5395,7 @@ window.ESCUDOS_REAIS = {};
     add('Cruzamentos', t.cruz - 1, true); if (Math.abs(t.aereo) >= 0.5) l.push(['Jogo aéreo ' + (t.aereo > 0 ? '+' : '−') + Math.abs(t.aereo).toFixed(1).replace('.', ',') + ' pts', t.aereo > 0 ? 'hi' : 'bad']);
     if (t.fecha >= 0.005) l.push(['Adversário finaliza menos −' + (t.fecha * 100).toFixed(1).replace('.', ',') + ' pts', 'hi']);
     if (t.contraK >= 0.02) l.push(['Contra-ataque forte quando o rival se expõe', 'hi']);
-    if (t.offs >= 0.01) l.push(['Impedimentos provocados (até ' + (t.offs * 100).toFixed(0) + '% dos ataques rivais)', 'hi']);
+    if (t.offs >= 0.01) l.push(['Impedimentos provocados (até ' + (t.offs * 100).toFixed(0).replace('.', ',') + '% dos ataques rivais)', 'hi']);
     if (t.costas >= 0.1) l.push(['Bola nas costas: risco contra atacante veloz', 'bad']);
     if (t.fad > 1.03) l.push(['Gasto de energia ' + pc(t.fad - 1), 'bad']);
     if (t.faltas > 1.03) l.push(['Mais faltas e cartões ' + pc(t.faltas - 1), 'bad']);
@@ -5583,8 +5594,8 @@ window.ESCUDOS_REAIS = {};
       cfg.deJogo ? h('p', { class: 'footnote' }, 'Escalação padrão: a do último jogo (contra ' + K.nomeClube(cfg.deJogo.adv) + ', ' + GM.fmtDataCurta(cfg.deJogo.data) + '). Jogadores lesionados, suspensos ou em treino são trocados automaticamente.') : null,
       h('p', { class: 'escmsg', role: 'status' }, msg || (sel != null ? 'Posição ' + slotSel + ' escolhida. Clique em um jogador da lista para colocá-lo.' : 'Clique em uma posição no campo e depois em um jogador da lista. Qualquer jogador pode jogar em qualquer posição, mas rende menos fora da sua.')),
       h('div', { class: 'escgrid' },
-        h('div', { class: 'campocol' }, h('div', { class: 'mediatopo' }, h('small', null, 'Média do time'), h('b', { class: 'num' }, media.toFixed(1)), fora ? h('span', { class: 'warn' }, fora + ' jogador(es) fora de posição') : null), campo,
-          h('p', { class: 'footnote' }, 'Média do time nesta escalação: ', h('b', null, media.toFixed(1)), fora ? ' · ' + fora + ' jogador(es) fora de posição' : ''),
+        h('div', { class: 'campocol' }, h('div', { class: 'mediatopo' }, h('small', null, 'Média do time'), h('b', { class: 'num' }, media.toFixed(1).replace('.', ',')), fora ? h('span', { class: 'warn' }, fora + ' jogador(es) fora de posição') : null), campo,
+          h('p', { class: 'footnote' }, 'Média do time nesta escalação: ', h('b', null, media.toFixed(1).replace('.', ',')), fora ? ' · ' + fora + ' jogador(es) fora de posição' : ''),
           h('p', { class: 'footnote legenda' }, h('b', null, 'Como ler: '), 'a faixa de cima é a posição em que o jogador joga e o número da camisa. "Média da Posição" é a nota dele nessa posição (cai se jogar fora da natural). E = stamina e M = moral. ▲ ▼ mostram se o estilo avança ou recua o jogador.')),
         h('div', { class: 'tablewrap lista' }, h('table', { 'aria-label': 'Elenco' },
           h('thead', null, h('tr', null, [['Nº'], ['Jogador'], ['Pos'], [sel != null ? 'Méd ' + slotSel : 'Méd', K.TIPS.media], ...K.ATTRS.map((a) => [K.ATTR_SIGLA[a], K.TIPS[a]]), ['Stamina', K.TIPS.stamina], ['Moral', K.TIPS.moral], ['Sit.', K.TIPS.sit]].map(([t, tip], i) => h('th', { class: i === 1 ? 'l' : '', style: 'cursor:default', 'data-tip': tip || false }, t)))),
@@ -6190,7 +6201,7 @@ window.ESCUDOS_REAIS = {};
         h('thead', null, h('tr', null, ['Nº', 'Jogador', 'Pos', 'Min', 'Nota', 'Gols', 'Ass', 'Des', 'Def', 'Falt', 'Chut', 'Pas', 'Stam', 'Cart', eu ? 'Evolução' : null, eu ? 'Média' : null, eu ? 'Moral' : null].filter(Boolean).map((t, i) => h('th', { class: i === 1 ? 'l' : '', style: 'cursor:default', 'data-tip': t === 'Des' ? 'Desarmes certos' : t === 'Def' ? 'Defesas do goleiro' : t === 'Ass' ? 'Assistências' : t === 'Falt' ? 'Faltas cometidas' : t === 'Chut' ? 'Chutes ao gol / chutes totais do jogador' : t === 'Pas' ? 'Passes certos / passes tentados' : t === 'Stam' ? 'Stamina com que o jogador terminou a partida' : false }, t)))),
         h('tbody', null, ord.map((d) => h('tr', null,
           h('td', null, d.num), h('td', { class: 'l nm' }, d.nome), h('td', { class: 'pos' }, d.slot), h('td', null, d.minutos),
-          h('td', null, h('span', { class: 'nota ' + notaCls(d.nota) }, d.nota.toFixed(1))),
+          h('td', null, h('span', { class: 'nota ' + notaCls(d.nota) }, d.nota.toFixed(1).replace('.', ','))),
           h('td', null, d.g || '·'), h('td', null, d.ast || '·'), h('td', null, d.desarmes || '·'), h('td', null, d.defesas || '·'), h('td', null, d.faltas || '·'), h('td', { 'data-tip': (d.noGol || 0) + ' no gol em ' + (d.chutes || 0) + ' chute(s)' }, d.chutes ? (d.noGol || 0) + '/' + d.chutes : '·'), h('td', { class: 'num', 'data-tip': d.pt ? Math.round(100 * d.pc / d.pt) + '% de acerto' : false }, d.pt ? d.pc + '/' + d.pt : '·'), h('td', { class: 'num ' + (d.stamina < 50 ? 'bad' : d.stamina < 75 ? 'warn' : ''), 'data-tip': 'Terminou com ' + Math.round(d.stamina) + '% de stamina' }, Math.round(d.stamina) + '%'), h('td', null, cartoes(d)),
           eu ? h('td', { class: 'evol' }, resumoMud(d.mudancas) || '·') : null,
           eu ? (() => { const dd = d.ovrAntes != null ? Math.round((d.ovrDepois - d.ovrAntes) * 10) / 10 : 0; return h('td', { class: 'num ' + (dd > 0 ? 'hi' : dd < 0 ? 'bad' : 'lo'), 'data-tip': d.ovrAntes != null ? 'Média antes do jogo ' + String(d.ovrAntes).replace('.', ',') + ', depois ' + String(d.ovrDepois).replace('.', ',') + ' (desempenho, resultado do time, tabela, técnico' + (d.lesao ? ', lesão' : '') + ').' : false }, dd ? K.dec1(dd) : '0'); })() : null,
@@ -6279,7 +6290,7 @@ window.ESCUDOS_REAIS = {};
         : R.jogo.comp === 'copa' ? h('p', { class: 'copainfo' }, 'Jogo de ida. A volta será na casa de ' + nome(R.jogo.confronto.b) + '.') : null,
       h('div', { class: 'resgrid' },
         h('div', { class: 'card' }, h('h3', null, 'Estatísticas'), linha('Posse de bola', st[0].posse + '%', st[1].posse + '%'), linha('Chutes', st[0].chutes, st[1].chutes), linha('Chutes no gol', st[0].no_gol, st[1].no_gol), linha('Escanteios', st[0].escanteios || 0, st[1].escanteios || 0), linha('Impedimentos', st[0].imp || 0, st[1].imp || 0), linha('Laterais', st[0].laterais || 0, st[1].laterais || 0), linha('Tiros de meta', st[0].tirosMeta || 0, st[1].tirosMeta || 0), linha('Posse no campo de ataque', ((t) => t ? Math.round(t[2] / (t[0] + t[1] + t[2] || 1) * 100) + '%' : '—')(st[0].terco), ((t) => t ? Math.round(t[2] / (t[0] + t[1] + t[2] || 1) * 100) + '%' : '—')(st[1].terco)), linha('Faltas', st[0].faltas, st[1].faltas), linha('Amarelos', st[0].amarelos, st[1].amarelos), linha('Vermelhos', st[0].vermelhos, st[1].vermelhos),
-          h('p', { class: 'muted' }, 'Craque do jogo: ', h('b', null, melhor.nome + ' (' + melhor.nota.toFixed(1) + ')'), ' · ganhou +10 de moral')),
+          h('p', { class: 'muted' }, 'Craque do jogo: ', h('b', null, melhor.nome + ' (' + melhor.nota.toFixed(1).replace('.', ',') + ')'), ' · ganhou +10 de moral')),
         h('div', { class: 'card' }, h('h3', null, 'Lances'), feed),
         !neutro && R.humano[lado] ? balanco(R.financas[lado], lado === 0) : null),
       neutro ? [tabelaNotas(R.detalhes[0], R.casaNome, false), tabelaNotas(R.detalhes[1], R.foraNome, false)]
@@ -8124,7 +8135,7 @@ window.ESCUDOS_REAIS = {};
     // v55: a média do time é a dos 11 melhores, a mesma usada na tabela, no mercado e na ordem dos técnicos
     const m11 = (x) => { const l = x.elenco.map((p) => PL.overall(p)).sort((a, b) => b - a).slice(0, 11); return l.length ? l.reduce((a, v) => a + v, 0) / l.length : 0; };
     const meu = m11(c), pares = G.g.clubes.filter((x) => x.div === c.div), pos = 1 + pares.filter((x) => x !== c && m11(x) > meu).length;
-    return h('div', { class: 'dica', tabindex: 0, 'data-tip': 'Média dos 11 melhores jogadores: ' + meu.toFixed(1) + ' (' + pos + 'ª de ' + pares.length + ' na ' + K.DIV_NOME[c.div] + ') · Titulares escalados: ' + mediaTit.toFixed(1) + ' · Reservas: ' + mr.toFixed(1) + ' (' + reservas.length + ' jogadores) · Elenco inteiro: ' + geral.toFixed(1) + '.' }, h('small', null, 'Média do time'), h('b', null, meu.toFixed(1)), h('small', null, pos + 'ª da ' + K.DIV_NOME[c.div]));
+    return h('div', { class: 'dica', tabindex: 0, 'data-tip': 'Média dos 11 melhores jogadores: ' + meu.toFixed(1).replace('.', ',') + ' (' + pos + 'ª de ' + pares.length + ' na ' + K.DIV_NOME[c.div] + ') · Titulares escalados: ' + mediaTit.toFixed(1).replace('.', ',') + ' · Reservas: ' + mr.toFixed(1).replace('.', ',') + ' (' + reservas.length + ' jogadores) · Elenco inteiro: ' + geral.toFixed(1).replace('.', ',') + '.' }, h('small', null, 'Média do time'), h('b', null, meu.toFixed(1).replace('.', ',')), h('small', null, pos + 'ª da ' + K.DIV_NOME[c.div]));
   }
   function selecionar(id, key = 'sel') { G[key] = id; const q = () => document.querySelector('.plantel .tablewrap'), w = q(), x = w ? w.scrollLeft : 0, t = w ? w.scrollTop : 0, y = window.scrollY; render(); const w2 = q(); if (w2) { w2.scrollLeft = x; w2.scrollTop = t; } window.scrollTo(0, y); }
   K.plantelGenerico = plantel;
