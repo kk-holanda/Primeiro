@@ -1048,6 +1048,28 @@ body.ro main.page .tabs::after { content: 'Só olhando: você mexe no clube na s
   .gamehead .status .btn { padding: 8px 14px; font-size: 15px; }
   .page > .tabs { position: sticky; top: 0; z-index: 20; background: var(--bg); margin-left: -16px; margin-right: -16px; padding: 0 16px; }
 }
+/* v58: celular */
+@media (max-width: 560px) {
+  /* Plantel: só Nº, Jogador, Pos, Méd e Stamina; ao tocar, o cartão do jogador (logo abaixo da lista) mostra tudo */
+  .plantel .tablewrap table th:nth-child(3), .plantel .tablewrap table td:nth-child(3),
+  .plantel .tablewrap table th:nth-child(5), .plantel .tablewrap table td:nth-child(5),
+  .plantel .tablewrap table th:nth-child(n+7):not(:nth-child(15)), .plantel .tablewrap table td:nth-child(n+7):not(:nth-child(15)) { display: none; }
+  .plantel .tablewrap table tr.sep td { display: table-cell; }
+  .plantel .tablewrap { max-height: 60vh; }
+  .plantel .tablewrap .altpos { display: none; }
+  .plantel .tablewrap .bar { width: 40px; }
+  .plantel > :last-child { scroll-margin-top: 110px; }
+  /* Classificação: sem GP, GC e aproveitamento; sem o nome do técnico embaixo do clube */
+  table.liga th:nth-child(8), table.liga td:nth-child(8), table.liga th:nth-child(9), table.liga td:nth-child(9),
+  table.liga th:nth-child(11), table.liga td:nth-child(11) { display: none; }
+  table.liga .tec-tag { display: none; }
+  table.liga td, table.liga th { padding-left: 5px; padding-right: 5px; }
+  /* partida: Pausar + velocidade numa linha; som, pular e substituições na outra */
+  .jctrl .jplay { min-width: 0; flex: 1 1 7em; }
+  .jctrl .seg button { padding: 5px 8px; }
+  .jctrl .btn.sm { flex: 1 1 auto; }
+  .jbar > .clock { font-size: 34px; }
+}
 </style>
 <div id="app"></div>
 <script>
@@ -8094,7 +8116,7 @@ window.ESCUDOS_REAIS = {};
         info('Folha mensal', reais(E.folhaMensal(c.elenco))), mediaInfo(c, media, tits), ro ? info('Técnico', K.tecnicoInfo(c)) : [info('Substituições', G.config.maxSubs + ' por jogo'), info('Seu estilo', K.estiloMeu(c)), K.moralTreinadorMini()]),
       ro ? null : K.vestiarioBox(c),
       ro ? null : evoTime(c),
-      ro ? null : h('p', { class: 'footnote legenda-topo' }, h('span', { class: 'tit', html: JOGADORINHO }), 'Titular na escalação atual. ', K.estrela(), ' Estrela. Clique em um jogador para ver os detalhes e no título de uma coluna para ordenar. Passe o mouse no nome para ver gols, faltas e cartões.'),
+      ro ? null : h('p', { class: 'footnote legenda-topo' }, h('span', { class: 'tit', html: JOGADORINHO }), 'Titular na escalação atual. ', K.estrela(), ' Estrela. Clique (no celular, toque) em um jogador para ver os detalhes e no título de uma coluna para ordenar. Passe o mouse no nome para ver gols, faltas e cartões.'),
       h('div', { class: 'plantel' },
         h('div', { class: 'tablewrap' }, h('table', { 'aria-label': 'Plantel de ' + c.nome }, h('thead', null, h('tr', null, ths)), h('tbody', null, linhas))),
         painel(c, c.elenco.find((p) => p.id === G[selKey]), ro)));
@@ -8137,7 +8159,7 @@ window.ESCUDOS_REAIS = {};
     const meu = m11(c), pares = G.g.clubes.filter((x) => x.div === c.div), pos = 1 + pares.filter((x) => x !== c && m11(x) > meu).length;
     return h('div', { class: 'dica', tabindex: 0, 'data-tip': 'Média dos 11 melhores jogadores: ' + meu.toFixed(1).replace('.', ',') + ' (' + pos + 'ª de ' + pares.length + ' na ' + K.DIV_NOME[c.div] + ') · Titulares escalados: ' + mediaTit.toFixed(1).replace('.', ',') + ' · Reservas: ' + mr.toFixed(1).replace('.', ',') + ' (' + reservas.length + ' jogadores) · Elenco inteiro: ' + geral.toFixed(1).replace('.', ',') + '.' }, h('small', null, 'Média do time'), h('b', null, meu.toFixed(1).replace('.', ',')), h('small', null, pos + 'ª da ' + K.DIV_NOME[c.div]));
   }
-  function selecionar(id, key = 'sel') { G[key] = id; const q = () => document.querySelector('.plantel .tablewrap'), w = q(), x = w ? w.scrollLeft : 0, t = w ? w.scrollTop : 0, y = window.scrollY; render(); const w2 = q(); if (w2) { w2.scrollLeft = x; w2.scrollTop = t; } window.scrollTo(0, y); }
+  function selecionar(id, key = 'sel') { G[key] = id; const q = () => document.querySelector('.plantel .tablewrap'), w = q(), x = w ? w.scrollLeft : 0, t = w ? w.scrollTop : 0, y = window.scrollY; render(); const w2 = q(); if (w2) { w2.scrollLeft = x; w2.scrollTop = t; } window.scrollTo(0, y); if (window.innerWidth <= 560) { const pn = document.querySelector('.plantel > :last-child'); if (pn) pn.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }
   K.plantelGenerico = plantel;
   // v55: o clube começa sem patrocinador; aviso no Plantel até fechar o primeiro contrato
   K.avisoPatrocinio = (c) => (c.patrocinadores || []).some((x) => !x.extra) ? null : h('div', { class: 'avisopat', role: 'status' },

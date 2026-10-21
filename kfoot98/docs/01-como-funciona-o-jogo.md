@@ -584,3 +584,9 @@ Pedido do KK sobre o relatório 27 (propostas P2, P3, P4 e P5).
 - **Topo do clube no celular:** o quadro do lado do nome mostra só o próximo jogo e o botão de jogar (a data de hoje e os últimos jogos continuam no PC). O nome do clube ficou um pouco menor.
 - **Abas presas no alto:** no celular, ao rolar a tela, as abas (Plantel, Escalação, Tabela...) ficam fixas no topo.
 - **Vírgula decimal:** médias, notas dos jogadores e demais números com casa decimal aparecem com vírgula (ex.: 43,8), em todas as telas.
+
+## 33. Plantel, classificação e partida no celular (v58)
+
+- **Plantel no celular:** a lista mostra só Nº, jogador, posição, média e stamina. Ao tocar num jogador, a tela desce até o cartão dele, logo abaixo da lista, com todos os atributos, contrato, salário e valor.
+- **Classificação no celular:** cabe inteira na tela (#, clube, P, J, V, E, D e saldo). Gols pró, gols contra, aproveitamento e o nome do técnico continuam no PC.
+- **Partida no celular:** os controles ficam em 2 linhas: Pausar e velocidade na primeira; som, pular para o fim e substituições na segunda.
